@@ -1,0 +1,24 @@
+input[type="number"] {
+    text-align: center;
+    width: 80px;
+    border: solid 1px #000;
+}
+
+select {
+    border: solid 1px #000;
+}
+
+input.btn--orange {
+    width: 200px;
+    font-size: 30px;
+    color: #fff;
+    background-color: #149f14;
+}
+input.btn--orange:hover {
+    color: #fff;
+    background: #149f14;
+}
+
+input.btn--radius {
+    border-radius: 100vh;
+}

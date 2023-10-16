@@ -1,6 +1,15 @@
+header {
+    background-color: #149f14;
+    height: 50px;
+    text-align: center;
+    color: #fff;
+    font-size: 30px;
+    font-weight: bold;
+}
+
 input[type="number"] {
     text-align: center;
-    width: 80px;
+    width: 64px;
     border: solid 1px #000;
 }
 
@@ -8,17 +17,33 @@ select {
     border: solid 1px #000;
 }
 
-input.btn--orange {
+input.btn {
     width: 200px;
     font-size: 30px;
     color: #fff;
     background-color: #149f14;
 }
-input.btn--orange:hover {
+input.btn {
     color: #fff;
     background: #149f14;
 }
 
-input.btn--radius {
+input.btn {
     border-radius: 100vh;
+}
+
+table td {
+    border: 1px solid #000;
+}
+
+table td.kind {
+    background-color: #CCC;
+    width: 80px;
+}
+table td.type {
+    width: 180px;
+}
+
+select {
+    width: 120px;
 }

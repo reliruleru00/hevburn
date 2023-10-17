@@ -44,6 +44,11 @@ table td.type {
     width: 180px;
 }
 
-select {
-    width: 120px;
+select.buff,
+select.debuff {
+    width: 200px;
+}
+
+.lv {
+    width: 42px;
 }

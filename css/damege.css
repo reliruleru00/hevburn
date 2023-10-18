@@ -7,9 +7,20 @@ header {
     font-weight: bold;
 }
 
+:disabled {
+    border-color: #FFF;
+}
+
+select.jewel_type{
+    width: 24px;
+}
+select.jewel_lv{
+    width: 40px;
+}
+
 input[type="number"] {
     text-align: center;
-    width: 64px;
+    width: 60px;
     border: solid 1px #000;
 }
 
@@ -46,7 +57,7 @@ table td.type {
 
 select.buff,
 select.debuff {
-    width: 200px;
+    width: 300px;
 }
 
 .lv {

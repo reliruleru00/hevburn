@@ -9,23 +9,17 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="js/chara_name.js"></script>
+  <script src="js/chara_style.js"></script>
   <script>
 
-    var chara_list = [
-{"style_id":1,"style_name":"黎明のエモーショナル・ソウル","chara_id":1,"chara_name":"茅森　月歌","image_url":"RKayamoriDefault_R3a_Thumbnail.webp","troops":"31A","role":1,"type":1,"element":1,"ability1":1,"ability2":1},
-{"style_id":2,"style_name":"終いのSpitfire","chara_id":2,"chara_name":"和泉　ユキ","image_url":"YIzumiDefault_R3_Thumbnail.webp","troops":"31A","role":2,"type":2,"element":0,"ability1":1,"ability2":1},
-{"style_id":3,"style_name":"Ikki Burst Strike","chara_id":3,"chara_name":"逢川　めぐみ","image_url":"MAikawaDefault_R3_Thumbnail.webp","troops":"31A","role":5,"type":3,"element":0,"ability1":1,"ability2":1},
-{"style_id":4,"style_name":"メメント・モリの美少女","chara_id":4,"chara_name":"東上　つかさ","image_url":"TTojoDefault_R3_Thumbnail.webp","troops":"31A","role":4,"type":2,"element":1,"ability1":1,"ability2":1},
-{"style_id":5,"style_name":"紅蓮月華のKillrazor","chara_id":5,"chara_name":"朝倉　可憐","image_url":"KarenDefault_R3_Thumbnail.webp","troops":"31A","role":3,"type":1,"element":0,"ability1":1,"ability2":1},
-{"style_id":6,"style_name":"気合一閃エンジェルセイラー","chara_id":6,"chara_name":"國見　タマ","image_url":"TKunimiDefault_R3_Thumbnail.webp","troops":"31A","role":6,"type":1,"element":0,"ability1":1,"ability2":1}];
     var skill_attack = [
-{"attack_id":1,"attack_name":"夢幻泡影","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"attack_type":1,"attack_element":0,"min_power":1602.00,"max_power":8010.00,"hit_count":9,"destruction":2.750,"sp_cost":12,"param_limit":138,"hp_damege":30,"dp_damege":0,"max_lv":14},
-{"attack_id":2,"attack_name":"星火燎原","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"attack_type":1,"attack_element":1,"min_power":2502.00,"max_power":12510.00,"hit_count":2,"destruction":3.5,"sp_cost":14,"param_limit":147,"hp_damege":30,"dp_damege":0,"max_lv":14},
-{"attack_id":3,"attack_name":"流星","chara_id":2,"style_id":0,"ref_status_1":2,"ref_status_2":1,"attack_type":2,"attack_element":0,"min_power":1671.00,"max_power":8355.00,"hit_count":1,"destruction":2.6,"sp_cost":11,"param_limit":144,"hp_damege":0,"dp_damege":30,"max_lv":17},
+{"attack_id":1,"attack_name":"夢幻泡影","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"attack_physical":1,"attack_element":0,"min_power":1602.00,"max_power":8010.00,"hit_count":9,"destruction":2.750,"sp_cost":12,"param_limit":138,"hp_damege":30,"dp_damege":0,"max_lv":14},
+{"attack_id":2,"attack_name":"星火燎原","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"attack_physical":1,"attack_element":1,"min_power":2502.00,"max_power":12510.00,"hit_count":2,"destruction":3.5,"sp_cost":14,"param_limit":147,"hp_damege":30,"dp_damege":0,"max_lv":14},
+{"attack_id":3,"attack_name":"流星","chara_id":2,"style_id":0,"ref_status_1":2,"ref_status_2":1,"attack_physical":2,"attack_element":0,"min_power":1671.00,"max_power":8355.00,"hit_count":1,"destruction":2.6,"sp_cost":11,"param_limit":144,"hp_damege":0,"dp_damege":30,"max_lv":17},
   ];
     var skill_buff = [
-{"buff_id":1001,"buff_kind":0,"chara_id":4,"style_id":0,"buff_name":"エンハンス","ref_status_1":4,"ref_status_2":0,"buff_type":0,"buff_element":0,"min_power":50.00,"max_power":65.00,"sp_cost":6,"param_limit":208,"max_lv":10},
-{"buff_id":1002,"buff_kind":0,"chara_id":4,"style_id":0,"buff_name":"フィルエンハンス","ref_status_1":4,"ref_status_2":0,"buff_type":0,"buff_element":0,"min_power":50.00,"max_power":65.00,"sp_cost":9,"param_limit":232,"max_lv":10},
+{"buff_id":1001,"buff_kind":0,"chara_id":4,"style_id":0,"buff_name":"エンハンス","ref_status_1":4,"ref_status_2":0,"buff_physical":0,"buff_element":0,"min_power":50.00,"max_power":65.00,"sp_cost":6,"param_limit":208,"max_lv":10},
+{"buff_id":1002,"buff_kind":0,"chara_id":4,"style_id":0,"buff_name":"フィルエンハンス","ref_status_1":4,"ref_status_2":0,"buff_physical":0,"buff_element":0,"min_power":50.00,"max_power":65.00,"sp_cost":9,"param_limit":232,"max_lv":10},
     ];
     var chara_no;
     var select_style_list = [0, 0, 0, 0, 0, 0];
@@ -33,20 +27,21 @@
     var buff_kbn = ["power_up", "element_up", "shingan", "defense_down", "element_down", "vulnerable", "critical_up", "critical_damege", "critical_element", "critical_damege_element"];
 
   $(function(){ 
-    $.each(chara_list, function(index, value) {
-      let source = "img/" + value.image_url;
+    $.each(style_list, function(index, value) {
+      let source = "icon/" + value.image_url;
       let style_id = value.style_id;
-      $("#sytle_list").append('<input type="image" class="select_style w-16 h-16" src="' + source + '" data-style_id="' + style_id + '"/>');
+      let troops = value.troops;
+      let physical = value.physical;
+      let element = value.element;
+      var input = $('<input>')
+                  .attr("type", "image")
+                  .attr("src", source)
+                  .data("style_id", style_id)
+                  .addClass("select_style")
+                  .addClass("physical_" + physical)
+                  .addClass("element_" + element);
+      $("#sytle_list_" + troops).append(input);
     });
-
-    // var info =["レベル", "力", "器用さ", "体力", "精神", "知力", "運"];
-    // $.each(info, function(index, value) {
-      
-    //   $("#char_list").append("<label>" + value + "</label>");
-    //   for (var i = 0; i < 7; i++) {
-    //     $("#char_list").append('<input type="number" step="1" id="level_' + i + '" value="130">');
-    //   }
-    // }
 
     // 計算
     $("#calc").on("click", function(event) {
@@ -56,12 +51,12 @@
       var critical = 1;
       var ability = 1;
       var filed = 1;
-      var weak_type = 1.5;
+      var weak_physical = 1.5;
       var weak_element = 1;
       var special_dp = 1;
       var special_hp = 1;
       var destruction_rate = 1;
-      var damage = Math.floor(kisoAtk * buff * debuff * critical * ability * filed * weak_type * weak_element * special_dp * special_hp);
+      var damage = Math.floor(kisoAtk * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp);
       $("#damage").val(damage);
     })
     
@@ -76,10 +71,41 @@
       $('.ModalLayer').addClass('isShow');
     });
 
-    // モーダルを閉じる
+    // スタイル絞り込み
+    $(".narrow").on('click', function() {
+      let id = $(this).attr("id");
+      let select = $(this).data("select");
+      if (select == "1") {
+        $(this).css('opacity', '0.3');
+        $(this).data("select", "0");
+        $("." + id).hide();
+      } else {
+        let isPhysical = $(this).hasClass("physical");
+        let isElement = $(this).hasClass("element");
+        $(this).css('opacity', '1');
+        $(this).data("select", "1");
+        if (isPhysical) {
+          $(".element").each(function(index, value) {
+            if ($(value).data("select") == "1") {
+              let element_id = $(value).attr("id");
+              $("." + id + "." + element_id).show();
+            }
+          });
+        } else if (isElement) {
+          $(".physical").each(function(index, value) {
+            if ($(value).data("select") == "1") {
+              let physical_id = $(value).attr("id");
+              $("." + id + "." + physical_id).show();
+            }
+          });
+        }
+      }
+    })
+
+    // スタイルを選択
     $('.select_style').on('click', function(){
       let style_id = $(this).data("style_id");
-      let style = $.grep(chara_list,
+      let style = $.grep(style_list,
         function (obj, index) {
           return (obj.style_id === style_id);
         })[0];
@@ -95,14 +121,22 @@
       $(".chara_id-" + replace_style.chara_id).remove();
       
       select_style_list[chara_no] = style;
-      $('[data-chara_no="' + chara_no + '"]').attr("src", "img/" + style.image_url);
+      $('[data-chara_no="' + chara_no + '"]').attr("src", "icon/" + style.image_url);
       createAttackList(style, chara_no);
       createBuffList(style, chara_no);
 
-      chara_no = 0;
-      $('.ModalLayer').removeClass('isShow');
+      closeModel();
+    });
+    // モーダルを閉じる
+    $('.close_modal').on('click', function(){
+      closeModel();
     });
   });
+
+  function closeModel() {
+    chara_no = 0;
+    $('.ModalLayer').removeClass('isShow');
+  }
 
     function createAttackList(style, chara_no) {
       let attack_list = $.grep(skill_attack,
@@ -148,7 +182,7 @@
       $.each(buff_list, function(index, value) {
         let str_buff = buff_kbn[value.buff_kind];
         var option = $('<option>')
-                    .text(chara_name[style.chara_id - 1] + "：" + value.buff_name)
+                    .text(chara_name[style.chara_id] + "：" + value.buff_name)
                     .val(value.buff_id)
                     .data("max_lv", value.max_lv)
                     .data("chara_no", chara_no)
@@ -453,16 +487,77 @@
   </div>
   <div class="ModalLayer">
     <div class="ModalLayer-Mask"></div>
-    <div class="ModalLayer-Inner">
+    <div class="modal-layer-inner">
       <div class="ModalSection">
         <div class="Modal">
-          <div class="Modal-Inner">
-            <div class="Modal-Inner-Headline">
+          <div class="modal-inner">
+            <div class="modal-inner-headline">
               スタイル選択
             </div>
-            <div id="sytle_list" class="grid grid-cols-8">
+            <!-- <div>
+              <label>31A</label>
+              <label>31B</label>
+              <label>31C</label>
+              <label>31D</label>
+              <label>31E</label>
+              <label>31F</label>
+              <label>31X</label>
+              <label>30G</label>
+              <label>AB!</label>
+            </div> -->
+            <div>
+              <input type="image" class="narrow physical" id="physical_1" src="img/Slash.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_2" src="img/Stab.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_3" src="img/Strike.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_0" src="img/Nonelement.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_1" src="img/Fire.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_2" src="img/Ice.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_3" src="img/Thunder.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_4" src="img/Light.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_5" src="img/Dark.webp" data-select="1">
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31a.webp">
+              <div id="sytle_list_31A" class="grid grid-cols-8 troops_31A"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31b.webp">
+              <div id="sytle_list_31B" class="grid grid-cols-8 troops_31B"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31c.webp">
+              <div id="sytle_list_31C" class="grid grid-cols-8 troops_31C"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31d.webp">
+              <div id="sytle_list_31D" class="grid grid-cols-8 troops_31D"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31e.webp">
+              <div id="sytle_list_31E" class="grid grid-cols-8 troops_31E"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31f.webp">
+              <div id="sytle_list_31F" class="grid grid-cols-8 troops_31F"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/31x.webp">
+              <div id="sytle_list_31X" class="grid grid-cols-8 troops_31X"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/30g.webp">
+              <div id="sytle_list_30G" class="grid grid-cols-8 troops_30G"></div>
+            </div>
+            <div class="troops">
+              <input type="image" class="emblem" src="img/angelbeats.webp">
+              <div id="sytle_list_AB" class="grid grid-cols-8  troops_AB"></div>
             </div>
           </div>
+          <br>
+          <div class="w-64 mx-auto text-center">
+            <input type="button" id="calc" href="javascript:void(0)" class="btn close_modal" value="閉じる">
+          </div>
+          <br>
         </div>
       </div>
     </div>

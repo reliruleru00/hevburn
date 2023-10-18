@@ -1,53 +1,74 @@
 /* ---------------------------- */
 /* --- ModalSection --- */
 /* ---------------------------- */
-  .ModalLayer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    transition: opacity 0.65s;
-    pointer-events: none;
-    opacity: 0;
-    z-index: 10000;
-  }
-  .ModalLayer.isShow {
-    transition: opacity 0.65s;
-    pointer-events: auto;
-    opacity: 1;
-  }
-  .ModalLayer-Mask {
-    position: absolute;
-    background: rgba(123,123,123,0.5);
-    width: 100%;
-    height: 100vh;
-  }
+.ModalLayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  transition: opacity 0.65s;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10000;
+}
+.ModalLayer.isShow {
+  transition: opacity 0.65s;
+  pointer-events: auto;
+  opacity: 1;
+}
+.ModalLayer-Mask {
+  position: absolute;
+  background: rgba(123,123,123,0.5);
+  width: 100%;
+  height: 100vh;
+}
+.modal-layer-inner {
+  border-top: 5px solid #5bc8ac;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 720px;
+  overflow-y: scroll;
+  transform: translate(-50%, -50%);
+}
+@media screen and (max-width: 768px) {
   .ModalLayer-Inner {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    width: 100%;
-    max-width: 500px;
-    transform: translate(-50%, -50%);
+    padding-left: 24px;
+    padding-right: 24px;
   }
-  @media screen and (max-width: 768px) {
-    .ModalLayer-Inner {
-      padding-left: 24px;
-      padding-right: 24px;
-    }
-  }
-  .ModalSection {
-    background: #fff;
-  }
-  .Modal-Inner {
-    border-top: 3px solid #5bc8ac;
-    margin-left: auto;
-    margin-right: auto;
-    padding-top: 20px;
-    max-width: 500px;
-  }
-  .Modal-Inner-Headline {
-    text-align: center;
-    font-size: 24px;
-  }
+}
+.ModalSection {
+  background: #fff;
+}
+.modal-inner {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 20px;
+  width: 550px;
+}
+.modal-inner-headline {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+  
+.troops {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.select_style {
+  width: 64px;
+  height: 64px;
+}
+.troops {
+  margin-top: 10px;
+  display: flex;
+}
+.emblem {
+  width: 64px;
+  height: 64px;
+}

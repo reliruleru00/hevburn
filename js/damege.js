@@ -4,10 +4,10 @@ function createEnemyList(enemy_class) {
     $("#enemy_list").html("");
     $.each(enemy_list, function(index, value) {
         if (value.enemy_class == enemy_class) {
-        var option = $('<option>')
-                    .text(value.enemy_name)
-                    .val(value.enemy_no);
-        $("#enemy_list").append(option);
+            var option = $('<option>')
+                        .text(value.enemy_name)
+                        .val(value.enemy_class_no);
+            $("#enemy_list").append(option);
         }
     });
     setEnemyStatus();
@@ -15,12 +15,12 @@ function createEnemyList(enemy_class) {
 
 // 敵ステータス設定
 function setEnemyStatus() {
-    let enemy_class = $("#enemy_class option:selected").val();
-    let enemy_no = $("#enemy_list option:selected").val();
+    let enemy_class = Number($("#enemy_class option:selected").val());
+    let enemy_class_no = Number($("#enemy_list option:selected").val());
     
     let enemy_info = $.grep(enemy_list,
         function (obj, index) {
-            return (obj.enemy_class == enemy_class && obj.enemy_no == obj.enemy_no);
+            return (obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
         })[0];
     $("#enemy_stat").val(enemy_info.enemy_stat);
     $("#enemy_hp").val(enemy_info.max_hp);
@@ -54,6 +54,67 @@ function sortEffectSize(selecter) {
     selecter.append(item);
 }
 
+
+function getBasePower() {
+    let chara_no = $("#attack_list option:selected").data("chara_no");
+    let jewel_lv = 0;
+    if ($("#jewel_type_" + chara_no).val() == "1") {
+        jewel_lv = Number($("#jewel_lv_" + chara_no).val());
+    }
+    let attack_id = Number($("#attack_list option:selected").val());
+    let skill_info = $.grep(skill_attack,
+        function (obj, index) {
+        return (obj.attack_id === attack_id);
+        })[0];
+    let molecule = 0;
+    let denominator = 0;
+    if (skill_info.ref_status_1 != 0) {
+        molecule += Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val()) * 2;
+        denominator +=2;
+    }
+    if (skill_info.ref_status_2 != 0) {
+        molecule += Number($("#" + status_kbn[skill_info.ref_status_2] + "_" + chara_no).val());
+        denominator +=1;
+    }
+    if (skill_info.ref_status_3 != 0) {
+        molecule += Number($("#" + status_kbn[skill_info.ref_status_3] + "_" + chara_no).val());
+        denominator +=1;
+    }
+    let enemy_stat = Number($("#enemy_stat").val());
+    let status = molecule / denominator;
+
+    let skill_lv = Number($("#skill_lv option:selected").val());
+    let min_power = skill_info.min_power * (1 + 0.05 * (skill_lv - 1));
+    let max_power = skill_info.max_power * (1 + 0.02 * (skill_lv - 1)); 
+    let skill_stat = skill_info.param_limit;
+    let base_power;
+    // 宝珠分以外
+    if (enemy_stat - skill_stat / 2 > status){
+        base_power = 1;
+    } else if (enemy_stat > status){
+        base_power = min_power / (skill_stat / 2) * (status - (enemy_stat - skill_stat / 2));
+    } else if (enemy_stat + skill_stat > status){
+        base_power = (max_power - min_power) / skill_stat * (status - enemy_stat) + min_power;
+    } else {
+        base_power = max_power;
+    }
+
+    // 宝珠分(SLvの恩恵を受けない)
+    if (jewel_lv > 0) {
+        let jusl_stat = skill_stat + jewel_lv * 20;
+        if (enemy_stat - skill_stat / 2 > status){
+            base_power += 0;
+        } else if (enemy_stat > status){
+            base_power += skill_info.min_power / (jusl_stat / 2) * (status - (enemy_stat - jusl_stat / 2)) * jewel_lv * 0.02;
+        } else if (enemy_stat + skill_stat > status){
+            base_power += ((skill_info.max_power - skill_info.min_power) / jusl_stat * (status - enemy_stat) + skill_info.min_power) * jewel_lv * 0.02;
+        } else {
+            base_power += skill_info.max_power * jewel_lv * 0.02;
+        }
+        }
+    return base_power;
+}
+
 // バフ効果量
 function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     let jewel_lv = 0;
@@ -75,7 +136,7 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     } else {
         effect_size += (max_power - min_power) / skill_stat * status + min_power;
     }
-    // 宝珠分
+    // 宝珠分(SLvの恩恵を受けない)
     if (jewel_lv > 0) {
         let jusl_stat = skill_stat + jewel_lv * 60;
         if (status > jusl_stat) {
@@ -113,15 +174,15 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
     } else {
         effect_size += max_power;
     }
-    // 宝珠分
+    // 宝珠分(SLvの恩恵を受けない)
     if (jewel_lv > 0) {
         let jusl_stat = skill_stat + jewel_lv * 20;
-        if (status < jewel_lv) {
-        effect_size += min_power * jewel_lv * 0.02;
+        if (status < 0) {
+            effect_size += skill_info.min_power * jewel_lv * 0.02;
         } else if (status < jusl_stat) {
-        effect_size += ((max_power - min_power) / jusl_stat * status + min_power) * jewel_lv * 0.02;
+            effect_size += ((skill_info.max_power - skill_info.min_power) / jusl_stat * status + skill_info.min_power) * jewel_lv * 0.02;
         } else {
-        effect_size += max_power * jewel_lv * 0.02;
+            effect_size += skill_info.max_power * jewel_lv * 0.02;
         }
     }
     return effect_size;

@@ -20,7 +20,7 @@
     var chara_no;
     var select_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
-    var buff_kbn = ["power_up", "element_up", "shingan", "defense_down", "element_down", "vulnerable", "critical_up", "critical_damege", "critical_element", "critical_damege_element"];
+    var buff_kbn = ["power_up", "element_up", "mindeye", "defense_down", "element_down", "fragile", "critical_up", "critical_damege", "critical_element", "critical_damege_element"];
 
     $(function(){ 
       // スタイルリスト作成
@@ -60,25 +60,25 @@
 
       // 計算
       $("#calc").on("click", function(event) {
-        var kisoAtk = getKisoAtk();
+        var basePower = getBasePower();
         var buff = getBuff();
         var debuff = getDebuff();
         var critical = 1;
         var ability = 1;
         var filed = 1;
-        var weak_physical = 1.5;
+        var weak_physical = 1;
         var weak_element = 1;
         var special_dp = 1;
         var special_hp = 1;
         var destruction_rate = Number($("#enemy_destruction").val()) / 100;
-        var damage = Math.floor(kisoAtk * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp);
+        var damage = Math.floor(basePower * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp);
         $("#damage").val(damage);
       })
       
       // スキル変更
       $("#attack_list").on("change", function(event) {
         let max_lv = $("#attack_list option:selected").data("max_lv");
-        createSkillLvList("skill_lv", max_lv);
+        createSkillLvList("skill_lv", max_lv, max_lv);
       })
       // ステータス変更
 
@@ -177,26 +177,23 @@
                     .data("chara_no", chara_no)
                     .addClass("chara_id-" + value.chara_id);
         $("#attack_list").append(option);
+        $('attack_list').eq(1).prop('selected', true);
       });
 
       let max_lv = $("#attack_list option:selected").data("max_lv");
-      createSkillLvList("skill_lv", max_lv);
+      createSkillLvList("skill_lv", max_lv, max_lv);
     }
 
-    function createSkillLvList(id, max_lv) {
+    function createSkillLvList(id, max_lv, select_lv) {
       var selecter = "#" + id;
       $(selecter).html("");
       for (var i = 1; i <= max_lv; i ++) {
         var option = $('<option>')
                       .text(i)
                       .val(i);
-        $(selecter).append(option);      
+        $(selecter).append(option);
       }
-      if (max_lv < 10) {
-        $(selecter + " option[value='10']").prop('selected', true);
-      } else {
-        $(selecter + " option[value='" + max_lv + "']").prop('selected', true);
-      }
+      $(selecter + " option[value='" + select_lv + "']").prop('selected', true);
       if (max_lv == 1) {
         $(selecter).prop("disabled", true);
       } else {
@@ -222,47 +219,16 @@
                     .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effectSize + "%")
                     .val(value.buff_id)
                     .data("max_lv", value.max_lv)
+                    .data("select_lv", value.max_lv)
                     .data("chara_no", chara_no)
                     .data("effectSize", effectSize)
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
-        createSkillLvList(str_buff + "1_lv", value.max_lv);
-        createSkillLvList(str_buff + "2_lv", value.max_lv);
+        createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
+        createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
         sortEffectSize($("#" + str_buff + "1"));
         sortEffectSize($("#" + str_buff + "2"));
       });
-    }
-
-    function getKisoAtk() {
-      let chara_no = $("#attack_list option:selected").data("chara_no");
-      let attack_id = Number($("#attack_list option:selected").val());
-      let skill_info = $.grep(skill_attack,
-        function (obj, index) {
-          return (obj.attack_id === attack_id);
-        })[0];
-
-      let attack;
-      let status1 = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
-      if (skill_info.ref_status_2 == 0) {
-        attack = status1;
-      } else {
-        let status2 = Number($("#" + status_kbn[skill_info.ref_status_2] + "_" + chara_no).val());
-        attack = (status1 * 2 + status2) / 3;
-      }
-      let enemy_stat = Number($("#enemy_stat").val());
-      let skill_lv = Number($("#skill_lv option:selected").val()) - 1;
-      let min_power = skill_info.min_power + (skill_info.min_power / 20 * skill_lv);
-      let max_power = skill_info.max_power + (skill_info.max_power / 50 * skill_lv);
-      let skill_stat = skill_info.param_limit;
-      let kisoAtk;
-      if (enemy_stat - skill_stat / 2 > attack){
-        kisoAtk = 1;
-      } else if (enemy_stat > attack){
-        kisoAtk = min_power / (skill_stat - 2) * (attack - (enemy_stat - skill_stat / 2));
-      } else {
-        kisoAtk = (max_power - min_power) / skill_stat * (attack - enemy_stat) + min_power;
-      }
-      return kisoAtk;
     }
 
     // バフ合計取得
@@ -270,7 +236,7 @@
       let multiplier = 1;
       let power_up = 0;
       let element_up = 0;
-      let shingan = 0;
+      let mindeye = 0;
       $(".buff").each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
@@ -285,11 +251,11 @@
           power_up += effect_size;
         } else if ($(value).hasClass("element_up")) {
           element_up += effect_size;
-        } else if ($(value).hasClass("shingan")) {
-          shingan += effect_size;
+        } else if ($(value).hasClass("mindeye")) {
+          mindeye += effect_size;
         }
       });
-      multiplier *= (1 + power_up / 100) * (1 + element_up / 100) * (1 + shingan / 100);
+      multiplier *= (1 + power_up / 100) * (1 + element_up / 100) * (1 + mindeye / 100);
       return multiplier;
     }
 
@@ -298,7 +264,7 @@
       let multiplier = 1;
       let defense_down = 0;
       let element_down = 0;
-      let vulnerable = 0;
+      let fragile = 0;
       $(".debuff").each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
@@ -313,11 +279,11 @@
           defense_down += effect_size;
         } else if ($(value).hasClass("element_down")) {
           element_down += effect_size;
-        } else if ($(value).hasClass("vulnerable")) {
-          vulnerable += effect_size;
+        } else if ($(value).hasClass("fragile")) {
+          fragile += effect_size;
         }
       });
-      multiplier *= (1 + defense_down / 100) * (1 + element_down / 100) * (1 + vulnerable / 100);
+      multiplier *= (1 + defense_down / 100) * (1 + element_down / 100) * (1 + fragile / 100);
       return multiplier;
     }
 
@@ -356,47 +322,47 @@
           <input type="number" id="convex_4" value="2">
           <input type="number" id="convex_5" value="2">
           <label>力</label>
-          <input type="number" id="str_0" class="status" value="200">
-          <input type="number" id="str_1" class="status" value="200">
-          <input type="number" id="str_2" class="status" value="200">
-          <input type="number" id="str_3" class="status" value="200">
-          <input type="number" id="str_4" class="status" value="200">
-          <input type="number" id="str_5" class="status" value="200">
+          <input type="number" id="str_0" class="status" value="400">
+          <input type="number" id="str_1" class="status" value="400">
+          <input type="number" id="str_2" class="status" value="400">
+          <input type="number" id="str_3" class="status" value="400">
+          <input type="number" id="str_4" class="status" value="400">
+          <input type="number" id="str_5" class="status" value="400">
           <label>器用さ</label>
-          <input type="number" id="dex_0" class="status" value="200">
-          <input type="number" id="dex_1" class="status" value="200">
-          <input type="number" id="dex_2" class="status" value="200">
-          <input type="number" id="dex_3" class="status" value="200">
-          <input type="number" id="dex_4" class="status" value="200">
-          <input type="number" id="dex_5" class="status" value="200">
+          <input type="number" id="dex_0" class="status" value="400">
+          <input type="number" id="dex_1" class="status" value="400">
+          <input type="number" id="dex_2" class="status" value="400">
+          <input type="number" id="dex_3" class="status" value="400">
+          <input type="number" id="dex_4" class="status" value="400">
+          <input type="number" id="dex_5" class="status" value="400">
           <label>体力</label>
-          <input type="number" id="con_0" class="status" value="200">
-          <input type="number" id="con_1" class="status" value="200">
-          <input type="number" id="con_2" class="status" value="200">
-          <input type="number" id="con_3" class="status" value="200">
-          <input type="number" id="con_4" class="status" value="200">
-          <input type="number" id="con_5" class="status" value="200">
+          <input type="number" id="con_0" class="status" value="400">
+          <input type="number" id="con_1" class="status" value="400">
+          <input type="number" id="con_2" class="status" value="400">
+          <input type="number" id="con_3" class="status" value="400">
+          <input type="number" id="con_4" class="status" value="400">
+          <input type="number" id="con_5" class="status" value="400">
           <label>精神</label>
-          <input type="number" id="mnd_0" class="status" value="200">
-          <input type="number" id="mnd_1" class="status" value="200">
-          <input type="number" id="mnd_2" class="status" value="200">
-          <input type="number" id="mnd_3" class="status" value="200">
-          <input type="number" id="mnd_4" class="status" value="200">
-          <input type="number" id="mnd_5" class="status" value="200">
+          <input type="number" id="mnd_0" class="status" value="400">
+          <input type="number" id="mnd_1" class="status" value="400">
+          <input type="number" id="mnd_2" class="status" value="400">
+          <input type="number" id="mnd_3" class="status" value="400">
+          <input type="number" id="mnd_4" class="status" value="400">
+          <input type="number" id="mnd_5" class="status" value="400">
           <label>知力</label>
-          <input type="number" id="int_0" class="status" value="200">
-          <input type="number" id="int_1" class="status" value="200">
-          <input type="number" id="int_2" class="status" value="200">
-          <input type="number" id="int_3" class="status" value="200">
-          <input type="number" id="int_4" class="status" value="200">
-          <input type="number" id="int_5" class="status" value="200">
+          <input type="number" id="int_0" class="status" value="400">
+          <input type="number" id="int_1" class="status" value="400">
+          <input type="number" id="int_2" class="status" value="400">
+          <input type="number" id="int_3" class="status" value="400">
+          <input type="number" id="int_4" class="status" value="400">
+          <input type="number" id="int_5" class="status" value="400">
           <label>運</label>
-          <input type="number" id="luk_0" class="status" value="200">
-          <input type="number" id="luk_1" class="status" value="200">
-          <input type="number" id="luk_2" class="status" value="200">
-          <input type="number" id="luk_3" class="status" value="200">
-          <input type="number" id="luk_4" class="status" value="200">
-          <input type="number" id="luk_5" class="status" value="200">
+          <input type="number" id="luk_0" class="status" value="400">
+          <input type="number" id="luk_1" class="status" value="400">
+          <input type="number" id="luk_2" class="status" value="400">
+          <input type="number" id="luk_3" class="status" value="400">
+          <input type="number" id="luk_4" class="status" value="400">
+          <input type="number" id="luk_5" class="status" value="400">
           <label>宝珠Lv</label>
           <input type="number" id="jewel_lv_0" class="jewel" value="5">
           <input type="number" id="jewel_lv_1" class="jewel" value="5">
@@ -497,13 +463,13 @@
             </tr>
             <tr>
               <td class="type">心眼1</td>
-              <td><select id="shingan1" class="buff shingan"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="shingan1_lv" class="lv"></select></td>
+              <td><select id="mindeye1" class="buff mindeye"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="mindeye1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">心眼2</td>
-              <td><select id="shingan2" class="buff shingan"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="shingan2_lv" class="lv"></select></td>
+              <td><select id="mindeye2" class="buff mindeye"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="mindeye2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="6" class="kind">デバフ</td>
@@ -528,13 +494,13 @@
             </tr>
             <tr>
               <td class="type">脆弱1</td>
-              <td><select id="vulnerable1" class="debuff vulnerable"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="vulnerable1_lv" class="lv"></select></td>
+              <td><select id="fragile1" class="debuff fragile"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="fragile1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">脆弱2</td>
-              <td><select id="vulnerable2" class="debuff vulnerable"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="vulnerable2_lv" class="lv"></select></td>
+              <td><select id="fragile2" class="debuff fragile"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="fragile2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="8" class="kind">クリティカル</td>

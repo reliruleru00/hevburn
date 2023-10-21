@@ -1,4 +1,3 @@
-
 // 敵リスト作成
 function createEnemyList(enemy_class) {
     $("#enemy_list").html("");
@@ -23,19 +22,28 @@ function setEnemyStatus() {
             return (obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
         })[0];
     $("#enemy_stat").val(enemy_info.enemy_stat);
-    $("#enemy_hp").val(enemy_info.max_hp);
-    $("#enemy_dp").val(enemy_info.max_dp);
+    $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
+    $("#enemy_dp").val(enemy_info.max_dp.toLocaleString());
     $("#enemy_destruction_limit").val(enemy_info.destruction_limit);
     $("#enemy_destruction").val(enemy_info.destruction_limit);
-    $("#enemy_physical_1").val(enemy_info.physical_1);
-    $("#enemy_physical_2").val(enemy_info.physical_2);
-    $("#enemy_physical_3").val(enemy_info.physical_3);
-    $("#enemy_element_0").val(enemy_info.element_0);
-    $("#enemy_element_1").val(enemy_info.element_1);
-    $("#enemy_element_2").val(enemy_info.element_2);
-    $("#enemy_element_3").val(enemy_info.element_3);
-    $("#enemy_element_4").val(enemy_info.element_4);
-    $("#enemy_element_5").val(enemy_info.element_5);
+    for (let i = 1; i <= 3; i++) {
+        setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
+    }
+    for (let i = 0; i <= 5; i++) {
+        setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
+    }
+}
+
+// 敵耐性設定
+function setEnemyElement(id, val) {
+    $(id).val(val);
+    $(id).removeClass("enemy_resist");
+    $(id).removeClass("enemy_weak");
+    if (val < 100) {
+        $(id).addClass("enemy_resist");
+    } else if (val >100) {
+        $(id).addClass("enemy_weak");
+    }
 }
 
 // 効果量ソート

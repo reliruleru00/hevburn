@@ -84,8 +84,12 @@
         let criticalPower = getBasePower(-50);
         let criticalBuff = getCriticalBuff();
         let critical_damage = criticalPower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
-        $("#damage").val(Math.floor(damage));
-        $("#critical_damage").val(Math.floor(critical_damage));
+        $("#damage").val(Math.floor(damage).toLocaleString());
+        $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
+        $("#damage_max").val(Math.floor(damage * 1.1).toLocaleString());
+        $("#critical_damage").val(Math.floor(critical_damage).toLocaleString());
+        $("#critical_damage_min").val(Math.floor(critical_damage * 0.9).toLocaleString());
+        $("#critical_damage_max").val(Math.floor(critical_damage * 1.1).toLocaleString());
       });
       
       // 攻撃スキル変更
@@ -431,8 +435,8 @@
   <div>
     <div class="w-[1080px] mx-auto flex">
         <div>
-        <div id="char_list" class="w-[500px] grid grid-cols-7 text-center">
-          <div>
+        <div id="char_list" class="w-[482px] grid grid-cols-7 text-center gap-y-px gap-x-0">
+          <div class="mt-5">
             <label>スタイル</label>
             <input type="hidden" id="jewel_type_0" value="">
             <input type="hidden" id="jewel_type_1" value="">
@@ -448,12 +452,12 @@
           <img class="showmodal w-16 h-16" id="chara4" src="img/plus.png" data-chara_no="4">
           <img class="showmodal w-16 h-16" id="chara5" src="img/plus.png" data-chara_no="5">
           <label>凸数</label>
-          <input type="number" id="convex_0" value="2">
-          <input type="number" id="convex_1" value="2">
-          <input type="number" id="convex_2" value="2">
-          <input type="number" id="convex_3" value="2">
-          <input type="number" id="convex_4" value="2">
-          <input type="number" id="convex_5" value="2">
+          <input type="number" id="convex_0" class="status" value="2">
+          <input type="number" id="convex_1" class="status" value="2">
+          <input type="number" id="convex_2" class="status" value="2">
+          <input type="number" id="convex_3" class="status" value="2">
+          <input type="number" id="convex_4" class="status" value="2">
+          <input type="number" id="convex_5" class="status" value="2">
           <label>力</label>
           <input type="number" id="str_0" class="status" value="400">
           <input type="number" id="str_1" class="status" value="400">
@@ -525,12 +529,16 @@
             </select>
           </div>
           <br>
-          <div class="grid grid-cols-7">
-            <div class="text-right">能力値</div><input type="text" id="enemy_stat" value="" disabled class="w-8 text-right">
-            <div class="col-span-2 text-right">破壊率上限</div><input type="text" id="enemy_destruction_limit" value="" disabled class="w-8 text-right">
-            <div class="text-right">破壊率</div><input type="number" id="enemy_destruction" value="" class="w-8 text-right">
-            <div class="text-right">DP</div><input type="text" id="enemy_dp" value="" disabled class="col-span-2 w-20 text-right">
-            <div class="text-right">HP</div><input type="text" id="enemy_hp" value="" disabled class="col-span-2 w-20 text-right">
+          <div class="grid grid-cols-4 gap-1">
+            <div class="text-right">能力値</div><input type="text" id="enemy_stat" value="" readonly class="w-16 text-right">
+            <div class="col-span-2 flex">
+              <div class="text-right w-12">DP</div><input type="text" id="enemy_dp" value="" readonly class="w-24 text-right">
+            </div>
+            <div class="text-right">破壊率上限</div><input type="text" id="enemy_destruction_limit" value="" readonly class="w-16 text-right">
+            <div class="col-span-2 flex">
+              <div class="text-right w-12">HP</div><input type="text" id="enemy_hp" value="" readonly class="w-24 text-right">
+            </div>
+            <div class="text-right">破壊率</div><input type="number" id="enemy_destruction" value="" class="w-28 text-center">
           </div>
           <br>
           <div class="grid grid-cols-9">
@@ -543,15 +551,15 @@
             <input type="image" class="w-8 h-8 ml-1.5" src="img/Thunder.webp">
             <input type="image" class="w-8 h-8 ml-1.5" src="img/Light.webp">
             <input type="image" class="w-8 h-8 ml-1.5" src="img/Dark.webp">
-            <input type="text" id="enemy_physical_1" class="text-center" disabled>
-            <input type="text" id="enemy_physical_2" class="text-center" disabled>
-            <input type="text" id="enemy_physical_3" class="text-center"disabled>
-            <input type="text" id="enemy_element_0" class="text-center" disabled>
-            <input type="text" id="enemy_element_1" class="text-center" disabled>
-            <input type="text" id="enemy_element_2" class="text-center" disabled>
-            <input type="text" id="enemy_element_3" class="text-center" disabled>
-            <input type="text" id="enemy_element_4" class="text-center" disabled>
-            <input type="text" id="enemy_element_5" class="text-center" disabled>
+            <input type="text" id="enemy_physical_1" class="text-center" readonly>
+            <input type="text" id="enemy_physical_2" class="text-center" readonly>
+            <input type="text" id="enemy_physical_3" class="text-center" readonly>
+            <input type="text" id="enemy_element_0" class="text-center" readonly>
+            <input type="text" id="enemy_element_1" class="text-center" readonly>
+            <input type="text" id="enemy_element_2" class="text-center" readonly>
+            <input type="text" id="enemy_element_3" class="text-center" readonly>
+            <input type="text" id="enemy_element_4" class="text-center" readonly>
+            <input type="text" id="enemy_element_5" class="text-center" readonly>
           </div>
         </div>
         <br>
@@ -559,14 +567,22 @@
           <input type="button" id="calc" href="javascript:void(0)" class="calc_btn" value="計 算">
         </div>
         <br>
-        <div class="w-96 mx-auto text-center">
+        <div class="text-center">
+          <label class="damage_label">クリティカルダメージ</label>
           <div>
-            <label>ダメージ</label>
-            <input type="text" id="damage" value="" readonly>
+            <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
+            ～
+            <input type="text" id="critical_damage" class="text-center damage" readonly>
+            ～
+            <input type="text" id="critical_damage_max"class="text-center min_damage" readonly>
           </div>
+          <label class="damage_label">通常ダメージ</label>
           <div>
-            <label>クリティカルダメージ</label>
-            <input type="text" id="critical_damage" value="" readonly>
+            <input type="text" id="damage_min" class="text-center min_damage" readonly>
+            ～
+            <input type="text" id="damage" class="text-center damage" readonly>
+            ～
+            <input type="text" id="damage_max"class="text-center min_damage" readonly>
           </div>
         </div>
       </div>

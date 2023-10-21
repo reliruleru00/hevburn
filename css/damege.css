@@ -47,8 +47,9 @@ select.critical_buff {
     width: 300px;
 }
 
-.lv {
-    width: 42px;
+.status,
+.jewel {
+    margin-left: 3px;
 }
 
 
@@ -58,4 +59,28 @@ input.calc_btn {
     color: #fff;
     background: #149f14;
     border-radius: 100vh;
-  }
+}
+
+.damage_label {
+    font-weight: bold;
+    font-size: 18px;
+}
+.damage {
+    font-weight: bold;
+    font-size: 30px;
+    width: 180px;
+}
+.min_damage {
+    font-weight: bold;
+    font-size: 20px;
+    width: 100px;
+}
+.enemy_weak {
+    font-weight: bold;
+    color: red;
+}
+.enemy_resist {
+    font-weight: bold;
+    color: blue;
+}
+

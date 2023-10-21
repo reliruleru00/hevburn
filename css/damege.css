@@ -28,21 +28,6 @@ select {
     border: solid 1px #000;
 }
 
-input.btn {
-    width: 200px;
-    font-size: 30px;
-    color: #fff;
-    background-color: #149f14;
-}
-input.btn {
-    color: #fff;
-    background: #149f14;
-}
-
-input.btn {
-    border-radius: 100vh;
-}
-
 table td {
     border: 1px solid #000;
 }
@@ -56,10 +41,21 @@ table td.type {
 }
 
 select.buff,
-select.debuff {
+select.debuff,
+select.critical_rate,
+select.critical_buff {
     width: 300px;
 }
 
 .lv {
     width: 42px;
 }
+
+
+input.calc_btn {
+    width: 100px;
+    font-size: 20px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
+  }

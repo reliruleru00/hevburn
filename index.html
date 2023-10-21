@@ -19,7 +19,6 @@
     var chara_no;
     var select_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
-    var buff_kbn = ["power_up", "element_up", "mindeye", "defense_down", "element_down", "fragile", "critical_up", "critical_damege", "critical_element", "critical_damege_element"];
     var select_attack_skill;
 
     $(function(){ 
@@ -56,29 +55,42 @@
       })
       $("#enemy_list").on("change", function(event) {
         setEnemyStatus();
-      })
+      });
 
       // 計算
       $("#calc").on("click", function(event) {
-        var basePower = getBasePower();
-        var buff = getBuff();
-        var debuff = getDebuff();
-        var critical = 1;
-        var ability = 1;
-        var filed = 1;
-        var weak_physical = 1;
-        var weak_element = 1;
-        var special_dp = 1;
-        var special_hp = 1.3;
-        var destruction_rate = Number($("#enemy_destruction").val()) / 100;
-        var damage = Math.floor(basePower * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp * destruction_rate);
-        $("#damage").val(damage);
-      })
+        // 闘志
+        let fightingspirit = 0
+        // 厄
+        let misfortune = 0
+
+        let skill_info = getAttackInfo()
+        let basePower = getBasePower(0);
+        let buff = getBuff();
+        let debuff = getDebuff();
+        let ability = 1;
+        let element_field = 1 + Number($("#element_field option:selected").val()) / 100;
+        let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
+        let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
+        let special = 1;
+        let destruction_rate = Number($("#enemy_destruction").val()) / 100;
+        if (destruction_rate == 1) {
+          special += skill_info.dp_damege / 100;
+        } else {
+          special += skill_info.hp_damege / 100;
+        }
+        let damage = basePower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate;
+
+        let criticalPower = getBasePower(-50);
+        let criticalBuff = getCriticalBuff();
+        let critical_damage = criticalPower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
+        $("#damage").val(Math.floor(damage));
+        $("#critical_damage").val(Math.floor(critical_damage));
+      });
       
-      // スキル変更
+      // 攻撃スキル変更
       $("#attack_list").on("change", function(event) {
-        let attack_id = Number($("#attack_list option:selected").val());
-        let skill_info = getAttackIdToAttack(attack_id)
+        let skill_info = getAttackInfo()
         let max_lv = skill_info.max_lv;
 
         if (select_attack_skill !== undefined) {
@@ -91,7 +103,20 @@
 
         select_attack_skill = skill_info;
         createSkillLvList("skill_lv", max_lv, max_lv);
-      })
+      });
+      // バフスキル変更
+      $(".include_lv").on("change", function(event) {
+        let index = $(this).prop("selectedIndex");
+        if (index == 0) {
+          resetSlillLv($(this).prop("id"));
+        } else {
+          let option = $(this).children().eq(index);
+          let select_lv = option.data("select_lv");
+          let skill_info = getBuffIdToBuff(Number(option.val()));
+          createSkillLvList($(this).prop("id") + "_lv", skill_info.max_lv, select_lv);
+        }
+      });
+
       // ステータス変更
 
       // モーダルを開く
@@ -145,9 +170,8 @@
             return false;
           }
         }
-        let replace_style = select_style_list[chara_no];
-        // 入れ替えスタイルのスキルを削除
-        $(".chara_id-" + replace_style.chara_id).remove();
+        // メンバーの情報を削除
+        removeMember();
         
         select_style_list[chara_no] = style;
         $('[data-chara_no="' + chara_no + '"]').attr("src", "icon/" + style.image_url);
@@ -162,7 +186,14 @@
         addBuffList(style, chara_no);
         closeModel();
       });
-      // モーダルを閉じる
+      // メンバーを外す
+      $('.remove_btn').on('click', function(){
+        removeMember();
+        select_style_list[chara_no] = 0;
+        $('[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
+        closeModel();
+      });
+
       $('.modal_layer_mask').on('click', function(){
         closeModel();
       });
@@ -171,10 +202,23 @@
     function updateStatusList(chara_no) {
 
     }
-
+    // モーダルを閉じる
     function closeModel() {
       chara_no = 0;
       $('.modal_layer').removeClass('isShow');
+    }
+
+    function removeMember() {
+      // 入れ替えスタイルのスキルを削除
+      let chara_id_class = ".chara_id-" + select_style_list[chara_no].chara_id;
+      let parent = $(".include_lv " + chara_id_class + ":selected").parent();
+      $.each(parent, function(index, value) {
+        // 暫定的にdisplay:none追加
+        $(value).find(chara_id_class).css("display", "none");
+        select2ndSkill($("#" + $(value).prop("id")));
+      });
+      // スキルLvの設定
+      $(chara_id_class).remove();
     }
 
     function addAttackList(style, chara_no) {
@@ -216,7 +260,7 @@
           return (obj.chara_id === style.chara_id && (obj.style_id === style.style_id || obj.style_id == 0));
         });
       $.each(buff_list, function(index, value) {
-        let effectSize = 0;
+        let effect_size = 0;
         let buff_element = 0;
         switch (value.buff_kind){
           case 1: // 属性攻撃力アップ
@@ -228,13 +272,20 @@
           case 6:	// クリティカル率アップ
           case 7:	// クリティカルダメージアップ
           case 10:	// チャージ
-            effectSize = Math.floor(getBuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+            effect_size = Math.floor(getBuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
             break;
           case 4: // 属性防御力ダウン
             buff_element = value.buff_element;
           case 3: // 防御力ダウン
           case 5: // 脆弱
-            effectSize = Math.floor(getDebuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+            effect_size = Math.floor(getDebuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+            break;
+          case 11: // 属性フィールド
+            buff_element = value.buff_element;
+            effect_size = value.min_power;
+            break;
+          case 12: // 
+          case 13: // 
             break;
           default:
             break;
@@ -246,35 +297,49 @@
         }
 
         var option = $('<option>')
-                    .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effectSize + "%")
+                    .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effect_size + "%")
                     .val(value.buff_id)
                     .data("select_lv", value.max_lv)
                     .data("chara_no", chara_no)
-                    .data("effectSize", effectSize)
+                    .data("effect_size", effect_size)
                     .css("display", display)
                     .addClass("buff_element-" + buff_element)
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
         if (display == "block") {
-          createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
-          createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
-          sortEffectSize($("#" + str_buff + "1"));
-          sortEffectSize($("#" + str_buff + "2"));
+          if (value.buff_kind <= 10) {
+            createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
+            createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
+            sortEffectSize($("#" + str_buff + "1"));
+            sortEffectSize($("#" + str_buff + "2"));
+          }
         }
-        select2ndSkill($("#" + str_buff + "1"));
-        select2ndSkill($("#" + str_buff + "2"));
+        if (value.buff_kind <= 10) {
+          select2ndSkill($("#" + str_buff + "1"));
+          select2ndSkill($("#" + str_buff + "2"));
+        } else {
+          select2ndSkill($("#" + str_buff));
+        }
       });
     }
 
+    // スキル設定
     function select2ndSkill(select) {
       select.prop("selectedIndex", 0);
       for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
           $(option).prop("selected", true);
-          break;
+          return;
         }
       }
+      resetSlillLv(select.prop("id"));
+    }
+
+    // スキルLv使用不可に戻す
+    function resetSlillLv(id) {
+      $("#" + id + "_lv").empty();
+      $("#" + id + "_lv").prop("disabled", true);
     }
 
     // バフ合計取得
@@ -294,11 +359,11 @@
         effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
         if ($(value).hasClass("power_up")) {
-          power_up += effect_size;
+          power_up +=effect_size;
         } else if ($(value).hasClass("element_up")) {
-          element_up += effect_size;
+          element_up +=effect_size;
         } else if ($(value).hasClass("mindeye")) {
-          mindeye += effect_size;
+          mindeye +=effect_size;
         }
       });
       multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100);
@@ -319,19 +384,43 @@
         let buff_id = Number(selected.val());
         let skill_lv = Number(selected.data("select_lv"));
         let chara_no = selected.data("chara_no");
-        effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
+       effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
         if ($(value).hasClass("defense_down")) {
-          defense_down += effect_size;
+          defense_down +=effect_size;
         } else if ($(value).hasClass("element_down")) {
-          element_down += effect_size;
+          element_down +=effect_size;
         } else if ($(value).hasClass("fragile")) {
-          fragile += effect_size;
+          fragile +=effect_size;
         }
       });
       multiplier *= (1 + (defense_down + element_down) / 100) * (1 + fragile / 100);
       return multiplier;
     }
+    
+    function getCriticalRate() {
+      let critical_rate = 150;
+      $(".critical_rate").each(function(index, value) {
+        let selected = $(value).find("option:selected");
+        if (selected.val() == "") {
+          return true;
+        }
+        critical_rate += Number(selected.data("effect_size"));
+      });
+      return critical_rate / 100;
+    }
+    function getCriticalBuff() {
+      let criticalBuff = 150;
+      $(".critical_buff").each(function(index, value) {
+        let selected = $(value).find("option:selected");
+        if (selected.val() == "") {
+          return true;
+        }
+        criticalBuff += Number(selected.data("effect_size"));
+      });
+      return criticalBuff / 100;
+    }
+
   </script>
 </head>
 <body>
@@ -344,7 +433,7 @@
         <div>
         <div id="char_list" class="w-[500px] grid grid-cols-7 text-center">
           <div>
-            <label>キャラクター</label>
+            <label>スタイル</label>
             <input type="hidden" id="jewel_type_0" value="">
             <input type="hidden" id="jewel_type_1" value="">
             <input type="hidden" id="jewel_type_2" value="">
@@ -394,19 +483,19 @@
           <input type="number" id="mnd_4" class="status" value="400">
           <input type="number" id="mnd_5" class="status" value="400">
           <label>知力</label>
-          <input type="number" id="int_0" class="status" value="400">
-          <input type="number" id="int_1" class="status" value="400">
-          <input type="number" id="int_2" class="status" value="400">
-          <input type="number" id="int_3" class="status" value="400">
-          <input type="number" id="int_4" class="status" value="400">
-          <input type="number" id="int_5" class="status" value="400">
+          <input type="number" id="int_0" class="status" value="450">
+          <input type="number" id="int_1" class="status" value="450">
+          <input type="number" id="int_2" class="status" value="450">
+          <input type="number" id="int_3" class="status" value="450">
+          <input type="number" id="int_4" class="status" value="450">
+          <input type="number" id="int_5" class="status" value="450">
           <label>運</label>
-          <input type="number" id="luk_0" class="status" value="400">
-          <input type="number" id="luk_1" class="status" value="400">
-          <input type="number" id="luk_2" class="status" value="400">
-          <input type="number" id="luk_3" class="status" value="400">
-          <input type="number" id="luk_4" class="status" value="400">
-          <input type="number" id="luk_5" class="status" value="400">
+          <input type="number" id="luk_0" class="status" value="350">
+          <input type="number" id="luk_1" class="status" value="350">
+          <input type="number" id="luk_2" class="status" value="350">
+          <input type="number" id="luk_3" class="status" value="350">
+          <input type="number" id="luk_4" class="status" value="350">
+          <input type="number" id="luk_5" class="status" value="350">
           <label>宝珠Lv</label>
           <input type="number" id="jewel_lv_0" class="jewel" value="5">
           <input type="number" id="jewel_lv_1" class="jewel" value="5">
@@ -467,12 +556,18 @@
         </div>
         <br>
         <div class="w-64 mx-auto text-center">
-          <input type="button" id="calc" href="javascript:void(0)" class="btn" value="計 算">
+          <input type="button" id="calc" href="javascript:void(0)" class="calc_btn" value="計 算">
         </div>
         <br>
-        <div class="w-64 mx-auto text-center">
-          <label>ダメージ</label>
-          <input type="text" id="damage" value="">
+        <div class="w-96 mx-auto text-center">
+          <div>
+            <label>ダメージ</label>
+            <input type="text" id="damage" value="" readonly>
+          </div>
+          <div>
+            <label>クリティカルダメージ</label>
+            <input type="text" id="critical_damage" value="" readonly>
+          </div>
         </div>
       </div>
       <div>
@@ -487,110 +582,110 @@
             <tr>
               <td rowspan="6" class="kind">バフ</td>
               <td class="type">攻撃力アップ1</td>
-              <td><select id="power_up1" class="buff power_up"><option selected value="">無し</option></select></td>
+              <td><select id="power_up1" class="buff power_up include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="power_up1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">攻撃力アップ2</td>
-              <td><select id="power_up2" class="buff power_up"><option selected value="">無し</option></select></td>
+              <td><select id="power_up2" class="buff power_up include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="power_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性攻撃力アップ1</td>
-              <td><select id="element_up1" class="buff element_up element"><option selected value="">無し</option></select></td>
+              <td><select id="element_up1" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="element_up1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性攻撃力アップ2</td>
-              <td><select id="element_up2" class="buff element_up element"><option selected value="">無し</option></select></td>
+              <td><select id="element_up2" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="element_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">心眼1</td>
-              <td><select id="mindeye1" class="buff mindeye"><option selected value="">無し</option></select></td>
+              <td><select id="mindeye1" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="mindeye1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">心眼2</td>
-              <td><select id="mindeye2" class="buff mindeye"><option selected value="">無し</option></select></td>
+              <td><select id="mindeye2" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="mindeye2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="6" class="kind">デバフ</td>
               <td class="type">防御力ダウン1</td>
-              <td><select id="defense_down1" class="debuff defense_down"><option selected value="">無し</option></select></td>
+              <td><select id="defense_down1" class="debuff defense_down include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="defense_down1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">防御力ダウン2</td>
-              <td><select id="defense_down2" class="debuff defense_down"><option selected value="">無し</option></select></td>
+              <td><select id="defense_down2" class="debuff defense_down include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="defense_down2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性防御力ダウン1</td>
-              <td><select id="element_down1" class="debuff element_down element"><option selected value="">無し</option></select></td>
+              <td><select id="element_down1" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="element_down1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性防御力ダウン2</td>
-              <td><select id="element_down2" class="debuff element_down element"><option selected value="">無し</option></select></td>
+              <td><select id="element_down2" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="element_down2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">脆弱1</td>
-              <td><select id="fragile1" class="debuff fragile"><option selected value="">無し</option></select></td>
+              <td><select id="fragile1" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="fragile1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">脆弱2</td>
-              <td><select id="fragile2" class="debuff fragile"><option selected value="">無し</option></select></td>
+              <td><select id="fragile2" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="fragile2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="8" class="kind">クリティカル</td>
               <td>クリティカル率アップ1</td>
-              <td><select id="critical_up1" class="buff critical_up"><option selected value="">無し</option></select></td>
+              <td><select id="critical_up1" class="critical_rate critical_up include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_up1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">クリティカル率アップ2</td>
-              <td><select id="critical_up2" class="buff critical_up"><option selected value="">無し</option></select></td>
+              <td><select id="critical_up2" class="critical_rate critical_up include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">クリダメアップ1</td>
-              <td><select id="critical_damege1" class="buff critical_damege"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege1" class="critical_buff critical_damege include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">クリダメアップ2</td>
-              <td><select id="critical_damege2" class="buff critical_damege"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege2" class="critical_buff critical_damege include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリ率アップ1</td>
-              <td><select id="critical_element1" class="buff critical_element element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_element1" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリ率アップ2</td>
-              <td><select id="critical_element2" class="buff critical_element element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_element2" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリダメアップ1</td>
-              <td><select id="critical_damege_element1" class="buff critical_damege_element element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege_element1" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリダメアップ2</td>
-              <td><select id="critical_damege_element2" class="buff critical_damege_element element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege_element2" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="6" class="kind">フィールド</td>
               <td class="type">属性フィールド</td>
-              <td><select id="filed" class="debuff filed"><option selected value="">無し</option></select></td>
+              <td><select id="element_field" class="debuff filed element_field element"><option selected value="">無し</option></select></td>
               <td id="filed_lv"></td>
             </tr>
           </table>
@@ -605,12 +700,17 @@
         <div class="modal">
           <div class="modal_inner">
             <div class="modal_inner_headline">
-              スタイル選択
+              <div class="flex justify-center leading-10">
+                <div>スタイル選択</div>
+                <input type="button" id="calc" href="javascript:void(0)" class="remove_btn text-center absolute right-1" value="外す">
+              </div>
             </div>
+            <hr class="line"/>
             <div>
               <input type="image" class="narrow physical" id="physical_1" src="img/Slash.webp" data-select="1">
               <input type="image" class="narrow physical" id="physical_2" src="img/Stab.webp" data-select="1">
               <input type="image" class="narrow physical" id="physical_3" src="img/Strike.webp" data-select="1">
+              ／
               <input type="image" class="narrow element" id="element_0" src="img/Nonelement.webp" data-select="1">
               <input type="image" class="narrow element" id="element_1" src="img/Fire.webp" data-select="1">
               <input type="image" class="narrow element" id="element_2" src="img/Ice.webp" data-select="1">
@@ -654,10 +754,6 @@
               <input type="image" class="emblem" src="img/angelbeats.webp">
               <div id="sytle_list_AB" class="grid grid-cols-8  troops_AB"></div>
             </div>
-          </div>
-          <br>
-          <div class="w-64 mx-auto text-center">
-            <input type="button" id="calc" href="javascript:void(0)" class="btn close_modal" value="閉じる">
           </div>
           <br>
         </div>

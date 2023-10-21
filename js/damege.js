@@ -54,7 +54,15 @@ function sortEffectSize(selecter) {
     selecter.append(item);
 }
 
+// 攻撃情報取得
+function getAttackIdToAttack(attack_id) {
+    return $.grep(skill_attack,
+                function (obj, index) {
+                    return (obj.attack_id === attack_id);
+            })[0];
+}
 
+// 基礎攻撃力取得
 function getBasePower() {
     let chara_no = $("#attack_list option:selected").data("chara_no");
     let jewel_lv = 0;
@@ -62,10 +70,8 @@ function getBasePower() {
         jewel_lv = Number($("#jewel_lv_" + chara_no).val());
     }
     let attack_id = Number($("#attack_list option:selected").val());
-    let skill_info = $.grep(skill_attack,
-        function (obj, index) {
-        return (obj.attack_id === attack_id);
-        })[0];
+    let skill_info = getAttackIdToAttack(attack_id);
+
     let molecule = 0;
     let denominator = 0;
     if (skill_info.ref_status_1 != 0) {
@@ -115,16 +121,28 @@ function getBasePower() {
     return base_power;
 }
 
+// バフ情報取得
+function getBuffIdToBuff(buff_id) {
+    return $.grep(skill_buff,
+                function (obj, index) {
+                    return (obj.buff_id === buff_id);
+            })[0];
+}
+
 // バフ効果量
 function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     let jewel_lv = 0;
     if ($("#jewel_type_" + chara_no).val() == "3") {
         jewel_lv = Number($("#jewel_lv_" + chara_no).val());
     }
-    let skill_info = $.grep(skill_buff,
-        function (obj, index) {
-        return (obj.buff_id === buff_id);
-        })[0];
+    let skill_info = getBuffIdToBuff(buff_id)
+    if (skill_lv > skill_info.max_lv) {
+        skill_lv = skill_info.max_lv;
+    }
+    // 固定量のバフ
+    if (status_kbn[skill_info.ref_status_1] == 0) {
+        return skill_info.min_power;
+    }
     let status = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
     let min_power = skill_info.min_power * (1 + 0.03 * (skill_lv - 1));
     let max_power = skill_info.max_power * (1 + 0.02 * (skill_lv - 1));
@@ -140,9 +158,9 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     if (jewel_lv > 0) {
         let jusl_stat = skill_stat + jewel_lv * 60;
         if (status > jusl_stat) {
-        effect_size += skill_info.max_power * jewel_lv * 0.04
+            effect_size += skill_info.max_power * jewel_lv * 0.04
         } else {
-        effect_size += ((skill_info.max_power - skill_info.min_power) / jusl_stat * status + skill_info.min_power) * jewel_lv * 0.04;
+            effect_size += ((skill_info.max_power - skill_info.min_power) / jusl_stat * status + skill_info.min_power) * jewel_lv * 0.04;
         }
     }
     return effect_size;
@@ -155,10 +173,11 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
         jewel_lv = Number($("#jewel_lv_" + chara_no).val());
     }
     let enemy_stat = Number($("#enemy_stat").val());
-    let skill_info = $.grep(skill_buff,
-        function (obj, index) {
-        return (obj.buff_id === buff_id);
-        })[0];
+    let skill_info = getBuffIdToBuff(buff_id)
+    if (skill_lv > skill_info.max_lv) {
+        skill_lv = skill_info.max_lv;
+    }
+
     let status1 = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
     let status2 = Number($("#" + status_kbn[skill_info.ref_status_2] + "_" + chara_no).val());
     let min_power = skill_info.min_power * (1 + 0.05 * (skill_lv - 1));

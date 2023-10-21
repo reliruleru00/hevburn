@@ -16,11 +16,11 @@
   <script src="js/enemy.js"></script>
   <script>
 
-
     var chara_no;
     var select_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
     var buff_kbn = ["power_up", "element_up", "mindeye", "defense_down", "element_down", "fragile", "critical_up", "critical_damege", "critical_element", "critical_damege_element"];
+    var select_attack_skill;
 
     $(function(){ 
       // スタイルリスト作成
@@ -69,15 +69,27 @@
         var weak_physical = 1;
         var weak_element = 1;
         var special_dp = 1;
-        var special_hp = 1;
+        var special_hp = 1.3;
         var destruction_rate = Number($("#enemy_destruction").val()) / 100;
-        var damage = Math.floor(basePower * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp);
+        var damage = Math.floor(basePower * buff * debuff * critical * ability * filed * weak_physical * weak_element * special_dp * special_hp * destruction_rate);
         $("#damage").val(damage);
       })
       
       // スキル変更
       $("#attack_list").on("change", function(event) {
-        let max_lv = $("#attack_list option:selected").data("max_lv");
+        let attack_id = Number($("#attack_list option:selected").val());
+        let skill_info = getAttackIdToAttack(attack_id)
+        let max_lv = skill_info.max_lv;
+
+        if (select_attack_skill !== undefined) {
+          $(".buff_element-" + select_attack_skill.attack_element).hide();
+        }
+        $(".buff_element-" + skill_info.attack_element).show();
+        $(".element").each(function(index, value) {
+          select2ndSkill($(value));
+        });
+
+        select_attack_skill = skill_info;
         createSkillLvList("skill_lv", max_lv, max_lv);
       })
       // ステータス変更
@@ -85,7 +97,7 @@
       // モーダルを開く
       $('.showmodal').on('click', function(){
         chara_no = $(this).data("chara_no");
-        $('.ModalLayer').addClass('isShow');
+        $('.modal_layer').addClass('isShow');
       });
 
       // スタイル絞り込み
@@ -143,25 +155,26 @@
         // ステータス一覧を作成
 
         $("#jewel_type_" + chara_no).val(style.jewel_type);
-
         addAttackList(style, chara_no);
+        if ($("#attack_list option").length > 0)  {
+          $("#attack_list").trigger("change");
+        }
         addBuffList(style, chara_no);
-
         closeModel();
       });
       // モーダルを閉じる
-      $('.close_modal').on('click', function(){
+      $('.modal_layer_mask').on('click', function(){
         closeModel();
       });
     });
 
     function updateStatusList(chara_no) {
-      $
+
     }
 
     function closeModel() {
       chara_no = 0;
-      $('.ModalLayer').removeClass('isShow');
+      $('.modal_layer').removeClass('isShow');
     }
 
     function addAttackList(style, chara_no) {
@@ -173,15 +186,10 @@
         var option = $('<option>')
                     .text(value.attack_name)
                     .val(value.attack_id)
-                    .data("max_lv", value.max_lv)
                     .data("chara_no", chara_no)
                     .addClass("chara_id-" + value.chara_id);
         $("#attack_list").append(option);
-        $('attack_list').eq(1).prop('selected', true);
       });
-
-      let max_lv = $("#attack_list option:selected").data("max_lv");
-      createSkillLvList("skill_lv", max_lv, max_lv);
     }
 
     function createSkillLvList(id, max_lv, select_lv) {
@@ -209,26 +217,64 @@
         });
       $.each(buff_list, function(index, value) {
         let effectSize = 0;
-        if (value.buff_kind <= 2) {
-          effectSize = Math.floor(getBuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
-        } else if (value.buff_kind <= 6) {
-          effectSize = Math.floor(getDebuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+        let buff_element = 0;
+        switch (value.buff_kind){
+          case 1: // 属性攻撃力アップ
+          case 8:	// 属性クリティカル率アップ
+          case 9:	// 属性クリティカルダメージアップ
+            buff_element = value.buff_element;
+          case 0: // 攻撃力アップ
+          case 2: // 心眼
+          case 6:	// クリティカル率アップ
+          case 7:	// クリティカルダメージアップ
+          case 10:	// チャージ
+            effectSize = Math.floor(getBuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+            break;
+          case 4: // 属性防御力ダウン
+            buff_element = value.buff_element;
+          case 3: // 防御力ダウン
+          case 5: // 脆弱
+            effectSize = Math.floor(getDebuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
+            break;
+          default:
+            break;
         }
         let str_buff = buff_kbn[value.buff_kind];
+        let display = "none";
+        if (buff_element == 0 || (select_attack_skill !== undefined && select_attack_skill.attack_element === buff_element)) {
+          display = "block"
+        }
+
         var option = $('<option>')
                     .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effectSize + "%")
                     .val(value.buff_id)
-                    .data("max_lv", value.max_lv)
                     .data("select_lv", value.max_lv)
                     .data("chara_no", chara_no)
                     .data("effectSize", effectSize)
+                    .css("display", display)
+                    .addClass("buff_element-" + buff_element)
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
-        createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
-        createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
-        sortEffectSize($("#" + str_buff + "1"));
-        sortEffectSize($("#" + str_buff + "2"));
+        if (display == "block") {
+          createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
+          createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
+          sortEffectSize($("#" + str_buff + "1"));
+          sortEffectSize($("#" + str_buff + "2"));
+        }
+        select2ndSkill($("#" + str_buff + "1"));
+        select2ndSkill($("#" + str_buff + "2"));
       });
+    }
+
+    function select2ndSkill(select) {
+      select.prop("selectedIndex", 0);
+      for (let i = 1; i < select.find("option").length; i++) {
+        let option = select.find("option")[i];
+        if ($(option).css("display") != "none") {
+          $(option).prop("selected", true);
+          break;
+        }
+      }
     }
 
     // バフ合計取得
@@ -243,7 +289,7 @@
           return true;
         }
         let buff_id = Number(selected.val());
-        let skill_lv = Number(selected.data("max_lv"));
+        let skill_lv = Number(selected.data("select_lv"));
         let chara_no = selected.data("chara_no");
         effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
@@ -255,7 +301,7 @@
           mindeye += effect_size;
         }
       });
-      multiplier *= (1 + power_up / 100) * (1 + element_up / 100) * (1 + mindeye / 100);
+      multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100);
       return multiplier;
     }
 
@@ -271,7 +317,7 @@
           return true;
         }
         let buff_id = Number(selected.val());
-        let skill_lv = Number(selected.data("max_lv"));
+        let skill_lv = Number(selected.data("select_lv"));
         let chara_no = selected.data("chara_no");
         effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
@@ -283,10 +329,9 @@
           fragile += effect_size;
         }
       });
-      multiplier *= (1 + defense_down / 100) * (1 + element_down / 100) * (1 + fragile / 100);
+      multiplier *= (1 + (defense_down + element_down) / 100) * (1 + fragile / 100);
       return multiplier;
     }
-
   </script>
 </head>
 <body>
@@ -295,7 +340,6 @@
   </header>
   <br>
   <div>
-    <!-- <div class="w-[1080px] mx-auto bg-amber-100 flex"> -->
     <div class="w-[1080px] mx-auto flex">
         <div>
         <div id="char_list" class="w-[500px] grid grid-cols-7 text-center">
@@ -453,13 +497,13 @@
             </tr>
             <tr>
               <td class="type">属性攻撃力アップ1</td>
-              <td><select id="element_up1" class="buff element_up"><option selected value="">無し</option></select></td>
+              <td><select id="element_up1" class="buff element_up element"><option selected value="">無し</option></select></td>
               <td>Lv<select id="element_up1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性攻撃力アップ2</td>
-              <td><select id="element_up2" class="buff element_up"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="element_up1_lv" class="lv"></select></td>
+              <td><select id="element_up2" class="buff element_up element"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="element_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">心眼1</td>
@@ -484,13 +528,13 @@
             </tr>
             <tr>
               <td class="type">属性防御力ダウン1</td>
-              <td><select id="element_down1" class="debuff element_down"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="defense_down1_lv" class="lv"></select></td>
+              <td><select id="element_down1" class="debuff element_down element"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="element_down1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性防御力ダウン2</td>
-              <td><select id="element_down2" class="debuff element_down"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="defense_down2_lv" class="lv"></select></td>
+              <td><select id="element_down2" class="debuff element_down element"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="element_down2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">脆弱1</td>
@@ -525,22 +569,22 @@
             </tr>
             <tr>
               <td class="type">属性クリ率アップ1</td>
-              <td><select id="critical_element1" class="buff critical_element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_element1" class="buff critical_element element"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリ率アップ2</td>
-              <td><select id="critical_element2" class="buff critical_element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_element2" class="buff critical_element element"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリダメアップ1</td>
-              <td><select id="critical_damege_element1" class="buff critical_damege_element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege_element1" class="buff critical_damege_element element"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td class="type">属性クリダメアップ2</td>
-              <td><select id="critical_damege_element2" class="buff critical_damege_element"><option selected value="">無し</option></select></td>
+              <td><select id="critical_damege_element2" class="buff critical_damege_element element"><option selected value="">無し</option></select></td>
               <td>Lv<select id="critical_damege_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
@@ -554,13 +598,13 @@
       </div>
     </div>
   </div>
-  <div class="ModalLayer">
-    <div class="ModalLayer-Mask"></div>
-    <div class="modal-layer-inner">
-      <div class="ModalSection">
-        <div class="Modal">
-          <div class="modal-inner">
-            <div class="modal-inner-headline">
+  <div class="modal_layer">
+    <div class="modal_layer_mask"></div>
+    <div class="modal_layer_inner">
+      <div class="modal_section">
+        <div class="modal">
+          <div class="modal_inner">
+            <div class="modal_inner_headline">
               スタイル選択
             </div>
             <div>

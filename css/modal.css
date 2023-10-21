@@ -1,7 +1,7 @@
 /* ---------------------------- */
 /* --- ModalSection --- */
 /* ---------------------------- */
-.ModalLayer {
+.modal_layer {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,18 +12,18 @@
   opacity: 0;
   z-index: 10000;
 }
-.ModalLayer.isShow {
+.modal_layer.isShow {
   transition: opacity 0.65s;
   pointer-events: auto;
   opacity: 1;
 }
-.ModalLayer-Mask {
+.modal_layer_mask {
   position: absolute;
   background: rgba(123,123,123,0.5);
   width: 100%;
   height: 100vh;
 }
-.modal-layer-inner {
+.modal_layer_inner {
   border-top: 5px solid #5bc8ac;
   position: absolute;
   top: 50%;
@@ -34,21 +34,21 @@
   transform: translate(-50%, -50%);
 }
 @media screen and (max-width: 768px) {
-  .ModalLayer-Inner {
+  .modal_layer_inner {
     padding-left: 24px;
     padding-right: 24px;
   }
 }
-.ModalSection {
+.modal_section {
   background: #fff;
 }
-.modal-inner {
+.modal_inner {
   margin-left: auto;
   margin-right: auto;
   padding-top: 20px;
   width: 550px;
 }
-.modal-inner-headline {
+.modal_inner_headline {
   text-align: center;
   font-size: 24px;
   font-weight: bold;

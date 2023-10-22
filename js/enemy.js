@@ -19,4 +19,4 @@ var enemy_list = [
     {"enemy_class":2,"enemy_class_no":8,"enemy_name":"レクタス/シニスター・ニールY : Lv.3","enemy_stat":340,"max_dp":150000,"max_hp":700000,"destruction":4,"destruction_limit":300,"physical_1":100,"physical_2":100,"physical_3":100,"element_0":100,"element_1":250,"element_2":100,"element_3":25,"element_4":100,"element_5":100},
     {"enemy_class":2,"enemy_class_no":9,"enemy_name":"レクタス/シニスター・ニールW : Lv.3","enemy_stat":340,"max_dp":150000,"max_hp":700000,"destruction":4,"destruction_limit":300,"physical_1":100,"physical_2":100,"physical_3":100,"element_0":100,"element_1":100,"element_2":100,"element_3":100,"element_4":25,"element_5":250},
     {"enemy_class":2,"enemy_class_no":10,"enemy_name":"レクタス/シニスター・ニールP : Lv.3","enemy_stat":340,"max_dp":150000,"max_hp":700000,"destruction":4,"destruction_limit":300,"physical_1":100,"physical_2":100,"physical_3":100,"element_0":100,"element_1":100,"element_2":100,"element_3":100,"element_4":250,"element_5":25},
-    ];
+];

@@ -49,8 +49,8 @@ function setEnemyElement(id, val) {
 // 効果量ソート
 function sortEffectSize(selecter) {
     var item = selecter.children().sort(function(a, b){
-        var effectA= Number($(a).data(" effect_size"));
-        var effectB = Number($(b).data(" effect_size"));
+        var effectA= Number($(a).data("effect_size"));
+        var effectB = Number($(b).data("effect_size"));
         if (effectA < effectB) {
         return 1;
         } else if (effectA > effectB) {

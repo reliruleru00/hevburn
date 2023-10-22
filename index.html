@@ -19,6 +19,8 @@
     var chara_no;
     var select_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
+    var type_physical = ["", "slash", "stab", "strike"];
+    var type_element = ["none", "fire", "ice", "thunder", "light", "dark"];
     var select_attack_skill;
 
     $(function(){ 
@@ -43,11 +45,11 @@
       $("input[type='number']").prop("step", 1);
       $(".status").prop("max", 999);
       $(".status").prop("min", 1);
-      $(".status").prop("disabled", true);
+//      $(".status").prop("disabled", true);
       $(".jewel").prop("max", 5);
       $(".jewel").prop("min", 0);
-      $(".jewel").prop("disabled", true);
-
+//      $(".jewel").prop("disabled", true);
+      
       createEnemyList("1");
       $("#enemy_class").on("change", function(event) {
         let enemy_class = $("#enemy_class option:selected").val();
@@ -99,12 +101,20 @@
 
         if (select_attack_skill !== undefined) {
           $(".buff_element-" + select_attack_skill.attack_element).hide();
+          $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
+          $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
         }
         $(".buff_element-" + skill_info.attack_element).show();
         $(".element").each(function(index, value) {
           select2ndSkill($(value));
         });
-
+        let attack_physical = type_physical[skill_info.attack_physical];
+        let attack_element = type_element[skill_info.attack_element];
+        $("#attack_physical").attr("src", "img/" + attack_physical + ".webp");
+        $("#attack_element").attr("src", "img/" + attack_element + ".webp");
+        $("." + attack_physical).addClass("selected");
+        $("." + attack_element).addClass("selected");
+        
         select_attack_skill = skill_info;
         createSkillLvList("skill_lv", max_lv, max_lv);
       });
@@ -177,11 +187,11 @@
         // メンバーの情報を削除
         removeMember();
         
+        // 画像切り替え
         select_style_list[chara_no] = style;
         $('[data-chara_no="' + chara_no + '"]').attr("src", "icon/" + style.image_url);
 
-        // ステータス一覧を作成
-
+        // 宝珠スキルタイプを設定
         $("#jewel_type_" + chara_no).val(style.jewel_type);
         addAttackList(style, chara_no);
         if ($("#attack_list option").length > 0)  {
@@ -221,7 +231,7 @@
         $(value).find(chara_id_class).css("display", "none");
         select2ndSkill($("#" + $(value).prop("id")));
       });
-      // スキルLvの設定
+      // 該当メンバーのスキル削除
       $(chara_id_class).remove();
     }
 
@@ -230,7 +240,14 @@
           function (obj, index) {
             return (obj.chara_id === style.chara_id && (obj.style_id === style.style_id || obj.style_id == 0));
           });
-      $.each(attack_list, function(index2, value) {
+      let attack_sort_list = attack_list.sort(function (x, y) {
+        if (x.style_id < y.style_id) {
+          return 1;
+        } else {
+          return -1;
+        }
+      })
+      $.each(attack_sort_list, function(index2, value) {
         var option = $('<option>')
                     .text(value.attack_name)
                     .val(value.attack_id)
@@ -451,13 +468,13 @@
           <img class="showmodal w-16 h-16" id="chara3" src="img/plus.png" data-chara_no="3">
           <img class="showmodal w-16 h-16" id="chara4" src="img/plus.png" data-chara_no="4">
           <img class="showmodal w-16 h-16" id="chara5" src="img/plus.png" data-chara_no="5">
-          <label>凸数</label>
-          <input type="number" id="convex_0" class="status" value="2">
-          <input type="number" id="convex_1" class="status" value="2">
-          <input type="number" id="convex_2" class="status" value="2">
-          <input type="number" id="convex_3" class="status" value="2">
-          <input type="number" id="convex_4" class="status" value="2">
-          <input type="number" id="convex_5" class="status" value="2">
+          <label>限界突破</label>
+          <input type="number" id="limit_0" class="status" value="2">
+          <input type="number" id="limit_1" class="status" value="2">
+          <input type="number" id="limit_2" class="status" value="2">
+          <input type="number" id="limit_3" class="status" value="2">
+          <input type="number" id="limit_4" class="status" value="2">
+          <input type="number" id="limit_5" class="status" value="2">
           <label>力</label>
           <input type="number" id="str_0" class="status" value="400">
           <input type="number" id="str_1" class="status" value="400">
@@ -509,13 +526,15 @@
           <input type="number" id="jewel_lv_5" class="jewel" value="5">
         </div>
         <br>
-        <div class="w-96 mx-auto flex">
-          攻撃スキル
-          <select id="attack_list" class="w-60">
+        <div class="w-[400px] mx-auto flex">
+          攻 撃
+          <select id="attack_list" class="w-64">
           </select>
           Lv
           <select id="skill_lv" class="lv">
           </select>
+          <img id="attack_physical" class="w-6 h-6">
+          <img id="attack_element" class="w-6 h-6">
         </div>
         <br>
         <div class="w-96 mx-auto">
@@ -542,24 +561,15 @@
           </div>
           <br>
           <div class="grid grid-cols-9">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Slash.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Stab.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Strike.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Nonelement.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Fire.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Ice.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Thunder.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Light.webp">
-            <input type="image" class="w-8 h-8 ml-1.5" src="img/Dark.webp">
-            <input type="text" id="enemy_physical_1" class="text-center" readonly>
-            <input type="text" id="enemy_physical_2" class="text-center" readonly>
-            <input type="text" id="enemy_physical_3" class="text-center" readonly>
-            <input type="text" id="enemy_element_0" class="text-center" readonly>
-            <input type="text" id="enemy_element_1" class="text-center" readonly>
-            <input type="text" id="enemy_element_2" class="text-center" readonly>
-            <input type="text" id="enemy_element_3" class="text-center" readonly>
-            <input type="text" id="enemy_element_4" class="text-center" readonly>
-            <input type="text" id="enemy_element_5" class="text-center" readonly>
+            <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text" id="enemy_physical_1" class="enemy_type_value" readonly></div>
+            <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text" id="enemy_physical_2" class="enemy_type_value" readonly></div>
+            <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text" id="enemy_physical_3" class="enemy_type_value" readonly></div>
+            <div class="none"><input type="image" class="enemy_type_icon" src="img/none.webp"><input type="text" id="enemy_element_0" class="enemy_type_value" readonly></div>
+            <div class="fire"><input type="image" class="enemy_type_icon" src="img/fire.webp"><input type="text" id="enemy_element_1" class="enemy_type_value" readonly></div>
+            <div class="ice"><input type="image" class="enemy_type_icon" src="img/ice.webp"><input type="text" id="enemy_element_2" class="enemy_type_value" readonly></div>
+            <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text" id="enemy_element_3" class="enemy_type_value" readonly></div>
+            <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text" id="enemy_element_4" class="enemy_type_value" readonly></div>
+            <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text" id="enemy_element_5" class="enemy_type_value" readonly></div>
           </div>
         </div>
         <br>
@@ -723,16 +733,16 @@
             </div>
             <hr class="line"/>
             <div>
-              <input type="image" class="narrow physical" id="physical_1" src="img/Slash.webp" data-select="1">
-              <input type="image" class="narrow physical" id="physical_2" src="img/Stab.webp" data-select="1">
-              <input type="image" class="narrow physical" id="physical_3" src="img/Strike.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_1" src="img/slash.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_2" src="img/stab.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_3" src="img/strike.webp" data-select="1">
               ／
-              <input type="image" class="narrow element" id="element_0" src="img/Nonelement.webp" data-select="1">
-              <input type="image" class="narrow element" id="element_1" src="img/Fire.webp" data-select="1">
-              <input type="image" class="narrow element" id="element_2" src="img/Ice.webp" data-select="1">
-              <input type="image" class="narrow element" id="element_3" src="img/Thunder.webp" data-select="1">
-              <input type="image" class="narrow element" id="element_4" src="img/Light.webp" data-select="1">
-              <input type="image" class="narrow element" id="element_5" src="img/Dark.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_0" src="img/none.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_1" src="img/fire.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_2" src="img/ice.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_3" src="img/thunder.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_4" src="img/light.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_5" src="img/dark.webp" data-select="1">
             </div>
             <div class="troops">
               <input type="image" class="emblem" src="img/31a.webp">

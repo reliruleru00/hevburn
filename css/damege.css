@@ -83,4 +83,20 @@ input.calc_btn {
     font-weight: bold;
     color: blue;
 }
-
+.enemy_type_icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 4px;
+    margin-left: 5px;
+    margin-bottom: -8px;
+}
+.enemy_type_value {
+    text-align: center;
+    width: 32px;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 5px;
+}
+.selected {
+    border-radius: 10px;
+    background-color: #ffff00;
+}

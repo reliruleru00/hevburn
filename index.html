@@ -42,11 +42,9 @@
       $("input[type='number']").prop("step", 1);
       $(".status").prop("max", 999);
       $(".status").prop("min", 1);
-//      $(".status").prop("disabled", true);
       $(".jewel").prop("max", 5);
       $(".jewel").prop("min", 0);
-//      $(".jewel").prop("disabled", true);
-      
+
       createEnemyList("1");
       $("#enemy_class").on("change", function(event) {
         let enemy_class = $("#enemy_class option:selected").val();
@@ -54,6 +52,11 @@
       })
       $("#enemy_list").on("change", function(event) {
         setEnemyStatus();
+        if (isWaek(undefined, undefined)) {
+          $(".row_weak").css("display", "table-cell");      
+        } else {
+          $(".row_weak").css("display", "none");      
+        }
       });
 
       // 計算
@@ -68,7 +71,10 @@
         let buff = getBuff();
         let debuff = getDebuff();
         let ability = 1;
-        let element_field = 1 + Number($("#element_field option:selected").val()) / 100;
+        let element_field = 1;
+        if (skill_info.attack_element != 0 && $("#element_field option:selected").val() != "") {
+          element_field += Number($("#element_field option:selected").data("effect_size")) / 100;
+        }
         let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
         let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
         let special = 1;
@@ -89,6 +95,7 @@
         $("#critical_damage").val(Math.floor(critical_damage).toLocaleString());
         $("#critical_damage_min").val(Math.floor(critical_damage * 0.9).toLocaleString());
         $("#critical_damage_max").val(Math.floor(critical_damage * 1.1).toLocaleString());
+        $("#damage_result").show();
       });
       
       // 攻撃スキル変更
@@ -104,7 +111,7 @@
           // 選択無しの場合は、削除のみ
           return;
         }
-        let skill_info = getAttackInfo()
+        let skill_info = getAttackInfo();
         let max_lv = skill_info.max_lv;
         $(".buff_element-" + skill_info.attack_element).show();
         $(".element").each(function(index, value) {
@@ -117,7 +124,18 @@
         $("." + attack_physical).addClass("selected");
         $("." + attack_element).addClass("selected");
         
+        if (skill_info.attack_element == 0) {
+          $(".row_element").css("display", "none");      
+        } else {
+          $(".row_element").css("display", "table-cell");      
+        }
+        if (isWaek(skill_info, undefined)) {
+          $(".row_weak").css("display", "table-cell");      
+        } else {
+          $(".row_weak").css("display", "none");      
+        }
         select_attack_skill = skill_info;
+
         createSkillLvList("skill_lv", max_lv, max_lv);
       });
       // バフスキル変更
@@ -209,6 +227,22 @@
       });
     });
 
+    function isWaek(skill_info, enemy_info) {
+      if (skill_info === undefined) {
+        skill_info = getAttackInfo();
+      }
+      if (enemy_info === undefined) {
+        enemy_info = getEnemyInfo();
+      }
+      if (enemy_info["physical_" + skill_info.attack_physical] > 100) {
+        return true;
+      }
+      if (enemy_info["element_" + skill_info.attack_element] > 100) {
+        return true;
+      }
+      return false;
+    }
+
     function updateStatusList(chara_no) {
 
     }
@@ -218,6 +252,7 @@
       $('.modal_layer').removeClass('isShow');
     }
 
+    // メンバーを外す
     function removeMember() {
       // 入れ替えスタイルのスキルを削除
       let chara_id_class = ".chara_id-" + select_style_list[chara_no].chara_id;
@@ -381,13 +416,16 @@
         effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
         if ($(value).hasClass("power_up")) {
-          power_up +=effect_size;
+          power_up += effect_size;
         } else if ($(value).hasClass("element_up")) {
-          element_up +=effect_size;
+          element_up += effect_size;
         } else if ($(value).hasClass("mindeye")) {
-          mindeye +=effect_size;
+          mindeye += effect_size;
         }
       });
+      if (!isWaek()) {
+        fragile = 0;
+      }
       multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100);
       return multiplier;
     }
@@ -409,13 +447,16 @@
        effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
         // バフ分類
         if ($(value).hasClass("defense_down")) {
-          defense_down +=effect_size;
+          defense_down += effect_size;
         } else if ($(value).hasClass("element_down")) {
-          element_down +=effect_size;
+          element_down += effect_size;
         } else if ($(value).hasClass("fragile")) {
-          fragile +=effect_size;
+          fragile += effect_size;
         }
       });
+      if (!isWaek()) {
+        fragile = 0;
+      }
       multiplier *= (1 + (defense_down + element_down) / 100) * (1 + fragile / 100);
       return multiplier;
     }
@@ -578,7 +619,7 @@
           <input type="button" id="calc" href="javascript:void(0)" class="calc_btn" value="計 算">
         </div>
         <br>
-        <div class="text-center">
+        <div id="damage_result" class="text-center hidden">
           <label class="damage_label">クリティカルダメージ</label>
           <div>
             <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
@@ -601,7 +642,7 @@
         <div class="mx-auto text-center">
           <table>
             <colgroup>
-              <col width="80px">
+              <col width="85px">
               <col width="100px">
               <col width="300px">
               <col width="65px">
@@ -618,24 +659,24 @@
               <td>Lv<select id="power_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性攻撃力アップ1</td>
-              <td><select id="element_up1" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="element_up1_lv" class="lv"></select></td>
+              <td class="type row_element">属性攻撃力アップ1</td>
+              <td class="row_element"><select id="element_up1" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="element_up1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性攻撃力アップ2</td>
-              <td><select id="element_up2" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="element_up2_lv" class="lv"></select></td>
+              <td class="type row_element">属性攻撃力アップ2</td>
+              <td class="row_element"><select id="element_up2" class="buff element_up element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="element_up2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">心眼1</td>
-              <td><select id="mindeye1" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="mindeye1_lv" class="lv"></select></td>
+              <td class="type row_weak">心眼1</td>
+              <td class="row_weak"><select id="mindeye1" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak">Lv<select id="mindeye1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">心眼2</td>
-              <td><select id="mindeye2" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="mindeye2_lv" class="lv"></select></td>
+              <td class="type row_weak">心眼2</td>
+              <td class="row_weak"><select id="mindeye2" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak">Lv<select id="mindeye2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="6" class="kind">デバフ</td>
@@ -649,24 +690,24 @@
               <td>Lv<select id="defense_down2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性防御力ダウン1</td>
-              <td><select id="element_down1" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="element_down1_lv" class="lv"></select></td>
+              <td class="type row_element">属性防御力ダウン1</td>
+              <td class="row_element"><select id="element_down1" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="element_down1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性防御力ダウン2</td>
-              <td><select id="element_down2" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="element_down2_lv" class="lv"></select></td>
+              <td class="type row_element">属性防御力ダウン2</td>
+              <td class="row_element"><select id="element_down2" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="element_down2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">脆弱1</td>
-              <td><select id="fragile1" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="fragile1_lv" class="lv"></select></td>
+              <td class="type row_weak">脆弱1</td>
+              <td class="row_weak"><select id="fragile1" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak">Lv<select id="fragile1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">脆弱2</td>
-              <td><select id="fragile2" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="fragile2_lv" class="lv"></select></td>
+              <td class="type row_weak">脆弱2</td>
+              <td class="row_weak"><select id="fragile2" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak">Lv<select id="fragile2_lv" class="lv"></select></td>
             </tr>
             <tr>
               <td rowspan="8" class="kind">クリティカル</td>
@@ -690,30 +731,52 @@
               <td>Lv<select id="critical_damege2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性クリ率アップ1</td>
-              <td><select id="critical_element1" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="critical_element1_lv" class="lv"></select></td>
+              <td class="type row_element">属性クリ率アップ1</td>
+              <td class="row_element"><select id="critical_element1" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="critical_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性クリ率アップ2</td>
-              <td><select id="critical_element2" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="critical_element2_lv" class="lv"></select></td>
+              <td class="type row_element">属性クリ率アップ2</td>
+              <td class="row_element"><select id="critical_element2" class="critical_rate critical_element element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="critical_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性クリダメアップ1</td>
-              <td><select id="critical_damege_element1" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="critical_damege_element1_lv" class="lv"></select></td>
+              <td class="type row_element">属性クリダメアップ1</td>
+              <td class="row_element"><select id="critical_damege_element1" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="critical_damege_element1_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td class="type">属性クリダメアップ2</td>
-              <td><select id="critical_damege_element2" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
-              <td>Lv<select id="critical_damege_element2_lv" class="lv"></select></td>
+              <td class="type row_element">属性クリダメアップ2</td>
+              <td class="row_element"><select id="critical_damege_element2" class="critical_buff critical_damege_element element include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_element">Lv<select id="critical_damege_element2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td rowspan="6" class="kind">フィールド</td>
-              <td class="type">属性フィールド</td>
-              <td><select id="element_field" class="debuff filed element_field element"><option selected value="">無し</option></select></td>
-              <td id="filed_lv"></td>
+              <td class="kind row_element">フィールド</td>
+              <td class="type row_element">属性フィールド</td>
+              <td class="row_element"><select id="element_field" class="buff filed element_field element"><option selected value="">無し</option></select></td>
+              <td class="row_element" id="filed_lv"></td>
+            </tr>
+            <tr>
+              <td class="kind" rowspan="3">チャージ</td>
+              <td class="type">チャージ</td>
+              <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
+              <td class="" id="filed_lv"></td>
+            </tr>
+            <tr>
+              <td class="type">連撃1</td>
+              <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
+              <td class="" id="filed_lv"></td>
+            </tr>            <tr>
+              <td class="type">連撃2</td>
+              <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
+              <td class="" id="filed_lv"></td>
+            </tr>
+            <tr>
+              <td class="kind">その他</td>
+              <td class="" colspan="3" >
+                <label class="type"><input type="checkbox">闘志</label>
+                <label class="type"><input type="checkbox">厄</label>
+              </td>
             </tr>
           </table>
         </div>

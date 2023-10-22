@@ -100,3 +100,9 @@ input.calc_btn {
     border-radius: 10px;
     background-color: #ffff00;
 }
+
+/* 初期値 */
+.row_element,
+.row_weak {
+    display: none;
+}

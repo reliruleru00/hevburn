@@ -12,15 +12,19 @@ function createEnemyList(enemy_class) {
     setEnemyStatus();
 }
 
-// 敵ステータス設定
-function setEnemyStatus() {
+// 敵情報取得
+function getEnemyInfo() {
     let enemy_class = Number($("#enemy_class option:selected").val());
     let enemy_class_no = Number($("#enemy_list option:selected").val());
-    
-    let enemy_info = $.grep(enemy_list,
+    return $.grep(enemy_list,
         function (obj, index) {
             return (obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
         })[0];
+
+}
+// 敵ステータス設定
+function setEnemyStatus() {
+    let enemy_info = getEnemyInfo();
     $("#enemy_stat").val(enemy_info.enemy_stat);
     $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
     $("#enemy_dp").val(enemy_info.max_dp.toLocaleString());

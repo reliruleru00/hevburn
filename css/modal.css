@@ -29,7 +29,7 @@
   top: 50%;
   left: 50%;
   width: 600px;
-  height: 720px;
+  height: 90%;
   overflow-y: scroll;
   transform: translate(-50%, -50%);
 }
@@ -41,11 +41,12 @@
 }
 .modal_section {
   background: #fff;
+  height: 100%;
 }
 .modal_inner {
   margin-left: auto;
   margin-right: auto;
-  padding-top: 20px;
+  padding-top: 10px;
   width: 550px;
 }
 .modal_inner_headline {
@@ -60,6 +61,15 @@ input.remove_btn {
   color: #fff;
   background: #149f14;
   border-radius: 100vh;
+}
+
+input.role {
+  width: 80px;
+  font-size: 14px;
+  color: #fff;
+  background: #7f7fff;
+  border-radius: 10vh;
+  margin: 2px;
 }
 
 hr.line {

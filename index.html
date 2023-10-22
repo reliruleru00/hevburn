@@ -27,18 +27,15 @@
       // スタイルリスト作成
       $.each(style_list, function(index, value) {
         let source = "icon/" + value.image_url;
-        let style_id = value.style_id;
-        let troops = value.troops;
-        let physical = value.physical;
-        let element = value.element;
         var input = $('<input>')
                     .attr("type", "image")
                     .attr("src", source)
-                    .data("style_id", style_id)
+                    .data("style_id", value.style_id)
                     .addClass("select_style")
-                    .addClass("physical_" + physical)
-                    .addClass("element_" + element);
-        $("#sytle_list_" + troops).append(input);
+                    .addClass("physical_" + value.physical)
+                    .addClass("element_" + value.element)
+                    .addClass("role_" + value.role);
+        $("#sytle_list_" + value.troops).append(input);
       });
 
       $(".lv").prop("disabled", true);
@@ -96,14 +93,19 @@
       
       // 攻撃スキル変更
       $("#attack_list").on("change", function(event) {
-        let skill_info = getAttackInfo()
-        let max_lv = skill_info.max_lv;
-
         if (select_attack_skill !== undefined) {
           $(".buff_element-" + select_attack_skill.attack_element).hide();
           $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
           $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
         }
+        if ($("#attack_list option").length == 0)  {
+          $("#attack_physical").attr("src", "img/blank.png");
+          $("#attack_element").attr("src", "img/blank.png");
+          // 選択無しの場合は、削除のみ
+          return;
+        }
+        let skill_info = getAttackInfo()
+        let max_lv = skill_info.max_lv;
         $(".buff_element-" + skill_info.attack_element).show();
         $(".element").each(function(index, value) {
           select2ndSkill($(value));
@@ -139,35 +141,33 @@
         $('.modal_layer').addClass('isShow');
       });
 
+      let narrow = {"physical": "", "element": "", "role": "" };
       // スタイル絞り込み
       $(".narrow").on('click', function() {
-        let id = $(this).attr("id");
-        let select = $(this).data("select");
-        if (select == "1") {
-          $(this).css('opacity', '0.3');
-          $(this).data("select", "0");
-          $("." + id).hide();
+        let classification = "";
+        if ($(this).hasClass("physical")) {
+          classification = "physical";
+        } else if ($(this).hasClass("element")) {
+          classification = "element";
         } else {
-          let isPhysical = $(this).hasClass("physical");
-          let isElement = $(this).hasClass("element");
-          $(this).css('opacity', '1');
-          $(this).data("select", "1");
-          if (isPhysical) {
-            $(".element").each(function(index, value) {
-              if ($(value).data("select") == "1") {
-                let element_id = $(value).attr("id");
-                $("." + id + "." + element_id).show();
-              }
-            });
-          } else if (isElement) {
-            $(".physical").each(function(index, value) {
-              if ($(value).data("select") == "1") {
-                let physical_id = $(value).attr("id");
-                $("." + id + "." + physical_id).show();
-              }
-            });
-          }
+          classification += "role";
         }
+        let selecter = ".narrow" + "." + classification;
+        if ($(this).data("select") == "1") {
+          $(selecter).css("opacity", "0.3");
+          $(selecter).data("select", "1");
+          $(this).css("opacity", "1");
+          $(this).data("select", "0");
+          narrow[classification] = "." + $(this).prop("id");
+        } else {
+          $(selecter).css("opacity", "1");
+          $(selecter).data("select", "1");
+          narrow[classification] = "";
+        }
+
+        $(".select_style").hide();
+        let show_class = ".select_style" + narrow.physical + narrow.element + narrow.role;
+        $(show_class).show();
       })
 
       // スタイルを選択
@@ -194,17 +194,13 @@
         // 宝珠スキルタイプを設定
         $("#jewel_type_" + chara_no).val(style.jewel_type);
         addAttackList(style, chara_no);
-        if ($("#attack_list option").length > 0)  {
-          $("#attack_list").trigger("change");
-        }
+        $("#attack_list").trigger("change");
         addBuffList(style, chara_no);
         closeModel();
       });
       // メンバーを外す
       $('.remove_btn').on('click', function(){
         removeMember();
-        select_style_list[chara_no] = 0;
-        $('[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
         closeModel();
       });
 
@@ -233,6 +229,11 @@
       });
       // 該当メンバーのスキル削除
       $(chara_id_class).remove();
+      select_style_list[chara_no] = 0;
+      // 画像初期化
+      $('[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
+      // スキル情報編集
+      $("#attack_list").trigger("change");
     }
 
     function addAttackList(style, chara_no) {
@@ -533,8 +534,8 @@
           Lv
           <select id="skill_lv" class="lv">
           </select>
-          <img id="attack_physical" class="w-6 h-6">
-          <img id="attack_element" class="w-6 h-6">
+          <img id="attack_physical" class="w-6 h-6" src="img/blank.png">
+          <img id="attack_element" class="w-6 h-6" src="img/blank.png">
         </div>
         <br>
         <div class="w-96 mx-auto">
@@ -732,17 +733,27 @@
               </div>
             </div>
             <hr class="line"/>
-            <div>
+            <div class="flex">
+              <div class="w-8"></div>
               <input type="image" class="narrow physical" id="physical_1" src="img/slash.webp" data-select="1">
               <input type="image" class="narrow physical" id="physical_2" src="img/stab.webp" data-select="1">
               <input type="image" class="narrow physical" id="physical_3" src="img/strike.webp" data-select="1">
-              ／
+              <div class="w-16"></div>
               <input type="image" class="narrow element" id="element_0" src="img/none.webp" data-select="1">
               <input type="image" class="narrow element" id="element_1" src="img/fire.webp" data-select="1">
               <input type="image" class="narrow element" id="element_2" src="img/ice.webp" data-select="1">
               <input type="image" class="narrow element" id="element_3" src="img/thunder.webp" data-select="1">
               <input type="image" class="narrow element" id="element_4" src="img/light.webp" data-select="1">
               <input type="image" class="narrow element" id="element_5" src="img/dark.webp" data-select="1">
+            </div>
+            <div class="flex">
+              <input type="button" class="narrow role" id="role_1" value="ATTACKER" data-select="1">
+              <input type="button" class="narrow role" id="role_2" value="BREAKER" data-select="1">
+              <input type="button" class="narrow role" id="role_3" value="BLASTER" data-select="1">
+              <input type="button" class="narrow role" id="role_4" value="HEALER" data-select="1">
+              <input type="button" class="narrow role" id="role_5" value="BUFFER" data-select="1">
+              <input type="button" class="narrow role" id="role_6" value="DEBUFFER" data-select="1">
+              <input type="button" class="narrow role" id="role_7" value="DEFENDER" data-select="1">
             </div>
             <div class="troops">
               <input type="image" class="emblem" src="img/31a.webp">

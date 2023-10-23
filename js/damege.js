@@ -124,12 +124,12 @@ function getBasePower(correction) {
             base_power += 0;
         } else if (enemy_stat > status){
             base_power += skill_info.min_power / (jusl_stat / 2) * (status - (enemy_stat - jusl_stat / 2)) * jewel_lv * 0.02;
-        } else if (enemy_stat + skill_stat > status){
+        } else if (enemy_stat + jusl_stat > status){
             base_power += ((skill_info.max_power - skill_info.min_power) / jusl_stat * (status - enemy_stat) + skill_info.min_power) * jewel_lv * 0.02;
         } else {
             base_power += skill_info.max_power * jewel_lv * 0.02;
         }
-        }
+    }
     return base_power;
 }
 
@@ -150,6 +150,9 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     let skill_info = getBuffIdToBuff(buff_id);
     if (skill_lv > skill_info.max_lv) {
         skill_lv = skill_info.max_lv;
+    }
+    if (skill_lv > 13) {
+        skill_lv = 13;
     }
     // 固定量のバフ
     if (status_kbn[skill_info.ref_status_1] == 0) {
@@ -189,7 +192,9 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
     if (skill_lv > skill_info.max_lv) {
         skill_lv = skill_info.max_lv;
     }
-
+    if (skill_lv > 13) {
+        skill_lv = 13;
+    }
     let status1 = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
     let status2 = Number($("#" + status_kbn[skill_info.ref_status_2] + "_" + chara_no).val());
     let min_power = skill_info.min_power * (1 + 0.05 * (skill_lv - 1));
@@ -217,4 +222,33 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
         }
     }
     return effect_size;
+}
+
+
+// 連撃効果量
+function getFunnelEffectSize(buff_id, chara_no, skill_lv) {
+    let skill_info = getBuffIdToBuff(buff_id)
+    let funnel_power;
+    if (skill_info.buff_kind == 16) {
+        // 連撃(小)
+        funnel_power = 10;
+    } else {
+        // 連撃(大)
+        funnel_power = 40;
+    }
+    let effect_size;
+    let min_power = skill_info.min_power;
+    let max_power = skill_info.max_power;
+    if (min_power == max_power) {
+        effect_size = funnel_power * min_power;
+    } else {
+        let status1 = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
+        if (skill_info.param_limit > status1) {
+            effect_size = funnel_power * min_power;
+        } else {
+            effect_size = funnel_power * max_power;
+        }
+    }
+
+   return effect_size;
 }

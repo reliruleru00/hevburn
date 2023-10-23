@@ -62,14 +62,15 @@
       // 計算
       $("#calc").on("click", function(event) {
         // 闘志
-        let fightingspirit = 0
+        let fightingspirit = $("#fightingspirit").prop("checked") ? -20 : 0;
         // 厄
-        let misfortune = 0
+        let misfortune = $("#misfortune").prop("checked") ? -20 : 0;
 
-        let skill_info = getAttackInfo()
-        let basePower = getBasePower(0);
+        let skill_info = getAttackInfo();
+        let basePower = getBasePower(fightingspirit + misfortune);
         let buff = getBuff();
         let debuff = getDebuff();
+        // let funnel = getFunnel();
         let ability = 1;
         let element_field = 1;
         if (skill_info.attack_element != 0 && $("#element_field option:selected").val() != "") {
@@ -86,22 +87,26 @@
         }
         let damage = basePower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate;
 
-        let criticalPower = getBasePower(-50);
+        let criticalPower = getBasePower(fightingspirit - 50);
         let criticalBuff = getCriticalBuff();
-        let critical_damage = criticalPower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
+        let criticalRate = getCriticalRate();
+        let critical_damage = criticalPower * buff * debuff *  ability * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
         $("#damage").val(Math.floor(damage).toLocaleString());
         $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
         $("#damage_max").val(Math.floor(damage * 1.1).toLocaleString());
         $("#critical_damage").val(Math.floor(critical_damage).toLocaleString());
         $("#critical_damage_min").val(Math.floor(critical_damage * 0.9).toLocaleString());
         $("#critical_damage_max").val(Math.floor(critical_damage * 1.1).toLocaleString());
+        $("#critical_rate").text("(発生率:" + criticalRate + "%)");
         $("#damage_result").show();
       });
       
       // 攻撃スキル変更
       $("#attack_list").on("change", function(event) {
         if (select_attack_skill !== undefined) {
-          $(".buff_element-" + select_attack_skill.attack_element).hide();
+          if (select_attack_skill.attack_element !== 0) {
+            $(".buff_element-" + select_attack_skill.attack_element).hide();
+          }
           $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
           $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
         }
@@ -227,6 +232,7 @@
       });
     });
 
+    // 弱点判定
     function isWaek(skill_info, enemy_info) {
       if (skill_info === undefined) {
         skill_info = getAttackInfo();
@@ -271,6 +277,7 @@
       $("#attack_list").trigger("change");
     }
 
+    // 攻撃リストに追加
     function addAttackList(style, chara_no) {
       let attack_list = $.grep(skill_attack,
           function (obj, index) {
@@ -293,6 +300,7 @@
       });
     }
 
+    // スキルレベルリスト作成
     function createSkillLvList(id, max_lv, select_lv) {
       var selecter = "#" + id;
       $(selecter).html("");
@@ -310,6 +318,7 @@
       }
     }
 
+    // バフリストに追加
     function addBuffList(style, chara_no) {
       // スキル追加
       let buff_list = $.grep(skill_buff,
@@ -319,7 +328,7 @@
       $.each(buff_list, function(index, value) {
         let effect_size = 0;
         let buff_element = 0;
-        switch (value.buff_kind){
+        switch (value.buff_kind) {
           case 1: // 属性攻撃力アップ
           case 8:	// 属性クリティカル率アップ
           case 9:	// 属性クリティカルダメージアップ
@@ -328,21 +337,23 @@
           case 2: // 心眼
           case 6:	// クリティカル率アップ
           case 7:	// クリティカルダメージアップ
-          case 10:	// チャージ
+          case 10: // チャージ
             effect_size = Math.floor(getBuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
             break;
           case 4: // 属性防御力ダウン
             buff_element = value.buff_element;
           case 3: // 防御力ダウン
           case 5: // 脆弱
+          case 19: // DP防御力ダウン
             effect_size = Math.floor(getDebuffEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
             break;
           case 11: // 属性フィールド
             buff_element = value.buff_element;
             effect_size = value.min_power;
             break;
-          case 12: // 
-          case 13: // 
+          case 16: // 連撃(小)
+          case 17: // 連撃(大)
+            effect_size = Math.floor(getFunnelEffectSize(value.buff_id, chara_no, value.max_lv) * 100) / 100;
             break;
           default:
             break;
@@ -357,6 +368,7 @@
                     .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effect_size + "%")
                     .val(value.buff_id)
                     .data("select_lv", value.max_lv)
+                    .data("max_lv", value.max_lv)
                     .data("chara_no", chara_no)
                     .data("effect_size", effect_size)
                     .css("display", display)
@@ -364,19 +376,21 @@
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
         if (display == "block") {
-          if (value.buff_kind <= 10) {
-            createSkillLvList(str_buff + "1_lv", value.max_lv, value.max_lv);
-            createSkillLvList(str_buff + "2_lv", value.max_lv, value.max_lv);
-            sortEffectSize($("#" + str_buff + "1"));
-            sortEffectSize($("#" + str_buff + "2"));
+          switch (value.buff_kind){
+            case 10: // チャージ
+            case 11: // 属性フィールド
+              sortEffectSize($("#" + str_buff));
+              select2ndSkill($("#" + str_buff));
+              break;
+            default:
+              sortEffectSize($("#" + str_buff + "1"));
+              sortEffectSize($("#" + str_buff + "2"));
+              select2ndSkill($("#" + str_buff + "1"));
+              select2ndSkill($("#" + str_buff + "2"));
+              break;
           }
         }
-        if (value.buff_kind <= 10) {
-          select2ndSkill($("#" + str_buff + "1"));
-          select2ndSkill($("#" + str_buff + "2"));
-        } else {
-          select2ndSkill($("#" + str_buff));
-        }
+
       });
     }
 
@@ -387,6 +401,9 @@
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
           $(option).prop("selected", true);
+          let select_lv = $(option).data("select_lv");
+          let max_lv = $(option).data("max_lv");
+          createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
           return;
         }
       }
@@ -405,6 +422,7 @@
       let power_up = 0;
       let element_up = 0;
       let mindeye = 0;
+      let funnel = 0;
       $(".buff").each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
@@ -413,7 +431,12 @@
         let buff_id = Number(selected.val());
         let skill_lv = Number(selected.data("select_lv"));
         let chara_no = selected.data("chara_no");
-        effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
+        if ($(value).hasClass("funnel")) {
+          effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
+        } else {
+          effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
+        }
+
         // バフ分類
         if ($(value).hasClass("power_up")) {
           power_up += effect_size;
@@ -421,12 +444,16 @@
           element_up += effect_size;
         } else if ($(value).hasClass("mindeye")) {
           mindeye += effect_size;
+        } else if ($(value).hasClass("charge")) {
+          power_up += effect_size;
+        } else if ($(value).hasClass("funnel")) {
+          funnel += effect_size;
         }
       });
       if (!isWaek()) {
         fragile = 0;
       }
-      multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100);
+      multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100) * (1 + funnel / 100);
       return multiplier;
     }
 
@@ -460,9 +487,12 @@
       multiplier *= (1 + (defense_down + element_down) / 100) * (1 + fragile / 100);
       return multiplier;
     }
-    
+
     function getCriticalRate() {
-      let critical_rate = 150;
+      let chara_no = $("#attack_list option:selected").data("chara_no");
+
+      let critical_rate = 1.5 + Number($("#enemy_stat").val()) + Number($("#" + status_kbn[5] + "_" + chara_no).val()) * 0.04;
+
       $(".critical_rate").each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
@@ -470,8 +500,9 @@
         }
         critical_rate += Number(selected.data("effect_size"));
       });
-      return critical_rate / 100;
+      return critical_rate > 100 ? 100 : critical_rate;
     }
+
     function getCriticalBuff() {
       let criticalBuff = 150;
       $(".critical_buff").each(function(index, value) {
@@ -620,7 +651,7 @@
         </div>
         <br>
         <div id="damage_result" class="text-center hidden">
-          <label class="damage_label">クリティカルダメージ</label>
+          <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
           <div>
             <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
             ～
@@ -648,7 +679,7 @@
               <col width="65px">
             </colgroup>
             <tr>
-              <td rowspan="6" class="kind">バフ</td>
+              <td rowspan="8" class="kind">バフ</td>
               <td class="type">攻撃力アップ1</td>
               <td><select id="power_up1" class="buff power_up include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="power_up1_lv" class="lv"></select></td>
@@ -679,7 +710,16 @@
               <td class="row_weak">Lv<select id="mindeye2_lv" class="lv"></select></td>
             </tr>
             <tr>
-              <td rowspan="6" class="kind">デバフ</td>
+              <td class="type">連撃1</td>
+              <td class=""><select id="funnel1" class="buff funnel include_lv"><option selected value="">無し</option></select></td>
+              <td class="">Lv<select id="funnel1_lv" class="lv"></select></td>
+            </tr>
+            <tr>
+              <td class="type">連撃2</td>
+              <td class=""><select id="funnel2" class="buff funnel include_lv"><option selected value="">無し</option></select></td>
+              <td class="">Lv<select id="funnel2_lv" class="lv"></select></td>
+            </tr>            <tr>
+              <td rowspan="8" class="kind">デバフ</td>
               <td class="type">防御力ダウン1</td>
               <td><select id="defense_down1" class="debuff defense_down include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="defense_down1_lv" class="lv"></select></td>
@@ -689,6 +729,16 @@
               <td><select id="defense_down2" class="debuff defense_down include_lv"><option selected value="">無し</option></select></td>
               <td>Lv<select id="defense_down2_lv" class="lv"></select></td>
             </tr>
+            <tr>
+              <td class="type">DP防御力ダウン1</td>
+              <td><select id="dp_defense_down1" class="debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="dp_defense_down1_lv" class="lv"></select></td>
+            </tr>
+            <tr>
+              <td class="type">DP防御力ダウン2</td>
+              <td><select id="dp_defense_down2" class="debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
+              <td>Lv<select id="dp_defense_down2_lv" class="lv"></select></td>
+            </tr>            
             <tr>
               <td class="type row_element">属性防御力ダウン1</td>
               <td class="row_element"><select id="element_down1" class="debuff element_down element include_lv"><option selected value="">無し</option></select></td>
@@ -757,25 +807,16 @@
               <td class="row_element" id="filed_lv"></td>
             </tr>
             <tr>
-              <td class="kind" rowspan="3">チャージ</td>
+              <td class="kind">チャージ</td>
               <td class="type">チャージ</td>
               <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
               <td class="" id="filed_lv"></td>
             </tr>
             <tr>
-              <td class="type">連撃1</td>
-              <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
-              <td class="" id="filed_lv"></td>
-            </tr>            <tr>
-              <td class="type">連撃2</td>
-              <td class=""><select id="charge" class="buff charge"><option selected value="">無し</option></select></td>
-              <td class="" id="filed_lv"></td>
-            </tr>
-            <tr>
               <td class="kind">その他</td>
-              <td class="" colspan="3" >
-                <label class="type"><input type="checkbox">闘志</label>
-                <label class="type"><input type="checkbox">厄</label>
+              <td class="text-lg" colspan="3" >
+                <label class=""><input type="checkbox" id="fightingspirit" class="">闘志</label>
+                <label class=""><input type="checkbox" id="misfortune" class="">厄</label>
               </td>
             </tr>
           </table>

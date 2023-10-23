@@ -52,6 +52,16 @@ select.critical_buff {
     margin-left: 3px;
 }
 
+div.lv {
+    display: none;
+}
+div.lv::before {
+    content: "Lv";
+    margin-right: -4px;
+}
+div.lv select{
+    text-align: center;
+}
 
 input.calc_btn {
     width: 100px;

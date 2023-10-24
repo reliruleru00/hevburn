@@ -116,3 +116,46 @@ input.calc_btn {
 .row_weak {
     display: none;
 }
+
+/* チェックボックス01 */
+input[type=checkbox] {
+    display: none;
+}
+.checkbox01 {
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0px 30px;
+    position: relative;
+    width: auto;
+    display: none;
+}
+.checkbox01::before {
+    background: #fff;
+    border: 1px solid #231815;
+    content: '';
+    display: block;
+    height: 16px;
+    left: 5px;
+    margin-top: -8px;
+    position: absolute;
+    top: 50%;
+    width: 16px;
+}
+.checkbox01::after {
+    border-right: 3px solid #149f14;
+    border-bottom: 3px solid #149f14;
+    content: '';
+    display: block;
+    height: 13px;
+    left: 10px;
+    margin-top: -8px;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    transform: rotate(45deg);
+    width: 6px;
+}
+input[type=checkbox]:checked + .checkbox01::after {
+    opacity: 1;
+}

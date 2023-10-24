@@ -11,6 +11,7 @@
   <script src="js/chara_name.js"></script>
   <script src="js/chara_style.js"></script>
   <script src="js/damege.js"></script>
+  <script src="js/modal.js"></script>
   <script src="js/skill_attack.js"></script>
   <script src="js/skill_buff.js"></script>
   <script src="js/enemy.js"></script>
@@ -25,18 +26,9 @@
 
     $(function(){ 
       // スタイルリスト作成
-      $.each(style_list, function(index, value) {
-        let source = "icon/" + value.image_url;
-        var input = $('<input>')
-                    .attr("type", "image")
-                    .attr("src", source)
-                    .data("style_id", value.style_id)
-                    .addClass("select_style")
-                    .addClass("physical_" + value.physical)
-                    .addClass("element_" + value.element)
-                    .addClass("role_" + value.role);
-        $("#sytle_list_" + value.troops).append(input);
-      });
+      createStyleList();
+      // モーダル系イベント追加
+      addModalEvent();
 
       $("input[type='number']").prop("step", 1);
       $(".status").prop("max", 999);
@@ -146,7 +138,7 @@
       $(".include_lv").on("change", function(event) {
         let index = $(this).prop("selectedIndex");
         if (index == 0) {
-          $("#" + $(this).prop("id") + "_lv").parent().css("display", "none");
+          resetSlillLv($(this).prop("id"));
         } else {
           let option = $(this).children().eq(index);
           let select_lv = option.data("select_lv");
@@ -175,81 +167,6 @@
           }
         });
       });
-
-      // ステータス変更
-
-      // モーダルを開く
-      $('.showmodal').on('click', function(){
-        chara_no = $(this).data("chara_no");
-        $('.modal_layer').addClass('isShow');
-      });
-
-      let narrow = {"physical": "", "element": "", "role": "" };
-      // スタイル絞り込み
-      $(".narrow").on('click', function() {
-        let classification = "";
-        if ($(this).hasClass("physical")) {
-          classification = "physical";
-        } else if ($(this).hasClass("element")) {
-          classification = "element";
-        } else {
-          classification += "role";
-        }
-        let selecter = ".narrow" + "." + classification;
-        if ($(this).data("select") == "1") {
-          $(selecter).css("opacity", "0.3");
-          $(selecter).data("select", "1");
-          $(this).css("opacity", "1");
-          $(this).data("select", "0");
-          narrow[classification] = "." + $(this).prop("id");
-        } else {
-          $(selecter).css("opacity", "1");
-          $(selecter).data("select", "1");
-          narrow[classification] = "";
-        }
-
-        $(".select_style").hide();
-        let show_class = ".select_style" + narrow.physical + narrow.element + narrow.role;
-        $(show_class).show();
-      })
-
-      // スタイルを選択
-      $('.select_style').on('click', function(){
-        let style_id = $(this).data("style_id");
-        let style = $.grep(style_list,
-          function (obj, index) {
-            return (obj.style_id === style_id);
-          })[0];
-        // 同一のキャラIDは不許可
-        for(let idx in select_style_list) {
-          if (select_style_list[idx].chara_id === style.chara_id && chara_no != idx) {
-            alert("同一キャラクターは複数選択できません");
-            return false;
-          }
-        }
-        // メンバーの情報を削除
-        removeMember();
-        
-        // 画像切り替え
-        select_style_list[chara_no] = style;
-        $('[data-chara_no="' + chara_no + '"]').attr("src", "icon/" + style.image_url);
-
-        // 宝珠スキルタイプを設定
-        $("#jewel_type_" + chara_no).val(style.jewel_type);
-        addAttackList(style, chara_no);
-        $("#attack_list").trigger("change");
-        addBuffList(style, chara_no);
-        closeModel();
-      });
-      // メンバーを外す
-      $('.remove_btn').on('click', function(){
-        removeMember();
-        closeModel();
-      });
-
-      $('.modal_layer_mask').on('click', function(){
-        closeModel();
-      });
     });
 
     // 弱点判定
@@ -271,30 +188,6 @@
 
     function updateStatusList(chara_no) {
 
-    }
-    // モーダルを閉じる
-    function closeModel() {
-      chara_no = 0;
-      $('.modal_layer').removeClass('isShow');
-    }
-
-    // メンバーを外す
-    function removeMember() {
-      // 入れ替えスタイルのスキルを削除
-      let chara_id_class = ".chara_id-" + select_style_list[chara_no].chara_id;
-      let parent = $(".include_lv " + chara_id_class + ":selected").parent();
-      $.each(parent, function(index, value) {
-        // 暫定的にdisplay:none追加
-        $(value).find(chara_id_class).css("display", "none");
-        select2ndSkill($("#" + $(value).prop("id")));
-      });
-      // 該当メンバーのスキル削除
-      $(chara_id_class).remove();
-      select_style_list[chara_no] = 0;
-      // 画像初期化
-      $('[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
-      // スキル情報編集
-      $("#attack_list").trigger("change");
     }
 
     // 攻撃リストに追加
@@ -446,7 +339,7 @@
     // スキルLv使用不可に戻す
     function resetSlillLv(id) {
       $("#" + id + "_lv").empty();
-      $("#" + id + "_lv").prop("disabled", true);
+      $("#" + id + "_lv").parent().css("display", "none");
     }
 
     // バフ合計取得
@@ -575,9 +468,9 @@
           <img class="showmodal w-16 h-16" id="chara4" src="img/plus.png" data-chara_no="4">
           <img class="showmodal w-16 h-16" id="chara5" src="img/plus.png" data-chara_no="5">
           <label>限界突破</label>
-          <input type="number" id="limit_0" class="status" value="2">
-          <input type="number" id="limit_1" class="status" value="2">
-          <input type="number" id="limit_2" class="status" value="2">
+          <input type="number" id="limit_0" class="status" value="3">
+          <input type="number" id="limit_1" class="status" value="3">
+          <input type="number" id="limit_2" class="status" value="3">
           <input type="number" id="limit_3" class="status" value="2">
           <input type="number" id="limit_4" class="status" value="2">
           <input type="number" id="limit_5" class="status" value="2">
@@ -844,10 +737,37 @@
               <td class="" id="filed_lv"></td>
             </tr>
             <tr>
+              <td rowspan="3" class="kind">アビリティ</td>
+              <td>攻撃者</td>
+              <td colspan="2"><input type="checkbox" id="ability_self"><label class="checkbox01" for="ability_self">無し</label></td>
+            </tr>
+            <tr>
+              <td>前衛</td>
+              <td colspan="2">
+                <input type="checkbox" id="ability_front0"><label class="checkbox01" for="ability_front0">無し</label>
+                <input type="checkbox" id="ability_front1"><label class="checkbox01" for="ability_front1">無し</label>
+                <input type="checkbox" id="ability_front2"><label class="checkbox01" for="ability_front2">無し</label>
+                <input type="checkbox" id="ability_front3"><label class="checkbox01" for="ability_front3">無し</label>
+                <input type="checkbox" id="ability_front4"><label class="checkbox01" for="ability_front4">無し</label>
+                <input type="checkbox" id="ability_front5"><label class="checkbox01" for="ability_front5">無し</label>
+              </td>
+            </tr>
+            <tr>
+              <td>全体</td>
+              <td colspan="2">
+                <input type="checkbox" id="ability_all0"><label class="checkbox01" for="ability_all0">無し</label>
+                <input type="checkbox" id="ability_all1"><label class="checkbox01" for="ability_all1">無し</label>
+                <input type="checkbox" id="ability_all2"><label class="checkbox01" for="ability_all2">無し</label>
+                <input type="checkbox" id="ability_all3"><label class="checkbox01" for="ability_all3">無し</label>
+                <input type="checkbox" id="ability_all4"><label class="checkbox01" for="ability_all4">無し</label>
+                <input type="checkbox" id="ability_all5"><label class="checkbox01" for="ability_all5">無し</label>
+              </td>
+            </tr>
+            <tr>
               <td class="kind">その他</td>
               <td class="text-lg" colspan="3" >
-                <label class=""><input type="checkbox" id="fightingspirit" class="">闘志</label>
-                <label class=""><input type="checkbox" id="misfortune" class="">厄</label>
+                <input type="checkbox" id="fightingspirit" class=""><label class="checkbox01" for="fightingspirit">闘志</label>
+                <input type="checkbox" id="misfortune" class=""><label class="checkbox01" for="misfortune">厄</label>
               </td>
             </tr>
           </table>

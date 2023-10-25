@@ -1,3 +1,13 @@
+
+// アビリティ情報取得
+function getAbilityInfo(ability_id) {
+    return $.grep(ability_list,
+        function (obj, index) {
+            return (obj.ability_id == ability_id);
+        })[0];
+}
+
+
 // 敵リスト作成
 function createEnemyList(enemy_class) {
     $("#enemy_list").html("");
@@ -20,8 +30,8 @@ function getEnemyInfo() {
         function (obj, index) {
             return (obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
         })[0];
-
 }
+
 // 敵ステータス設定
 function setEnemyStatus() {
     let enemy_info = getEnemyInfo();

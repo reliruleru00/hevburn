@@ -11,13 +11,6 @@ header {
     border-color: #FFF;
 }
 
-select.jewel_type{
-    width: 24px;
-}
-select.jewel_lv{
-    width: 40px;
-}
-
 input[type="number"] {
     text-align: center;
     width: 60px;
@@ -43,12 +36,13 @@ table td.type {
 select.buff,
 select.debuff,
 select.critical_rate,
-select.critical_buff {
+select.critical_buff,
+select.filed {
     width: 300px;
 }
 
 .status,
-.jewel {
+.max_5 {
     margin-left: 3px;
 }
 
@@ -83,7 +77,7 @@ input.calc_btn {
 .min_damage {
     font-weight: bold;
     font-size: 20px;
-    width: 100px;
+    width: 120px;
 }
 .enemy_weak {
     font-weight: bold;
@@ -125,7 +119,10 @@ input[type=checkbox] {
     box-sizing: border-box;
     cursor: pointer;
     display: inline-block;
-    padding: 0px 30px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 25px;
+    padding-right: 0px;
     position: relative;
     width: auto;
 }
@@ -157,4 +154,14 @@ input[type=checkbox] {
 }
 input[type=checkbox]:checked + .checkbox01::after {
     opacity: 1;
+}
+input[type=checkbox]:disabled + .checkbox01::before {
+    opacity: 0.2;
+}
+input[type=checkbox]:checked:disabled + .checkbox01:after {
+    border-right: 3px solid #aaa;
+    border-bottom: 3px solid #aaa;
+}
+input[type=checkbox]:disabled + .checkbox01 {
+	cursor: default;
 }

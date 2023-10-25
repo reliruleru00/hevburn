@@ -34,7 +34,10 @@ table td.type {
 }
 
 select.buff,
+select.mindeye,
+select.funnel,
 select.debuff,
+select.fragile,
 select.critical_rate,
 select.critical_buff,
 select.filed {

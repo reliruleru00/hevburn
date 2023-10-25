@@ -38,10 +38,10 @@ var skill_buff = [
     {"buff_id":14,"buff_kind":11,"buff_element":4,"chara_id":45,"style_id":0,"buff_name":"光芒一閃","ref_status_1":0,"ref_status_2":0,"min_power":50.00,"max_power":50.00,"sp_cost":12,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
     {"buff_id":15,"buff_kind":11,"buff_element":5,"chara_id":20,"style_id":0,"buff_name":"アクロマティックバレット","ref_status_1":0,"ref_status_2":0,"min_power":50.00,"max_power":50.00,"sp_cost":12,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
     {"buff_id":16,"buff_kind":14,"buff_element":0,"chara_id":22,"style_id":0,"buff_name":"ハートフル・ボマー","ref_status_1":0,"ref_status_2":0,"min_power":0.00,"max_power":0.00,"sp_cost":14,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
-    {"buff_id":17,"buff_kind":0,"buff_element":0,"chara_id":10,"style_id":46,"buff_name":"アブソリュートフェノメノン","ref_status_1":5,"ref_status_2":0,"min_power":75.00,"max_power":90.00,"sp_cost":9,"param_limit":232,"max_lv":10,"skill_attack":0,"only_me":0},
-    {"buff_id":18,"buff_kind":6,"buff_element":0,"chara_id":10,"style_id":46,"buff_name":"アブソリュートフェノメノン","ref_status_1":0,"ref_status_2":0,"min_power":70.00,"max_power":70.00,"sp_cost":9,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
-    {"buff_id":19,"buff_kind":7,"buff_element":0,"chara_id":10,"style_id":46,"buff_name":"アブソリュートフェノメノン","ref_status_1":0,"ref_status_2":0,"min_power":30.00,"max_power":30.00,"sp_cost":9,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
-    {"buff_id":20,"buff_kind":5,"buff_element":0,"chara_id":11,"style_id":45,"buff_name":"フリージング・スペル","ref_status_1":6,"ref_status_2":5,"min_power":35.00,"max_power":50.00,"sp_cost":14,"param_limit":147,"max_lv":1,"skill_attack":0,"only_me":0},
+    {"buff_id":17,"buff_kind":0,"buff_element":0,"chara_id":10,"style_id":45,"buff_name":"アブソリュートフェノメノン","ref_status_1":5,"ref_status_2":0,"min_power":75.00,"max_power":90.00,"sp_cost":9,"param_limit":232,"max_lv":10,"skill_attack":0,"only_me":0},
+    {"buff_id":18,"buff_kind":6,"buff_element":0,"chara_id":10,"style_id":45,"buff_name":"アブソリュートフェノメノン","ref_status_1":0,"ref_status_2":0,"min_power":70.00,"max_power":70.00,"sp_cost":9,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
+    {"buff_id":19,"buff_kind":7,"buff_element":0,"chara_id":10,"style_id":45,"buff_name":"アブソリュートフェノメノン","ref_status_1":0,"ref_status_2":0,"min_power":30.00,"max_power":30.00,"sp_cost":9,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":0},
+    {"buff_id":20,"buff_kind":5,"buff_element":0,"chara_id":11,"style_id":46,"buff_name":"フリージング・スペル","ref_status_1":6,"ref_status_2":5,"min_power":35.00,"max_power":50.00,"sp_cost":14,"param_limit":147,"max_lv":1,"skill_attack":0,"only_me":0},
     {"buff_id":21,"buff_kind":2,"buff_element":0,"chara_id":27,"style_id":0,"buff_name":"宙舞うハイテンション","ref_status_1":5,"ref_status_2":0,"min_power":35.00,"max_power":50.00,"sp_cost":14,"param_limit":147,"max_lv":1,"skill_attack":0,"only_me":0},
     {"buff_id":22,"buff_kind":5,"buff_element":0,"chara_id":36,"style_id":0,"buff_name":"覇道妄執我突邁進","ref_status_1":6,"ref_status_2":5,"min_power":35.00,"max_power":50.00,"sp_cost":14,"param_limit":149,"max_lv":1,"skill_attack":0,"only_me":0},
     {"buff_id":23,"buff_kind":1,"buff_element":4,"chara_id":13,"style_id":51,"buff_name":"レイジング・レインディア","ref_status_1":5,"ref_status_2":0,"min_power":65.00,"max_power":80.00,"sp_cost":11,"param_limit":135,"max_lv":1,"skill_attack":0,"only_me":0},
@@ -153,5 +153,4 @@ var skill_buff = [
     {"buff_id":2701,"buff_kind":17,"buff_element":0,"chara_id":17,"style_id":0,"buff_name":"心意活性","ref_status_1":5,"ref_status_2":0,"min_power":2.00,"max_power":3.00,"sp_cost":5,"param_limit":129,"max_lv":1,"skill_attack":0,"only_me":1},
     {"buff_id":2702,"buff_kind":17,"buff_element":0,"chara_id":39,"style_id":0,"buff_name":"ホールドアップマインド","ref_status_1":0,"ref_status_2":0,"min_power":2.00,"max_power":2.00,"sp_cost":8,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":1},
     {"buff_id":2703,"buff_kind":17,"buff_element":0,"chara_id":46,"style_id":0,"buff_name":"ブリリアント・グローリー","ref_status_1":5,"ref_status_2":0,"min_power":2.00,"max_power":3.00,"sp_cost":7,"param_limit":208,"max_lv":1,"skill_attack":0,"only_me":1},
-         
-]    
+    ]    

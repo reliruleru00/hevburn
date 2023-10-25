@@ -80,13 +80,12 @@
         // 厄
         let misfortune = $("#misfortune").prop("checked") ? -20 : 0;
         let basePower = getBasePower(fightingspirit + misfortune);
-        let buff = getBuff();
-        let debuff = getDebuff();
-        let ability = 1;
-        let element_field = 1;
-        if (skill_info.attack_element != 0 && $("#element_field option:selected").val() != "") {
-          element_field += Number($("#element_field option:selected").data("effect_size")) / 100;
-        }
+        let buff = 1 + getSumEffectSize("buff") / 100;
+        let mindeye = isWaek() ? 1 + getSumEffectSize("mindeye") / 100 : 1;
+        let funnel = 1 + getSumEffectSize("funnel") / 100;
+        let debuff = 1 + getSumEffectSize("debuff") / 100;
+        let fragile = isWaek() ? 1 + getSumEffectSize("fragile") / 100 : 1;
+        let element_field = 1 + getSumEffectSize("element_field") / 100;
         let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
         let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
         let special = 1;
@@ -96,12 +95,12 @@
         } else {
           special += skill_info.hp_damege / 100;
         }
-        let damage = basePower * buff * debuff * ability * element_field * weak_physical * weak_element * special * destruction_rate;
+        let damage = basePower * buff * mindeye * funnel * debuff * fragile * element_field * weak_physical * weak_element * special * destruction_rate;
 
         let criticalPower = getBasePower(fightingspirit - 50);
-        let criticalBuff = getCriticalBuff();
+        let criticalBuff = 1.5 + getSumEffectSize("critical_buff") / 100;
         let criticalRate = getCriticalRate();
-        let critical_damage = criticalPower * buff * debuff *  ability * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
+        let critical_damage = criticalPower * buff * mindeye * funnel * debuff * fragile * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
         $("#damage").val(Math.floor(damage).toLocaleString());
         $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
         $("#damage_max").val(Math.floor(damage * 1.1).toLocaleString());
@@ -228,9 +227,6 @@
           case 0: // フィールド
             addElementFiled(style_info, ability_info.ability_name, ability_info.ability_power, ability_info.ability_element);
             break;
-          case 4: // その他
-            return true;
-            break;
           case 1: // 自分
             if (select_attack_skill !== undefined && select_attack_skill.chara_id !== style_info.chara_id) {
               display = "none"
@@ -243,6 +239,7 @@
             element_type = "buff_element"
             break;
           case 3:	// 常時
+          case 4: // その他
             target = "ability_all";
             element_type = "buff_element"
             break;
@@ -270,7 +267,6 @@
                 .addClass(chara_id);
         setAbilityCheck(input, ability_info, limit_border, limit_count);
         $("#" + target).append(input).append(label);
-
       });
     }
 
@@ -295,6 +291,7 @@
           }
           break;
         case 3:	// 常時
+        case 4:	// 常時
           if (limit_count < limit_border) {
             disabled = true;
             checked = false;
@@ -321,10 +318,6 @@
         return true;
       }
       return false;
-    }
-
-    function updateStatusList(chara_no) {
-
     }
 
     // 攻撃リストに追加
@@ -384,9 +377,9 @@
             addElementFiled(style, value.buff_name, value.min_power, value.buff_element);
             return true;
           case 1: // 属性攻撃力アップ
+          case 4: // 属性防御力ダウン
           case 8:	// 属性クリティカル率アップ
           case 9:	// 属性クリティカルダメージアップ
-          case 4: // 属性防御力ダウン
             buff_element = value.buff_element;
             break;
           default:
@@ -446,33 +439,34 @@
       }
     }
 
+    // 効果量取得
     function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
       let effect_size = 0;
       switch (buff_kind) {
-          case 1: // 属性攻撃力アップ
-          case 8:	// 属性クリティカル率アップ
-          case 9:	// 属性クリティカルダメージアップ
-          case 0: // 攻撃力アップ
-          case 2: // 心眼
-          case 6:	// クリティカル率アップ
-          case 7:	// クリティカルダメージアップ
-          case 10: // チャージ
-            effect_size = Math.floor(getBuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
-            break;
-          case 4: // 属性防御力ダウン
-          case 3: // 防御力ダウン
-          case 5: // 脆弱
-          case 19: // DP防御力ダウン
-            effect_size = Math.floor(getDebuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
-            break;
-          case 16: // 連撃(小)
-          case 17: // 連撃(大)
-            effect_size = Math.floor(getFunnelEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
-            break;
-          default:
-            break;
-        }
-        return effect_size;
+        case 0: // 攻撃力アップ
+        case 1: // 属性攻撃力アップ
+        case 2: // 心眼
+        case 6:	// クリティカル率アップ
+        case 7:	// クリティカルダメージアップ
+        case 8:	// 属性クリティカル率アップ
+        case 9:	// 属性クリティカルダメージアップ
+        case 10: // チャージ
+          effect_size = Math.floor(getBuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          break;
+        case 3: // 防御力ダウン
+        case 4: // 属性防御力ダウン
+        case 5: // 脆弱
+        case 19: // DP防御力ダウン
+          effect_size = Math.floor(getDebuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          break;
+        case 16: // 連撃(小)
+        case 17: // 連撃(大)
+          effect_size = Math.floor(getFunnelEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          break;
+        default:
+          break;
+      }
+      return effect_size;
     }
 
     // スキル設定
@@ -497,105 +491,26 @@
       $("#" + id + "_lv").parent().css("display", "none");
     }
 
-    // バフ合計取得
-    function getBuff() {
-      let multiplier = 1;
-      let power_up = 0;
-      let element_up = 0;
-      let mindeye = 0;
-      let funnel = 0;
-      $(".buff").each(function(index, value) {
+    // 効果量合計
+    function getSumEffectSize(class_name) {
+      let effect_size = 0;
+      $("." + class_name).each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
           return true;
         }
-        let buff_id = Number(selected.val());
-        let skill_lv = Number(selected.data("select_lv"));
-        let chara_no = selected.data("chara_no");
-        if ($(value).hasClass("funnel")) {
-          effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
-        } else {
-          effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
-        }
-
-        // バフ分類
-        if ($(value).hasClass("power_up")) {
-          power_up += effect_size;
-        } else if ($(value).hasClass("element_up")) {
-          element_up += effect_size;
-        } else if ($(value).hasClass("mindeye")) {
-          mindeye += effect_size;
-        } else if ($(value).hasClass("charge")) {
-          power_up += effect_size;
-        } else if ($(value).hasClass("funnel")) {
-          funnel += effect_size;
-        }
+        effect_size += Number($(selected).data("effect_size"));
       });
-      if (!isWaek()) {
-        mindeye = 0;
-      }
-      multiplier *= (1 + (power_up + element_up) / 100) * (1 + mindeye / 100) * (1 + funnel / 100);
-      return multiplier;
+      return effect_size;
     }
 
-    // デバフ合計取得
-    function getDebuff() {
-      let multiplier = 1;
-      let defense_down = 0;
-      let element_down = 0;
-      let fragile = 0;
-      $(".debuff").each(function(index, value) {
-        let selected = $(value).find("option:selected");
-        if (selected.val() == "") {
-          return true;
-        }
-        let buff_id = Number(selected.val());
-        let skill_lv = Number(selected.data("select_lv"));
-        let chara_no = selected.data("chara_no");
-       effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
-        // バフ分類
-        if ($(value).hasClass("defense_down")) {
-          defense_down += effect_size;
-        } else if ($(value).hasClass("element_down")) {
-          element_down += effect_size;
-        } else if ($(value).hasClass("fragile")) {
-          fragile += effect_size;
-        }
-      });
-      if (!isWaek()) {
-        fragile = 0;
-      }
-      multiplier *= (1 + (defense_down + element_down) / 100) * (1 + fragile / 100);
-      return multiplier;
-    }
-
+    // クリティカル率取得
     function getCriticalRate() {
       let chara_no = $("#attack_list option:selected").data("chara_no");
-
-      let critical_rate = 1.5 + Number($("#enemy_stat").val()) + Number($("#" + status_kbn[5] + "_" + chara_no).val()) * 0.04;
-
-      $(".critical_rate").each(function(index, value) {
-        let selected = $(value).find("option:selected");
-        if (selected.val() == "") {
-          return true;
-        }
-        critical_rate += Number(selected.data("effect_size"));
-      });
+      let critical_rate = 1.5 + (Number($("#" + status_kbn[5] + "_" + chara_no).val()) - Number($("#enemy_stat").val())) * 0.04;
+      critical_rate += getSumEffectSize("critical_rate");
       return critical_rate > 100 ? 100 : critical_rate;
     }
-
-    function getCriticalBuff() {
-      let criticalBuff = 150;
-      $(".critical_buff").each(function(index, value) {
-        let selected = $(value).find("option:selected");
-        if (selected.val() == "") {
-          return true;
-        }
-        criticalBuff += Number(selected.data("effect_size"));
-      });
-      return criticalBuff / 100;
-    }
-
   </script>
 </head>
 <body>
@@ -785,22 +700,22 @@
             </tr>
             <tr>
               <td class="type row_weak" colspan="2">心眼1</td>
-              <td class="row_weak"><select id="mindeye1" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak"><select id="mindeye1" class="mindeye include_lv"><option selected value="">無し</option></select></td>
               <td class="row_weak"><div class="lv"><select id="mindeye1_lv" class="lv_effect"></select></div></td>
             </tr>
             <tr>
               <td class="type row_weak" colspan="2">心眼2</td>
-              <td class="row_weak"><select id="mindeye2" class="buff mindeye include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak"><select id="mindeye2" class="mindeye include_lv"><option selected value="">無し</option></select></td>
               <td class="row_weak"><div class="lv"><select id="mindeye2_lv" class="lv_effect"></select></div></td>
             </tr>
             <tr>
               <td class="type" colspan="2">連撃1</td>
-              <td><select id="funnel1" class="buff funnel include_lv"><option selected value="">無し</option></select></td>
+              <td><select id="funnel1" class="funnel include_lv"><option selected value="">無し</option></select></td>
               <td><div class="lv"><select id="funnel1_lv"></select></div></td>
             </tr>
             <tr>
               <td class="type" colspan="2">連撃2</td>
-              <td><select id="funnel2" class="buff funnel include_lv"><option selected value="">無し</option></select></td>
+              <td><select id="funnel2" class="funnel include_lv"><option selected value="">無し</option></select></td>
               <td><div class="lv"><select id="funnel2_lv"></select></div></td>
             </tr>            <tr>
               <td rowspan="8" class="kind">デバフ</td>
@@ -835,12 +750,12 @@
             </tr>
             <tr>
               <td class="type row_weak" colspan="2">脆弱1</td>
-              <td class="row_weak"><select id="fragile1" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak"><select id="fragile1" class="fragile include_lv"><option selected value="">無し</option></select></td>
               <td class="row_weak"><div class="lv"><select id="fragile1_lv" class="lv_effect"></select></div></td>
             </tr>
             <tr>
               <td class="type row_weak" colspan="2">脆弱2</td>
-              <td class="row_weak"><select id="fragile2" class="debuff fragile include_lv"><option selected value="">無し</option></select></td>
+              <td class="row_weak"><select id="fragile2" class="fragile include_lv"><option selected value="">無し</option></select></td>
               <td class="row_weak"><div class="lv"><select id="fragile2_lv" class="lv_effect"></select></div></td>
             </tr>
             <tr>

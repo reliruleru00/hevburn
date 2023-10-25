@@ -79,27 +79,24 @@
         let fightingspirit = $("#fightingspirit").prop("checked") ? -20 : 0;
         // 厄
         let misfortune = $("#misfortune").prop("checked") ? -20 : 0;
+
         let basePower = getBasePower(fightingspirit + misfortune);
-        let buff = 1 + getSumEffectSize("buff") / 100;
+        let buff = getSumBuffEffectSize();
         let mindeye = isWaek() ? 1 + getSumEffectSize("mindeye") / 100 : 1;
         let funnel = 1 + getSumEffectSize("funnel") / 100;
-        let debuff = 1 + getSumEffectSize("debuff") / 100;
+        let debuff = getSumDebuffEffectSize();
         let fragile = isWaek() ? 1 + getSumEffectSize("fragile") / 100 : 1;
         let element_field = 1 + getSumEffectSize("element_field") / 100;
         let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
         let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
-        let special = 1;
         let destruction_rate = Number($("#enemy_destruction").val()) / 100;
-        if (destruction_rate == 1) {
-          special += skill_info.dp_damege / 100;
-        } else {
-          special += skill_info.hp_damege / 100;
-        }
-        let damage = basePower * buff * mindeye * funnel * debuff * fragile * element_field * weak_physical * weak_element * special * destruction_rate;
+        let special = 1 + (destruction_rate == 1 ? skill_info.dp_damege / 100 : skill_info.hp_damege / 100);
 
         let criticalPower = getBasePower(fightingspirit - 50);
-        let criticalBuff = 1.5 + getSumEffectSize("critical_buff") / 100;
         let criticalRate = getCriticalRate();
+        let criticalBuff = getCriticalBuff();
+
+        let damage = basePower * buff * mindeye * funnel * debuff * fragile * element_field * weak_physical * weak_element * special * destruction_rate;
         let critical_damage = criticalPower * buff * mindeye * funnel * debuff * fragile * element_field * weak_physical * weak_element * special * destruction_rate * criticalBuff;
         $("#damage").val(Math.floor(damage).toLocaleString());
         $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
@@ -110,12 +107,12 @@
         $("#critical_rate").text("(発生率:" + criticalRate + "%)");
         $("#damage_result").show();
       });
+
       // 攻撃スキル変更
       $("#attack_list").on("change", function(event) {
         if (select_attack_skill !== undefined) {
           if (select_attack_skill.attack_element !== 0) {
             $(".buff_element-" + select_attack_skill.attack_element).hide();
-            // $(".ability_element-" + select_attack_skill.attack_element).prop("checked", false);
           }
           $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
           $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
@@ -504,12 +501,55 @@
       return effect_size;
     }
 
+    // 合計バフ効果量取得
+    function getSumBuffEffectSize() {
+      // スキルバフ合計
+      let sumBuff = getSumEffectSize("buff");
+      // 攻撃力アップアビリティ
+      sumBuff += getSumAbilityEffectSize(1);
+      // ピアス
+      // 属性リング
+      // オーバードライブ
+      return 1 + sumBuff / 100;
+    }
+
+    // 合計デバフ効果量取得
+    function getSumDebuffEffectSize() {
+      // スキルデバフ合計
+      let sumDebuff = getSumEffectSize("debuff");
+      sumDebuff += getSumAbilityEffectSize(7);
+      return 1 + sumDebuff / 100;
+    }
+
     // クリティカル率取得
     function getCriticalRate() {
       let chara_no = $("#attack_list option:selected").data("chara_no");
       let critical_rate = 1.5 + (Number($("#" + status_kbn[5] + "_" + chara_no).val()) - Number($("#enemy_stat").val())) * 0.04;
       critical_rate += getSumEffectSize("critical_rate");
+      critical_rate += getSumAbilityEffectSize(2);
       return critical_rate > 100 ? 100 : critical_rate;
+    }
+    
+    // クリティカルバフ取得
+    function getCriticalBuff() {
+      let critical_buff = 50;
+      critical_buff += getSumEffectSize("critical_buff");
+      critical_buff += getSumAbilityEffectSize(3);
+      return 1 + critical_buff / 100;
+    }
+
+    // アビリティ効果量合計取得
+    function getSumAbilityEffectSize(ability_kind) {
+      let ability_effect_size = 0;
+      $("input[type=checkbox].ability:checked").each(function(index, value) {
+        let ability_id = Number($(value).data("ability_id"));
+        let ability_info = getAbilityInfo(ability_id);
+        if (ability_info.ability_kind == ability_kind) {
+          // クリティカル率アップアビリティ
+          critical_rate += Number($(value).data("effect_size"));
+        }
+      });
+      return ability_effect_size;
     }
   </script>
 </head>
@@ -829,6 +869,9 @@
               <td class="text-lg" colspan="4" >
                 <input type="checkbox" id="fightingspirit" class=""><label class="checkbox01" for="fightingspirit">闘志</label>
                 <input type="checkbox" id="misfortune" class=""><label class="checkbox01" for="misfortune">厄</label>
+                <input type="checkbox" id="overdrive" class=""><label class="checkbox01" for="overdrive">オーバードライブ</label>
+                <div>属性リング</div>
+                <div>アタックピアス</div>
               </td>
             </tr>
           </table>

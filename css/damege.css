@@ -128,7 +128,6 @@ input[type=checkbox] {
     padding: 0px 30px;
     position: relative;
     width: auto;
-    display: none;
 }
 .checkbox01::before {
     background: #fff;

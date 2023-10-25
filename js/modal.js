@@ -77,6 +77,10 @@ function addModalEvent(){
         addAttackList(style, chara_no);
         $("#attack_list").trigger("change");
         addBuffList(style, chara_no);
+
+        // アビリティ設定
+        addAbility(style, chara_no);
+        
         closeModel();
     });
 

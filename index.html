@@ -507,9 +507,21 @@
       let sumBuff = getSumEffectSize("buff");
       // 攻撃力アップアビリティ
       sumBuff += getSumAbilityEffectSize(1);
+      // 属性リング(0%-10%)
+      if (select_attack_skill.attack_element != 0) {
+        sumBuff += Number($("#elememt_ring option:selected").val());
+      }
+
       // ピアス
-      // 属性リング
-      // オーバードライブ
+      let earring = $("#earring option:selected");
+      if (Number($("#enemy_destruction").val()) > 100 && earring.data("type") == "attack" ||
+          Number($("#enemy_destruction").val()) == 100 && earring.data("type") == "break") {
+        sumBuff += Number(earring.data("effect_size"));
+      }
+      // オーバードライブ10%
+      if ($("#overdrive").prop("checked")) {
+        sumBuff += 10;
+      }
       return 1 + sumBuff / 100;
     }
 
@@ -664,7 +676,7 @@
             <div class="col-span-2 flex">
               <div class="text-right w-12">HP</div><input type="text" id="enemy_hp" value="" readonly class="w-24 text-right">
             </div>
-            <div class="text-right">破壊率</div><input type="number" id="enemy_destruction" value="" class="w-28 text-center">
+            <div class="text-right">破壊率</div><input type="number" id="enemy_destruction" min="100" class="w-28 text-center">
           </div>
           <br>
           <div class="grid grid-cols-9">
@@ -866,12 +878,53 @@
             </tr>
             <tr>
               <td class="kind">その他</td>
-              <td class="text-lg" colspan="4" >
-                <input type="checkbox" id="fightingspirit" class=""><label class="checkbox01" for="fightingspirit">闘志</label>
-                <input type="checkbox" id="misfortune" class=""><label class="checkbox01" for="misfortune">厄</label>
-                <input type="checkbox" id="overdrive" class=""><label class="checkbox01" for="overdrive">オーバードライブ</label>
-                <div>属性リング</div>
-                <div>アタックピアス</div>
+              <td colspan="4" >
+                <div class="flex pt-1">
+                  <div class="w-8"></div>
+                  <div>属性リング</div>
+                   <select id="elememt_ring">
+                    <option value="0">無し</option>
+                    <option value="2">+0(2%)</option>
+                    <option value="4">+1(4%)</option>
+                    <option value="6">+2(6%)</option>
+                    <option value="8">+3(8%)</option>
+                    <option value="10">+4(10%)</option>
+                  </select>
+                  <div class="w-8"></div>
+                  <div>ピアス</div>
+                  <select id="earring">
+                    <option value="0">選択無し</option>
+                    <option value="1" data-effect_size="10" data-type="attack">アタック10%</option>
+                    <option value="2" data-effect_size="12" data-type="attack">アタック12%</option>
+                    <option value="3" data-effect_size="15" data-type="attack">アタック15%</option>
+                    <option value="4" data-effect_size="10" data-type="break">ブレイク10%</option>
+                    <option value="5" data-effect_size="12" data-type="break">ブレイク12%</option>
+                    <option value="6" data-effect_size="15" data-type="break">ブレイク15%</option>
+                  </select>
+                  <div class="w-8"></div>
+                  <div>トークン数</div>
+                  <select>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+                <div class="flex pt-1 pb-1">
+                  <div class="w-8"></div>
+                  <input type="checkbox" id="overdrive" class=""><label class="checkbox01" for="overdrive">オーバードライブ</label>
+                  <div class="w-8"></div>
+                  <input type="checkbox" id="fightingspirit" class=""><label class="checkbox01" for="fightingspirit">闘志</label>
+                  <div class="w-8"></div>
+                  <input type="checkbox" id="misfortune" class=""><label class="checkbox01" for="misfortune">厄</label>
+                </div>
               </td>
             </tr>
           </table>

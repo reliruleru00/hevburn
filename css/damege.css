@@ -37,6 +37,7 @@ select.buff,
 select.mindeye,
 select.funnel,
 select.debuff,
+select.dp_debuff,
 select.fragile,
 select.critical_rate,
 select.critical_buff,
@@ -45,7 +46,10 @@ select.filed {
 }
 
 .status,
-.max_5 {
+.limit,
+.jewel {
+    text-align: center;
+    width: 60px;
     margin-left: 3px;
 }
 

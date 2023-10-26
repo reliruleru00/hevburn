@@ -34,8 +34,15 @@
       $("input[type='number']").prop("step", 1);
       $(".status").prop("max", 999);
       $(".status").prop("min", 1);
-      $(".max_5").prop("max", 5);
-      $(".max_5").prop("min", 0);
+
+      $(".limit").each(function(index, value) {
+        for (let i = 0; i <= 4; i++) $(value).append($('<option>').text(i).val(i))
+        $(value).prop("selectedIndex", 2);
+      });
+      $(".jewel").each(function(index, value) {
+        for (let i = 0; i <= 5; i++) $(value).append($('<option>').text(i).val(i))
+        $(value).prop("selectedIndex", 5);
+      });
 
       createEnemyList("1");
       $("#enemy_class").on("change", function(event) {
@@ -131,6 +138,10 @@
         $(".ability_self").hide();
         if (skill_info.attack_element !== 0) {
           $(".self_element-" + skill_info.attack_element + "." + chara_id).show();
+          $("#elememt_ring").prop("disabled", false);
+        } else {
+          $("#elememt_ring").prop("disabled", true);
+          $("#elememt_ring").prop("selectedIndex", 0);
         }
         $(".self_element-0." + chara_id).show();
 
@@ -188,7 +199,7 @@
         let skill_buff = getBuffIdToBuff(buff_id);
         let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, chara_no, skill_lv);
         let chara_id = select_style_list[chara_no].chara_id;
-        let text = chara_name[chara_id] + "：" + skill_buff.buff_name + "　" + effect_size + "%";
+        let text = chara_name[chara_id] + "：" + skill_buff.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%";
         // 同一スキル別セレクトボックス含めて反映
         let option2 = $(".chara_id-" + chara_id + ".buff_id-" + buff_id);
         option2.text(text).data("effect_size", effect_size).data("select_lv", skill_lv);
@@ -389,7 +400,7 @@
         }
 
         var option = $('<option>')
-                    .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + effect_size + "%")
+                    .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%")
                     .val(value.buff_id)
                     .data("select_lv", value.max_lv)
                     .data("max_lv", value.max_lv)
@@ -448,17 +459,17 @@
         case 8:	// 属性クリティカル率アップ
         case 9:	// 属性クリティカルダメージアップ
         case 10: // チャージ
-          effect_size = Math.floor(getBuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
           break;
         case 3: // 防御力ダウン
         case 4: // 属性防御力ダウン
         case 5: // 脆弱
         case 19: // DP防御力ダウン
-          effect_size = Math.floor(getDebuffEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
           break;
         case 16: // 連撃(小)
         case 17: // 連撃(大)
-          effect_size = Math.floor(getFunnelEffectSize(buff_id, chara_no, skill_lv) * 100) / 100;
+          effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
           break;
         default:
           break;
@@ -511,17 +522,23 @@
       if (select_attack_skill.attack_element != 0) {
         sumBuff += Number($("#elememt_ring option:selected").val());
       }
-
       // ピアス
       let earring = $("#earring option:selected");
       if (Number($("#enemy_destruction").val()) > 100 && earring.data("type") == "attack" ||
           Number($("#enemy_destruction").val()) == 100 && earring.data("type") == "break") {
-        sumBuff += Number(earring.data("effect_size"));
+        let effect_size = Number(earring.data("effect_size"));
+        sumBuff += effect_size - (10 / 9 * (select_attack_skill.hit_count - 1));
       }
       // オーバードライブ10%
       if ($("#overdrive").prop("checked")) {
         sumBuff += 10;
       }
+      // トークン
+      let token_count = Number($("#token_count").val());
+      if (select_attack_skill.token_power_up == 1) {
+        sumBuff += token_count * 16;
+      }
+      sumBuff += token_count * getSumAbilityEffectSize(6);
       return 1 + sumBuff / 100;
     }
 
@@ -529,6 +546,9 @@
     function getSumDebuffEffectSize() {
       // スキルデバフ合計
       let sumDebuff = getSumEffectSize("debuff");
+      if (Number($("#enemy_destruction").val()) == 100 ) {
+        sumDebuff += getSumEffectSize("dp_debuff");;
+      } 
       sumDebuff += getSumAbilityEffectSize(7);
       return 1 + sumDebuff / 100;
     }
@@ -557,8 +577,7 @@
         let ability_id = Number($(value).data("ability_id"));
         let ability_info = getAbilityInfo(ability_id);
         if (ability_info.ability_kind == ability_kind) {
-          // クリティカル率アップアビリティ
-          critical_rate += Number($(value).data("effect_size"));
+          ability_effect_size += Number($(value).data("effect_size"));
         }
       });
       return ability_effect_size;
@@ -590,12 +609,12 @@
           <img class="showmodal w-16 h-16" id="chara4" src="img/plus.png" data-chara_no="4">
           <img class="showmodal w-16 h-16" id="chara5" src="img/plus.png" data-chara_no="5">
           <label>限界突破</label>
-          <input type="number" id="limit_0" class="limit max_5" value="3">
-          <input type="number" id="limit_1" class="limit max_5" value="3">
-          <input type="number" id="limit_2" class="limit max_5" value="3">
-          <input type="number" id="limit_3" class="limit max_5" value="2">
-          <input type="number" id="limit_4" class="limit max_5" value="2">
-          <input type="number" id="limit_5" class="limit max_5" value="2">
+          <select id="limit_0" class="limit"></select>
+          <select id="limit_1" class="limit"></select>
+          <select id="limit_2" class="limit"></select>
+          <select id="limit_3" class="limit"></select>
+          <select id="limit_4" class="limit"></select>
+          <select id="limit_5" class="limit"></select>
           <label>力</label>
           <input type="number" id="str_0" class="status" value="400">
           <input type="number" id="str_1" class="status" value="400">
@@ -639,12 +658,12 @@
           <input type="number" id="luk_4" class="status" value="350">
           <input type="number" id="luk_5" class="status" value="350">
           <label>宝珠Lv</label>
-          <input type="number" id="jewel_lv_0" class="jewel max_5" value="5">
-          <input type="number" id="jewel_lv_1" class="jewel max_5" value="5">
-          <input type="number" id="jewel_lv_2" class="jewel max_5" value="5">
-          <input type="number" id="jewel_lv_3" class="jewel max_5" value="5">
-          <input type="number" id="jewel_lv_4" class="jewel max_5" value="5">
-          <input type="number" id="jewel_lv_5" class="jewel max_5" value="5">
+          <select id="jewel_lv_0" class="jewel"></select>
+          <select id="jewel_lv_1" class="jewel"></select>
+          <select id="jewel_lv_2" class="jewel"></select>
+          <select id="jewel_lv_3" class="jewel"></select>
+          <select id="jewel_lv_4" class="jewel"></select>
+          <select id="jewel_lv_5" class="jewel"></select>
         </div>
         <br>
         <div class="w-[400px] mx-auto flex">
@@ -782,12 +801,12 @@
             </tr>
             <tr>
               <td class="type" colspan="2">DP防御力ダウン1</td>
-              <td><select id="dp_defense_down1" class="debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
+              <td><select id="dp_defense_down1" class="dp_debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
               <td><div class="lv"><select id="dp_defense_down1_lv" class="lv_effect"></select></div></td>
             </tr>
             <tr>
               <td class="type" colspan="2">DP防御力ダウン2</td>
-              <td><select id="dp_defense_down2" class="debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
+              <td><select id="dp_defense_down2" class="dp_debuff dp_defense_down include_lv"><option selected value="">無し</option></select></td>
               <td><div class="lv"><select id="dp_defense_down2_lv" class="lv_effect"></select></div></td>
             </tr>            
             <tr>
@@ -882,7 +901,7 @@
                 <div class="flex pt-1">
                   <div class="w-8"></div>
                   <div>属性リング</div>
-                   <select id="elememt_ring">
+                   <select id="elememt_ring" disabled>
                     <option value="0">無し</option>
                     <option value="2">+0(2%)</option>
                     <option value="4">+1(4%)</option>
@@ -903,7 +922,7 @@
                   </select>
                   <div class="w-8"></div>
                   <div>トークン数</div>
-                  <select>
+                  <select id="token_count" class="token">
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>

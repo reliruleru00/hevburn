@@ -90,7 +90,7 @@ function getBasePower(correction) {
     let chara_no = $("#attack_list option:selected").data("chara_no");
     let jewel_lv = 0;
     if ($("#jewel_type_" + chara_no).val() == "1") {
-        jewel_lv = Number($("#jewel_lv_" + chara_no).val());
+        jewel_lv = Number($("#jewel_lv_" + chara_no ).prop("selectedIndex"));
     }
     let skill_info = getAttackInfo();
 
@@ -155,7 +155,7 @@ function getBuffIdToBuff(buff_id) {
 function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     let jewel_lv = 0;
     if ($("#jewel_type_" + chara_no).val() == "3") {
-        jewel_lv = Number($("#jewel_lv_" + chara_no).val());
+        jewel_lv = Number($("#jewel_lv_" + chara_no ).prop("selectedIndex"));
     }
     let skill_info = getBuffIdToBuff(buff_id);
     if (skill_lv > skill_info.max_lv) {
@@ -195,7 +195,7 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
 function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
     let jewel_lv = 0;
     if ($("#jewel_type_" + chara_no).val() == "4") {
-        jewel_lv = Number($("#jewel_lv_" + chara_no).val());
+        jewel_lv = Number($("#jewel_lv_" + chara_no ).prop("selectedIndex"));
     }
     let enemy_stat = Number($("#enemy_stat").val());
     let skill_info = getBuffIdToBuff(buff_id)

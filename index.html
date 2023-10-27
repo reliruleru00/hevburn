@@ -74,7 +74,7 @@
         let basePower = getBasePower(fightingspirit + misfortune);
         let buff = getSumBuffEffectSize();
         let mindeye = isWaek() ? 1 + getSumEffectSize("mindeye") / 100 : 1;
-        let funnel = 1 + getSumEffectSize("funnel") / 100;
+        let funnel = getSumFunnelEffectSize();;
         let debuff = getSumDebuffEffectSize();
         let fragile = isWaek() ? 1 + getSumEffectSize("fragile") / 100 : 1;
         let element_field = 1 + getSumEffectSize("element_field") / 100;
@@ -605,12 +605,24 @@
       return 1 + sumDebuff / 100;
     }
 
+    // 合計連撃効果量取得
+    function getSumFunnelEffectSize() {
+      // スキルデバフ合計
+      let sumFunnel = getSumEffectSize("funnel");
+      sumFunnel += getSumAbilityEffectSize(5);
+      return 1 + sumFunnel / 100;
+    }
+
     // クリティカル率取得
     function getCriticalRate() {
       let chara_no = $("#attack_list option:selected").data("chara_no");
-      let critical_rate = 1.5 + (Number($("#" + status_kbn[5] + "_" + chara_no).val()) - Number($("#enemy_stat").val())) * 0.04;
+      let critical_rate = 1.5;
+      let diff =  (Number($("#" + status_kbn[6] + "_" + chara_no).val()) - Number($("#enemy_stat").val()));
+      critical_rate += diff > 0 ? diff * 0.04 : 0;
+      critical_rate = critical_rate > 15 ? 15 : critical_rate;
       critical_rate += getSumEffectSize("critical_rate");
       critical_rate += getSumAbilityEffectSize(2);
+      critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
       return critical_rate > 100 ? 100 : critical_rate;
     }
     

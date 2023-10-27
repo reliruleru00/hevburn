@@ -137,6 +137,7 @@
         for (let i = 1; i <= 3; i++) {
           $("#" + status_kbn[skill_info["ref_status_" + i]] + "_" + chara_no).addClass("status_attack_skill");
         }
+        select_attack_skill = skill_info;
 
         $("input[type=checkbox].ability").each(function(index, value) {
           let ability_id = $(value).data("ability_id");
@@ -147,6 +148,7 @@
           setAbilityCheck(value, ability_info, limit_border, limi_count);
         });
         $(".redisplay").each(function(index, value) {
+          sortEffectSize($(value));
           select2ndSkill($(value));
         });
         let attack_physical = type_physical[skill_info.attack_physical];
@@ -166,7 +168,6 @@
         } else {
           $(".row_weak").css("display", "none");      
         }
-        select_attack_skill = skill_info;
         createSkillLvList("skill_lv", max_lv, max_lv);
       });
       // バフスキル変更
@@ -178,6 +179,12 @@
           resetSlillLv($(this).prop("id"));
         } else {
           let option = $(this).children().eq(index);
+          let chara_no = option.data("chara_no");
+          if (isOnlyBuff(option)) {
+            $(this).prop("selectedIndex", 0);
+            alert(option.text() + "は複数設定出来ません");
+            return;
+          }
           let select_lv = option.data("select_lv");
           let skill_info = getBuffIdToBuff(Number(option.val()));
           createSkillLvList(id + "_lv", skill_info.max_lv, select_lv);
@@ -249,7 +256,7 @@
       let skill_buff = getBuffIdToBuff(buff_id);
       let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, chara_no, skill_lv);
       let chara_id = select_style_list[chara_no].chara_id;
-      let text = chara_name[chara_id] + "：" + skill_buff.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%";
+      let text = chara_name[chara_id] + ":" + skill_buff.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%";
       option.text(text).data("effect_size", effect_size).data("select_lv", skill_lv);
     }
 
@@ -305,11 +312,7 @@
       }
       $(selecter).parent().css("display", "block");
       $(selecter + " option[value='" + select_lv + "']").prop('selected', true);
-      if (max_lv == 1) {
-        $(selecter).prop("disabled", true);
-      } else {
-        $(selecter).prop("disabled", false);
-      }
+      $(selecter).prop("disabled", (max_lv == 1));
     }
 
     // バフリストに追加
@@ -322,23 +325,31 @@
       $.each(buff_list, function(index, value) {
         let effect_size = getEffectSize(value.buff_kind, value.buff_id, chara_no, value.max_lv);
         let buff_element = 0;
+        let only_one = ""
+
         switch (value.buff_kind) {
           case 11: // 属性フィールド
             addElementFiled(style, value.buff_name, value.min_power, value.buff_element);
             return true;
-          case 1: // 属性攻撃力アップ
-          case 4: // 属性防御力ダウン
-          case 8:	// 属性クリティカル率アップ
-          case 9:	// 属性クリティカルダメージアップ
+          case 0:
+            only_one = "only_one"
+            break;
+          case 1: 
+            only_one = "only_one"
+          case 4:// 属性 
             buff_element = value.buff_element;
             break;
-          default:
+          case 8: case 9:// 属性
+            buff_element = value.buff_element;
+          case 6: case 7:
+            only_one = "only_one"
             break;
         }
         let str_buff = buff_kbn[value.buff_kind];
+        if (value.skill_attack == 0) only_one = 0;
         let only_chara_id = value.only_me == 1 ? "only_chara_id-" + value.chara_id : "public";
         var option = $('<option>')
-                    .text(chara_name[style.chara_id] + "：" + value.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%")
+                    .text(chara_name[style.chara_id] + ":" + value.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%")
                     .val(value.buff_id)
                     .data("select_lv", value.max_lv)
                     .data("max_lv", value.max_lv)
@@ -348,6 +359,7 @@
                     .addClass("buff_element-" + buff_element)
                     .addClass("buff_id-" + value.buff_id)
                     .addClass(only_chara_id)
+                    .addClass(only_one)
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
       });
@@ -360,17 +372,13 @@
         display = "block"
       }
       var option = $('<option>')
-                  .text(chara_name[style.chara_id] + "：" + filed_name + "　" + effect_size + "%")
+                  .text(chara_name[style.chara_id] + ":" + filed_name + " " + effect_size + "%")
                   .data("effect_size", effect_size)
                   .css("display", display)
                   .addClass("public")
                   .addClass("buff_element-" + filed_element)
                   .addClass("chara_id-" + style.chara_id);
       $("#element_field").append(option);
-      if (display == "block") {
-        sortEffectSize($("#element_field"));
-        select2ndSkill($("#element_field"));
-      }
     }
 
     // アビリティ追加
@@ -510,6 +518,9 @@
       for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
+          if (isOnlyBuff($(option))) {
+            continue;
+          }
           $(option).prop("selected", true);
           let select_lv = $(option).data("select_lv");
           let max_lv = $(option).data("max_lv");
@@ -520,6 +531,20 @@
         }
       }
       resetSlillLv(select.prop("id"));
+    }
+
+    // 単一バフが既に設定済み判定
+    function isOnlyBuff(option) {
+      if (option.hasClass("only_one") && select_attack_skill !== undefined) {
+        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+          let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
+          let buff_id = "buff_id-" + option.val();
+          if ($("." + class_name +" option." + buff_id + ":selected").length > 0) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     // 選択バフのステータスを着色

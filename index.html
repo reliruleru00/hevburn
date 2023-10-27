@@ -123,6 +123,7 @@
           }
           $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
           $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
+          $(".status_attack_skill").removeClass("status_attack_skill");
         }
         if ($("#attack_list option").length == 0)  {
           $("#attack_physical").attr("src", "img/blank.png");
@@ -144,6 +145,10 @@
           $("#elememt_ring").prop("selectedIndex", 0);
         }
         $(".self_element-0." + chara_id).show();
+        // 該当ステータスに着色
+        for (let i = 1; i <=3; i++) {
+          $("#" + status_kbn[skill_info["ref_status_" + i]] + "_" + chara_no).addClass("status_attack_skill");
+        }
 
         $("input[type=checkbox].ability").each(function(index, value) {
           let ability_id = $(value).data("ability_id");
@@ -179,34 +184,51 @@
       // バフスキル変更
       $(".include_lv").on("change", function(event) {
         let index = $(this).prop("selectedIndex");
+        let id = $(this).prop("id");
+        $(".status_" + id).removeClass("status_" + id);
         if (index == 0) {
           resetSlillLv($(this).prop("id"));
         } else {
           let option = $(this).children().eq(index);
           let select_lv = option.data("select_lv");
           let skill_info = getBuffIdToBuff(Number(option.val()));
-          createSkillLvList($(this).prop("id") + "_lv", skill_info.max_lv, select_lv);
+          createSkillLvList(id + "_lv", skill_info.max_lv, select_lv);
+          setStatusToBuff(option, id);
         }
       });
       // スキルレベル変更
       $(".lv_effect").on("change", function(event) {
         let buff_type_id = $(this).attr("id").replace("_lv", "");
-        let skill_lv = $(this).prop("selectedIndex") + 1;
-        // バフ取得
         let option = $("#" + buff_type_id + " option:selected");
-        let buff_id = Number(option.val());
         let chara_no = option.data("chara_no");
-        let skill_buff = getBuffIdToBuff(buff_id);
-        let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, chara_no, skill_lv);
         let chara_id = select_style_list[chara_no].chara_id;
-        let text = chara_name[chara_id] + "：" + skill_buff.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%";
+        let buff_id = Number(option.val());
+        let skill_lv = $(this).prop("selectedIndex") + 1;
+        // バフ効果量更新
+        $(".variable_effect_size.chara_id-" + chara_id + ".buff_id-" + buff_id).each(function(index, value) {
+          updateBuffEffectSize($(value), skill_lv);
+        });
         // 同一スキル別セレクトボックス含めて反映
-        let option2 = $(".chara_id-" + chara_id + ".buff_id-" + buff_id);
-        option2.text(text).data("effect_size", effect_size).data("select_lv", skill_lv);
-        $.each(option2, function(index, value) {
+        $.each($(".chara_id-" + chara_id + ".buff_id-" + buff_id), function(index, value) {
           if ($(value).prop("selected")) {
             $("#" + $(value).parent().attr("id") +"_lv").prop("selectedIndex", skill_lv - 1);
           }
+        });
+      });
+      // 宝珠レベル変更
+      $(".jewel").on("change", function(event) {
+        let chara_no = $(this).attr("id").replace(/[^0-9]/g, '');
+        let chara_id = select_style_list[chara_no].chara_id;
+        $(".variable_effect_size.chara_id-" + chara_id).each(function(index, value) {
+          updateBuffEffectSize($(value));
+        });
+      });
+      // ステータス変更
+      $(".status.effect_size").on("change", function(event) {
+        let chara_no = $(this).attr("id").replace(/[^0-9]/g, '');
+        let chara_id = select_style_list[chara_no].chara_id;
+        $(".variable_effect_size.chara_id-" + chara_id).each(function(index, value) {
+          updateBuffEffectSize($(value));
         });
       });
     });
@@ -276,6 +298,20 @@
         setAbilityCheck(input, ability_info, limit_border, limit_count);
         $("#" + target).append(input).append(label);
       });
+    }
+
+    // バフ効果量更新
+    function updateBuffEffectSize(option, skill_lv) {
+      let buff_id = Number(option.val());
+      if (skill_lv === undefined) {
+        skill_lv = Number(option.data("select_lv"));
+      }
+      let chara_no = option.data("chara_no");
+      let skill_buff = getBuffIdToBuff(buff_id);
+      let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, chara_no, skill_lv);
+      let chara_id = select_style_list[chara_no].chara_id;
+      let text = chara_name[chara_id] + "：" + skill_buff.buff_name + "　" + (Math.floor(effect_size * 100) / 100) + "%";
+      option.text(text).data("effect_size", effect_size).data("select_lv", skill_lv);
     }
 
     // アビリティチェック設定
@@ -409,6 +445,7 @@
                     .css("display", display)
                     .addClass("buff_id-" + value.buff_id)
                     .addClass("buff_element-" + buff_element)
+                    .addClass("variable_effect_size")
                     .addClass("chara_id-" + value.chara_id);
         $("." + str_buff).append(option);
         if (display == "block") {
@@ -480,6 +517,7 @@
     // スキル設定
     function select2ndSkill(select) {
       select.prop("selectedIndex", 0);
+      $(".status_" + select.attr("id")).removeClass("status_" + select.attr("id"));
       for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
@@ -487,10 +525,22 @@
           let select_lv = $(option).data("select_lv");
           let max_lv = $(option).data("max_lv");
           createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
+          // 選択スキルのステータスを着色
+          setStatusToBuff(option, select.attr("id"));
           return;
         }
       }
       resetSlillLv(select.prop("id"));
+    }
+
+    // 選択バフのステータスを着色
+    function setStatusToBuff(option, id) {
+      let buff = getBuffIdToBuff(Number($(option).val())); 
+      if (buff !== undefined) {
+        let chara_no = $(option).data("chara_no");
+        $("#" + status_kbn[buff.ref_status_1] + "_" + chara_no).addClass("status_" + id);
+        $("#" + status_kbn[buff.ref_status_2] + "_" + chara_no).addClass("status_" + id);
+      }
     }
 
     // スキルLv使用不可に戻す
@@ -644,19 +694,19 @@
           <input type="number" id="mnd_4" class="status" value="400">
           <input type="number" id="mnd_5" class="status" value="400">
           <label>知力</label>
-          <input type="number" id="int_0" class="status" value="450">
-          <input type="number" id="int_1" class="status" value="450">
-          <input type="number" id="int_2" class="status" value="450">
-          <input type="number" id="int_3" class="status" value="450">
-          <input type="number" id="int_4" class="status" value="450">
-          <input type="number" id="int_5" class="status" value="450">
+          <input type="number" id="int_0" class="status effect_size" value="450">
+          <input type="number" id="int_1" class="status effect_size" value="450">
+          <input type="number" id="int_2" class="status effect_size" value="450">
+          <input type="number" id="int_3" class="status effect_size" value="450">
+          <input type="number" id="int_4" class="status effect_size" value="450">
+          <input type="number" id="int_5" class="status effect_size" value="450">
           <label>運</label>
-          <input type="number" id="luk_0" class="status" value="350">
-          <input type="number" id="luk_1" class="status" value="350">
-          <input type="number" id="luk_2" class="status" value="350">
-          <input type="number" id="luk_3" class="status" value="350">
-          <input type="number" id="luk_4" class="status" value="350">
-          <input type="number" id="luk_5" class="status" value="350">
+          <input type="number" id="luk_0" class="status effect_size" value="350">
+          <input type="number" id="luk_1" class="status effect_size" value="350">
+          <input type="number" id="luk_2" class="status effect_size" value="350">
+          <input type="number" id="luk_3" class="status effect_size" value="350">
+          <input type="number" id="luk_4" class="status effect_size" value="350">
+          <input type="number" id="luk_5" class="status effect_size" value="350">
           <label>宝珠Lv</label>
           <select id="jewel_lv_0" class="jewel"></select>
           <select id="jewel_lv_1" class="jewel"></select>
@@ -739,14 +789,14 @@
         </div>
       </div>
       <div>
-        <div class="mx-auto text-center">
+        <div class="w-[605px] text-center">
           <table>
             <colgroup>
               <col width="85px">
-              <col width="50px">
-              <col width="50px">
+              <col width="80px">
+              <col width="80px">
               <col width="300px">
-              <col width="58px">
+              <col width="60px">
             </colgroup>
             <tr>
               <td rowspan="8" class="kind">バフ</td>

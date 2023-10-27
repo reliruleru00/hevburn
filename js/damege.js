@@ -198,7 +198,7 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
         jewel_lv = Number($("#jewel_lv_" + chara_no ).prop("selectedIndex"));
     }
     let enemy_stat = Number($("#enemy_stat").val());
-    let skill_info = getBuffIdToBuff(buff_id)
+    let skill_info = getBuffIdToBuff(buff_id);
     if (skill_lv > skill_info.max_lv) {
         skill_lv = skill_info.max_lv;
     }

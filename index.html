@@ -58,22 +58,6 @@
         }
       });
 
-      // 限界突破変更
-      $(".limit").on("change", function(event) {
-        let limit_count = Number($(this).val());
-        let chara_no = $(this).attr("id").replace("limit_", "");
-        if (select_style_list[chara_no] == 0) {
-          return;
-        }
-        let chara_id = "chara_id-" + select_style_list[chara_no].chara_id;
-        $("input[type=checkbox]." + chara_id).each(function(index, value) {
-          let ability_id = $(value).data("ability_id");
-          let ability_info = getAbilityInfo(ability_id); 
-          let limit_border = Number($(value).data("limit_border"));
-          setAbilityCheck(value, ability_info, limit_border, limit_count);
-        });
-      });
-
       // 計算
       $("#calc").on("click", function(event) {
         // 攻撃スキル未設定
@@ -215,19 +199,37 @@
           }
         });
       });
+      // 限界突破変更
+      $(".limit").on("change", function(event) {
+        let limit_count = Number($(this).val());
+        let chara_no = $(this).attr("id").replace("limit_", "");
+        if (select_style_list[chara_no] == 0) {
+          return;
+        }
+        let chara_id = "chara_id-" + select_style_list[chara_no].chara_id;
+        $("input[type=checkbox]." + chara_id).each(function(index, value) {
+          let ability_id = $(value).data("ability_id");
+          let ability_info = getAbilityInfo(ability_id); 
+          let limit_border = Number($(value).data("limit_border"));
+          setAbilityCheck(value, ability_info, limit_border, limit_count);
+        });
+        $(".variable_effect_size." + chara_id).each(function(index, value) {
+          updateBuffEffectSize($(value));
+        });
+      });
       // 宝珠レベル変更
       $(".jewel").on("change", function(event) {
         let chara_no = $(this).attr("id").replace(/[^0-9]/g, '');
-        let chara_id = select_style_list[chara_no].chara_id;
-        $(".variable_effect_size.chara_id-" + chara_id).each(function(index, value) {
+        let chara_id = "chara_id-" + select_style_list[chara_no].chara_id;
+        $(".variable_effect_size." + chara_id).each(function(index, value) {
           updateBuffEffectSize($(value));
         });
       });
       // ステータス変更
       $(".status.effect_size").on("change", function(event) {
         let chara_no = $(this).attr("id").replace(/[^0-9]/g, '');
-        let chara_id = select_style_list[chara_no].chara_id;
-        $(".variable_effect_size.chara_id-" + chara_id).each(function(index, value) {
+        let chara_id = "chara_id-" + select_style_list[chara_no].chara_id;
+        $(".variable_effect_size." + chara_id).each(function(index, value) {
           updateBuffEffectSize($(value));
         });
       });

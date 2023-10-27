@@ -188,6 +188,12 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
             effect_size += ((skill_info.max_power - skill_info.min_power) / jusl_stat * status + skill_info.min_power) * jewel_lv * 0.04;
         }
     }
+    // 機転
+    let ability_id = select_style_list[chara_no].ability3;
+    let limit_lv = Number($("#limit_" + chara_no ).prop("selectedIndex"));
+    if (ability_id == 501 && limit_lv >= 3) {
+        effect_size *= 1.25;
+    }
     return effect_size;
 }
 
@@ -230,6 +236,12 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
         } else {
             effect_size += skill_info.max_power * jewel_lv * 0.02;
         }
+    }
+    // 侵食
+    let ability_id = select_style_list[chara_no].ability3;
+    let limit_lv = Number($("#limit_" + chara_no ).prop("selectedIndex"));
+    if (ability_id == 502 && limit_lv >= 3) {
+        effect_size *= 1.25;
     }
     return effect_size;
 }

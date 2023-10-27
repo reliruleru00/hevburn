@@ -75,11 +75,9 @@ function addModalEvent(){
         // 宝珠スキルタイプを設定
         $("#jewel_type_" + chara_no).val(style.jewel_type);
         addAttackList(style, chara_no);
-        $("#attack_list").trigger("change");
         addBuffList(style, chara_no);
-
-        // アビリティ設定
         addAbility(style, chara_no);
+        $("#attack_list").trigger("change");
         
         closeModel();
     });

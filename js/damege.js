@@ -30,6 +30,7 @@ function setEventTrigger() {
             return;
         }
         let skill_info = getAttackInfo();
+        select_attack_skill = skill_info;
         let max_lv = skill_info.max_lv;
         let chara_no = $(this).find("option:selected").data("chara_no");
         let chara_id = "chara_id-" + skill_info.chara_id;
@@ -50,7 +51,6 @@ function setEventTrigger() {
         for (let i = 1; i <= 3; i++) {
             $("#" + status_kbn[skill_info["ref_status_" + i]] + "_" + chara_no).addClass("status_attack_skill");
         }
-        select_attack_skill = skill_info;
 
         $("input[type=checkbox].ability").each(function(index, value) {
             let ability_id = $(value).data("ability_id");
@@ -58,7 +58,7 @@ function setEventTrigger() {
             let ability_info = getAbilityInfo(ability_id); 
             let limit_border = Number($(value).data("limit_border"));
             let limi_count = Number($("#limit_" + chara_no).val());
-            setAbilityCheck(value, ability_info, limit_border, limi_count);
+            setAbilityCheck(value, ability_info, limit_border, limi_count, chara_id);
         });
         $(".redisplay").each(function(index, value) {
             sortEffectSize($(value));
@@ -135,7 +135,8 @@ function setEventTrigger() {
             let ability_id = $(value).data("ability_id");
             let ability_info = getAbilityInfo(ability_id); 
             let limit_border = Number($(value).data("limit_border"));
-            setAbilityCheck(value, ability_info, limit_border, limit_count);
+            let attack_chara_id = "chara_id-" + select_attack_skill.chara_id;
+            setAbilityCheck(value, ability_info, limit_border, limit_count, attack_chara_id);
         });
         $(".variable_effect_size." + chara_id).each(function(index, value) {
             updateBuffEffectSize($(value));
@@ -157,8 +158,30 @@ function setEventTrigger() {
             updateBuffEffectSize($(value));
         });
     });
+    // 前衛が3人以上の場合
+    $(document).on("change", "#ability_front input", function(event) {
+        let chara_id = "chara_id-" + select_attack_skill.chara_id;
+        if ($("#ability_front input:checked:not(." + chara_id + ")").length > 2) {
+            alert("前衛は攻撃キャラクターを除いた2人まで設定できます。");
+            $(this).prop("checked", false);
+            return;
+        }
+    });
     // 破壊率変更
-    $("input, select").on("change", function(event) {
+    $("#enemy_destruction").on("change", function(event) {
+        if (Number($(this).val()) <= 100) {
+            $(this).val(100);
+        } else {
+            $("#dp_range").val(0);
+            $("#dp_rate").val('0%');
+        }
+    });
+    $("#dp_range").on("input", function(event) {
+        $('#dp_rate').val($(this).val() + '%');
+        $("#enemy_destruction").val(100);
+    });
+    // ダメージ再計算
+    $(document).on("change", "input, select", function(event) {
         calcDamege();
     });
 }
@@ -263,6 +286,7 @@ function addBuffList(style, chara_no) {
         }
         let str_buff = buff_kbn[value.buff_kind];
         if (value.skill_attack == 0) only_one = 0;
+        if (value.only_first == 1) only_one = "only_one";
         let only_chara_id = value.only_me == 1 ? "only_chara_id-" + value.chara_id : "public";
         var option = $('<option>')
                     .text(chara_name[style.chara_id] + ":" + value.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%")
@@ -285,9 +309,6 @@ function addBuffList(style, chara_no) {
 // フィールド追加
 function addElementFiled(style, filed_name, effect_size, filed_element) {
     let display = "none";
-    if (filed_element == 0 || (select_attack_skill !== undefined && select_attack_skill.attack_element === filed_element)) {
-        display = "block"
-    }
     var option = $('<option>')
                 .text(chara_name[style.chara_id] + ":" + filed_name + " " + effect_size + "%")
                 .data("effect_size", effect_size)
@@ -345,7 +366,7 @@ function addAbility(style_info, chara_no) {
         let effect_size = ability_info.ability_power; 
         let id = target + style_info.chara_id;
         let chara_id = "chara_id-" + style_info.chara_id;
-        let text = name + "：" +  ability_info.ability_name  + "(" + ability_info.ability_short_explan + ")";
+        let text = name + ":" +  ability_info.ability_name  + "(" + ability_info.ability_short_explan + ")";
         let input = $('<input>').attr("type", "checkbox").attr("id", id)
                 .data("effect_size", effect_size)
                 .data("limit_border", limit_border)
@@ -366,33 +387,23 @@ function addAbility(style_info, chara_no) {
 
 
 // アビリティチェック設定
-function setAbilityCheck(input, ability_info, limit_border, limit_count) {
+function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_id) {
     let disabled = ability_info.ability_type == 1 ? true : false;
     let checked = true;
     switch (ability_info.ability_target) {
-        case 1: // 自分
-        if (limit_count < limit_border) {
-            disabled = true;
-            checked = false;
-        } else {
-            checked = true;
-        }
-        break;
         case 2: // 前衛
-        disabled = false;
-        checked = false;
-        if (limit_count < limit_border) {
-            disabled = true;
-        }
-        break;
+            disabled = limit_count < limit_border || $(input).hasClass(chara_id);
+            checked = $(input).hasClass(chara_id);
+            break;
+        case 1: // 自分
         case 3:	// 常時
         case 4:	// 常時
-        if (limit_count < limit_border) {
-            disabled = true;
-            checked = false;
-        } else {
-            checked = true;
-        }
+            if (limit_count < limit_border) {
+                disabled = true;
+                checked = false;
+            } else {
+                checked = true;
+            }
         break;
     }
     $(input).prop("checked", checked).attr("disabled", disabled);

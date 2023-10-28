@@ -85,18 +85,6 @@
       $("#critical_damage_max").val(Math.floor(critical_damage * 1.1).toLocaleString());
       $("#critical_rate").text("(発生率:" + critical_rate + "%)");
       $("#damage_result").show();
-
-      // ステータスの保存
-      if (navigator.cookieEnabled) {
-        for(let i = 0; i < select_style_list.length; i++) {
-          if (select_style_list[i] == 0) {
-            continue;
-          }
-          for(let j = 1; j < status_kbn.length; j++) {
-            localStorage.setItem(status_kbn[j] + "_" + select_style_list[i].chara_id, $("#" + status_kbn[j] + "_" + i).val())
-          }
-        }
-      }
     }
 
     function damageDetail(basePower, skill_info, buff, fixed, id) {
@@ -185,61 +173,61 @@
           <img class="showmodal w-16 h-16" id="chara4" src="img/plus.png" data-chara_no="4">
           <img class="showmodal w-16 h-16" id="chara5" src="img/plus.png" data-chara_no="5">
           <label>限界突破</label>
-          <select id="limit_0" class="limit"></select>
-          <select id="limit_1" class="limit"></select>
-          <select id="limit_2" class="limit"></select>
-          <select id="limit_3" class="limit"></select>
-          <select id="limit_4" class="limit"></select>
-          <select id="limit_5" class="limit"></select>
+          <select id="limit_0" class="limit save"></select>
+          <select id="limit_1" class="limit save"></select>
+          <select id="limit_2" class="limit save"></select>
+          <select id="limit_3" class="limit save"></select>
+          <select id="limit_4" class="limit save"></select>
+          <select id="limit_5" class="limit save"></select>
           <label>力</label>
-          <input type="number" id="str_0" class="status" value="400">
-          <input type="number" id="str_1" class="status" value="400">
-          <input type="number" id="str_2" class="status" value="400">
-          <input type="number" id="str_3" class="status" value="400">
-          <input type="number" id="str_4" class="status" value="400">
-          <input type="number" id="str_5" class="status" value="400">
+          <input type="number" id="str_0" class="status save" value="400">
+          <input type="number" id="str_1" class="status save" value="400">
+          <input type="number" id="str_2" class="status save" value="400">
+          <input type="number" id="str_3" class="status save" value="400">
+          <input type="number" id="str_4" class="status save" value="400">
+          <input type="number" id="str_5" class="status save" value="400">
           <label>器用さ</label>
-          <input type="number" id="dex_0" class="status" value="400">
-          <input type="number" id="dex_1" class="status" value="400">
-          <input type="number" id="dex_2" class="status" value="400">
-          <input type="number" id="dex_3" class="status" value="400">
-          <input type="number" id="dex_4" class="status" value="400">
-          <input type="number" id="dex_5" class="status" value="400">
+          <input type="number" id="dex_0" class="status save" value="400">
+          <input type="number" id="dex_1" class="status save" value="400">
+          <input type="number" id="dex_2" class="status save" value="400">
+          <input type="number" id="dex_3" class="status save" value="400">
+          <input type="number" id="dex_4" class="status save" value="400">
+          <input type="number" id="dex_5" class="status save" value="400">
           <label>体力</label>
-          <input type="number" id="con_0" class="status" value="400">
-          <input type="number" id="con_1" class="status" value="400">
-          <input type="number" id="con_2" class="status" value="400">
-          <input type="number" id="con_3" class="status" value="400">
-          <input type="number" id="con_4" class="status" value="400">
-          <input type="number" id="con_5" class="status" value="400">
+          <input type="number" id="con_0" class="status save" value="400">
+          <input type="number" id="con_1" class="status save" value="400">
+          <input type="number" id="con_2" class="status save" value="400">
+          <input type="number" id="con_3" class="status save" value="400">
+          <input type="number" id="con_4" class="status save" value="400">
+          <input type="number" id="con_5" class="status save" value="400">
           <label>精神</label>
-          <input type="number" id="mnd_0" class="status" value="400">
-          <input type="number" id="mnd_1" class="status" value="400">
-          <input type="number" id="mnd_2" class="status" value="400">
-          <input type="number" id="mnd_3" class="status" value="400">
-          <input type="number" id="mnd_4" class="status" value="400">
-          <input type="number" id="mnd_5" class="status" value="400">
+          <input type="number" id="mnd_0" class="status save" value="400">
+          <input type="number" id="mnd_1" class="status save" value="400">
+          <input type="number" id="mnd_2" class="status save" value="400">
+          <input type="number" id="mnd_3" class="status save" value="400">
+          <input type="number" id="mnd_4" class="status save" value="400">
+          <input type="number" id="mnd_5" class="status save" value="400">
           <label>知力</label>
-          <input type="number" id="int_0" class="status effect_size" value="450">
-          <input type="number" id="int_1" class="status effect_size" value="450">
-          <input type="number" id="int_2" class="status effect_size" value="450">
-          <input type="number" id="int_3" class="status effect_size" value="450">
-          <input type="number" id="int_4" class="status effect_size" value="450">
-          <input type="number" id="int_5" class="status effect_size" value="450">
+          <input type="number" id="int_0" class="status effect_size save" value="400">
+          <input type="number" id="int_1" class="status effect_size save" value="400">
+          <input type="number" id="int_2" class="status effect_size save" value="400">
+          <input type="number" id="int_3" class="status effect_size save" value="400">
+          <input type="number" id="int_4" class="status effect_size save" value="400">
+          <input type="number" id="int_5" class="status effect_size save" value="400">
           <label>運</label>
-          <input type="number" id="luk_0" class="status effect_size" value="350">
-          <input type="number" id="luk_1" class="status effect_size" value="350">
-          <input type="number" id="luk_2" class="status effect_size" value="350">
-          <input type="number" id="luk_3" class="status effect_size" value="350">
-          <input type="number" id="luk_4" class="status effect_size" value="350">
-          <input type="number" id="luk_5" class="status effect_size" value="350">
+          <input type="number" id="luk_0" class="status effect_size save" value="400">
+          <input type="number" id="luk_1" class="status effect_size save" value="400">
+          <input type="number" id="luk_2" class="status effect_size save" value="400">
+          <input type="number" id="luk_3" class="status effect_size save" value="400">
+          <input type="number" id="luk_4" class="status effect_size save" value="400">
+          <input type="number" id="luk_5" class="status effect_size save" value="400">
           <label>宝珠Lv</label>
-          <select id="jewel_lv_0" class="jewel"></select>
-          <select id="jewel_lv_1" class="jewel"></select>
-          <select id="jewel_lv_2" class="jewel"></select>
-          <select id="jewel_lv_3" class="jewel"></select>
-          <select id="jewel_lv_4" class="jewel"></select>
-          <select id="jewel_lv_5" class="jewel"></select>
+          <select id="jewel_lv_0" class="jewel save"></select>
+          <select id="jewel_lv_1" class="jewel save"></select>
+          <select id="jewel_lv_2" class="jewel save"></select>
+          <select id="jewel_lv_3" class="jewel save"></select>
+          <select id="jewel_lv_4" class="jewel save"></select>
+          <select id="jewel_lv_5" class="jewel save"></select>
         </div>
         <br>
         <div class="w-[400px] mx-auto flex">

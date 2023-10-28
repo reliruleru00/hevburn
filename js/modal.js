@@ -75,12 +75,16 @@ function addModalEvent(){
         // 宝珠スキルタイプを設定
         $("#jewel_type_" + chara_no).val(style.jewel_type);
         // ステータスを設定
+        let status;
         for(let j = 1; j < status_kbn.length; j++) {
             let status = localStorage.getItem(status_kbn[j] + "_" + style.chara_id);
-            if (status !== "") {
-                $("#" + status_kbn[j] + "_" + chara_no).val(status)
-            }
+            if (status) $("#" + status_kbn[j] + "_" + chara_no).val(status);
         }
+        status = localStorage.getItem("jewel_" + style.chara_id);
+        if (status) $("#jewel_" + chara_no).prop("selectedIndex", status);
+        status = localStorage.getItem("limit_" + style.chara_id);
+        if (status) $("#limit_" + chara_no).prop("selectedIndex", status);
+
         // スキル・バフ・アビリティを追加
         addAttackList(style, chara_no);
         addBuffList(style, chara_no);

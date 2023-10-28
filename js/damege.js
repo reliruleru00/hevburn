@@ -176,9 +176,30 @@ function setEventTrigger() {
             $("#dp_rate").val('0%');
         }
     });
+    // 残りDP変更
     $("#dp_range").on("input", function(event) {
         $('#dp_rate').val($(this).val() + '%');
         $("#enemy_destruction").val(100);
+    });
+    // ステータス保存
+    $(".save").on("change", function(event) {
+      // ステータスの保存
+      if (navigator.cookieEnabled) {
+        for(let i = 0; i < select_style_list.length; i++) {
+          if (select_style_list[i] == 0) {
+            continue;
+          }
+          let status;
+          for(let j = 1; j < status_kbn.length; j++) {
+            status = status_kbn[j];
+            localStorage.setItem(status + "_" + select_style_list[i].chara_id, $("#" + status + "_" + i).val())
+          }
+          status = "jewel";
+          localStorage.setItem(status + "_" + select_style_list[i].chara_id, $("#" + status + "_" + i).prop("selectedIndex"));
+          status = "limit";
+          localStorage.setItem(status + "_" + select_style_list[i].chara_id, $("#" + status + "_" + i).prop("selectedIndex"));
+        }
+      }
     });
     // ダメージ再計算
     $(document).on("change", "input, select", function(event) {

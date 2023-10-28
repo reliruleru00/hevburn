@@ -179,6 +179,10 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     } else {
         effect_size += (max_power - min_power) / skill_stat * status + min_power;
     }
+    if (skill_info.skill_kind == 2) {
+        // 心眼はここまで
+        return effect_size;
+    }
     // 宝珠分(SLvの恩恵を受けない)
     if (jewel_lv > 0) {
         let jusl_stat = skill_stat + jewel_lv * 60;

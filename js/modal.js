@@ -56,13 +56,13 @@ function addModalEvent(){
         let style_id = $(this).data("style_id");
         let style = $.grep(style_list,
             function (obj, index) {
-            return (obj.style_id === style_id);
+                return (obj.style_id === style_id);
             })[0];
         // 同一のキャラIDは不許可
         for(let idx in select_style_list) {
             if (select_style_list[idx].chara_id === style.chara_id && chara_no != idx) {
-            alert("同一キャラクターは複数選択できません");
-            return false;
+                alert("同一キャラクターは複数選択できません");
+                return false;
             }
         }
         // メンバーの情報を削除
@@ -74,6 +74,14 @@ function addModalEvent(){
 
         // 宝珠スキルタイプを設定
         $("#jewel_type_" + chara_no).val(style.jewel_type);
+        // ステータスを設定
+        for(let j = 1; j < status_kbn.length; j++) {
+            let status = localStorage.getItem(status_kbn[j] + "_" + style.chara_id);
+            if (status !== "") {
+                $("#" + status_kbn[j] + "_" + chara_no).val(status)
+            }
+        }
+        // スキル・バフ・アビリティを追加
         addAttackList(style, chara_no);
         addBuffList(style, chara_no);
         addAbility(style, chara_no);

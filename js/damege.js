@@ -286,7 +286,7 @@ function addBuffList(style, chara_no) {
         }
         let str_buff = buff_kbn[value.buff_kind];
         if (value.skill_attack == 0) only_one = 0;
-        if (value.only_first == 1) only_one = "only_one";
+        if (value.only_first == 1) only_one = "only_first";
         let only_chara_id = value.only_me == 1 ? "only_chara_id-" + value.chara_id : "public";
         var option = $('<option>')
                     .text(chara_name[style.chara_id] + ":" + value.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%")
@@ -325,15 +325,15 @@ function addAbility(style_info, chara_no) {
     $.each(ability_list, function(index, value) {
         ability_id = value;
         if (ability_id == 0 || ability_id > 1000) {
-        // 1000番以降は不要
-        return true;
+            // 1000番以降は不要
+            return true;
         }
         ability_info = getAbilityInfo(ability_id);
         let limit_count = Number($("#limit_" + chara_no).val());
         let limit_border = index == 0 ? 0 : (index == 1 ? 1 : 3); 
         let display = "none";
         if (ability_info.ability_element == 0 || (select_attack_skill !== undefined && select_attack_skill.attack_element === ability_info.ability_element)) {
-        display = "block"
+            display = "block"
         }
         let target;
         let element_type;
@@ -446,10 +446,11 @@ function select2ndSkill(select) {
     for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
+        $(option).prop("selected", true);
         if (isOnlyBuff($(option))) {
+            $(option).prop("selected", false);
             continue;
         }
-        $(option).prop("selected", true);
         let select_lv = $(option).data("select_lv");
         let max_lv = $(option).data("max_lv");
         createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
@@ -463,13 +464,20 @@ function select2ndSkill(select) {
 
 // 単一バフが既に設定済み判定
 function isOnlyBuff(option) {
-    if (option.hasClass("only_one") && select_attack_skill !== undefined) {
-        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+    if (option.hasClass("only_first")){
         let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
         let buff_id = "buff_id-" + option.val();
-        if ($("." + class_name +" option." + buff_id + ":selected").length > 0) {
+        if ($("." + class_name +" option." + buff_id + ":selected").length > 1) {
             return true;
         }
+    }
+    if (option.hasClass("only_one") && select_attack_skill !== undefined) {
+        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+            let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
+            let buff_id = "buff_id-" + option.val();
+            if ($("." + class_name +" option." + buff_id + ":selected").length > 1) {
+                return true;
+            }
         }
     }
     return false;
@@ -514,13 +522,6 @@ function getSumBuffEffectSize() {
     if (select_attack_skill.attack_element != 0) {
         sumBuff += Number($("#elememt_ring option:selected").val());
     }
-    // ピアス
-    let earring = $("#earring option:selected");
-    if (Number($("#enemy_destruction").val()) > 100 && earring.data("type") == "attack" ||
-        Number($("#enemy_destruction").val()) == 100 && earring.data("type") == "break") {
-        let effect_size = Number(earring.data("effect_size"));
-        sumBuff += effect_size - (10 / 9 * (select_attack_skill.hit_count - 1));
-    }
     // オーバードライブ10%
     if ($("#overdrive").prop("checked")) {
         sumBuff += 10;
@@ -550,7 +551,7 @@ function getSumFunnelEffectSize() {
     // スキルデバフ合計
     let sumFunnel = getSumEffectSize("funnel");
     sumFunnel += getSumAbilityEffectSize(5);
-    return 1 + sumFunnel / 100;
+    return sumFunnel / 100;
 }
 
 // クリティカル率取得
@@ -769,7 +770,7 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     } else {
         effect_size += (max_power - min_power) / skill_stat * status + min_power;
     }
-    if (skill_info.skill_kind == 2) {
+    if (skill_info.buff_kind == 2) {
         // 心眼はここまで
         return effect_size;
     }

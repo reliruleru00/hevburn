@@ -536,43 +536,40 @@ function getSumEffectSize(class_name) {
 // 合計バフ効果量取得
 function getSumBuffEffectSize() {
     // スキルバフ合計
-    let sumBuff = getSumEffectSize("buff");
+    let sum_buff = getSumEffectSize("buff");
     // 攻撃力アップアビリティ
-    sumBuff += getSumAbilityEffectSize(1);
+    sum_buff += getSumAbilityEffectSize(1);
     // 属性リング(0%-10%)
     if (select_attack_skill.attack_element != 0) {
-        sumBuff += Number($("#elememt_ring option:selected").val());
+        sum_buff += Number($("#elememt_ring option:selected").val());
     }
     // オーバードライブ10%
     if ($("#overdrive").prop("checked")) {
-        sumBuff += 10;
+        sum_buff += 10;
     }
     // トークン
     let token_count = Number($("#token_count").val());
     if (select_attack_skill.token_power_up == 1) {
-        sumBuff += token_count * 16;
+        sum_buff += token_count * 16;
     }
-    sumBuff += token_count * getSumAbilityEffectSize(6);
-    return 1 + sumBuff / 100;
+    sum_buff += token_count * getSumAbilityEffectSize(6);
+    return 1 + sum_buff / 100;
 }
 
 // 合計デバフ効果量取得
 function getSumDebuffEffectSize() {
     // スキルデバフ合計
-    let sumDebuff = getSumEffectSize("debuff");
-    if (Number($("#enemy_destruction").val()) == 100 ) {
-        sumDebuff += getSumEffectSize("dp_debuff");;
-    } 
-    sumDebuff += getSumAbilityEffectSize(7);
-    return 1 + sumDebuff / 100;
+    let sum_debuff = getSumEffectSize("debuff");
+    sum_debuff += getSumAbilityEffectSize(7);
+    return 1 + sum_debuff / 100;
 }
 
 // 合計連撃効果量取得
 function getSumFunnelEffectSize() {
     // スキルデバフ合計
-    let sumFunnel = getSumEffectSize("funnel");
-    sumFunnel += getSumAbilityEffectSize(5);
-    return sumFunnel / 100;
+    let sum_funnel = getSumEffectSize("funnel");
+    sum_funnel += getSumAbilityEffectSize(5);
+    return sum_funnel / 100;
 }
 
 // クリティカル率取得

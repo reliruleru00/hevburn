@@ -73,8 +73,8 @@
       let critical_rate = getCriticalRate();
       let critical_buff = getCriticalBuff();
 
-      let fixed = mindeye * debuff * fragile * element_field * weak_physical * weak_element
-      let damage = damageDetail(basePower, skill_info, buff, fixed, "#destruction_last_rate")
+      let fixed = mindeye * fragile * element_field * weak_physical * weak_element
+      let damage = damageDetail(basePower, skill_info, buff, debuff, fixed, "#destruction_last_rate")
       let critical_damage = damageDetail(critical_power, skill_info, buff, fixed, "#critical_destruction_last_rate") * critical_buff;
 
       $("#damage").val(Math.floor(damage).toLocaleString());
@@ -87,7 +87,7 @@
       $("#damage_result").show();
     }
 
-    function damageDetail(basePower, skill_info, buff, fixed, id) {
+    function damageDetail(basePower, skill_info, buff, debuff, fixed, id) {
       let funnel = getSumFunnelEffectSize();;
       let destruction_rate = Number($("#enemy_destruction").val());
       let max_destruction_rate = Number($("#enemy_destruction_limit").val());
@@ -101,6 +101,7 @@
       let damage = 0;
       let special;
       let add_buff;
+      let add_debuff;
       for (let i = 0; i < hit_count; i++) {
         if (rest_dp <= 0) {
           special = 1  + skill_info.hp_damege / 100;
@@ -108,8 +109,9 @@
         } else {
           special = 1  + skill_info.dp_damege / 100;
           add_buff = getEarringEffectSize("break", hit_count);
+          add_debuff += getSumEffectSize("dp_debuff") / 100;
         }
-        let hit_damage = hit_power * (buff + add_buff) * fixed * special * destruction_rate / 100;
+        let hit_damage = hit_power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
         if (rest_dp <= 0) {
           destruction_rate += hit_destruction;
@@ -126,8 +128,9 @@
       } else {
         special = 1  + skill_info.dp_damege / 100;
         add_buff = getEarringEffectSize("break", hit_count);
+        add_debuff += getSumEffectSize("dp_debuff") / 100;
       }
-      damage += basePower * buff * fixed * funnel * special * destruction_rate / 100;
+      damage += basePower * (buff + add_buff) * (debuff + add_debuff) * fixed * funnel * special * destruction_rate / 100;
       if (rest_dp <= 0) {
         destruction_rate += destruction_size * funnel; 
         if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;

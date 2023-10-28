@@ -173,6 +173,9 @@ function setEventTrigger() {
         } else {
             $("#dp_range").val(0);
             $("#dp_rate").val('0%');
+            if (Number($("#enemy_destruction_limit").val()) < Number($(this).val())) {
+                $(this).val($("#enemy_destruction_limit").val());
+            }
         }
     });
     // 残りDP変更
@@ -180,9 +183,12 @@ function setEventTrigger() {
         $('#dp_rate').val($(this).val() + '%');
         $("#enemy_destruction").val(100);
     });
+    // 強ブレイクチェック
+    $("#strong_break").on("change", function(event) {
+        setEnemyStatus();
+    });
     // ステータス保存
     $(".save").on("change", function(event) {
-      // ステータスの保存
       if (navigator.cookieEnabled) {
         for(let i = 0; i < select_style_list.length; i++) {
           if (select_style_list[i] == 0) {
@@ -288,7 +294,7 @@ function addBuffList(style, chara_no) {
 
         switch (value.buff_kind) {
         case 11: // 属性フィールド
-            addElementFiled(style, value.buff_name, value.min_power, value.buff_element);
+            addElementFiled(style, value.buff_name, value.min_power, value.buff_element, value.buff_id);
             return true;
         case 0:
             only_one = "only_one"
@@ -327,11 +333,12 @@ function addBuffList(style, chara_no) {
 }
 
 // フィールド追加
-function addElementFiled(style, filed_name, effect_size, filed_element) {
+function addElementFiled(style, filed_name, effect_size, filed_element, buff_id) {
     let display = "none";
     var option = $('<option>')
                 .text(chara_name[style.chara_id] + ":" + filed_name + " " + effect_size + "%")
                 .data("effect_size", effect_size)
+                .val(buff_id)
                 .css("display", display)
                 .addClass("public")
                 .addClass("buff_element-" + filed_element)
@@ -644,8 +651,9 @@ function setEnemyStatus() {
     $("#enemy_stat").val(enemy_info.enemy_stat);
     $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
     $("#enemy_dp").val(enemy_info.max_dp.toLocaleString());
-    $("#enemy_destruction_limit").val(enemy_info.destruction_limit);
-    $("#enemy_destruction").val(enemy_info.destruction_limit);
+    let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
+    $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
+    $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
     for (let i = 1; i <= 3; i++) {
         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
     }

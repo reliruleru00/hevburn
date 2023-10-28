@@ -56,21 +56,8 @@
       if (skill_info === undefined) {
           return;
       }
-      // SP消費量計算
-      for (let i = 0; i < select_style_list.length; i++) {
-        let chara_id = "chara_id-" + select_style_list[i].chara_id;
-        let sp_cost = 0;
-        $("option." + chara_id + ":selected").each(function(index, value) {
-          if ($(value).parent().attr("id") == "attack_list") {
-            sp_cost += getAttackInfo().sp_cost;
-          } else {
-            let buff_id = Number($(value).val());
-            sp_cost += getBuffIdToBuff(buff_id).sp_cost;
-          }
-        });
-        $("#sp_cost_" + i).text(sp_cost);
-      }
-
+      // SP消費計算
+      getSpCost();
       // 闘志
       let fightingspirit = $("#fightingspirit").prop("checked") ? -20 : 0;
       // 厄
@@ -168,6 +155,26 @@
         return (effect_size - (10 / 9 * (hit_count - 1))) / 100;
       }
       return 0;
+    }
+
+    // 消費SP計算
+    function getSpCost() {
+      // SP消費量計算
+      for (let i = 0; i < select_style_list.length; i++) {
+        let chara_id = "chara_id-" + select_style_list[i].chara_id;
+        let sp_cost = 0;
+        $("option." + chara_id + ":selected").each(function(index, value) {
+          if ($(value).parent().attr("id") == "attack_list") {
+            sp_cost += getAttackInfo().sp_cost;
+          } else {
+            let buff_id = Number($(value).val());
+            if (buff_id !== undefined) {
+              sp_cost += getBuffIdToBuff(buff_id).sp_cost;
+            }
+          }
+        });
+        $("#sp_cost_" + i).text(sp_cost);
+      }
     }
   </script>
 </head>
@@ -545,6 +552,8 @@
                   <input type="checkbox" id="fightingspirit" class=""><label class="checkbox01" for="fightingspirit">闘志</label>
                   <div class="w-8"></div>
                   <input type="checkbox" id="misfortune" class=""><label class="checkbox01" for="misfortune">厄</label>
+                  <div class="w-8"></div>
+                  <input type="checkbox" id="strong_break" class=""><label class="checkbox01" for="strong_break">強ブレイク</label>
                 </div>
               </td>
             </tr>

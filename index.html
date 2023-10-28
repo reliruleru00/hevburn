@@ -50,11 +50,27 @@
       setEventTrigger();
     });
 
+    // ダメージ計算
     function calcDamege() {
       let skill_info = getAttackInfo();
       if (skill_info === undefined) {
           return;
       }
+      // SP消費量計算
+      for (let i = 0; i < select_style_list.length; i++) {
+        let chara_id = "chara_id-" + select_style_list[i].chara_id;
+        let sp_cost = 0;
+        $("option." + chara_id + ":selected").each(function(index, value) {
+          if ($(value).parent().attr("id") == "attack_list") {
+            sp_cost += getAttackInfo().sp_cost;
+          } else {
+            let buff_id = Number($(value).val());
+            sp_cost += getBuffIdToBuff(buff_id).sp_cost;
+          }
+        });
+        $("#sp_cost_" + i).text(sp_cost);
+      }
+
       // 闘志
       let fightingspirit = $("#fightingspirit").prop("checked") ? -20 : 0;
       // 厄
@@ -75,7 +91,7 @@
 
       let fixed = mindeye * fragile * element_field * weak_physical * weak_element
       let damage = damageDetail(basePower, skill_info, buff, debuff, fixed, "#destruction_last_rate")
-      let critical_damage = damageDetail(critical_power, skill_info, buff, fixed, "#critical_destruction_last_rate") * critical_buff;
+      let critical_damage = damageDetail(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_destruction_last_rate");
 
       $("#damage").val(Math.floor(damage).toLocaleString());
       $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
@@ -83,10 +99,11 @@
       $("#critical_damage").val(Math.floor(critical_damage).toLocaleString());
       $("#critical_damage_min").val(Math.floor(critical_damage * 0.9).toLocaleString());
       $("#critical_damage_max").val(Math.floor(critical_damage * 1.1).toLocaleString());
-      $("#critical_rate").text("(発生率:" + critical_rate + "%)");
+      $("#critical_rate").text("(発生率:" + (Math.round(critical_rate * 100) / 100) + "%)");
       $("#damage_result").show();
     }
 
+    // 計算詳細
     function damageDetail(basePower, skill_info, buff, debuff, fixed, id) {
       let funnel = getSumFunnelEffectSize();;
       let destruction_rate = Number($("#enemy_destruction").val());
@@ -106,18 +123,18 @@
         if (rest_dp <= 0) {
           special = 1  + skill_info.hp_damege / 100;
           add_buff = getEarringEffectSize("attack", hit_count);
+          add_debuff = 0;
         } else {
           special = 1  + skill_info.dp_damege / 100;
           add_buff = getEarringEffectSize("break", hit_count);
-          add_debuff += getSumEffectSize("dp_debuff") / 100;
+          add_debuff = getSumEffectSize("dp_debuff") / 100;
         }
         let hit_damage = hit_power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
+        rest_dp -= hit_damage;
         if (rest_dp <= 0) {
           destruction_rate += hit_destruction;
           if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
-        } else {
-          rest_dp -= hit_damage;
         }
         damage += hit_damage
       }
@@ -125,12 +142,15 @@
       if (rest_dp <= 0) {
         special = 1  + skill_info.hp_damege / 100;
         add_buff = getEarringEffectSize("attack", hit_count);
+        add_debuff = 0;
       } else {
         special = 1  + skill_info.dp_damege / 100;
         add_buff = getEarringEffectSize("break", hit_count);
-        add_debuff += getSumEffectSize("dp_debuff") / 100;
+        add_debuff = getSumEffectSize("dp_debuff") / 100;
       }
-      damage += basePower * (buff + add_buff) * (debuff + add_debuff) * fixed * funnel * special * destruction_rate / 100;
+      let hit_damage = basePower * (buff + add_buff) * (debuff + add_debuff) * fixed * funnel * special * destruction_rate / 100;
+      damage += hit_damage;
+      rest_dp -= hit_damage;
       if (rest_dp <= 0) {
         destruction_rate += destruction_size * funnel; 
         if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
@@ -231,6 +251,13 @@
           <select id="jewel_lv_3" class="jewel save"></select>
           <select id="jewel_lv_4" class="jewel save"></select>
           <select id="jewel_lv_5" class="jewel save"></select>
+          <label>消費SP</label>
+          <label id="sp_cost_0">0</label>
+          <label id="sp_cost_1">0</label>
+          <label id="sp_cost_2">0</label>
+          <label id="sp_cost_3">0</label>
+          <label id="sp_cost_4">0</label>
+          <label id="sp_cost_5">0</label>
         </div>
         <br>
         <div class="w-[400px] mx-auto flex">

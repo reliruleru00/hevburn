@@ -51,7 +51,6 @@ function setEventTrigger() {
         for (let i = 1; i <= 3; i++) {
             $("#" + status_kbn[skill_info["ref_status_" + i]] + "_" + chara_no).addClass("status_attack_skill");
         }
-
         $("input[type=checkbox].ability").each(function(index, value) {
             let ability_id = $(value).data("ability_id");
             let chara_no = $(value).data("chara_no");
@@ -414,7 +413,7 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
     switch (ability_info.ability_target) {
         case 2: // 前衛
             disabled = limit_count < limit_border || $(input).hasClass(chara_id);
-            checked = $(input).hasClass(chara_id);
+            checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break;
         case 1: // 自分
         case 3:	// 常時
@@ -653,6 +652,8 @@ function setEnemyStatus() {
     for (let i = 0; i <= 5; i++) {
         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
     }
+    $("#dp_range").val(0);
+    $("#dp_rate").val('0%');
 }
 
 // 敵耐性設定

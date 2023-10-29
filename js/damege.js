@@ -285,7 +285,7 @@ function addBuffList(style, chara_no) {
     // スキル追加
     let buff_list = $.grep(skill_buff,
         function (obj, index) {
-        return (obj.chara_id === style.chara_id && (obj.style_id === style.style_id || obj.style_id == 0));
+            return ((obj.chara_id === style.chara_id || obj.chara_id == 0) && (obj.style_id === style.style_id || obj.style_id == 0));
         });
     $.each(buff_list, function(index, value) {
         let effect_size = getEffectSize(value.buff_kind, value.buff_id, chara_no, value.max_lv);
@@ -313,7 +313,7 @@ function addBuffList(style, chara_no) {
         let str_buff = buff_kbn[value.buff_kind];
         if (value.skill_attack == 0) only_one = 0;
         if (value.only_first == 1) only_one = "only_first";
-        let only_chara_id = value.only_me == 1 ? "only_chara_id-" + value.chara_id : "public";
+        let only_chara_id = value.only_me == 1 ? "only_chara_id-" + style.chara_id : "public";
         var option = $('<option>')
                     .text(chara_name[style.chara_id] + ":" + value.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%")
                     .val(value.buff_id)
@@ -325,9 +325,10 @@ function addBuffList(style, chara_no) {
                     .addClass("buff_element-" + buff_element)
                     .addClass("buff_id-" + value.buff_id)
                     .addClass("variable_effect_size")
+                    .addClass("skill_attack-", value.skill_attack)
                     .addClass(only_chara_id)
                     .addClass(only_one)
-                    .addClass("chara_id-" + value.chara_id);
+                    .addClass("chara_id-" + style.chara_id);
         $("." + str_buff).append(option);
     });
 }
@@ -473,17 +474,22 @@ function select2ndSkill(select) {
     for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") != "none") {
-        $(option).prop("selected", true);
-        if (isOnlyBuff($(option))) {
-            $(option).prop("selected", false);
-            continue;
-        }
-        let select_lv = $(option).data("select_lv");
-        let max_lv = $(option).data("max_lv");
-        createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
-        // 選択スキルのステータスを着色
-        setStatusToBuff(option, select.attr("id"));
-        return;
+            let buff_id = Number($(option).val());
+            if (buff_id == 1000 || buff_id == 1600 || buff_id == 1700) {
+                // アタッカライズ、クリシン、コンセ
+                continue;
+            }
+            $(option).prop("selected", true);
+            if (isOnlyBuff($(option))) {
+                $(option).prop("selected", false);
+                continue;
+            }
+            let select_lv = $(option).data("select_lv");
+            let max_lv = $(option).data("max_lv");
+            createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
+            // 選択スキルのステータスを着色
+            setStatusToBuff(option, select.attr("id"));
+            return;
         }
     }
     resetSlillLv(select.prop("id"));

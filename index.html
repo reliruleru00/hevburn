@@ -164,13 +164,16 @@
         let chara_id = "chara_id-" + select_style_list[i].chara_id;
         let sp_cost = 0;
         $("option." + chara_id + ":selected").each(function(index, value) {
-          if ($(value).parent().attr("id") == "attack_list") {
-            sp_cost += getAttackInfo().sp_cost;
-          } else {
-            let buff_id = Number($(value).val());
-            if (buff_id !== undefined) {
-              sp_cost += getBuffIdToBuff(buff_id).sp_cost;
-            }
+          switch ($(value).parent().attr("id")) {
+            case "attack_list":
+              sp_cost += getAttackInfo().sp_cost;
+              break;
+            default:
+              let buff_id = Number($(value).val());
+              if (buff_id !== undefined && buff_id !== 0 ) {
+                sp_cost += getBuffIdToBuff(buff_id).sp_cost;
+              }
+              break;
           }
         });
         $("#sp_cost_" + i).text(sp_cost);

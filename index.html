@@ -279,17 +279,22 @@
           <img id="attack_element" class="w-6 h-6" src="img/blank.png">
         </div>
         <br>
-        <div class="w-96 mx-auto">
+        <div class="w-[410px] mx-auto">
           <div>
             <label>敵選択</label>
             <select id="enemy_class">
               <option value="1">異時層</option>
               <option value="2">オーブボス</option>
+              <option value="3">時計塔(N)</option>
+              <option value="4">時計塔(H)</option>
+              <option value="5">宝珠の迷宮</option>
             </select>
             <select id="enemy_list">
             </select>
           </div>
-          <br>
+        </div>
+        <br>
+        <div class="w-96 mx-auto">
           <div class="grid grid-cols-4 gap-1">
             <div class="text-right">能力値</div><input type="text" id="enemy_stat" value="" readonly class="w-16 text-right">
             <div class="col-span-2 flex">

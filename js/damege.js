@@ -454,53 +454,61 @@ function createSkillLvList(id, max_lv, select_lv) {
 
 // バフリストに追加
 function addBuffList(style, chara_no) {
-    // スキル追加
-    let buff_list = $.grep(skill_buff,
-        function (obj, index) {
-            return ((obj.chara_id === style.chara_id || obj.chara_id == 0) && (obj.style_id === style.style_id || obj.style_id == 0));
-        });
-    $.each(buff_list, function(index, value) {
+    let buff_list = skill_buff.filter(obj => 
+        (obj.chara_id === style.chara_id || obj.chara_id === 0) && 
+        (obj.style_id === style.style_id || obj.style_id === 0)
+        );
+      
+    buff_list.forEach(value => {
         let effect_size = getEffectSize(value.buff_kind, value.buff_id, chara_no, value.max_lv);
         let buff_element = 0;
-        let only_one = ""
-
+        let only_one = "";
+        
         switch (value.buff_kind) {
-        case 11: // 属性フィールド
-            addElementFiled(style, value.buff_name, value.min_power, value.buff_element, value.buff_id);
-            return true;
-        case 0:
-            only_one = "only_one"
+            case 11: // 属性フィールド
+                addElementFiled(style, value.buff_name, value.min_power, value.buff_element, value.buff_id);
+                return;
+            case 0:
+                only_one = "only_one";
             break;
-        case 1: 
-            only_one = "only_one"
-        case 4:// 属性 
-            buff_element = value.buff_element;
+            case 1: 
+                only_one = "only_one";
+            case 4:// 属性 
+                buff_element = value.buff_element;
             break;
-        case 8: case 9:// 属性
-            buff_element = value.buff_element;
-        case 6: case 7:
-            only_one = "only_one"
+            case 8:
+            case 9:// 属性
+                buff_element = value.buff_element;
+            case 6:
+            case 7:
+            case 16:
+            case 17:
+                only_one = "only_one";
             break;
         }
+        
         let str_buff = buff_kbn[value.buff_kind];
-        if (value.skill_attack == 0) only_one = 0;
-        if (value.only_first == 1) only_one = "only_first";
-        let only_chara_id = value.only_me == 1 ? "only_chara_id-" + style.chara_id : "public";
+        if (value.skill_attack === 0) only_one = 0;
+        if (value.only_first === 1) only_one = "only_first";
+        let only_chara_id = value.only_me === 1 ? `only_chara_id-${style.chara_id}` : "public";
+        let option_text = `${chara_name[style.chara_id]}: ${value.buff_name} ${(Math.floor(effect_size * 100) / 100)}%`;
+        
         var option = $('<option>')
-                    .text(chara_name[style.chara_id] + ":" + value.buff_name + " " + (Math.floor(effect_size * 100) / 100) + "%")
-                    .val(value.buff_id)
-                    .data("select_lv", value.max_lv)
-                    .data("max_lv", value.max_lv)
-                    .data("chara_no", chara_no)
-                    .data("effect_size", effect_size)
-                    .css("display", "none")
-                    .addClass("buff_element-" + buff_element)
-                    .addClass("buff_id-" + value.buff_id)
-                    .addClass("variable_effect_size")
-                    .addClass("skill_attack-", value.skill_attack)
-                    .addClass(only_chara_id)
-                    .addClass(only_one)
-                    .addClass("chara_id-" + style.chara_id);
+            .text(option_text)
+            .val(value.buff_id)
+            .data("select_lv", value.max_lv)
+            .data("max_lv", value.max_lv)
+            .data("chara_no", chara_no)
+            .data("effect_size", effect_size)
+            .css("display", "none")
+            .addClass("buff_element-" + buff_element)
+            .addClass("buff_id-" + value.buff_id)
+            .addClass("variable_effect_size")
+            .addClass("skill_attack-" + value.skill_attack)
+            .addClass(only_chara_id)
+            .addClass(only_one)
+            .addClass("chara_id-" + style.chara_id);
+        
         $("." + str_buff).append(option);
     });
 }

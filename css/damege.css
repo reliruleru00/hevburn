@@ -53,6 +53,10 @@ select.filed {
     margin-left: 3px;
 }
 
+#dp_range {
+    width: 130px;
+}
+
 div.lv {
     display: none;
 }

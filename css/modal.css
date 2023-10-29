@@ -33,12 +33,12 @@
   overflow-y: scroll;
   transform: translate(-50%, -50%);
 }
-@media screen and (max-width: 768px) {
+/* @media screen and (max-width: 768px) {
   .modal_layer_inner {
     padding-left: 24px;
     padding-right: 24px;
   }
-}
+} */
 .modal_section {
   background: #fff;
 }

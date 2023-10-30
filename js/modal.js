@@ -24,11 +24,6 @@ function addModalEvent() {
     });
 
     let narrow = {"physical": "", "element": "", "role": "" };
-    function toggleSelectClass(selecter, select) {
-        let oppositeSelect = select === "1" ? "0" : "1";
-        $(selecter).css("opacity", oppositeSelect);
-        $(selecter).data("select", select);
-    }
     // スタイル絞り込み
     $(".narrow").on('click', function() {
         let classification = "";
@@ -43,12 +38,15 @@ function addModalEvent() {
         let selecter = ".narrow" + "." + classification;
         let select = $(this).data("select");
 
-        if (select === "1") {
-            toggleSelectClass(selecter, "1");
-            toggleSelectClass(this, "0");
+        if (select == "1") {
+            $(selecter).css("opacity", "0.3");
+            $(selecter).data("select", "1");
+            $(this).css("opacity", "1");
+            $(this).data("select", "0");
             narrow[classification] = "." + $(this).prop("id");
         } else {
-            toggleSelectClass(selecter, "1");
+            $(selecter).css("opacity", "1");
+            $(selecter).data("select", "1");
             narrow[classification] = "";
         }
 

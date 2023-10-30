@@ -38,10 +38,11 @@
     width: 1200px;
   }
   .modal_layer_inner {
-    left: 28%;
-    top: calc(50% + 30px);
+    left: 30px;
+    top: 30px;
     height: 700px;
     overflow-y: scroll;
+    transform: translate(0%, 0%);
   }
 }
 .modal_section {

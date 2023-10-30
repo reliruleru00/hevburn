@@ -525,7 +525,7 @@ function addAbility(style_info, chara_no) {
         ability_id = ability_list[index];
         if (ability_id == 0 || ability_id > 1000) {
             // 1000番以降は不要
-            return true;
+            continue;
         }
         ability_info = getAbilityInfo(ability_id);
         let limit_count = Number($("#limit_" + chara_no).val());

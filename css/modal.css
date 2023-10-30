@@ -39,7 +39,9 @@
   }
   .modal_layer_inner {
     left: 28%;
-    overflow-y: visible;
+    top: calc(50% + 30px);
+    height: 700px;
+    overflow-y: scroll;
   }
 }
 .modal_section {

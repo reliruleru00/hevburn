@@ -519,6 +519,25 @@ function addElementField(style, field_name, effect_size, field_element, buff_id)
     $("#element_field").append(option);
 }
 
+// 連撃追加
+function addBuffFunnel(buff_name, buff_id, chara_id, effect_size) {
+    let option_text = `${chara_name[chara_id]}: ${buff_name} ${effect_size}%`;
+    var option = $('<option>')
+        .text(option_text)
+        .data("chara_no", chara_no)
+        .data("effect_size", effect_size)
+        .val(buff_id)
+        .css("display", "none")
+        .addClass("buff_element-0")
+        .addClass("skill_attack-0")
+        .addClass("only_chara_id-" + chara_id)
+        .addClass("buff_id-" + buff_id)
+        .addClass("only_one")
+        .addClass("chara_id-" + chara_id);
+    
+    $(".funnel").append(option);
+}
+
 // アビリティ追加
 function addAbility(style_info, chara_no) {
     let ability_list = [style_info.ability0, style_info.ability1, style_info.ability3];
@@ -529,7 +548,6 @@ function addAbility(style_info, chara_no) {
             continue;
         }
         ability_info = getAbilityInfo(ability_id);
-        let limit_count = Number($("#limit_" + chara_no).val());
         let limit_border = index == 0 ? 0 : (index === 1 ? 1 : 3); 
         let display = "none";
 
@@ -538,8 +556,6 @@ function addAbility(style_info, chara_no) {
         }
         let target;
         let element_type;
-        let disabled = ability_info.ability_type == 1 ? true : false;
-        let checked = true;
         switch (ability_info.ability_target) {
 	        case 0: // フィールド
 	            addElementField(style_info, ability_info.ability_name, ability_info.ability_power, ability_info.ability_element);
@@ -559,6 +575,9 @@ function addAbility(style_info, chara_no) {
 	        case 4: // その他
 	            target = "ability_all";
 	            element_type = "public buff_element"
+	            break;
+            case 5: // 狂乱の型
+                addBuffFunnel(ability_info.ability_name, "0",style_info.chara_id, ability_info.ability_power);
 	            break;
 	        default:
 	            break;
@@ -586,7 +605,6 @@ function addAbility(style_info, chara_no) {
         $("#" + target).append(input).append(label);
     }
 }
-
 
 // アビリティチェック設定
 function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_id) {
@@ -657,6 +675,10 @@ function select2ndSkill(select) {
             if (isOnlyBuff($(option))) {
                 $(option).prop("selected", false);
                 continue;
+            }
+            if (buff_id == 0) {
+                // アビリティ
+                break;
             }
             let select_lv = $(option).data("select_lv");
             let max_lv = $(option).data("max_lv");

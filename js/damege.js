@@ -35,16 +35,17 @@ function setEventTrigger() {
         let chara_id = "chara_id-" + skill_info.chara_id;
         $(".public.buff_element-" + skill_info.attack_element).show();
         $(".public.buff_element-0").show();
+        $(".only_" + chara_id + ".buff_element-0").show();
         $(".ability_self").hide();
         if (skill_info.attack_element !== 0) {
-            $(".self_element-" + skill_info.attack_element + "." + chara_id).show();
             $("#elememt_ring").prop("disabled", false);
+            $(".self_element-" + skill_info.attack_element + "." + chara_id).show();
+            $(".only_" + chara_id + ".buff_element-" + skill_info.attack_element).show();
         } else {
             $("#elememt_ring").prop("disabled", true);
             $("#elememt_ring").prop("selectedIndex", 0);
         }
         $(".self_element-0." + chara_id).show();
-        $(".only_" + chara_id).show();
 
         // 該当ステータスに着色
         for (let i = 1; i <= 3; i++) {

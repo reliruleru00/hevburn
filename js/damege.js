@@ -242,15 +242,20 @@ function calcDamage() {
     let critical_buff = getCriticalBuff();
 
     let fixed = mindeye * fragile * element_field * weak_physical * weak_element
-    let damage = calculateDamage(basePower, skill_info, buff, debuff, fixed, "#destruction_last_rate")
-    let critical_damage = calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_destruction_last_rate");
+    calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate");
+    calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined);
+    calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined);
+    calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage", "#critical_destruction_last_rate");
+    calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined);
+    calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined);
 	
-	displayDamageResults(damage, critical_damage, critical_rate);
-
+    // クリティカル表示
+    $("#critical_rate").text(`(発生率: ${Math.round(critical_rate * 100) / 100}%)`);
+    $("#damage_result").show();
 }
 
 // ダメージの詳細計算
-function calculateDamage(basePower, skill_info, buff, debuff, fixed, id) {
+function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id) {
     let funnel = getSumFunnelEffectSize();
     let destruction_rate = Number($("#enemy_destruction").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
@@ -301,21 +306,10 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id) {
         destruction_rate += destruction_size * funnel; 
         if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
     }
-    $(id).text(`${Math.round(destruction_rate * 10) / 10}%`);
-    return damage;
+    $(id).val(Math.floor(damage).toLocaleString());
+    if (destruction_id)  $(destruction_id).text(`${Math.round(destruction_rate * 10) / 10}%`);
 }
 
-// ダメージ結果の表示
-function displayDamageResults(damage, criticalDamage, criticalRate) {
-    $("#damage").val(Math.floor(damage).toLocaleString());
-    $("#damage_min").val(Math.floor(damage * 0.9).toLocaleString());
-    $("#damage_max").val(Math.floor(damage * 1.1).toLocaleString());
-    $("#critical_damage").val(Math.floor(criticalDamage).toLocaleString());
-    $("#critical_damage_min").val(Math.floor(criticalDamage * 0.9).toLocaleString());
-    $("#critical_damage_max").val(Math.floor(criticalDamage * 1.1).toLocaleString());
-    $("#critical_rate").text(`(発生率: ${Math.round(criticalRate * 100) / 100}%)`);
-    $("#damage_result").show();
-}
 // ピアス効果量取得
 function getEarringEffectSize(type, hit_count) {
     hit_count = hit_count < 1 ? 1 : hit_count;

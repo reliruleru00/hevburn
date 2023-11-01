@@ -372,9 +372,9 @@ function getSpCost() {
 
 // スキル使用回数取得
 function addSkillCount(sp_list, name, id, sp_cost) {
-    let array = $.grep(sp_list, function (obj, index) {
-        return (obj.name === name);
-    });
+    name = name.replace("(初回)", "")
+    const array = sp_list.filter((obj) => obj.name === name);
+
     let single = {};
     if (array.length) {
         single = array[0];
@@ -816,16 +816,13 @@ function getSumAbilityEffectSize(ability_kind) {
 
 // アビリティ情報取得
 function getAbilityInfo(ability_id) {
-    return $.grep(ability_list,
-        function (obj, index) {
-            return (obj.ability_id == ability_id);
-        })[0];
+    const filtered_ability = ability_list.filter((obj) => obj.ability_id == ability_id);
+    return filtered_ability.length > 0 ? filtered_ability[0] : undefined;
 }
-
 
 // 敵リスト作成
 function createEnemyList(enemy_class) {
-    $("#enemy_list").html("");
+    $("#enemy_list").empty();
     $.each(enemy_list, function(index, value) {
         if (value.enemy_class == enemy_class) {
             var option = $('<option>')
@@ -839,12 +836,10 @@ function createEnemyList(enemy_class) {
 
 // 敵情報取得
 function getEnemyInfo() {
-    let enemy_class = Number($("#enemy_class option:selected").val());
-    let enemy_class_no = Number($("#enemy_list option:selected").val());
-    return $.grep(enemy_list,
-        function (obj, index) {
-            return (obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
-        })[0];
+    const enemy_class = Number($("#enemy_class option:selected").val());
+    const enemy_class_no = Number($("#enemy_list option:selected").val());
+    const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
+    return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 }
 
 // 敵ステータス設定
@@ -884,11 +879,11 @@ function sortEffectSize(selecter) {
         var effectA= Number($(a).data("effect_size"));
         var effectB = Number($(b).data("effect_size"));
         if (effectA < effectB) {
-        return 1;
+            return 1;
         } else if (effectA > effectB) {
-        return -1;
+            return -1;
         } else {
-        return 0;
+            return 0;
         }
     });
     selecter.append(item);
@@ -896,11 +891,9 @@ function sortEffectSize(selecter) {
 
 // 攻撃情報取得
 function getAttackInfo() {
-    let attack_id = Number($("#attack_list option:selected").val());
-    return $.grep(skill_attack,
-                function (obj, index) {
-                    return (obj.attack_id === attack_id);
-            })[0];
+    const attack_id = Number($("#attack_list option:selected").val());
+    const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
+    return filtered_attack.length > 0 ? filtered_attack[0] : undefined;
 }
 
 // 基礎攻撃力取得
@@ -965,10 +958,8 @@ function getBasePower(correction) {
 
 // バフ情報取得
 function getBuffIdToBuff(buff_id) {
-    return $.grep(skill_buff,
-        function (obj, index) {
-            return (obj.buff_id === buff_id);
-    })[0];
+    const filtered_buff = skill_buff.filter((obj) => obj.buff_id === buff_id);
+    return filtered_buff.length > 0 ? filtered_buff[0] : undefined;
 }
 
 // バフ効果量

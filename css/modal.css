@@ -40,7 +40,7 @@
   .modal_layer_inner {
     left: 30px;
     top: 30px;
-    height: 700px;
+    height: 80vh;
     overflow-y: scroll;
     transform: translate(0%, 0%);
   }

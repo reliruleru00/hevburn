@@ -233,6 +233,7 @@ function calcDamage() {
     let mindeye = isWeak() ? getSumEffectSize("mindeye") / 100 + 1: 1;
     let debuff = getSumDebuffEffectSize();
     let fragile = isWeak() ? getSumEffectSize("fragile") / 100 + 1: 1;
+    let token = getSumTokenEffectSize();
     let element_field = getSumEffectSize("element_field") / 100 + 1;
     let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
     let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
@@ -241,7 +242,7 @@ function calcDamage() {
     let critical_rate = getCriticalRate();
     let critical_buff = getCriticalBuff();
 
-    let fixed = mindeye * fragile * element_field * weak_physical * weak_element
+    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element
     calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate");
     calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined);
     calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined);
@@ -605,11 +606,14 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
     let disabled = ability_info.ability_type == 1 ? true : false;
     let checked = true;
     switch (ability_info.ability_target) {
+        case 1: // 自分
+            disabled = (limit_count < limit_border || $(input).hasClass(chara_id)) && ability_info.ability_type == 1;
+            checked = limit_count >= limit_border && $(input).hasClass(chara_id);
+            break;
         case 2: // 前衛
             disabled = limit_count < limit_border || $(input).hasClass(chara_id);
             checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break;
-        case 1: // 自分
         case 3:	// 常時
         case 4:	// 常時
             if (limit_count < limit_border) {
@@ -618,7 +622,7 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
             } else {
                 checked = true;
             }
-        break;
+            break;
     }
     $(input).prop("checked", checked).attr("disabled", disabled);
 }
@@ -635,17 +639,17 @@ function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
         case 8:	// 属性クリティカル率アップ
         case 9:	// 属性クリティカルダメージアップ
         case 10: // チャージ
-        effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
+            effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
         break;
         case 3: // 防御力ダウン
         case 4: // 属性防御力ダウン
         case 5: // 脆弱
         case 19: // DP防御力ダウン
-        effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
+            effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
         break;
         case 16: // 連撃(小)
         case 17: // 連撃(大)
-        effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
+            effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
         break;
         default:
         break;
@@ -751,9 +755,6 @@ function getSumBuffEffectSize() {
     }
     // トークン
     let token_count = Number($("#token_count").val());
-    if (select_attack_skill.token_power_up == 1) {
-        sum_buff += token_count * 16;
-    }
     sum_buff += token_count * getSumAbilityEffectSize(6);
     return 1 + sum_buff / 100;
 }
@@ -772,6 +773,16 @@ function getSumFunnelEffectSize() {
     let sum_funnel = getSumEffectSize("funnel");
     sum_funnel += getSumAbilityEffectSize(5);
     return sum_funnel / 100;
+}
+
+// トークン効果量
+function getSumTokenEffectSize(buff_id, chara_no, skill_lv) {
+    // トークン
+    let token_count = Number($("#token_count").val());
+    if (select_attack_skill.token_power_up == 1) {
+        return 1 + token_count * 16 / 100;
+    }
+    return 0;
 }
 
 // クリティカル率取得
@@ -802,7 +813,7 @@ function getSumAbilityEffectSize(ability_kind) {
         let ability_id = Number($(value).data("ability_id"));
         let ability_info = getAbilityInfo(ability_id);
         if (ability_info.ability_kind == ability_kind) {
-        ability_effect_size += Number($(value).data("effect_size"));
+            ability_effect_size += Number($(value).data("effect_size"));
         }
     });
     return ability_effect_size;

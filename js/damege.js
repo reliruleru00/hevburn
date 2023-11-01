@@ -836,6 +836,12 @@ function createEnemyList(enemy_class) {
             $("#enemy_list").append(option);
         }
     });
+    if (enemy_class == 6) {
+        // スコアタの場合、いったん自由入力を許可する。
+        $(".enemy_type_value").prop("readonly", false);
+    } else {
+        $(".enemy_type_value").prop("readonly", true);
+    }
     setEnemyStatus();
 }
 

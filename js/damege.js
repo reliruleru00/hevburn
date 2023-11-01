@@ -782,7 +782,7 @@ function getSumTokenEffectSize(buff_id, chara_no, skill_lv) {
     if (select_attack_skill.token_power_up == 1) {
         return 1 + token_count * 16 / 100;
     }
-    return 0;
+    return 1;
 }
 
 // クリティカル率取得

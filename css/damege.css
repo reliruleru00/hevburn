@@ -17,6 +17,10 @@ input[type="number"] {
     border: solid 1px #000;
 }
 
+input[type="text"]:not(:read-only) {
+    border: solid 1px #000;
+}
+
 select {
     border: solid 1px #000;
 }

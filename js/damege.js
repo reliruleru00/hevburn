@@ -942,9 +942,6 @@ function getBasePower(correction) {
     let status = molecule / denominator;
 
     let skill_lv = Number($("#skill_lv option:selected").val());
-    if (skill_lv > 13) {
-        skill_lv = 13;
-    }
     let min_power = skill_info.min_power * (1 + 0.05 * (skill_lv - 1));
     let max_power = skill_info.max_power * (1 + 0.02 * (skill_lv - 1)); 
     let skill_stat = skill_info.param_limit;
@@ -991,9 +988,6 @@ function getBuffEffectSize(buff_id, chara_no, skill_lv) {
     let skill_info = getBuffIdToBuff(buff_id);
     if (skill_lv > skill_info.max_lv) {
         skill_lv = skill_info.max_lv;
-    }
-    if (skill_lv > 13) {
-        skill_lv = 13;
     }
     // 固定量のバフ
     if (status_kbn[skill_info.ref_status_1] == 0) {
@@ -1042,9 +1036,6 @@ function getDebuffEffectSize(buff_id, chara_no, skill_lv) {
     let skill_info = getBuffIdToBuff(buff_id);
     if (skill_lv > skill_info.max_lv) {
         skill_lv = skill_info.max_lv;
-    }
-    if (skill_lv > 13) {
-        skill_lv = 13;
     }
     let status1 = Number($("#" + status_kbn[skill_info.ref_status_1] + "_" + chara_no).val());
     let status2 = Number($("#" + status_kbn[skill_info.ref_status_2] + "_" + chara_no).val());

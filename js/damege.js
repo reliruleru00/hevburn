@@ -100,7 +100,6 @@ function setEventTrigger() {
             resetSkillLv(id);
         } else {
             let option = $(this).children().eq(selected_index);
-            let chara_no = option.data("chara_no");
             if (isOnlyBuff(option)) {
                 $(this).prop("selectedIndex", 0);
                 alert(option.text() + "は複数設定出来ません");
@@ -109,6 +108,16 @@ function setEventTrigger() {
             let select_lv = option.data("select_lv");
             let skill_info = getBuffIdToBuff(Number(option.val()));
             createSkillLvList(id + "_lv", skill_info.max_lv, select_lv);
+            setStatusToBuff(option, id);
+        }
+    });
+    // バフスキル変更
+    $("#charge").on("change", function(event) {
+        let selected_index = $(this).prop("selectedIndex");
+        let id = $(this).prop("id");
+        $(".status_" + id).removeClass("status_" + id);
+        if (selected_index !== 0) {
+            let option = $(this).children().eq(selected_index);
             setStatusToBuff(option, id);
         }
     });

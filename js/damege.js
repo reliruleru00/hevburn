@@ -234,6 +234,17 @@ function setEventTrigger() {
         }
       }
     });
+    // 部隊変更ボタンクリック
+      $(".troops_btn").on("click", function(event) {
+        if ($(this).hasClass("selected_troops")) {
+          return;
+        }
+        $(".selected_troops").removeClass("selected_troops");
+        $(this).addClass("selected_troops");
+        $("#style_reset_btn").trigger("click");
+        select_troops = $(this).val();
+        loadTroopsList(select_troops);
+    });
     // ダメージ再計算
     $(document).on("change", "input, select", function(event) {
         calcDamage();

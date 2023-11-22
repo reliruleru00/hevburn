@@ -21,7 +21,7 @@ input.troops_btn {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-left: 12px;
+    margin-left: 5px;
     box-shadow:0 6px 0 0 #005400;
     transform: translateY(-6px);
 }

@@ -1,12 +1,7 @@
 function setEventTrigger() {
     // リセットボタン
     $("#style_reset_btn").on("click", function(event) {
-        for (let i = 0; i < select_style_list.length; i++) {
-            if (select_style_list[i] !== 0) {
-                chara_no = i;
-                removeMember();
-            }
-        }
+        styleReset(true);
     });
     // 敵リストイベント
     $("#enemy_class").on("change", function(event) {
@@ -241,7 +236,7 @@ function setEventTrigger() {
         }
         $(".selected_troops").removeClass("selected_troops");
         $(this).addClass("selected_troops");
-        $("#style_reset_btn").trigger("click");
+        styleReset(false);
         select_troops = $(this).val();
         loadTroopsList(select_troops);
     });

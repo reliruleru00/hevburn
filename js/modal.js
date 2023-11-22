@@ -63,6 +63,7 @@ function addModalEvent() {
 
     // メンバーを外す
     $('.remove_btn').on('click', function() {
+        localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
         removeMember();
         closeModel();
     });
@@ -131,6 +132,7 @@ function removeMember() {
     // 該当メンバーのスキル削除
     $(chara_id_class).remove();
     select_style_list[chara_no] = 0;
+
     // 画像初期化
     $('[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
     // スキル情報編集
@@ -144,6 +146,19 @@ function loadTroopsList(troops_no) {
         if (style_id !== null) {
             chara_no = j;
             setMember(Number(style_id));
+        }
+    }
+}
+
+// スタイルリセット
+function styleReset(isLocalStorageReset) {
+    for (let i = 0; i < select_style_list.length; i++) {
+        if (select_style_list[i] !== 0) {
+            chara_no = i;
+            removeMember();
+            if (isLocalStorageReset) {
+                localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
+            }
         }
     }
 }

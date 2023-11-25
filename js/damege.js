@@ -991,6 +991,11 @@ function setEnemyStatus() {
     $(".variable_effect_size").each(function(index, value) {
         updateBuffEffectSize($(value));
     });
+    // 再ソート
+    $(".redisplay").each(function(index, value) {
+        sortEffectSize($(value));
+        select2ndSkill($(value));
+    });
 }
 
 // 敵耐性設定

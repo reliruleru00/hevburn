@@ -1,4 +1,4 @@
-var enemy_list = [
+﻿let enemy_list = [
     {"enemy_class":1,"enemy_class_no":1,"enemy_name":"デススラッグ（第1形態）","enemy_stat":290,"max_dp":66000,"max_hp":300000,"destruction":5,"destruction_limit":300,"physical_1":100,"physical_2":100,"physical_3":100,"element_0":100,"element_1":100,"element_2":100,"element_3":100,"element_4":100,"element_5":100},
     {"enemy_class":1,"enemy_class_no":2,"enemy_name":"デススラッグ（第2形態）","enemy_stat":290,"max_dp":88000,"max_hp":1680000,"destruction":8,"destruction_limit":999,"physical_1":100,"physical_2":100,"physical_3":100,"element_0":100,"element_1":100,"element_2":100,"element_3":100,"element_4":100,"element_5":100},
     {"enemy_class":1,"enemy_class_no":3,"enemy_name":"ロータリーモール(第1形態）","enemy_stat":310,"max_dp":97600,"max_hp":999999,"destruction":3,"destruction_limit":300,"physical_1":100,"physical_2":150,"physical_3":50,"element_0":100,"element_1":100,"element_2":100,"element_3":100,"element_4":100,"element_5":100},

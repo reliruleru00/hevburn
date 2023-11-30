@@ -1,4 +1,4 @@
-var skill_buff = [
+﻿let skill_buff = [
     {"buff_id":1,"buff_kind":11,"buff_element":1,"chara_id":4,"style_id":0,"buff_name":"メメント・モリ","ref_status_1":0,"ref_status_2":0,"min_power":50.00,"max_power":50.00,"sp_cost":12,"param_limit":0,"max_lv":1,"skill_attack":7,"only_me":0,"only_first":0},
     {"buff_id":2,"buff_kind":3,"buff_element":0,"chara_id":10,"style_id":0,"buff_name":"トリック・カノン","ref_status_1":5,"ref_status_2":6,"min_power":30.00,"max_power":45.00,"sp_cost":13,"param_limit":138,"max_lv":1,"skill_attack":9,"only_me":0,"only_first":0},
     {"buff_id":3,"buff_kind":11,"buff_element":3,"chara_id":10,"style_id":0,"buff_name":"トリック・カノン","ref_status_1":0,"ref_status_2":0,"min_power":50.00,"max_power":50.00,"sp_cost":13,"param_limit":0,"max_lv":1,"skill_attack":9,"only_me":0,"only_first":0},
@@ -142,4 +142,4 @@ var skill_buff = [
     {"buff_id":2701,"buff_kind":17,"buff_element":0,"chara_id":17,"style_id":0,"buff_name":"心意活性","ref_status_1":5,"ref_status_2":0,"min_power":2.00,"max_power":3.00,"sp_cost":5,"param_limit":129,"max_lv":1,"skill_attack":0,"only_me":1,"only_first":0},
     {"buff_id":2702,"buff_kind":17,"buff_element":0,"chara_id":39,"style_id":0,"buff_name":"ホールドアップマインド","ref_status_1":0,"ref_status_2":0,"min_power":2.00,"max_power":2.00,"sp_cost":8,"param_limit":0,"max_lv":1,"skill_attack":0,"only_me":1,"only_first":0},
     {"buff_id":2703,"buff_kind":17,"buff_element":0,"chara_id":46,"style_id":0,"buff_name":"ブリリアント・グローリー","ref_status_1":5,"ref_status_2":0,"min_power":2.00,"max_power":3.00,"sp_cost":7,"param_limit":208,"max_lv":1,"skill_attack":0,"only_me":1,"only_first":0},
-    ]
+];

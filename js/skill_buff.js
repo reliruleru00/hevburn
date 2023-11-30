@@ -1,27 +1,3 @@
-var buff_kbn = [
-    "power_up", 
-    "element_up", 
-    "mindeye", 
-    "defense_down", 
-    "element_down", 
-    "fragile", 
-    "critical_up", 
-    "critical_damege", 
-    "critical_element", 
-    "critical_damege_element", 
-    "charge",
-    "element_field",
-    "destruction_rete_up",
-    "",
-    "fightingspirit",
-    "misfortune",
-    "funnel",
-    "funnel",
-    "strong_break",
-    "dp_defense_down",
-    "resist_down",
-    ];
-
 var skill_buff = [
     {"buff_id":1,"buff_kind":11,"buff_element":1,"chara_id":4,"style_id":0,"buff_name":"メメント・モリ","ref_status_1":0,"ref_status_2":0,"min_power":50.00,"max_power":50.00,"sp_cost":12,"param_limit":0,"max_lv":1,"skill_attack":7,"only_me":0,"only_first":0},
     {"buff_id":2,"buff_kind":3,"buff_element":0,"chara_id":10,"style_id":0,"buff_name":"トリック・カノン","ref_status_1":5,"ref_status_2":6,"min_power":30.00,"max_power":45.00,"sp_cost":13,"param_limit":138,"max_lv":1,"skill_attack":9,"only_me":0,"only_first":0},

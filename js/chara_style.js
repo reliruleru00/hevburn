@@ -95,4 +95,6 @@
     {"style_id":94,"chara_id":47,"style_name":"希求と渇仰","image_url":"HOgasawaraNightdress_R3.webp","troops":"30G","role":2,"physical":2,"element":3,"jewel_type":1,"ability0":0,"ability1":1101,"ability3":1004},
     {"style_id":95,"chara_id":41,"style_name":"刹那の邂逅","image_url":"MdAngelisKnights_R3.webp","troops":"31X","role":4,"physical":3,"element":3,"jewel_type":1,"ability0":1504,"ability1":1101,"ability3":203},
     {"style_id":96,"chara_id":42,"style_name":"とこしえの想い","image_url":"CSkopovskayaVampire_R3.webp","troops":"31X","role":6,"physical":2,"element":3,"jewel_type":4,"ability0":403,"ability1":1101,"ability3":225},
+    {"style_id":97,"chara_id":19,"style_name":"Holiday Ring a Bell","image_url":"MNikaidoXmas2023_R3.webp","troops":"31D","role":1,"physical":3,"element":2,"jewel_type":1,"ability0":402,"ability1":1101,"ability3":202},
+    {"style_id":98,"chara_id":23,"style_name":"Holiday Star Night","image_url":"ADateXmas2023_R3.webp","troops":"31D","role":2,"physical":3,"element":2,"jewel_type":1,"ability0":402,"ability1":1101,"ability3":202},
 ];

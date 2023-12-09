@@ -16,23 +16,27 @@ function setEventTrigger() {
     });
     // 攻撃スキル変更
     $("#attack_list").on("change", function(event) {
+        let skill_info = getAttackInfo();
         if (select_attack_skill !== undefined) {
-            if (select_attack_skill.attack_element !== 0) {
-                $(".buff_element-" + select_attack_skill.attack_element).hide();
-            }
             $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
             $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
-            $(".only_chara_id-" + select_attack_skill.chara_id).hide();
+
+            if (skill_info === undefined || select_attack_skill.chara_id !== skill_info.chara_id) {
+                $(".only_chara_id-" + select_attack_skill.chara_id).hide();
+            }
+            if (select_attack_skill.attack_element !== 0 && (skill_info === undefined || select_attack_skill.attack_element !== skill_info.attack_element)) {
+                $(".buff_element-" + select_attack_skill.attack_element).hide();
+            }
+
             $(".status_attack_skill").removeClass("status_attack_skill");
             // 敵情報初期化
             setEnemyStatus();
         }
-        if ($("#attack_list option").length == 0) {
+        if (skill_info === undefined) {
             $("#attack_physical, #attack_element").attr("src", "img/blank.png");
             // 選択無しの場合は、削除のみ
             return;
         }
-        let skill_info = getAttackInfo();
         select_attack_skill = skill_info;
         let max_lv = skill_info.max_lv;
         let chara_no = $(this).find("option:selected").data("chara_no");
@@ -753,6 +757,7 @@ function select2ndSkill(select) {
         // 外されていた場合は、「無し」にする。
         if (select.find(":selected").css("display") == "none") {
             select.prop("selectedIndex", 0);
+            resetSkillLv(select.attr("id"));
         }
         return;
     }

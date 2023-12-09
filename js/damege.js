@@ -752,17 +752,19 @@ function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
 
 // スキル設定
 function select2ndSkill(select) {
+    let id = select.attr("id");
     // 自動選択無しの場合は更新しない
     if (!$("#auto_skill").prop("checked")) {
         // 外されていた場合は、「無し」にする。
         if (select.find(":selected").css("display") == "none") {
             select.prop("selectedIndex", 0);
-            resetSkillLv(select.attr("id"));
+            resetSkillLv(id);
+            $(".status_" + id).removeClass("status_" + id);
         }
         return;
     }
     select.prop("selectedIndex", 0);
-    $(".status_" + select.attr("id")).removeClass("status_" + select.attr("id"));
+    $(".status_" + id).removeClass("status_" + id);
     for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
         if ($(option).css("display") !== "none") {

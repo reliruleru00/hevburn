@@ -379,6 +379,10 @@ function getSpCost() {
 	                addSkillCount(sp_list, attack.attack_name, $(value).parent().attr("id"), attack.sp_cost)
 	                break;
                 default:
+                    // 非表示項目を除く
+                    if ($(value).parent().parent().css('display')  == 'none') {
+                        break;
+                    }
 	                let buff_id = Number($(value).val());
 	                if (buff_id !== undefined && buff_id !== 0 ) {
 	                    let buff = getBuffIdToBuff(buff_id)
@@ -410,8 +414,8 @@ function getSpCost() {
 
 // スキル使用回数取得
 function addSkillCount(sp_list, name, id, sp_cost) {
-    name = name.replace("(初回)", "")
-    const array = sp_list.filter((obj) => obj.name === name);
+    name = renameSkill(name);
+    const array = sp_list.filter((obj) => renameSkill(obj.name) === name);
 
     let single = {};
     if (array.length) {
@@ -427,6 +431,15 @@ function addSkillCount(sp_list, name, id, sp_cost) {
     } else {
         single[kind] = 1;
     }
+}
+
+// スキル名の特定文字列削除
+function renameSkill(skill_name) {
+    let str_replace = ["(初回)", "(弱点)", '(破壊率200%以上)', '(オーバードライブ)', '(チャージ)', '(追加ターン)'];
+    str_replace.forEach(value => {
+        skill_name = skill_name.replace(value, "");
+    });
+    return skill_name;
 }
 
 // バフ効果量更新
@@ -788,6 +801,10 @@ function isOnlyBuff(option) {
 
 // 選択バフのステータスを着色
 function setStatusToBuff(option, id) {
+    // 非表示項目は設定しない
+    if ($(option).parent().parent().css('display') == 'none') {
+        return;
+    }
     let buff = getBuffIdToBuff(Number($(option).val())); 
     if (buff !== undefined) {
         let chara_no = $(option).data("chara_no");

@@ -748,6 +748,14 @@ function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
 
 // スキル設定
 function select2ndSkill(select) {
+    // 自動選択無しの場合は更新しない
+    if (!$("#auto_skill").prop("checked")) {
+        // 外されていた場合は、「無し」にする。
+        if (select.find(":selected").css("display") == "none") {
+            select.prop("selectedIndex", 0);
+        }
+        return;
+    }
     select.prop("selectedIndex", 0);
     $(".status_" + select.attr("id")).removeClass("status_" + select.attr("id"));
     for (let i = 1; i < select.find("option").length; i++) {
@@ -1036,6 +1044,8 @@ function setEnemyElement(id, val) {
 
 // 効果量ソート
 function sortEffectSize(selecter) {
+    // 初期選択を保存
+    var selected = selecter.val();
     var item = selecter.children().sort(function(a, b){
         var effectA= Number($(a).data("effect_size"));
         var effectB = Number($(b).data("effect_size"));
@@ -1048,6 +1058,8 @@ function sortEffectSize(selecter) {
         }
     });
     selecter.append(item);
+    // 初期選択を再選択
+    selecter.val(selected);
 }
 
 // 攻撃情報取得

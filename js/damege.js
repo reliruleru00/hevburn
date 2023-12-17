@@ -117,8 +117,12 @@ function setEventTrigger() {
             setStatusToBuff(option, id);
         }
     });
-    // 耐性/耐性ダウン変更
-    $(".resist_down .enemy_type_value").on("change", function(event) {
+    // 耐性ダウン変更
+    $(".resist_down").on("change", function(event) {
+        displayWeakRow();
+    });
+    // 耐性変更
+    $(".enemy_type_value").on("change", function(event) {
         displayWeakRow();
     });
     // チャージ変更

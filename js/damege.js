@@ -73,10 +73,7 @@ function setEventTrigger() {
             let limit_count = Number($("#limit_" + chara_no).val());
             setAbilityCheck(value, ability_info, limit_border, limit_count, chara_id);
         });
-        $(".redisplay").each(function(index, value) {
-            sortEffectSize($(value));
-            select2ndSkill($(value));
-        });
+
         // アビリティ項目の表示設定
         let limit_count = Number($("#limit_" + chara_no).val());
         setAbilityDisplay(limit_count, chara_id);
@@ -95,6 +92,11 @@ function setEventTrigger() {
             $(".row_element-" + skill_info.attack_element).css("display", "table-cell");
         }
         displayWeakRow();
+
+        $(".redisplay").each(function(index, value) {
+            sortEffectSize($(value));
+            select2ndSkill($(value));
+        });
         createSkillLvList("skill_lv", max_lv, max_lv);
     });
     // バフスキル変更

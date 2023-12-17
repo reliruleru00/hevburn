@@ -123,7 +123,11 @@ function setEventTrigger() {
     });
     // 耐性変更
     $(".enemy_type_value").on("change", function(event) {
-        displayWeakRow();
+        if (isWeak()) {
+            $(".row_weak").css("display", "table-cell");
+        } else {
+            $(".row_weak").css("display", "none");
+        }
     });
     // チャージ変更
     $("#charge").on("change", function(event) {

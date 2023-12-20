@@ -97,6 +97,17 @@ select.filed {
     height: 21px;
 }
 
+img.select_style {
+    width: 64px;
+    height: 64px;
+    margin-left: 4px;
+}
+
+.label_status {
+    line-height: 22px;
+    display: block;
+}
+
 .status,
 .limit,
 .jewel {

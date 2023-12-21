@@ -35,11 +35,27 @@ function setEventTrigger() {
 
     // ツイート
     $(".btn_post").on('click', function() {
-        let aTag = document.createElement("a");
-        $(aTag).attr("href", "https://twitter.com/?status=本文");
-        $(aTag).attr("target", "_blank");
-        $(aTag).trigger("click");
+        let rate_complate = Math.floor(select_count / style_list.length * 1000) / 10;
+        let message = `私のSSスタイル所持率は\r\n${select_count}/${style_list.length}(コンプリート率${rate_complate}%)です。\r\n${location.href}\r\n`;
+        shareOnTwitter(message);
     });
+}
+function shareOnTwitter(message) {
+    // エンコードされたメッセージを生成
+    var encodedMessage = encodeURIComponent(message);
+    var hashtags = "ヘブバン,ヘブバンスタイル所持率チェッカー";
+    // TwitterのシェアURLを生成
+    var twitterURL = 'https://twitter.com/share?text=' + encodedMessage + "&hashtags=" + hashtags;
+    // aタグを生成
+    var link = $('<a>')
+        .attr('href', twitterURL)
+        .attr('target', '_blank');
+    // ページにaタグを追加
+    $('body').append(link);
+    // aタグをクリックしてTwitterを開く
+    link[0].click();
+    // aタグを削除
+    link.remove();
 }
 
 // 選択

@@ -70,5 +70,5 @@ footer {
   left: 0px;
   bottom: 0px;
   width: 100%;
-  height: 120px;
+  height: calc(120px + env(safe-area-inset-bottom));
 }

@@ -36,7 +36,7 @@ function setEventTrigger() {
     // ツイート
     $(".btn_post").on('click', function() {
         let rate_complate = Math.floor(select_count / style_list.length * 1000) / 10;
-        let message = `私のSSスタイル所持率は\r\n${select_count}/${style_list.length}(コンプリート率${rate_complate}%)です。\r\n${location.href}\r\n`;
+        let message = `私のSSスタイル所持率は\r\n${select_count}/${style_list.length}(コンプリート率${rate_complate}%)です。\r\n`;
         shareOnTwitter(message);
     });
 }
@@ -44,8 +44,9 @@ function shareOnTwitter(message) {
     // エンコードされたメッセージを生成
     var encodedMessage = encodeURIComponent(message);
     var hashtags = "ヘブバン,ヘブバンスタイル所持率チェッカー";
+    var url = location.href;
     // TwitterのシェアURLを生成
-    var twitterURL = 'https://twitter.com/share?text=' + encodedMessage + "&hashtags=" + hashtags;
+    var twitterURL = 'https://twitter.com/share?text=' + encodedMessage + "&hashtags=" + hashtags + "&url=" + url;
     // aタグを生成
     var link = $('<a>')
         .attr('href', twitterURL)

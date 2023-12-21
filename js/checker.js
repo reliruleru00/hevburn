@@ -47,6 +47,9 @@ function shareOnTwitter(message) {
     var url = location.href;
     // TwitterのシェアURLを生成
     var twitterURL = 'https://twitter.com/share?text=' + encodedMessage + "&hashtags=" + hashtags + "&url=" + url;
+    if (navigator.userAgent.indexOf('iPhone') > 0 || navigator.userAgent.indexOf('iPad') > 0 || navigator.userAgent.indexOf('iPod') > 0 || navigator.userAgent.indexOf('Android') > 0) {
+        twitterURL = 'https://twitter.com/intent/tweet?text=' + encodedMessage + "&hashtags=" + hashtags + "&url=" + url;
+    }
     // aタグを生成
     var link = $('<a>')
         .attr('href', twitterURL)

@@ -10,6 +10,32 @@ header {
   font-size: 30px;
   font-weight: bold;
 }
+@media screen and (max-width: 768px) {
+  .main_area {
+    width: 414px;
+  }
+  .select_style {
+    width: 46px;
+    height: 46px;
+  }
+  .emblem {
+    width: 46px;
+    height: 46px;
+  }
+}
+@media screen and (min-width:768px) {
+  .main_area {
+    width: 828px;
+  }
+  .select_style {
+    width: 92px;
+    height: 92px;
+  } 
+  .emblem {
+    width: 92px;
+    height: 92px;
+  } 
+}
 
 main {
   position: fixed;
@@ -21,18 +47,9 @@ div.frame {
   height: calc(100vh - 175px);
 }
 
-.select_style {
-  width: 92px;
-  height: 92px;
-}
-
 .troops {
   margin-top: 10px;
   display: flex;
-}
-.emblem {
-  width: 92px;
-  height: 92px;
 }
 
 input[type="button"] {

@@ -44,7 +44,7 @@ main {
 }
 
 div.frame {
-  height: calc(100vh - 175px);
+  height: calc(100svh - 175px);
 }
 
 .troops {

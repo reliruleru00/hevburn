@@ -50,8 +50,8 @@ function addModalEvent() {
             narrow[classification] = "";
         }
 
-        $(".select_style").hide();
-        let show_class = ".select_style" + narrow.physical + narrow.element + narrow.role;
+        $("img.select_style").hide();
+        let show_class = "img.select_style" + narrow.physical + narrow.element + narrow.role;
         $(show_class).show();
     });
 

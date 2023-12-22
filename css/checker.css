@@ -57,6 +57,7 @@ input[type="button"] {
   color: #fff;
   background: #149f14;
   border-radius: 100vh;
+  height: 40px;
 }
 
 input[type="button"].btn_post {

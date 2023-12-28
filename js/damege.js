@@ -238,7 +238,21 @@ function setEventTrigger() {
     });
     // 強ブレイクチェック
     $("#strong_break").on("change", function(event) {
-        setEnemyStatus();
+        let enemy_info = getEnemyInfo();
+        let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
+        $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
+        $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
+        $("#dp_range").val(0);
+        $("#dp_rate").val('0%');
+        $(".row_dp").css("display", "none");
+    });
+    // スコアアタックチェック変更
+    $(document).on("change", "input.half_check", function(event) {
+        updateGrade();
+    });
+    // 前半/後半タブ変更
+    $("input[name=rule_tab]").on("change", function(event) {
+        updateGrade();
     });
     // ステータス保存
     $(".save").on("change", function(event) {
@@ -282,6 +296,9 @@ function calcDamage() {
     }
     // SP消費計算
     getSpCost();
+    // グレード
+    let grade_sum = getGradeSum();
+
     // 闘志
     let fightingspirit = $("#fightingspirit").prop("checked") ? -20 : 0;
     // 厄
@@ -296,12 +313,13 @@ function calcDamage() {
     let element_field = getSumEffectSize("element_field") / 100 + 1;
     let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
     let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
+    let enemy_defence_rate = 1 - grade_sum.defense_rate / 100;
 
     let critical_power = getBasePower(fightingspirit - 50);
     let critical_rate = getCriticalRate();
     let critical_buff = getCriticalBuff();
 
-    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element
+    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate;
     calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate");
     calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined);
     calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined);
@@ -501,12 +519,14 @@ function updateEnemyResist(element) {
         }
         element = skill_info.attack_element;
     }
+    let grade_sum = getGradeSum();
     let enemy_info = getEnemyInfo();
     let resist_down = getSumEffectSize("resist_down");
-    let element_resist = enemy_info["element_" + element] + resist_down;
+    let element_resist = enemy_info["element_" + element] + resist_down - grade_sum["element_" + element];
     // 表示変更
     $("#enemy_element_" + element).val(Math.floor(element_resist));
     setEnemyElement("#enemy_element_" + element, Math.floor(element_resist));
+    displayWeakRow();
 }
 
 // 属性行設定
@@ -1028,10 +1048,10 @@ function createEnemyList(enemy_class) {
         }
     });
     if (enemy_class == 6) {
-        // スコアタの場合、いったん自由入力を許可する。
-        $(".enemy_type_value").prop("readonly", false);
+        // スコアタの場合、グレードを表示する。
+        $(".score_attack").css("display", "block");
     } else {
-        $(".enemy_type_value").prop("readonly", true);
+        $(".score_attack").css("display", "none");
     }
     setEnemyStatus();
 }
@@ -1044,9 +1064,58 @@ function getEnemyInfo() {
     return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 }
 
+// グレード情報更新
+function updateGrade() {
+    let enemy_info = getEnemyInfo();
+    let grade_sum = getGradeSum();
+    $("#enemy_hp").val((enemy_info.max_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
+    $("#enemy_dp").val((enemy_info.max_dp * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
+    for (let i = 1; i <= 3; i++) {
+        setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i] - grade_sum["physical_" + i]);
+    }
+    for (let i = 0; i <= 5; i++) {
+        setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i] - grade_sum["element_" + i]);
+    }
+    updateEnemyResist();
+}
+
+// グレード情報取得
+function getGradeSum() {
+    let grade_sum = $.extend(true, {}, grade_list.filter((obj) => obj.score_attack_no == 0)[0]);
+    let enemy_info = getEnemyInfo();
+    if (enemy_info.enemy_class != 6) {
+        // スコアタ以外の場合は、基本値
+        return grade_sum;
+    }
+    let sum_list = ["defense_rate", "dp_rate", "hp_rate", "physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5", "destruction"];
+    let checked_id = $('input[name="rule_tab"]:checked').attr('id');
+    $("." + checked_id + ":checked").each(function(index, value) {
+        let grade_no = Number($(value).data("grade_no"));
+        let half = Number(checked_id.match(/\d+/g));
+        grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
+            grade_sum["grade_rate"] += value["grade_rate"];
+            if (value.grade_none == 1) {
+                return true;
+            }
+            let step_turn = Number(value["step_turn"]);
+            let turn_count = 1;
+            if (step_turn != 0) {
+                turn_count = Math.floor(Number($("#turn_count").val()) / step_turn);
+            }
+            sum_list.forEach(element => {
+                grade_sum[element] += Number(value[element]) * turn_count;
+            });
+        });
+    });
+    return grade_sum;
+}
+
 // 敵ステータス設定
 function setEnemyStatus() {
     let enemy_info = getEnemyInfo();
+    if (enemy_info.score_attack_no) {
+        displayScoreAttack(enemy_info);
+    }
     $("#enemy_stat").val(enemy_info.enemy_stat);
     $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
     $("#enemy_dp").val(enemy_info.max_dp.toLocaleString());
@@ -1073,6 +1142,30 @@ function setEnemyStatus() {
         sortEffectSize($(value));
         select2ndSkill($(value));
     });
+}
+
+// スコアアタック表示
+function displayScoreAttack(enemy_info) {
+    for (let i = 1; i <= 2; i++) {
+        let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == i);
+        $("#half_content_" + i).html("");
+        grade_info.forEach(value => {
+            let id = "half_" + i + "_grade" + value.grade_no;
+            let grade_rate = 1 + value.grade_rate / 100
+            let div = $("<div>");
+            let input = $("<input>").attr("type", "checkbox")
+                                    .attr("id", id)
+                                    .data("grade_no", value.grade_no)
+                                    .addClass("half_check")
+                                    .addClass("half_tab_" + i);
+            let label = $("<label>").attr("for", id)
+                                    .addClass("checkbox01")
+                                    .text(value.grade_name + "(×" + grade_rate + ")");
+            div.append(input);
+            div.append(label);
+            $("#half_content_" + i).append(div);
+        });
+    }
 }
 
 // 敵耐性設定

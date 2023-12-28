@@ -759,13 +759,15 @@ function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
         case 0: // 攻撃力アップ
         case 1: // 属性攻撃力アップ
         case 2: // 心眼
-        case 6:	// クリティカル率アップ
         case 7:	// クリティカルダメージアップ
-        case 8:	// 属性クリティカル率アップ
         case 9:	// 属性クリティカルダメージアップ
         case 10: // チャージ
-            effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv);
-        break;
+            effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv, "3");
+            break;
+        case 6:	// クリティカル率アップ
+        case 8:	// 属性クリティカル率アップ
+            effect_size = getBuffEffectSize(buff_id, chara_no, skill_lv, "5");
+            break;
         case 3: // 防御力ダウン
         case 4: // 属性防御力ダウン
         case 5: // 脆弱
@@ -774,11 +776,11 @@ function getEffectSize(buff_kind, buff_id, chara_no, skill_lv) {
         case 21: // 永続防御ダウン
         case 22: // 永続属性防御ダウン
             effect_size = getDebuffEffectSize(buff_id, chara_no, skill_lv);
-        break;
+            break;
         case 16: // 連撃(小)
         case 17: // 連撃(大)
             effect_size = getFunnelEffectSize(buff_id, chara_no, skill_lv);
-        break;
+            break;
         default:
         break;
     }
@@ -1176,9 +1178,9 @@ function getBuffIdToBuff(buff_id) {
 }
 
 // バフ効果量
-function getBuffEffectSize(buff_id, chara_no, skill_lv) {
+function getBuffEffectSize(buff_id, chara_no, skill_lv, jewel_type) {
     let jewel_lv = 0;
-    if ($("#jewel_type_" + chara_no).val() == "3") {
+    if ($("#jewel_type_" + chara_no).val() == jewel_type) {
         jewel_lv = Number($("#jewel_lv_" + chara_no ).prop("selectedIndex"));
     }
     let skill_info = getBuffIdToBuff(buff_id);

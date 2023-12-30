@@ -334,7 +334,6 @@ function calcDamage() {
 
 // ダメージの詳細計算
 function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id) {
-    let funnel = getSumFunnelEffectSize();
     let destruction_rate = Number($("#enemy_destruction").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
     let rest_dp = Number($("#enemy_dp").val().replace(/,/g, "")) * Number($("#dp_range").val()) / 100;
@@ -349,7 +348,9 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
     let special;
     let add_buff;
     let add_debuff;
-    for (let i = 0; i < hit_count; i++) {
+
+    // ダメージ処理
+    function procDamage (power) {
         if (rest_dp <= 0) {
             special = 1 + skill_info.hp_damege / 100;
             add_buff = getEarringEffectSize("attack", hit_count);
@@ -359,32 +360,25 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
             add_buff = getEarringEffectSize("break", hit_count);
             add_debuff = getSumEffectSize("dp_debuff") / 100;
         }
-        let hit_damage = hit_power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
+        let hit_damage = power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
         rest_dp -= hit_damage;
         if (rest_dp <= 0) {
-           destruction_rate += hit_destruction;
+        destruction_rate += hit_destruction;
             if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
         }
         damage += hit_damage
     }
-    // 連撃は最終ダメージ後に追加
-    if (rest_dp <= 0) {
-        special = 1 + skill_info.hp_damege / 100;
-        add_buff = getEarringEffectSize("attack", hit_count);
-        add_debuff = 0;
-    } else {
-        special = 1 + skill_info.dp_damege / 100;
-        add_buff = getEarringEffectSize("break", hit_count);
-        add_debuff = getSumEffectSize("dp_debuff") / 100;
+    // 通常分ダメージ処理
+    for (let i = 0; i < hit_count; i++) {
+        procDamage(hit_power);
     }
-    let hit_damage = basePower * (buff + add_buff) * (debuff + add_debuff) * fixed * funnel * special * destruction_rate / 100;
-    damage += hit_damage;
-    rest_dp -= hit_damage;
-    if (rest_dp <= 0) {
-        destruction_rate += destruction_size * funnel; 
-        if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
-    }
+    let funnel_list = getSumFunnelEffectList();
+    // 連撃分ダメージ処理
+    funnel_list.forEach(value => {
+        procDamage(basePower * value / 100);
+    });
+ 
     $(id).val(Math.floor(damage).toLocaleString());
     if (destruction_id)  $(destruction_id).text(`${Math.round(destruction_rate * 10) / 10}%`);
 }
@@ -932,7 +926,7 @@ function getSumEffectSize(class_name) {
     $("." + class_name).each(function(index, value) {
         let selected = $(value).find("option:selected");
         if (selected.val() == "") {
-        return true;
+            return true;
         }
         effect_size += Number($(selected).data("effect_size"));
     });
@@ -968,11 +962,32 @@ function getSumDebuffEffectSize() {
 }
 
 // 合計連撃効果量取得
-function getSumFunnelEffectSize() {
+function getSumFunnelEffectList() {
     // スキルデバフ合計
-    let sum_funnel = getSumEffectSize("funnel");
-    sum_funnel += getSumAbilityEffectSize(5);
-    return sum_funnel / 100;
+    let funnel_list = [];
+    $(".funnel").each(function(index, value) {
+        let selected = $(value).find("option:selected");
+        if (selected.val() == "") {
+            return true;
+        }
+        let effect_size = Number($(selected).data("effect_size"));
+        let loop = 0;
+        let size = 0
+        if (effect_size == 50) {
+            loop = 5;
+            size = 10;
+        } else if (effect_size == 120) {
+            loop = 3;
+            size = 40;
+        } else if (effect_size == 80) {
+            loop = 2;
+            size = 40;
+        }
+        for (let i = 0; i < loop; i++) {
+            funnel_list.push(size);
+        }
+    });
+    return funnel_list;
 }
 
 // トークン効果量

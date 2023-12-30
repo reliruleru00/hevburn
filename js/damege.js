@@ -987,6 +987,10 @@ function getSumFunnelEffectList() {
             funnel_list.push(size);
         }
     });
+    // 降順でソート
+    funnel_list.sort(function(a, b) {
+        return b - a;
+    });
     return funnel_list;
 }
 

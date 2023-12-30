@@ -123,12 +123,11 @@ function setEventTrigger() {
     // 耐性ダウン変更
     $(".resist_down").on("change", function(event) {
         updateEnemyResist();
-        displayWeakRow();
     });
     // 耐性変更
-    $(".enemy_type_value").on("change", function(event) {
-        displayWeakRow();
-    });
+    // $(".enemy_type_value").on("change", function(event) {
+    //     displayWeakRow();
+    // });
     // チャージ変更
     $("#charge").on("change", function(event) {
         let selected_index = $(this).prop("selectedIndex");
@@ -1151,7 +1150,6 @@ function setEnemyStatus() {
     $("#dp_rate").val('0%');
     $(".row_dp").css("display", "none");
     updateEnemyResist();
-    displayWeakRow();
     // バフ効果量を更新
     $(".variable_effect_size").each(function(index, value) {
         updateBuffEffectSize($(value));

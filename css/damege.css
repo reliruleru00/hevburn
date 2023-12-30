@@ -13,7 +13,11 @@ header {
 main {
     position: fixed;
     top: 50px;
-    bottom: 100px;
+    bottom: 0px;
+}
+
+div.frame {
+    height: calc(100svh - 50px);
 }
 
 :disabled {

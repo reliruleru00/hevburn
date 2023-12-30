@@ -1170,7 +1170,6 @@ function displayScoreAttack(enemy_info) {
         $("#half_content_" + i).html("");
         grade_info.forEach(value => {
             let id = "half_" + i + "_grade" + value.grade_no;
-            let grade_rate = 1 + value.grade_rate / 100
             let div = $("<div>");
             let input = $("<input>").attr("type", "checkbox")
                                     .attr("id", id)
@@ -1179,7 +1178,7 @@ function displayScoreAttack(enemy_info) {
                                     .addClass("half_tab_" + i);
             let label = $("<label>").attr("for", id)
                                     .addClass("checkbox01")
-                                    .text(value.grade_name + "(×" + grade_rate + ")");
+                                    .text(value.grade_name + "(グレード:" + value.grade_rate + ")");
             div.append(input);
             div.append(label);
             $("#half_content_" + i).append(div);

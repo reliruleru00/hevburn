@@ -2,14 +2,33 @@ header {
   position: fixed;
   top: 0px;
   right: 0px;
-  height: 50px;
+  height: 70px;
   width: 100%;
   background-color: #149f14;
   color: #fff;
   text-align: center;
-  font-size: 30px;
-  font-weight: bold;
+  h1 {
+    font-size: 30px;
+    font-weight: bold;
+  }
+  .hearder_link {
+    width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+  }
+  input[type="button"] {
+    font-size: 16px;
+    color: #149f14;
+    background-color: #fff;
+    border-radius: 100vh;
+    height: 22px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+  }
 }
+
 @media screen and (max-width: 768px) {
   .main_area {
     width: 414px;
@@ -39,12 +58,12 @@ header {
 
 main {
   position: fixed;
-  top: 50px;
+  top: 70px;
   bottom: 100px;
 }
 
 div.frame {
-  height: calc(100svh - 175px);
+  height: calc(100svh - 195px);
 }
 
 .troops {
@@ -52,7 +71,7 @@ div.frame {
   display: flex;
 }
 
-input[type="button"] {
+input[type="button"].default {
   font-size: 20px;
   color: #fff;
   background: #149f14;

@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/checker.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="js/header.js"></script>
   <script src="js/chara_style.js"></script>
   <script src="js/chara_name.js"></script>
   <script src="js/checker.js"></script>
@@ -31,21 +32,118 @@
       });
       // キャラID/実装順
       style_list.sort(compare);
-      createStyleList()
+      setHeaderLink();
+      createStyleList();
       setEventTrigger();
+
+      
+    // 画像ファイル名一覧
+    var imageSources = ['select/ADateDefault_R3_Select.webp', 'select/AKanzakiAgent_R3_Select.webp', 
+            'select/EAoiWaitress_R3_Select.webp', 'select/KHiiragiBloody_R3_Select.webp', 
+            'select/MSatsukiBride_R3_Select.webp', 'select/MTenneAnimal_R3_Select.webp', 
+            'select/SHanamuraDefault_R3_Select.webp', 'select/TTojoSuite_R3_Select.webp',
+            'select/ADateDefault_R3_Select.webp', 'select/AKanzakiAgent_R3_Select.webp', 
+            'select/EAoiWaitress_R3_Select.webp', 'select/KHiiragiBloody_R3_Select.webp', 
+            'select/MSatsukiBride_R3_Select.webp', 'select/MTenneAnimal_R3_Select.webp', 
+            'select/SHanamuraDefault_R3_Select.webp', 'select/TTojoSuite_R3_Select.webp'];
+
+      // 関数呼び出し
+      combineImagesWithHatching(imageSources);
+
     });
+
+
+
+
+    
+    function drawHatching(layer, x, y, width, height, hatchSize, hatchAngle) {
+    var numHatchLines = Math.ceil(Math.sqrt(width * width + height * height) / hatchSize);
+
+    for (var i = 0; i < numHatchLines; i++) {
+        var line = new Konva.Line({
+            points: [i * hatchSize, 0, i * hatchSize - height, height],
+            stroke: 'black',
+            strokeWidth: 1,
+            x: x,
+            y: y,
+            rotation: hatchAngle * (180 / Math.PI),
+        });
+
+        layer.add(line);
+    }
+}
+
+function combineImagesWithHatching(imageSources) {
+    var stage = new Konva.Stage({
+        container: 'container',
+        width: 400, // 仮の幅
+        height: 200, // 仮の高さ
+    });
+
+    var layer = new Konva.Layer();
+
+    var hatchSize = 5; // 網掛けのサイズ
+    var hatchAngle = Math.PI / 4; // 45度
+
+    var images = [];
+    var loadedImages = 0;
+
+    imageSources.forEach(function (src, index) {
+        var img = new Image();
+        img.onload = function () {
+            loadedImages++;
+
+            // 画像サイズを半分に
+            var resizedWidth = img.width / 2;
+            var resizedHeight = img.height / 2;
+
+            // 画像をCanvasに描画
+            var row = Math.floor(index / 4);
+            var col = index % 4;
+
+            var image = new Konva.Image({
+                image: img,
+                x: col * resizedWidth,
+                y: row * resizedHeight,
+                width: resizedWidth,
+                height: resizedHeight,
+            });
+
+            layer.add(image);
+
+            // 網掛けを描画
+            drawHatching(layer, col * resizedWidth, row * resizedHeight, resizedWidth, resizedHeight, hatchSize, hatchAngle);
+
+            if (loadedImages === imageSources.length) {
+                // Canvasサイズを設定
+                stage.width(layer.width());
+                stage.height(layer.height());
+
+                // 画像を描画したLayerをStageに追加
+                stage.add(layer);
+            }
+        };
+        img.src = src;
+        images.push(img);
+    });
+}
+
   </script>
 </head>
 <body>
   <header>
     <h1>ヘブバン スタイル所持率チェッカー</h1>
+    <div class="header_link">
+      <input id="damage-calculator" type="button" value="ダメージ計算ツール">
+      <input id="style-checker" type="button" value="スタイル所持率チェッカー">
+    </div>
   </header>
   <main>
     <div class="frame static w-screen h-screen overflow-y-scroll">
       <div class="main_area mx-auto">
         <div class="text-right">
-          <input type="button" id="btn_select" class="w-20 mt-2 mb-2" value="全選択">
-          <input type="button" id="btn_release" class="w-20 mt-2 mb-2" value="全解除">  
+          <input type="button" id="btn_select" class="w-20 mt-2 mb-2 default" value="全選択">
+          <input type="button" id="btn_release" class="w-20 mt-2 mb-2 default" value="全解除">  
         </div>
         <div class="troops">
           <input type="image" class="emblem" src="img/31a.webp">
@@ -85,6 +183,7 @@
         </div>
       </div>
     </div>
+    <canvas id="combinedCanvas"></canvas>
   </main>
   <footer>
     <div class="w-[300px] mx-auto text-center">
@@ -98,7 +197,7 @@
         <div class="w-48">コンプリート率</div>
         <label id="rate_complate" class="text-center w-24"></label>
       </div>
-      <input type="button" class="btn_post mt-2 mb-2" value="結果を𝕏にPOST">
+      <input type="button" class="btn_post mt-2 mb-2 default" value="結果を𝕏にPOST">
     </div>
   </footer>
 </body>

@@ -4,6 +4,7 @@ header {
   right: 0px;
   height: 70px;
   width: 100%;
+  overflow-x: visible;
   background-color: #149f14;
   color: #fff;
   text-align: center;

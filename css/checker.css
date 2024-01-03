@@ -7,10 +7,6 @@ header {
   background-color: #149f14;
   color: #fff;
   text-align: center;
-  h1 {
-    font-size: 30px;
-    font-weight: bold;
-  }
   .hearder_link {
     width: 450px;
     margin-left: auto;
@@ -30,6 +26,10 @@ header {
 }
 
 @media screen and (max-width: 768px) {
+  h1.title {
+    font-size: 20px;
+    font-weight: bold;
+  }
   .main_area {
     width: 414px;
   }
@@ -46,6 +46,10 @@ header {
   }
 }
 @media screen and (min-width:768px) {
+  h1.title {
+    font-size: 30px;
+    font-weight: bold;
+  }
   .main_area {
     width: 828px;
   }

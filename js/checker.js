@@ -126,3 +126,63 @@ function compare( a, b ){
     else if( a.chara_id > b.chara_id ){ r = 1; }
     return r;
 }
+
+ // 画像を生成して Canvas に描画する関数
+ function combineImagesWithHatching(create_style) {
+    var canvasContainer = document.getElementById('canvas-container');
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+
+    // Canvas サイズを設定
+    var columns = 4;
+    var rows = Math.ceil(create_style.length / columns);
+    // 画像の横幅と高さを半分に縮小
+    var scaledWidth = 376 / 2;
+    var scaledHeight = 144 / 2;
+    canvas.width = scaledWidth * columns;
+    canvas.height = scaledHeight * rows;
+
+    // Canvas をコンテナに追加
+    canvasContainer.appendChild(canvas);
+
+    // 画像をロードして描画
+    var loadedImages = 0;
+
+    function loadImageAndDraw(index, path) {
+        var img = new Image();
+        img.onload = function () {
+            var row = Math.floor(index / columns);
+            var col = index % columns;
+            context.drawImage(img, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+
+            loadedImages++;
+
+            // すべての画像がロードされたら網掛けを描画
+            if (loadedImages === create_style.length) {
+                drawHatching(context, canvas.width, canvas.height);
+            }
+        };
+        img.src = path;
+    }
+
+    // 画像をロードして描画
+    for (var i = 0; i < create_style.length; i++) {
+      let select_url = "Select/" + create_style[i].image_url.replace("Thumbnail", "Select");
+        loadImageAndDraw(i, select_url);
+    }
+}
+
+// 網掛けを描画する関数
+function drawHatching(context, width, height) {
+    context.beginPath();
+    for (var x = 0; x < width; x += 2) {
+        context.moveTo(x, 0);
+        context.lineTo(x, height);
+    }
+    for (var y = 0; y < height; y += 2) {
+        context.moveTo(0, y);
+        context.lineTo(width, y);
+    }
+    context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    context.stroke();
+}

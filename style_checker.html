@@ -45,26 +45,6 @@
           $('#modalOverlay, #modalContent').fadeOut();
       });
     });
-
-    function copyToClipboard() {
-        var canvas = document.querySelector('canvas');
-        var dataURL = canvas.toDataURL();
-
-        // テキストエリアを作成し、データURLをセット
-        var textArea = document.createElement('textarea');
-        textArea.value = dataURL;
-
-        // ボディに追加して選択・コピー
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-
-        // ボディから削除
-        document.body.removeChild(textArea);
-
-        alert('クリップボードにコピーしました');
-    }
-
   </script>
 </head>
 <body>
@@ -122,7 +102,7 @@
     </div>
     <div id="modalOverlay" class="modal-overlay"></div>
     <div id="modalContent" class="modal-content">
-      <input type="button" class="default" onclick="copyToClipboard()" value="クリップボードにコピー">
+      <input type="button" class="default" onclick="copyCanvasToClipboard()" value="クリップボードにコピー">
       <div id="canvas-container"></div>
     </div>
   </main>

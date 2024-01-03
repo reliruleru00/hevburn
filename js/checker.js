@@ -129,9 +129,9 @@ function compare( a, b ){
 
  // 画像を生成して Canvas に描画する関数
  function combineImagesWithHatching(create_style) {
-    var canvasContainer = document.getElementById('canvas-container');
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
+    var canvasContainer = $('#canvas-container');
+    var canvas = $('<canvas>');
+    var context = canvas[0].getContext('2d');
 
     // Canvas サイズを設定
     var columns = 4;
@@ -139,30 +139,30 @@ function compare( a, b ){
     // 画像の横幅と高さを半分に縮小
     var scaledWidth = 376 / 2;
     var scaledHeight = 144 / 2;
-    canvas.width = scaledWidth * columns;
-    canvas.height = scaledHeight * rows;
+    canvas[0].width = scaledWidth * columns;
+    canvas[0].height = scaledHeight * rows;
 
     // Canvas をコンテナに追加
-    canvasContainer.appendChild(canvas);
+    canvasContainer.append(canvas);
 
     // 画像をロードして描画
     var loadedImages = 0;
 
     function loadImageAndDraw(index, path) {
-        var img = new Image();
-        img.onload = function () {
+        var img = $('<img>');
+        img[0].onload = function () {
             var row = Math.floor(index / columns);
             var col = index % columns;
-            context.drawImage(img, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+            context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
             loadedImages++;
 
             // すべての画像がロードされたら網掛けを描画
             if (loadedImages === create_style.length) {
-                drawHatching(context, canvas.width, canvas.height);
+                drawHatching(context, canvas[0].width, canvas[0].height);
             }
         };
-        img.src = path;
+        img[0].src = path;
     }
 
     // 画像をロードして描画
@@ -185,4 +185,26 @@ function drawHatching(context, width, height) {
     }
     context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
     context.stroke();
+}
+// canvas画像をクリップボードにコピーする関数
+function copyCanvasToClipboard() {
+    var canvas = $('canvas');
+    var dataURL = canvas[0].toDataURL();
+
+    // テキストエリアを作成し、データURLをセット
+    var textArea = $('<textarea></textarea>');
+    textArea.val(dataURL);
+
+    // ボディに追加して選択・コピー
+    $('body').append(textArea);
+    textArea.select();
+    navigator.clipboard.writeText(textArea.val()).then(function() {
+        console.log('コピーに成功しました');
+    }, function(err) {
+        console.error('コピーに失敗しました: ', err);
+    });
+
+    // ボディから削除
+    textArea.remove();
+    alert('クリップボードにコピーしました');
 }

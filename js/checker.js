@@ -130,6 +130,7 @@ function compare( a, b ){
  // 画像を生成して Canvas に描画する関数
  function combineImagesWithHatching(create_style) {
     var canvasContainer = $('#canvas-container');
+    canvasContainer.empty(); // コンテナをクリア
     var canvas = $('<canvas>');
     var context = canvas[0].getContext('2d');
 
@@ -148,63 +149,42 @@ function compare( a, b ){
     // 画像をロードして描画
     var loadedImages = 0;
 
-    function loadImageAndDraw(index, path) {
+    function loadImageAndDraw(index, style_info) {
         var img = $('<img>');
+        let select = localStorage.getItem("style_has_" + style_info.style_id);
         img[0].onload = function () {
             var row = Math.floor(index / columns);
             var col = index % columns;
             context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
+            // 未所持の場合網掛けを描画
+            if (select != "1") {
+                drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+            }
             loadedImages++;
 
-            // すべての画像がロードされたら網掛けを描画
-            if (loadedImages === create_style.length) {
-                drawHatching(context, canvas[0].width, canvas[0].height);
-            }
         };
+        let path = "select/" + style_info.image_url.replace("Thumbnail", "Select");
         img[0].src = path;
     }
 
     // 画像をロードして描画
     for (var i = 0; i < create_style.length; i++) {
-      let select_url = "select/" + create_style[i].image_url.replace("Thumbnail", "Select");
-        loadImageAndDraw(i, select_url);
+      loadImageAndDraw(i, create_style[i]);
     }
 }
 
 // 網掛けを描画する関数
-function drawHatching(context, width, height) {
+function drawHatching(context, pos_x, pos_y ,width, height) {
     context.beginPath();
     for (var x = 0; x < width; x += 2) {
-        context.moveTo(x, 0);
-        context.lineTo(x, height);
+        context.moveTo(x + pos_x, pos_y);
+        context.lineTo(x + pos_x, height + pos_y);
     }
     for (var y = 0; y < height; y += 2) {
-        context.moveTo(0, y);
-        context.lineTo(width, y);
+        context.moveTo(pos_x, y + pos_y);
+        context.lineTo(width + pos_x, y + pos_y);
     }
-    context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    context.strokeStyle = 'rgba(0, 0, 0, 0.9)';
     context.stroke();
-}
-// canvas画像をクリップボードにコピーする関数
-function copyCanvasToClipboard() {
-    var canvas = $('canvas');
-    var dataURL = canvas[0].toDataURL();
-
-    // テキストエリアを作成し、データURLをセット
-    var textArea = $('<textarea></textarea>');
-    textArea.val(dataURL);
-
-    // ボディに追加して選択・コピー
-    $('body').append(textArea);
-    textArea.select();
-    navigator.clipboard.writeText(textArea.val()).then(function() {
-        console.log('コピーに成功しました');
-    }, function(err) {
-        console.error('コピーに失敗しました: ', err);
-    });
-
-    // ボディから削除
-    textArea.remove();
-    alert('クリップボードにコピーしました');
 }

@@ -41,6 +41,9 @@ header {
     width: 46px;
     height: 46px;
   }
+  .ad-container-pc {
+    display: none;
+  }
 }
 @media screen and (min-width:768px) {
   .main_area {
@@ -54,6 +57,9 @@ header {
     width: 92px;
     height: 92px;
   } 
+  .ad-container-sp {
+    display: none;
+  }
 }
 
 main {
@@ -72,15 +78,17 @@ div.frame {
 }
 
 input[type="button"].default {
-  font-size: 20px;
+  font-size: 16px;
   color: #fff;
   background: #149f14;
   border-radius: 100vh;
-  height: 40px;
+  height: 26px;
 }
 
 input[type="button"].btn_post {
+  font-size: 20px;
   width: 200px;
+  height: 40px;
   margin-left: auto;
   margin-right: auto;
 }

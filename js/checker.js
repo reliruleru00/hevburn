@@ -39,7 +39,25 @@ function setEventTrigger() {
         let message = `私のSSスタイル所持率は\r\n${select_count}/${style_list.length}(コンプリート率${rate_complate}%)です。\r\n`;
         shareOnTwitter(message);
     });
+
+    //生成ボタン
+    $('#openModalBtn').click(function () {
+        $('#modalOverlay, #modalContent').fadeIn();
+        let target = $('input[name="target"]:checked').val();
+
+        var filtered_style_list = style_list.filter(function(style) {
+            let select = localStorage.getItem("style_has_" + style.style_id);
+            return target == "all" || select == "1";
+        });
+        combineImagesWithHatching(filtered_style_list);
+    });
+
+    // モーダル解除
+    $('#modalOverlay').click(function () {
+        $('#modalOverlay, #modalContent').fadeOut();
+    });
 }
+
 
 // Twitter起動
 function shareOnTwitter(message) {
@@ -162,7 +180,6 @@ function compare( a, b ){
                 drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
             }
             loadedImages++;
-
         };
         let path = "select/" + style_info.image_url.replace("Thumbnail", "Select");
         img[0].src = path;
@@ -185,6 +202,6 @@ function drawHatching(context, pos_x, pos_y ,width, height) {
         context.moveTo(pos_x, y + pos_y);
         context.lineTo(width + pos_x, y + pos_y);
     }
-    context.strokeStyle = 'rgba(0, 0, 0, 0.9)';
+    context.strokeStyle = 'rgba(0, 0, 0, 1)';
     context.stroke();
 }

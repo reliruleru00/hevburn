@@ -167,7 +167,7 @@ function compare( a, b ){
 
     // 画像をロードして描画
     for (var i = 0; i < create_style.length; i++) {
-      let select_url = "Select/" + create_style[i].image_url.replace("Thumbnail", "Select");
+      let select_url = "select/" + create_style[i].image_url.replace("Thumbnail", "Select");
         loadImageAndDraw(i, select_url);
     }
 }

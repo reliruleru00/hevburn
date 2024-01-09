@@ -226,8 +226,7 @@
             <label id="sp_cost_5">0</label>
           </div>
         </div>
-        <br>
-        <div class="w-[400px] mx-auto flex">
+        <div class="w-[400px] mx-auto flex mt-2">
           攻 撃
           <select id="attack_list" class="w-64">
           </select>
@@ -235,8 +234,7 @@
           <img id="attack_physical" class="w-6 h-6" src="img/blank.png">
           <img id="attack_element" class="w-6 h-6" src="img/blank.png">
         </div>
-        <br>
-        <div class="w-[400px] mx-auto">
+        <div class="w-[400px] mx-auto mt-2">
           <div>
             <label>敵選択</label>
             <select id="enemy_class">
@@ -278,8 +276,7 @@
             <div id="half_content_2"></div>
           </div>
         </div>
-        <br>
-        <div class="w-96 mx-auto">
+        <div class="w-96 mx-auto mt-2">
           <div class="grid grid-cols-4 gap-1">
             <div class="text-right">能力値</div><input type="text" id="enemy_stat" value="" readonly class="w-16 text-right">
             <div class="col-span-2 flex">
@@ -296,8 +293,7 @@
                 残DP<input type="range" id="dp_range" min="0" max="100" step="5" value="0"><output id="dp_rate">0%</output>
             </div>
           </div>
-          <br>
-          <div class="grid grid-cols-9">
+          <div class="grid grid-cols-9 mt-2">
             <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text" id="enemy_physical_1" class="enemy_type_value" readonly></div>
             <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text" id="enemy_physical_2" class="enemy_type_value" readonly></div>
             <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text" id="enemy_physical_3" class="enemy_type_value" readonly></div>
@@ -309,29 +305,34 @@
             <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text" id="enemy_element_5" class="enemy_type_value" readonly></div>
           </div>
         </div>
-        <br>
         <div id="damage_result" class="text-center hidden w-[480px] mx-auto">
-          <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
-          <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
-          <div class="text-center w-[332px] mx-auto">
-            <div class="flex">
-              <div>
-                <input type="text" id="critical_damage" class="text-center damage" readonly>
-              </div>
-              <div>
-                <div>最大<input type="text" id="critical_damage_max"class="text-center min_damage" readonly></div>
-                <div>最小<input type="text" id="critical_damage_min"class="text-center min_damage" readonly></div>
+          <div class="mt-2">
+            <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
+            <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+            <div class="text-center w-[332px] mx-auto">
+              <div class="flex">
+                <div>
+                  <input type="text" id="critical_damage" class="text-center damage" readonly>
+                </div>
+                <div class="text-base">
+                  <div>最大<input type="text" id="critical_damage_max"class="text-center min_damage" readonly></div>
+                  <div>最小<input type="text" id="critical_damage_min"class="text-center min_damage" readonly></div>
+                </div>
               </div>
             </div>
+          </div>
+          <div class="mt-2">
             <label class="damage_label">通常ダメージ</label>
             <label class="damage_label">/最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
-            <div class="flex">
-              <div>
-                <input type="text" id="damage" class="text-center damage" readonly>
-              </div>
-              <div>
-                <div>最大<input type="text" id="damage_max" class="text-center min_damage" readonly></div>
-                <div>最小<input type="text" id="damage_min"class="text-center min_damage" readonly></div>
+            <div class="text-center w-[332px] mx-auto">
+              <div class="flex">
+                <div>
+                  <input type="text" id="damage" class="text-center damage" readonly>
+                </div>
+                <div class="text-base">
+                  <div>最大<input type="text" id="damage_max" class="text-center min_damage" readonly></div>
+                  <div>最小<input type="text" id="damage_min"class="text-center min_damage" readonly></div>
+                </div>
               </div>
             </div>
           </div>

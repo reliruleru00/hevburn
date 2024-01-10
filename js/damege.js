@@ -224,8 +224,10 @@ function setEventTrigger() {
         if (destructionValue <= 100) {
             $(this).val(100);
         } else {
-            $("#dp_range").val(0);
-            $("#dp_rate").val('0%');
+            for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+                $("#dp_range_" + i).val(0);
+                $("#dp_rate_" + i).val('0%');
+            }
             $(".row_dp").css("display", "none");
             let maxDestruction = Number($("#enemy_destruction_limit").val());
             if (maxDestruction < destructionValue) {
@@ -234,14 +236,37 @@ function setEventTrigger() {
         }
     });
     // 残りDP変更
-    $("#dp_range").on("input", function(event) {
-        $('#dp_rate').val($(this).val() + '%');
+    $(".dp_range").on("input", function(event) {
+        $(this).parent().find(".gauge_rate").val($(this).val() + '%');
         $("#enemy_destruction").val(100);
-        if ($(this).val() == 0) {
+        let dp_no = Number($(this).prop("id").replace(/\D/g, ''));
+        if ($(this).val() == 0 && dp_no == 0) {
             $(".row_dp").css("display", "none");
         } else {
             $(".row_dp").css("display", "table-cell");
         }
+        // 下層のDPを100に、上位を0にする。
+        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+            if (i < dp_no) {
+                $("#dp_range_" + i).val(100);
+                $("#dp_rate_" + i).val('100%');
+            } else if (i > dp_no){
+                $("#dp_range_" + i).val(0);
+                $("#dp_rate_" + i).val('0%');
+            }
+        }
+        $("#hp_range").val(100);
+        $("#hp_rate").val('100%');
+    });
+    // 残りHP変更
+    $("#hp_range").on("input", function(event) {
+        $("#hp_rate").val($(this).val() + '%');
+        // DP無力化
+        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+            $("#dp_range_" + i).val(0);
+            $("#dp_rate_" + i).val('0%');
+        }
+        $(".row_dp").css("display", "none");
     });
     // 強ブレイクチェック
     $("#strong_break").on("change", function(event) {
@@ -343,7 +368,7 @@ function calcDamage() {
 function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id) {
     let destruction_rate = Number($("#enemy_destruction").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
-    let rest_dp = Number($("#enemy_dp").val().replace(/,/g, "")) * Number($("#dp_range").val()) / 100;
+    let rest_dp = Number($("#enemy_dp_0").val().replace(/,/g, "")) * Number($("#dp_range_0").val()) / 100;
     let enemy_destruction = getEnemyInfo().destruction;
 
     let hit_count = skill_info.hit_count;
@@ -1106,7 +1131,8 @@ function updateGrade() {
     let enemy_info = getEnemyInfo();
     let grade_sum = getGradeSum();
     $("#enemy_hp").val((enemy_info.max_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
-    $("#enemy_dp").val((enemy_info.max_dp * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
+    let max_dp_list = enemy_info.max_dp.split(",");
+    $("#enemy_dp_0").val((max_dp_list[0] * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
     for (let i = 1; i <= 3; i++) {
         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i] - grade_sum["physical_" + i]);
     }
@@ -1154,8 +1180,6 @@ function setEnemyStatus() {
         displayScoreAttack(enemy_info);
     }
     $("#enemy_stat").val(enemy_info.enemy_stat);
-    $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
-    $("#enemy_dp").val(enemy_info.max_dp.toLocaleString());
     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
     $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
     $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
@@ -1165,8 +1189,20 @@ function setEnemyStatus() {
     for (let i = 0; i <= 5; i++) {
         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
     }
-    $("#dp_range").val(0);
-    $("#dp_rate").val('0%');
+    $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
+    $("#hp_range").val(100);
+    $("#hp_rate").val('100%');
+    let max_dp_list = enemy_info.max_dp.split(",");
+    for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+        if (i < max_dp_list.length) {
+            $("#enemy_dp_" + i).val(Number(max_dp_list[i]).toLocaleString());
+            $("#enemy_dp_" + i).parent().show();
+        } else {
+            $("#enemy_dp_" + i).parent().hide();
+        }
+        $("#dp_range_" + i).val(0);
+        $("#dp_rate_" + i).val('0%');
+    }
     $(".row_dp").css("display", "none");
     updateEnemyResist();
     // バフ効果量を更新

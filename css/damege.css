@@ -116,9 +116,53 @@ img.select_style {
     margin-top: -1px;
 }
 
-#dp_range {
-    width: 130px;
+.dp_gauge {
+    height: 22px;
+    display: flex;
 }
+.dp_range,
+.hp_range {
+    width: 120px;
+    height: 8px;
+    border-radius: 2rem;
+    -webkit-appearance: none;
+    border: 1px solid black;
+    box-shadow: 0 0 0 1px white;
+}
+
+.dp_range {
+    margin-left: 5px;
+    margin-top: 6px;
+    background: linear-gradient(to right, #4F7C8B 0%, #68BCD6 50%, #FFFFFF 100%);
+}
+.hp_range {
+    margin-left: 5px;
+    margin-top: 6px;
+    background: linear-gradient(to right, #7C4378 0%, #D45CD1 50%, #FFFFFF 100%);
+}
+.gauge_rate {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    border: 0px;
+}
+
+.percentage_input {
+    position: relative;
+    display: inline-block;
+}
+
+.percentage_input::after {
+    content: "%";
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.percentage_input.focus::after {
+    content: '';
+  }
 
 div.lv {
     display: none;

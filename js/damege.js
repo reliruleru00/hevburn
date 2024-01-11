@@ -372,15 +372,13 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
     let hit_count = skill_info.hit_count;
     let buff_destruction = getDestructionEffectSize() / 100; 
     let destruction_size = enemy_destruction * skill_info.destruction * (1 + getEarringEffectSize("blast", 10 - hit_count)) * buff_destruction;
-    let hit_destruction = destruction_size / hit_count;
-    let hit_power = basePower / hit_count;
     let damage = 0;
     let special;
     let add_buff;
     let add_debuff;
 
     // ダメージ処理
-    function procDamage (power) {
+    function procDamage (power, add_destruction) {
         if (rest_dp <= 0 && dp_penetration) {
             special = 1 + skill_info.hp_damege / 100;
             add_buff = getEarringEffectSize("attack", hit_count);
@@ -394,19 +392,19 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
 
         rest_dp -= hit_damage;
         if (rest_dp <= 0 && dp_penetration) {
-            destruction_rate += hit_destruction;
+            destruction_rate += add_destruction;
             if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
         }
         damage += hit_damage
     }
     // 通常分ダメージ処理
     for (let i = 0; i < hit_count; i++) {
-        procDamage(hit_power);
+        procDamage(basePower / hit_count, destruction_size / hit_count);
     }
     let funnel_list = getSumFunnelEffectList();
     // 連撃分ダメージ処理
     funnel_list.forEach(value => {
-        procDamage(basePower * value / 100);
+        procDamage(basePower * value / 100, destruction_size * value / 100);
     });
  
     $(id).val(Math.floor(damage).toLocaleString());

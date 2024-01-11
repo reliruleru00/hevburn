@@ -237,9 +237,9 @@ function setEventTrigger() {
     });
     // 残りDP変更
     $(".dp_range").on("input", function(event) {
-        $(this).parent().find(".gauge_rate").val($(this).val() + '%');
         $("#enemy_destruction").val(100);
         let dp_no = Number($(this).prop("id").replace(/\D/g, ''));
+        setDpGarge(dp_no, $(this).val())
         if ($(this).val() == 0 && dp_no == 0) {
             $(".row_dp").css("display", "none");
         } else {
@@ -248,23 +248,19 @@ function setEventTrigger() {
         // 下層のDPを100に、上位を0にする。
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
             if (i < dp_no) {
-                $("#dp_range_" + i).val(100);
-                $("#dp_rate_" + i).val('100%');
+                setDpGarge(i, 100)
             } else if (i > dp_no){
-                $("#dp_range_" + i).val(0);
-                $("#dp_rate_" + i).val('0%');
+                setDpGarge(i, 0)
             }
         }
-        $("#hp_range").val(100);
-        $("#hp_rate").val('100%');
+        setHpGarge(100)
     });
     // 残りHP変更
     $("#hp_range").on("input", function(event) {
-        $("#hp_rate").val($(this).val() + '%');
+        setHpGarge($(this).val())
         // DP無力化
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-            $("#dp_range_" + i).val(0);
-            $("#dp_rate_" + i).val('0%');
+            setDpGarge(i, 0);
         }
         $(".row_dp").css("display", "none");
     });
@@ -274,8 +270,9 @@ function setEventTrigger() {
         let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
         $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
         $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
-        $("#dp_range").val(0);
-        $("#dp_rate").val('0%');
+        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+            setDpGarge(i, 0);
+        }
         $(".row_dp").css("display", "none");
     });
     // スコアアタックチェック変更
@@ -368,6 +365,7 @@ function calcDamage() {
 function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id) {
     let destruction_rate = Number($("#enemy_destruction").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
+    let dp_penetration = Number($("#dp_range_1").val())== 0;
     let rest_dp = Number($("#enemy_dp_0").val().replace(/,/g, "")) * Number($("#dp_range_0").val()) / 100;
     let enemy_destruction = getEnemyInfo().destruction;
 
@@ -383,7 +381,7 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
 
     // ダメージ処理
     function procDamage (power) {
-        if (rest_dp <= 0) {
+        if (rest_dp <= 0 && dp_penetration) {
             special = 1 + skill_info.hp_damege / 100;
             add_buff = getEarringEffectSize("attack", hit_count);
             add_debuff = 0;
@@ -395,8 +393,8 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
         let hit_damage = power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
         rest_dp -= hit_damage;
-        if (rest_dp <= 0) {
-        destruction_rate += hit_destruction;
+        if (rest_dp <= 0 && dp_penetration) {
+            destruction_rate += hit_destruction;
             if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
         }
         damage += hit_damage
@@ -1190,8 +1188,7 @@ function setEnemyStatus() {
         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
     }
     $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
-    $("#hp_range").val(100);
-    $("#hp_rate").val('100%');
+    setHpGarge(100);
     let max_dp_list = enemy_info.max_dp.split(",");
     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
         if (i < max_dp_list.length) {
@@ -1200,8 +1197,7 @@ function setEnemyStatus() {
         } else {
             $("#enemy_dp_" + i).parent().hide();
         }
-        $("#dp_range_" + i).val(0);
-        $("#dp_rate_" + i).val('0%');
+        setDpGarge(i, 0);
     }
     $(".row_dp").css("display", "none");
     updateEnemyResist();
@@ -1461,3 +1457,53 @@ function getFunnelEffectSize(buff_id, chara_no, skill_lv) {
 
    return effect_size;
 }
+
+// DPゲージ設定
+function setDpGarge(i, val) {
+    $("#dp_range_" + i).val(val);
+    $("#dp_rate_" + i).val(val + '%');
+    applyGradient($("#dp_range_" + i), "#4F7C8B", val);
+}
+// HPゲージ設定
+function setHpGarge(val) {
+    $("#hp_range").val(val);
+    $("#hp_rate").val(val + '%');
+    applyGradient($("#hp_range"), "#7C4378", val);
+}
+// グラデーションを設定するメソッド
+function applyGradient($element, baseColor, percent) {
+    // generateGradientメソッドを呼び出してグラデーションカラーコードを取得
+    let gradientColor = generateGradient(baseColor, "#FFFFFF", percent);
+    // グラデーションのスタイルを組み立てる
+    let gradientStyle = "linear-gradient(to right, " + baseColor + " 0%, " + gradientColor + " " + percent + "%, #FFFFFF " + percent + "%)";
+    // 対象の要素にスタイルを設定
+    $element.css("background", gradientStyle);
+}
+// グラデーション生成メソッド
+function generateGradient(color1, color2, percent) {
+    // パーセントの範囲を0～100に制限
+    percent = Math.min(100, Math.max(0, percent));
+    // カラーコードを16進数から10進数に変換
+    function hexToRgb(hex) {
+      return parseInt(hex, 16);
+    }
+    // カラーコードの10進数表現
+    let r1 = hexToRgb(color1.substring(1, 3));
+    let g1 = hexToRgb(color1.substring(3, 5));
+    let b1 = hexToRgb(color1.substring(5, 7));
+    let r2 = hexToRgb(color2.substring(1, 3));
+    let g2 = hexToRgb(color2.substring(3, 5));
+    let b2 = hexToRgb(color2.substring(5, 7));
+    // パーセント位置で補間
+    let r = Math.round(r1 + (r2 - r1) * (percent / 100));
+    let g = Math.round(g1 + (g2 - g1) * (percent / 100));
+    let b = Math.round(b1 + (b2 - b1) * (percent / 100));
+    // 10進数から16進数に変換
+    function rgbToHex(value) {
+      let hex = value.toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }
+    let resultColor = "#" + rgbToHex(r) + rgbToHex(g) + rgbToHex(b);
+    return resultColor;
+}
+

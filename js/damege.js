@@ -225,8 +225,7 @@ function setEventTrigger() {
             $(this).val(100);
         } else {
             for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-                $("#dp_range_" + i).val(0);
-                $("#dp_rate_" + i).val('0%');
+                setDpGarge(i, 0);
             }
             $(".row_dp").css("display", "none");
             let maxDestruction = Number($("#enemy_destruction_limit").val());
@@ -248,9 +247,9 @@ function setEventTrigger() {
         // 下層のDPを100に、上位を0にする。
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
             if (i < dp_no) {
-                setDpGarge(i, 100)
+                setDpGarge(i, 100);
             } else if (i > dp_no){
-                setDpGarge(i, 0)
+                setDpGarge(i, 0);
             }
         }
         setHpGarge(100)

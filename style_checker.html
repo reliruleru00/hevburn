@@ -28,9 +28,6 @@
   <script>
     let select_count = 0;
     $(function(){ 
-      style_list = style_list.filter(function(style) {
-        return style.chara_id != 51;
-      });
       // キャラID/実装順
       style_list.sort(compare);
       setHeaderLink();

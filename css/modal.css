@@ -41,7 +41,7 @@
     left: 30px;
     top: 30px;
     transform: translate(0%, 0%);
-    height: calc(100svh - 195px);
+    height: calc(100svh - 100px);
   }
 }
 .modal_section {

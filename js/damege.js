@@ -1054,6 +1054,7 @@ function getCriticalRate() {
     critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
     let grade_sum = getGradeSum();
     critical_rate -= grade_sum.critical;
+    critical_rate = critical_rate < 0 ? 0 : critical_rate;
     return critical_rate > 100 ? 100 : critical_rate;
 }
 

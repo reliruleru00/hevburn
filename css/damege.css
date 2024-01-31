@@ -244,6 +244,13 @@ footer {
     bottom: 0px;
     width: 100%;
     height: calc(120px + env(safe-area-inset-bottom));
+    transition: height 0.3s ease;
+}
+
+.magnification {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
 }
 
 /* 初期値 */
@@ -252,7 +259,7 @@ footer {
     display: none;
 }
 
-/* チェックボックス01 */
+/* チェックボックス */
 input[type=checkbox] {
     display: none;
 }

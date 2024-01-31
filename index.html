@@ -102,6 +102,17 @@
       select_troops = select_troops ? select_troops : 0;
       $("#troops_btn_" + select_troops).addClass("selected_troops");
       loadTroopsList(select_troops);
+
+      
+      $("#damage_open").on("click", function(event) {
+        let main_height = $("div.frame").height();
+        let footer_height = $("footer").height();
+        const amount = 400;
+        main_height -= amount;
+        footer_height += amount;
+        $("div.frame").height(main_height);
+        $("footer").height(footer_height);
+      });
     });
     // ロード完了後に表示
     $(window).on("load", function() {
@@ -112,7 +123,7 @@
 <body>
   <main style="visibility: hidden;">
   <div class="header"></div>
-  <div class="frame w-screen pt-3 overflow-y-scroll">
+  <div class="frame w-screen pt-3 overflow-y-scroll border-b">
     <div class="w-[1085px] mx-auto flex text-sm">
       <div>
         <div id="char_list" class="w-[482px] grid grid-cols-7 text-center gap-y-px gap-x-0">
@@ -671,7 +682,7 @@
   </main>
   <footer>
     <div id="damage_result" class="text-center hidden w-[480px] mx-auto">
-      <div class="">
+      <div class="mt-1">
         <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
         <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
         <div class="text-center w-[410px] mx-auto">
@@ -689,7 +700,7 @@
           </div>
         </div>
       </div>
-      <div class="">
+      <div class="mt-1">
         <label class="damage_label">通常ダメージ</label>
         <label class="damage_label">/最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
         <div class="text-center w-[410px] mx-auto">
@@ -707,6 +718,60 @@
           </div>
         </div>
       </div>
+      <div class="text-left w-64 mx-auto hidden">
+        <div>
+          <div class="magnification">スキル攻撃力</div>
+          <input type="text" id="skill_power" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×攻撃力アップ</div>
+          <input type="text" id="mag_buff" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×防御力ダウン</div>
+          <input type="text" id="mag_debuff" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×属性フィールド</div>
+          <input type="text" id="mag_element_field" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×HP/DP特攻</div>
+          <input type="text" id="mag_special" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×連撃</div>
+          <input type="text" id="mag_funnel" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×トークン補正</div>
+          <input type="text" id="mag_token" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×武器相性</div>
+          <input type="text" id="mag_physical" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×属性相性</div>
+          <input type="text" id="mag_element" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×心眼</div>
+          <input type="text" id="mag_mindeye" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×脆弱</div>
+          <input type="text" id="mag_fragile" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×破壊率</div>
+          <input type="text" id="mag_destruction" class="text-center min_damage" readonly>
+        </div>
+        <div>
+          <div class="magnification">×クリティカル倍率</div>
+          <input type="text" id="mag_critical" class="text-center min_damage" readonly>
+        </div>
+      <div>
     </div>
   </footer>
 </body>

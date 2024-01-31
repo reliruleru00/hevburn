@@ -124,10 +124,6 @@ function setEventTrigger() {
     $(".resist_down").on("change", function(event) {
         updateEnemyResist();
     });
-    // 耐性変更
-    // $(".enemy_type_value").on("change", function(event) {
-    //     displayWeakRow();
-    // });
     // チャージ変更
     $("#charge").on("change", function(event) {
         let selected_index = $(this).prop("selectedIndex");
@@ -342,6 +338,9 @@ function calcDamage() {
     let weak_physical = $("#enemy_physical_" + skill_info.attack_physical).val() / 100;
     let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
     let enemy_defence_rate = 1 - grade_sum.defense_rate / 100;
+    let funnel_sum = 1 + getSumFunnelEffectList().reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
+    let destruction_rate = Number($("#enemy_destruction").val());
+    let special = 1 + Number($("#dp_range_0").val() == 0 ? skill_info.hp_damege / 100 : skill_info.dp_damege / 100);
 
     let critical_power = getBasePower(fightingspirit - 50);
     let critical_rate = getCriticalRate();
@@ -355,6 +354,20 @@ function calcDamage() {
     calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined);
     calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined);
 	
+    $("#skill_power").val(basePower.toFixed(2));
+    $("#mag_buff").val(buff.toFixed(4));
+    $("#mag_debuff").val(debuff.toFixed(4));
+    $("#mag_element_field").val(element_field);
+    $("#mag_special").val(special);
+    $("#mag_funnel").val(funnel_sum);
+    $("#mag_physical").val(weak_physical);
+    $("#mag_element").val(weak_element);
+    $("#mag_token").val(token);
+    $("#mag_mindeye").val(mindeye.toFixed(4));
+    $("#mag_fragile").val(fragile.toFixed(4));
+    $("#mag_destruction").val(destruction_rate);
+    $("#mag_critical").val(critical_buff);
+
     // クリティカル表示
     $("#critical_rate").text(`(発生率: ${Math.round(critical_rate * 100) / 100}%)`);
     $("#damage_result").show();
@@ -366,6 +379,7 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
     let dp_penetration = Number($("#dp_range_1").val())== 0;
     let rest_dp = Number($("#enemy_dp_0").val().replace(/,/g, "")) * Number($("#dp_range_0").val()) / 100;
+    let rest_hp = Number($("#enemy_hp").val().replace(/,/g, "")) * Number($("#enemy_hp").val()) / 100;
     let enemy_destruction = getEnemyInfo().destruction;
 
     let hit_count = skill_info.hit_count;
@@ -389,7 +403,11 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
         }
         let hit_damage = power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
-        rest_dp -= hit_damage;
+        if (rest_dp > 0) {
+            rest_dp -= hit_damage;
+        } else {
+            rest_hp -= hit_damage;
+        }
         if (rest_dp <= 0 && dp_penetration) {
             destruction_rate += add_destruction;
             if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;

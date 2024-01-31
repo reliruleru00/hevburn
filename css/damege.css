@@ -1,5 +1,5 @@
 div.frame {
-    height: calc(100svh - 70px);
+    height: calc(100svh - 195px);
 }
 
 :disabled {
@@ -159,6 +159,9 @@ input.calc_btn {
     border-radius: 100vh;
 }
 
+#damage_result {
+    margin-top: -15px;
+}
 .damage_label {
     font-weight: bold;
     font-size: 18px;
@@ -167,11 +170,12 @@ input.calc_btn {
     font-weight: bold;
     font-size: 30px;
     width: 180px;
+    height: 30px;
 }
 .min_damage {
     font-weight: bold;
-    font-size: 20px;
-    width: 120px;
+    font-size: 16px;
+    width: 100px;
 }
 .enemy_weak {
     font-weight: bold;
@@ -232,6 +236,14 @@ input.calc_btn {
 .status_resist_down2,
 .status_charge {
     background-color: rgba(255, 0, 0, 0.3)
+}
+
+footer {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: calc(120px + env(safe-area-inset-bottom));
 }
 
 /* 初期値 */

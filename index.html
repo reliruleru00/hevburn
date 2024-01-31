@@ -96,7 +96,6 @@
       setEnemyStatus();
 
       // イベント設定
-      setHeaderLink();
       setEventTrigger();
 
       // スタイルリスト読み込み
@@ -333,38 +332,6 @@
             <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text" id="enemy_element_3" class="enemy_type_value" readonly></div>
             <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text" id="enemy_element_4" class="enemy_type_value" readonly></div>
             <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text" id="enemy_element_5" class="enemy_type_value" readonly></div>
-          </div>
-        </div>
-        <div id="damage_result" class="text-center hidden w-[480px] mx-auto">
-          <div class="mt-2">
-            <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
-            <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
-            <div class="text-center w-[332px] mx-auto">
-              <div class="flex">
-                <div>
-                  <input type="text" id="critical_damage" class="text-center damage" readonly>
-                </div>
-                <div class="text-base">
-                  <div>最大<input type="text" id="critical_damage_max"class="text-center min_damage" readonly></div>
-                  <div>最小<input type="text" id="critical_damage_min"class="text-center min_damage" readonly></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-2">
-            <label class="damage_label">通常ダメージ</label>
-            <label class="damage_label">/最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
-            <div class="text-center w-[332px] mx-auto">
-              <div class="flex">
-                <div>
-                  <input type="text" id="damage" class="text-center damage" readonly>
-                </div>
-                <div class="text-base">
-                  <div>最大<input type="text" id="damage_max" class="text-center min_damage" readonly></div>
-                  <div>最小<input type="text" id="damage_min"class="text-center min_damage" readonly></div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -702,5 +669,45 @@
     </div>
    </div>
   </main>
+  <footer>
+    <div id="damage_result" class="text-center hidden w-[480px] mx-auto">
+      <div class="">
+        <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
+        <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+        <div class="text-center w-[410px] mx-auto">
+          <div class="flex">
+            <div>
+              <input type="text" id="critical_damage" class="text-center damage" readonly>
+            </div>
+            <div class="leading-4 flex items-end">
+              <label class="pb-0.5">(</label>
+              <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
+              <label class="pb-0.5">～</label>
+              <input type="text" id="critical_damage_max"class="text-center min_damage" readonly>
+              <label class="pb-0.5">)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="">
+        <label class="damage_label">通常ダメージ</label>
+        <label class="damage_label">/最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+        <div class="text-center w-[410px] mx-auto">
+          <div class="flex">
+            <div>
+              <input type="text" id="damage" class="text-center damage" readonly>
+            </div>
+            <div class="leading-4 flex items-end">
+              <label class="pb-0.5">(</label>
+              <input type="text" id="damage_min"class="text-center min_damage" readonly>
+              <label class="pb-0.5">～</label>
+              <input type="text" id="damage_max"class="text-center min_damage" readonly>
+              <label class="pb-0.5">)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

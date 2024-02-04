@@ -354,23 +354,30 @@ function calcDamage() {
     calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined);
     calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined);
 	
-    $("#skill_power").val(basePower.toFixed(2));
-    $("#mag_buff").val(buff.toFixed(4));
-    $("#mag_debuff").val(debuff.toFixed(4));
-    $("#mag_element_field").val(element_field);
-    $("#mag_special").val(special);
-    $("#mag_funnel").val(funnel_sum);
-    $("#mag_physical").val(weak_physical);
-    $("#mag_element").val(weak_element);
-    $("#mag_token").val(token);
-    $("#mag_mindeye").val(mindeye.toFixed(4));
-    $("#mag_fragile").val(fragile.toFixed(4));
-    $("#mag_destruction").val(destruction_rate);
-    $("#mag_critical").val(critical_buff);
+    $("#skill_power").val((Math.floor(basePower * 100) / 100).toFixed(2));
+    $("#mag_buff").val(convertToPercentage(buff));
+    $("#mag_debuff").val(convertToPercentage(debuff));
+    $("#mag_element_field").val(convertToPercentage(element_field));
+    $("#mag_special").val(convertToPercentage(special));
+    $("#mag_funnel").val(convertToPercentage(funnel_sum));
+    $("#mag_physical").val(convertToPercentage(weak_physical));
+    $("#mag_element").val(convertToPercentage(weak_element));
+    $("#mag_token").val(convertToPercentage(token));
+    $("#mag_mindeye").val(convertToPercentage(mindeye));
+    $("#mag_fragile").val(convertToPercentage(fragile));
+    $("#mag_destruction").val(destruction_rate + "%");
+    $("#mag_critical").val(convertToPercentage(critical_buff));
 
     // クリティカル表示
     $("#critical_rate").text(`(発生率: ${Math.round(critical_rate * 100) / 100}%)`);
-    $("#damage_result").show();
+    $("footer").show();
+}
+
+// 倍率表示
+function convertToPercentage(value) {
+    // 引数×100を計算し、小数点以下2桁目以降を四捨五入してパーセント記号を付ける
+    const percentage = (Math.floor(value * 10000) / 100).toFixed(2) + "%";
+    return percentage;
 }
 
 // ダメージの詳細計算

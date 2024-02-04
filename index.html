@@ -102,16 +102,11 @@
       select_troops = select_troops ? select_troops : 0;
       $("#troops_btn_" + select_troops).addClass("selected_troops");
       loadTroopsList(select_troops);
-
       
-      $("#damage_open").on("click", function(event) {
-        let main_height = $("div.frame").height();
-        let footer_height = $("footer").height();
-        const amount = 400;
-        main_height -= amount;
-        footer_height += amount;
-        $("div.frame").height(main_height);
-        $("footer").height(footer_height);
+      $("footer").on("click", function(event) {
+        $("div.frame").toggleClass("damage_open");
+        $("footer").toggleClass("damage_open");
+        $("#damage_detail").toggle();
       });
     });
     // ロード完了後に表示
@@ -680,17 +675,15 @@
     </div>
    </div>
   </main>
-  <footer>
-    <div id="damage_result" class="text-center hidden w-[480px] mx-auto">
-      <div class="mt-1">
-        <label class="damage_label">クリティカルダメージ</label><label id="critical_rate" class="damage_label"></label>
-        <label class="damage_label">/最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
-        <div class="text-center w-[410px] mx-auto">
-          <div class="flex">
-            <div>
-              <input type="text" id="critical_damage" class="text-center damage" readonly>
-            </div>
-            <div class="leading-4 flex items-end">
+  <footer class="hidden">
+    <div id="damage_result" class="text-center w-[720px] mx-auto">
+      <div class="flex">
+        <div class="mt-2 w-[360px]">
+          <label class="damage_label">クリティカル</label><label id="critical_rate" class="damage_label"></label>
+          <label class="damage_label">最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+          <div class="text-center mx-auto">
+            <input type="text" id="critical_damage" class="text-center damage" readonly>
+            <div class="leading-4 items-end">
               <label class="pb-0.5">(</label>
               <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
               <label class="pb-0.5">～</label>
@@ -698,17 +691,43 @@
               <label class="pb-0.5">)</label>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="mt-1">
-        <label class="damage_label">通常ダメージ</label>
-        <label class="damage_label">/最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
-        <div class="text-center w-[410px] mx-auto">
-          <div class="flex">
-            <div>
-              <input type="text" id="damage" class="text-center damage" readonly>
+          <div class="w-[200px] mx-auto">
+            <div class="flex">
+              <div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_3" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_2" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_1" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_0" class="gauge_rate">0%</output>
+                </div>
+              </div>
             </div>
-            <div class="leading-4 flex items-end">
+            <div class="flex">
+              <div>
+                <div class="flex">
+                  <input type="range" id="rest_hp_range" class="hp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="rest_hp_rate" class="gauge_rate">0%</output>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 w-[360px]">
+          <label class="damage_label">通常ダメージ</label>
+          <label class="damage_label">最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+          <div class="text-center mx-auto">
+            <input type="text" id="damage" class="text-center damage" readonly>
+            <div class="leading-4 items-end">
               <label class="pb-0.5">(</label>
               <input type="text" id="damage_min"class="text-center min_damage" readonly>
               <label class="pb-0.5">～</label>
@@ -716,9 +735,39 @@
               <label class="pb-0.5">)</label>
             </div>
           </div>
+          <div class="w-[200px] mx-auto">
+            <div class="flex">
+              <div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_3" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_2" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_1" class="gauge_rate">0%</output>
+                </div>
+                <div class="dp_gauge">
+                  <input type="range" id="rest_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="dp_rate_0" class="gauge_rate">0%</output>
+                </div>
+              </div>
+            </div>
+            <div class="flex">
+              <div>
+                <div class="flex">
+                  <input type="range" id="rest_hp_range" class="hp_range result_display" min="0" max="100" step="1" value="0">
+                  <output id="rest_hp_rate" class="gauge_rate">0%</output>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="text-left w-64 mx-auto hidden">
+      <div id="damage_detail" class="text-left w-64 mx-auto mt-2 hidden">
         <div>
           <div class="magnification">スキル攻撃力</div>
           <input type="text" id="skill_power" class="text-center min_damage" readonly>

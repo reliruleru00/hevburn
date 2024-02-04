@@ -1,5 +1,8 @@
 div.frame {
-    height: calc(100svh - 195px);
+    height: calc(100svh - 165px);
+}
+div.frame.damage_open {
+    height: calc(100svh - 495px);
 }
 
 :disabled {
@@ -132,6 +135,18 @@ img.select_style {
     margin-top: 6px;
 }
 
+input[type="range"].result_display::-webkit-slider-thumb {
+    display: none;
+}
+
+input[type="range"].result_display::-moz-range-thumb {
+    display: none;
+}
+
+input[type="range"].result_display::-ms-thumb {
+    display: none;
+}
+
 .gauge_rate {
     display: inline-block;
     width: 40px;
@@ -243,7 +258,16 @@ footer {
     left: 0px;
     bottom: 0px;
     width: 100%;
-    height: calc(120px + env(safe-area-inset-bottom));
+    height: calc(90px + env(safe-area-inset-bottom));
+    transition: height 0.3s ease;
+}
+
+footer.damage_open {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: calc(420px + env(safe-area-inset-bottom));
     transition: height 0.3s ease;
 }
 

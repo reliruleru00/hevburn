@@ -312,6 +312,25 @@ function setEventTrigger() {
     });
 }
 
+class RestGauge {
+    constructor() {
+        this.min_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
+        this.min_rest_hp = 0;
+        this.max_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
+        this.max_rest_hp = 0;
+    }
+
+    // メソッド1
+    method1() {
+        console.log('Method 1');
+    }
+
+    // メソッド2
+    method2() {
+        console.log('Method 2');
+    }
+}
+
 // ダメージ計算
 function calcDamage() {
     let skill_info = getAttackInfo();
@@ -354,12 +373,14 @@ function calcDamage() {
     let critical_buff = getCriticalBuff();
 
     let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate * dp_correction_rate;
-    calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate");
-    calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined);
-    calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined);
-    calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage", "#critical_destruction_last_rate");
-    calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined);
-    calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined);
+    let rest_damage = new RestGauge();
+    let rest_critical = new RestGauge();
+    calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate", undefined);
+    calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined, rest_damage);
+    calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined, rest_damage);
+    calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage", "#critical_destruction_last_rate", undefined);
+    calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined, rest_critical);
+    calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined, rest_critical);
 	
     $("#skill_power").val((Math.floor(basePower * 100) / 100).toFixed(2));
     $("#mag_buff").val(convertToPercentage(buff));
@@ -388,12 +409,19 @@ function convertToPercentage(value) {
 }
 
 // ダメージの詳細計算
-function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id) {
+function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id, rest_damage) {
     let destruction_rate = Number($("#enemy_destruction").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
     let dp_penetration = Number($("#dp_range_1").val())== 0;
-    let rest_dp = Number($("#enemy_dp_0").val().replace(/,/g, "")) * Number($("#dp_range_0").val()) / 100;
-    let rest_hp = Number($("#enemy_hp").val().replace(/,/g, "")) * Number($("#enemy_hp").val()) / 100;
+    let rest_dp = Array(DP_GAUGE_COUNT).fill(0);
+    let dp_no = -1;  // 現在の使用DPゲージ番号を取得
+    for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+        rest_dp[i] = Number($("#enemy_dp_" + i).val().replace(/,/g, "")) * Number($("#dp_range_" + i).val()) / 100;
+        if (rest_dp[i] > 0) {
+            dp_no = i;
+        }
+    }
+    let rest_hp = Number($("#enemy_hp").val().replace(/,/g, "")) * Number($("#hp_range").val()) / 100;
     let enemy_destruction = getEnemyInfo().destruction;
 
     let hit_count = skill_info.hit_count;
@@ -406,7 +434,7 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
 
     // ダメージ処理
     function procDamage (power, add_destruction) {
-        if (rest_dp <= 0 && dp_penetration) {
+        if (rest_dp[0] <= 0 && dp_penetration) {
             special = 1 + skill_info.hp_damege / 100;
             add_buff = getEarringEffectSize("attack", hit_count);
             add_debuff = 0;
@@ -417,12 +445,14 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
         }
         let hit_damage = power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * destruction_rate / 100;
 
-        if (rest_dp > 0) {
-            rest_dp -= hit_damage;
+        if (rest_dp[dp_no] > 0) {
+            rest_dp[dp_no] -= hit_damage;
+        } else if (dp_no >= 1) {
+            rest_dp[dp_no - 1] -= hit_damage;
         } else {
             rest_hp -= hit_damage;
         }
-        if (rest_dp <= 0 && dp_penetration) {
+        if (rest_dp[0] <= 0 && dp_penetration) {
             destruction_rate += add_destruction;
             if (destruction_rate > max_destruction_rate) destruction_rate = max_destruction_rate;
         }
@@ -437,6 +467,14 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
     funnel_list.forEach(value => {
         procDamage(basePower * value / 100, destruction_size * value / 100);
     });
+
+    if (id.includes("max")) {
+        rest_damage.max_rest_dp = rest_dp; 
+        rest_damage.max_rest_hp = rest_hp; 
+    } else if (id.includes("min")) {
+        rest_damage.min_rest_dp = rest_dp; 
+        rest_damage.min_rest_hp = rest_hp; 
+    }
  
     $(id).val(Math.floor(damage).toLocaleString());
     if (destruction_id)  $(destruction_id).text(`${Math.round(destruction_rate * 10) / 10}%`);
@@ -1228,8 +1266,12 @@ function setEnemyStatus() {
         if (i < max_dp_list.length) {
             $("#enemy_dp_" + i).val(Number(max_dp_list[i]).toLocaleString());
             $("#enemy_dp_" + i).parent().show();
+            $("#rest_dp_range_" + i).parent().show();
+            $("#rest_critical_dp_range_" + i).parent().show();
         } else {
             $("#enemy_dp_" + i).parent().hide();
+            $("#rest_dp_range_" + i).parent().hide();
+            $("#rest_critical_dp_range_" + i).parent().hide();
         }
         setDpGarge(i, 0);
     }

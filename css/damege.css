@@ -1,5 +1,5 @@
 div.frame {
-    height: calc(100svh - 165px);
+    height: calc(100svh - 185px);
 }
 div.frame.damage_open {
     height: calc(100svh - 495px);
@@ -174,24 +174,6 @@ input.calc_btn {
     border-radius: 100vh;
 }
 
-#damage_result {
-    margin-top: -15px;
-}
-.damage_label {
-    font-weight: bold;
-    font-size: 18px;
-}
-.damage {
-    font-weight: bold;
-    font-size: 30px;
-    width: 180px;
-    height: 30px;
-}
-.min_damage {
-    font-weight: bold;
-    font-size: 16px;
-    width: 100px;
-}
 .enemy_weak {
     font-weight: bold;
     color: red;
@@ -258,7 +240,7 @@ footer {
     left: 0px;
     bottom: 0px;
     width: 100%;
-    height: calc(90px + env(safe-area-inset-bottom));
+    height: calc(110px + env(safe-area-inset-bottom));
     transition: height 0.3s ease;
 }
 
@@ -271,11 +253,67 @@ footer.damage_open {
     transition: height 0.3s ease;
 }
 
+#damage_result {
+    margin-top: -15px;
+    width: 560px;
+}
+.damage_label {
+    font-weight: bold;
+    font-size: 18px;
+}
+.damage {
+    font-weight: bold;
+    font-size: 30px;
+    width: 180px;
+    height: 30px;
+}
+.min_damage {
+    font-weight: bold;
+    font-size: 16px;
+    width: 100px;
+}
+.damage-flex {
+    width: 280px;
+}
 .magnification {
     display: inline-block;
     width: 120px;
     font-weight: bold;
 }
+
+.enemy_rest_hp {
+    display: none;
+}
+
+.damage_open .enemy_rest_hp {
+    display: block;
+}
+
+@media screen and (max-width: 768px) {
+    #damage_result {
+        width: 360px;
+        font-size: 12px;
+    }
+    .damage_label {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .damage {
+        font-weight: bold;
+        font-size: 20px;
+        width: 120px;
+        height: 20px;
+    }
+    .min_damage {
+        font-weight: bold;
+        font-size: 12px;
+        width: 70px;
+    }
+    .damage-flex {
+        width: 180px;
+    }
+}
+
 
 /* 初期値 */
 .row_element,

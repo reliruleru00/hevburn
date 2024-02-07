@@ -676,11 +676,15 @@
    </div>
   </main>
   <footer class="hidden">
-    <div id="damage_result" class="text-center w-[720px] mx-auto">
+    <div id="damage_result" class="text-center mx-auto">
       <div class="flex">
-        <div class="mt-2 w-[360px]">
-          <label class="damage_label">クリティカル</label><label id="critical_rate" class="damage_label"></label>
-          <label class="damage_label">最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+        <div class="mt-2 damage-flex">
+          <div>
+            <label class="damage_label">クリティカル</label><label id="critical_rate" class="damage_label"></label>
+          </div>
+          <div>
+            <label class="damage_label">最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+          </div>
           <div class="text-center mx-auto">
             <input type="text" id="critical_damage" class="text-center damage" readonly>
             <div class="leading-4 items-end">
@@ -691,23 +695,23 @@
               <label class="pb-0.5">)</label>
             </div>
           </div>
-          <div class="w-[200px] mx-auto">
+          <div class="enemy_rest_hp w-[170px] mx-auto">
             <div class="flex">
               <div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <input type="range" id="rest_critical_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
                   <output id="dp_rate_3" class="gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <input type="range" id="rest_critical_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
                   <output id="dp_rate_2" class="gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <input type="range" id="rest_critical_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
                   <output id="dp_rate_1" class="gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
+                  <input type="range" id="rest_critical_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
                   <output id="dp_rate_0" class="gauge_rate">0%</output>
                 </div>
               </div>
@@ -722,9 +726,13 @@
             </div>
           </div>
         </div>
-        <div class="mt-2 w-[360px]">
-          <label class="damage_label">通常ダメージ</label>
-          <label class="damage_label">最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+        <div class="mt-2 damage-flex">
+          <div>
+            <label class="damage_label">通常ダメージ</label>
+          </div>
+          <div>
+            <label class="damage_label">最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+          </div>
           <div class="text-center mx-auto">
             <input type="text" id="damage" class="text-center damage" readonly>
             <div class="leading-4 items-end">
@@ -735,7 +743,7 @@
               <label class="pb-0.5">)</label>
             </div>
           </div>
-          <div class="w-[200px] mx-auto">
+          <div class="enemy_rest_hp w-[170px] mx-auto">
             <div class="flex">
               <div>
                 <div class="dp_gauge">

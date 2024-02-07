@@ -341,12 +341,19 @@ function calcDamage() {
     let funnel_sum = 1 + getSumFunnelEffectList().reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
     let destruction_rate = Number($("#enemy_destruction").val());
     let special = 1 + Number($("#dp_range_0").val() == 0 ? skill_info.hp_damege / 100 : skill_info.dp_damege / 100);
+    // 残DP補正(暫定)
+    let dp_correction_rate = 1;
+    if (skill_info.attack_id == 113) {
+        dp_correction_rate = 1.25;
+    } else if (skill_info.attack_id == 114) {
+        dp_correction_rate = 1.1;
+    }
 
     let critical_power = getBasePower(fightingspirit - 50);
     let critical_rate = getCriticalRate();
     let critical_buff = getCriticalBuff();
 
-    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate;
+    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate * dp_correction_rate;
     calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate");
     calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined);
     calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined);

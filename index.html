@@ -19,9 +19,11 @@
   <title>ヘブバン ダメージ計算ツール</title>
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/micromodal.css">
   <link rel="stylesheet" href="css/damege.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
   <script src="js/header.js"></script>
   <script src="js/chara_name.js"></script>
   <script src="js/chara_style.js"></script>
@@ -103,10 +105,13 @@
       $("#troops_btn_" + select_troops).addClass("selected_troops");
       loadTroopsList(select_troops);
       
-      $("footer").on("click", function(event) {
-        $("div.frame").toggleClass("damage_open");
-        $("footer").toggleClass("damage_open");
-        $("#damage_detail").toggle();
+      // MicroModal初期化
+      MicroModal.init({
+        disableScroll: true,
+      });
+
+      $(".open_detail").on("click", function(event) {
+        critical_detail.setDamageDetail();
       });
     });
     // ロード完了後に表示
@@ -116,7 +121,7 @@
   </script>
 </head>
 <body>
-  <main style="visibility: hidden;">
+<main style="visibility: hidden;">
   <div class="header"></div>
   <div class="frame w-screen pt-3 overflow-y-scroll border-b">
     <div class="w-[1085px] mx-auto flex text-sm">
@@ -674,162 +679,149 @@
       </div>
     </div>
    </div>
-  </main>
-  <footer class="hidden">
-    <div id="damage_result" class="text-center mx-auto">
-      <div class="flex">
-        <div class="mt-2 damage-flex">
+   <div class="modal micromodal-slide" id="modal_damage_detail" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="damage_detail">
+        <div id="damage_detail" aria-hidden="true" class="modal text-left w-[250px] mx-auto mt-2">
           <div>
-            <label class="damage_label">クリティカル</label><label id="critical_rate" class="damage_label"></label>
-          </div>
-          <div>
-            <label class="damage_label">最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+            <label class="damage_label">ダメージ詳細</label>
           </div>
           <div class="text-center mx-auto">
-            <input type="text" id="critical_damage" class="text-center damage" readonly>
-            <div class="leading-4 items-end">
-              <label class="pb-0.5">(</label>
-              <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
-              <label class="pb-0.5">～</label>
-              <input type="text" id="critical_damage_max"class="text-center min_damage" readonly>
-              <label class="pb-0.5">)</label>
+            <input type="text" id="detail_damage" class="text-center damage" readonly>
+            <div>
+              最大
+              <input type="text" id="detail_max_damage"class="text-center min_damage" readonly>
+            </div>
+            <div>
+              最小
+              <input type="text" id="detail_min_damage"class="text-center min_damage" readonly>
             </div>
           </div>
-          <div class="enemy_rest_hp w-[170px] mx-auto">
+          <div class="enemy_rest_hp w-[200px] mx-auto">
             <div class="flex">
               <div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_critical_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_3" class="gauge_rate">0%</output>
+                  <output id="rest_dp_rate_3" class="rest_gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_critical_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_2" class="gauge_rate">0%</output>
+                  <output id="rest_dp_rate_2" class="rest_gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_critical_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_1" class="gauge_rate">0%</output>
+                  <output id="rest_dp_rate_1" class="rest_gauge_rate">0%</output>
                 </div>
                 <div class="dp_gauge">
-                  <input type="range" id="rest_critical_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_0" class="gauge_rate">0%</output>
+                  <output id="rest_dp_rate_0" class="rest_gauge_rate">0%</output>
                 </div>
               </div>
             </div>
             <div class="flex">
               <div>
                 <div class="flex">
-                  <input type="range" id="rest_hp_range" class="hp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="rest_hp_rate" class="gauge_rate">0%</output>
+                  <output id="rest_hp_rate" class="rest_gauge_rate">0%</output>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="mt-2 damage-flex">
-          <div>
-            <label class="damage_label">通常ダメージ</label>
           </div>
           <div>
-            <label class="damage_label">最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+            <div class="magnification">スキル攻撃力</div>
+            <input type="text" id="skill_power" class="text-center min_damage" readonly>
           </div>
-          <div class="text-center mx-auto">
-            <input type="text" id="damage" class="text-center damage" readonly>
-            <div class="leading-4 items-end">
-              <label class="pb-0.5">(</label>
-              <input type="text" id="damage_min"class="text-center min_damage" readonly>
-              <label class="pb-0.5">～</label>
-              <input type="text" id="damage_max"class="text-center min_damage" readonly>
-              <label class="pb-0.5">)</label>
-            </div>
+          <div>
+            <div class="magnification">×攻撃力アップ</div>
+            <input type="text" id="mag_buff" class="text-center min_damage" readonly>
           </div>
-          <div class="enemy_rest_hp w-[170px] mx-auto">
-            <div class="flex">
-              <div>
-                <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_3" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_3" class="gauge_rate">0%</output>
-                </div>
-                <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_2" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_2" class="gauge_rate">0%</output>
-                </div>
-                <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_1" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_1" class="gauge_rate">0%</output>
-                </div>
-                <div class="dp_gauge">
-                  <input type="range" id="rest_dp_range_0" class="dp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="dp_rate_0" class="gauge_rate">0%</output>
-                </div>
-              </div>
-            </div>
-            <div class="flex">
-              <div>
-                <div class="flex">
-                  <input type="range" id="rest_hp_range" class="hp_range result_display" min="0" max="100" step="1" value="0">
-                  <output id="rest_hp_rate" class="gauge_rate">0%</output>
-                </div>
-              </div>
-            </div>
+          <div>
+            <div class="magnification">×防御力ダウン</div>
+            <input type="text" id="mag_debuff" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×属性フィールド</div>
+            <input type="text" id="mag_element_field" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×HP/DP特攻</div>
+            <input type="text" id="mag_special" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×連撃</div>
+            <input type="text" id="mag_funnel" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×トークン補正</div>
+            <input type="text" id="mag_token" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×武器相性</div>
+            <input type="text" id="mag_physical" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×属性相性</div>
+            <input type="text" id="mag_element" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×心眼</div>
+            <input type="text" id="mag_mindeye" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×脆弱</div>
+            <input type="text" id="mag_fragile" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×破壊率</div>
+            <input type="text" id="mag_destruction" class="text-center min_damage" readonly>
+          </div>
+          <div>
+            <div class="magnification">×クリティカル倍率</div>
+            <input type="text" id="mag_critical" class="text-center min_damage" readonly>
           </div>
         </div>
       </div>
-      <div id="damage_detail" class="text-left w-64 mx-auto mt-2 hidden">
-        <div>
-          <div class="magnification">スキル攻撃力</div>
-          <input type="text" id="skill_power" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×攻撃力アップ</div>
-          <input type="text" id="mag_buff" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×防御力ダウン</div>
-          <input type="text" id="mag_debuff" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×属性フィールド</div>
-          <input type="text" id="mag_element_field" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×HP/DP特攻</div>
-          <input type="text" id="mag_special" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×連撃</div>
-          <input type="text" id="mag_funnel" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×トークン補正</div>
-          <input type="text" id="mag_token" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×武器相性</div>
-          <input type="text" id="mag_physical" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×属性相性</div>
-          <input type="text" id="mag_element" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×心眼</div>
-          <input type="text" id="mag_mindeye" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×脆弱</div>
-          <input type="text" id="mag_fragile" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×破壊率</div>
-          <input type="text" id="mag_destruction" class="text-center min_damage" readonly>
-        </div>
-        <div>
-          <div class="magnification">×クリティカル倍率</div>
-          <input type="text" id="mag_critical" class="text-center min_damage" readonly>
-        </div>
-      <div>
     </div>
-  </footer>
+  </div>
+</main>
+<footer class="hidden">
+  <div id="damage_result" class="text-center mx-auto">
+    <div class="flex">
+      <div class="mt-2 damage-flex">
+        <div>
+          <label class="damage_label">クリティカル</label><label id="critical_rate" class="damage_label"></label>
+        </div>
+        <div>
+          <label class="damage_label">最終破壊率</label><label id="critical_destruction_last_rate" class="damage_label"></label>
+          <input type="button" id="modal_damage_detail_open1" class="open_detail" data-micromodal-trigger="modal_damage_detail" value="詳細">
+        </div>
+        <div class="text-center mx-auto">
+          <input type="text" id="critical_damage" class="text-center damage" readonly>
+          <div class="leading-4 items-end">
+            <label class="pb-0.5">(</label>
+            <input type="text" id="critical_damage_min"class="text-center min_damage" readonly>
+            <label class="pb-0.5">～</label>
+            <input type="text" id="critical_damage_max"class="text-center min_damage" readonly>
+            <label class="pb-0.5">)</label>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 damage-flex">
+        <div>
+          <label class="damage_label">通常ダメージ</label>
+        </div>
+        <div>
+          <label class="damage_label">最終破壊率</label><label id="destruction_last_rate" class="damage_label"></label>
+          <input type="button" id="modal_damage_detail_open2" class="open_detail" data-micromodal-trigger="modal_damage_detail" value="詳細">
+        </div>
+        <div class="text-center mx-auto">
+          <input type="text" id="damage" class="text-center damage" readonly>
+          <div class="leading-4 items-end">
+            <label class="pb-0.5">(</label>
+            <input type="text" id="damage_min"class="text-center min_damage" readonly>
+            <label class="pb-0.5">～</label>
+            <input type="text" id="damage_max"class="text-center min_damage" readonly>
+            <label class="pb-0.5">)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

@@ -318,18 +318,49 @@ class RestGauge {
         this.min_rest_hp = 0;
         this.max_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
         this.max_rest_hp = 0;
+        this.min_damage = 0;
+        this.max_damage = 0;
+        this.avg_damage = 0;
     }
-
-    // メソッド1
-    method1() {
-        console.log('Method 1');
-    }
-
-    // メソッド2
-    method2() {
-        console.log('Method 2');
+    // 詳細反映
+    setDamageDetail() {
+        $("#detail_min_damage").val(Math.floor(this.min_damage).toLocaleString());
+        $("#detail_max_damage").val(Math.floor(this.max_damage).toLocaleString());
+        $("#detail_damage").val(Math.floor(this.avg_damage).toLocaleString());
+        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+            let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
+            let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp);
+            $("#rest_dp_rate_" + i).val(disp_rest);
+            // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
+            let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
+            // 対象の要素にスタイルを設定
+            $("#rest_dp_rate_" + i).css("background", gradientStyle);
+        }
+        let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
+        let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp);
+        $("#rest_hp_rate").val(disp_rest);
+        // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
+        let gradientStyle = generateGradientFromRange(disp_rest, "#BE71BE")
+        // 対象の要素にスタイルを設定
+        $("#rest_hp_rate").css("background", gradientStyle);
     }
 }
+
+// 残りの実数値と全体値から、割合範囲を取得する。
+function calculatePercentage(min, max, total) {
+    // 最小値、最大値、全体値が0以下の場合、それぞれ0に設定
+    min = Math.max(0, min);
+    max = Math.max(0, max);
+
+    // 最小値と最大値が同じ場合は、範囲指定しない
+    if (Math.ceil((min / total) * 100) === Math.ceil((max / total) * 100)) {
+        return Math.ceil((min / total) * 100) + '%';
+    } else {
+        return Math.ceil((min / total) * 100) + '%～' + Math.ceil((max / total) * 100) + '%';
+    }
+}
+let damage_detail = null;
+let critical_detail = null;
 
 // ダメージ計算
 function calcDamage() {
@@ -372,15 +403,16 @@ function calcDamage() {
     let critical_rate = getCriticalRate();
     let critical_buff = getCriticalBuff();
 
+    damage_detail = new RestGauge();
+    critical_detail = new RestGauge();
+
     let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate * dp_correction_rate;
-    let rest_damage = new RestGauge();
-    let rest_critical = new RestGauge();
-    calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate", undefined);
-    calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined, rest_damage);
-    calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined, rest_damage);
-    calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage", "#critical_destruction_last_rate", undefined);
-    calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined, rest_critical);
-    calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined, rest_critical);
+    calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate", damage_detail);
+    calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined, damage_detail);
+    calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined, damage_detail);
+    calculateDamage(critical_power, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage", "#critical_destruction_last_rate", critical_detail);
+    calculateDamage(critical_power * 0.9, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_min", undefined, critical_detail);
+    calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined, critical_detail);
 	
     $("#skill_power").val((Math.floor(basePower * 100) / 100).toFixed(2));
     $("#mag_buff").val(convertToPercentage(buff));
@@ -469,11 +501,15 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
     });
 
     if (id.includes("max")) {
-        rest_damage.max_rest_dp = rest_dp; 
-        rest_damage.max_rest_hp = rest_hp; 
+        rest_damage.max_rest_dp = rest_dp;
+        rest_damage.max_rest_hp = rest_hp;
+        rest_damage.max_damage = damage;
     } else if (id.includes("min")) {
-        rest_damage.min_rest_dp = rest_dp; 
-        rest_damage.min_rest_hp = rest_hp; 
+        rest_damage.min_rest_dp = rest_dp;
+        rest_damage.min_rest_hp = rest_hp;
+        rest_damage.min_damage = damage;
+    } else {
+        rest_damage.avg_damage = damage;
     }
  
     $(id).val(Math.floor(damage).toLocaleString());
@@ -1266,12 +1302,10 @@ function setEnemyStatus() {
         if (i < max_dp_list.length) {
             $("#enemy_dp_" + i).val(Number(max_dp_list[i]).toLocaleString());
             $("#enemy_dp_" + i).parent().show();
-            $("#rest_dp_range_" + i).parent().show();
-            $("#rest_critical_dp_range_" + i).parent().show();
+            $("#rest_dp_rate_" + i).parent().show();
         } else {
             $("#enemy_dp_" + i).parent().hide();
-            $("#rest_dp_range_" + i).parent().hide();
-            $("#rest_critical_dp_range_" + i).parent().hide();
+            $("#rest_dp_rate_" + i).parent().hide();
         }
         setDpGarge(i, 0);
     }
@@ -1583,3 +1617,41 @@ function generateGradient(color1, color2, percent) {
     return resultColor;
 }
 
+// ダメージ詳細用グラデーション
+function generateGradientFromRange(range, colorCode) {
+    // 最小値と最大値を取得する
+    const [minPercentage, maxPercentage] = parseRange(range);
+
+    // RGBA形式の色コードを生成する
+    const rgba1 = convertToRGBA(colorCode, 1);
+    const rgba2 = convertToRGBA(colorCode, 0.5);
+
+    // グラデーションスタイルを生成する
+    const gradientStyle = `linear-gradient(to right, ${rgba1} 0%, ${rgba1} ${minPercentage}%, ${rgba2} ${minPercentage}%, ${rgba2} ${maxPercentage}%, rgba(255, 255, 255, 1) ${maxPercentage}%, rgba(255, 255, 255, 1) 100%)`;
+
+    return gradientStyle;
+}
+function parseRange(range) {
+    // 「～」を含まない場合、最小値と最大値が同じとみなしてその値を返す
+    if (!range.includes('～')) {
+        range += '～' + range;
+    }
+
+    // rangeを'～'で分割して最小値と最大値を取得し、数値に変換する
+    const rangeValues = range.split('～').map(parseFloat);
+    // 最小値と最大値が0未満の場合は0に設定
+    const minPercentage = Math.max(0, rangeValues[0]);
+    const maxPercentage = Math.max(0, rangeValues[1]);
+
+    return [minPercentage, maxPercentage];
+}
+function convertToRGBA(colorCode, opacity) {
+    // カラーコードからRGB値を抽出する
+    const color = colorCode.substring(1); // #を取り除く
+    const red = parseInt(color.substring(0, 2), 16); // R値
+    const green = parseInt(color.substring(2, 4), 16); // G値
+    const blue = parseInt(color.substring(4, 6), 16); // B値
+
+    // RGBA形式の色コードを生成して返す
+    return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+}

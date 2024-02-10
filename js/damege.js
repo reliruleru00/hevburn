@@ -306,21 +306,56 @@ function setEventTrigger() {
         localStorage.setItem('select_troops', select_troops);
         loadTroopsList(select_troops);
     });
+    // ダメージ詳細を開く
+    $(".open_detail").on("click", function(event) {
+        if ($(this).attr("id") == "modal_damage_detail_open1") {
+            open_damage_detail = critical_detail;
+            $("#magnification_critical").show();
+        } else {
+            open_damage_detail = damage_detail;
+            $("#magnification_critical").hide();
+        }
+        open_damage_detail.setDamageDetail();
+    });
+    // 残り耐久反映
+    $(".durability_reflection").on("click", function(event) {
+        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
+            let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
+            if (enemy_dp == 0) {
+                setDpGarge(i, 0);
+            } else {
+                setDpGarge(i, Math.ceil((open_damage_detail.avg_rest_dp[i] / enemy_dp) * 100));
+            }
+        }
+        let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
+        setHpGarge(Math.ceil((open_damage_detail.avg_rest_hp / enemy_hp) * 100));
+        $("#enemy_destruction").val(Math.floor(open_damage_detail.avg_destruction_last_rate));
+
+        MicroModal.close('modal_damage_detail');
+        // 自動選択外す
+        $("#auto_skill").prop("checked", false);
+        // ダメージ再計算
+        calcDamage();
+    });
     // ダメージ再計算
     $(document).on("change", "input, select", function(event) {
         calcDamage();
     });
 }
-
 class RestGauge {
     constructor() {
         this.min_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
         this.min_rest_hp = 0;
+        this.min_damage = 0;
+        this.min_destruction_last_rate = 100;
         this.max_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
         this.max_rest_hp = 0;
-        this.min_damage = 0;
         this.max_damage = 0;
+        this.max_destruction_last_rate = 100;
+        this.avg_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
+        this.avg_rest_hp = 0;
         this.avg_damage = 0;
+        this.avg_destruction_last_rate = 100;
     }
     // 詳細反映
     setDamageDetail() {
@@ -343,6 +378,13 @@ class RestGauge {
         let gradientStyle = generateGradientFromRange(disp_rest, "#BE71BE")
         // 対象の要素にスタイルを設定
         $("#rest_hp_rate").css("background", gradientStyle);
+
+        // 破壊率
+        const maxRate = Math.round(this.max_destruction_last_rate * 10) / 10;
+        const minRate = Math.round(this.min_destruction_last_rate * 10) / 10;
+        
+        const rateText = maxRate === minRate ? `${maxRate}%` : `${maxRate}%～${minRate}%`;
+        $("#detail_destruction_last_rate").text(rateText);
     }
 }
 
@@ -500,16 +542,24 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
         procDamage(basePower * value / 100, destruction_size * value / 100);
     });
 
+    // 0以下補正
+    rest_dp = rest_dp.map(dp => Math.max(0, dp));
+    rest_hp = Math.max(0, rest_hp);
     if (id.includes("max")) {
         rest_damage.max_rest_dp = rest_dp;
         rest_damage.max_rest_hp = rest_hp;
         rest_damage.max_damage = damage;
+        rest_damage.max_destruction_last_rate = destruction_rate;
     } else if (id.includes("min")) {
         rest_damage.min_rest_dp = rest_dp;
         rest_damage.min_rest_hp = rest_hp;
         rest_damage.min_damage = damage;
+        rest_damage.min_destruction_last_rate = destruction_rate;
     } else {
+        rest_damage.avg_rest_dp = rest_dp;
+        rest_damage.avg_rest_hp = rest_hp;
         rest_damage.avg_damage = damage;
+        rest_damage.avg_destruction_last_rate = destruction_rate;
     }
  
     $(id).val(Math.floor(damage).toLocaleString());

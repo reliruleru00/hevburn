@@ -22,7 +22,7 @@ div.footer {
         height: calc(80px + env(safe-area-inset-bottom));
     }
     .display_area {
-        width: 615px;
+        width: 505px;
         display: block;
     }
 }
@@ -91,9 +91,6 @@ table td {
 table td.kind {
     background-color: #CCC;
 }
-table td.type {
-    width: 180px;
-}
 table td.row_element-1,
 table td.row_element-2,
 table td.row_element-3,
@@ -119,41 +116,70 @@ select.filed {
 .buff_area {
     width: 615px
 }
-.title_columns {
+.title_column {
     width: 90px
 }
-.variable_columns {
+.type_column {
+    width: 70px
+}
+.skill_column {
     width: 310px
 }
 @media screen and (max-width: 768px) {
     .buff_area {
-        width: 546px
+        width: 505px
     }
-    .title_columns {
+    .title_column {
         width: 60px
     }
-    .variable_columns {
+    .type_column {
+        width: 40px
+    }
+    .skill_column {
         width: 250px
     }
 }
 
+.status_area {
+    width: 482px;
+}
 img.select_style {
     width: 64px;
     height: 64px;
     margin-left: 4px;
 }
-
 .label_status {
     line-height: 22px;
     display: block;
 }
-
 .status,
 .limit,
 .jewel {
     text-align: center;
     width: 60px;
     margin-left: 3px;
+}
+@media screen and (max-width: 768px) {
+    .status_area {
+        width: 402px;
+    }
+    img.select_style {
+        width: 48px;
+        height: 48px;
+        margin-left: 4px;
+    }
+    input[type="number"] {
+        text-align: center;
+        width: 50px;
+        border: solid 1px #000;
+    }
+    .status,
+    .limit,
+    .jewel {
+        text-align: center;
+        width: 50px;
+        margin-left: 3px;
+    }
 }
 
 #attack_physical,

@@ -10,12 +10,20 @@ div.footer {
     height: calc(110px + env(safe-area-inset-bottom));
     transition: height 0.3s ease;
 }
+.display_area {
+    width: 1085px;
+    display: flex;
+}
 @media screen and (max-width: 768px) {
     div.frame {
         height: calc(100svh - 155px);
     }
     div.footer {
         height: calc(80px + env(safe-area-inset-bottom));
+    }
+    .display_area {
+        width: 615px;
+        display: block;
     }
 }
 
@@ -82,7 +90,6 @@ table td {
 
 table td.kind {
     background-color: #CCC;
-    width: 80px;
 }
 table td.type {
     width: 180px;
@@ -107,6 +114,27 @@ select.critical_buff,
 select.filed {
     width: 100%;
     height: 21px;
+}
+
+.buff_area {
+    width: 615px
+}
+.title_columns {
+    width: 90px
+}
+.variable_columns {
+    width: 310px
+}
+@media screen and (max-width: 768px) {
+    .buff_area {
+        width: 546px
+    }
+    .title_columns {
+        width: 60px
+    }
+    .variable_columns {
+        width: 250px
+    }
 }
 
 img.select_style {

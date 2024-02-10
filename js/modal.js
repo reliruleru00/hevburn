@@ -57,7 +57,7 @@ function addModalEvent() {
 
     // スタイルを選択
     $('input.select_style_list').on('click', function(){
-        setMember($(this).data("style_id"))
+        setMember($(this).data("style_id"), true)
         closeModel();
     });
 
@@ -76,7 +76,7 @@ function closeModel() {
 }
 
 // メンバーを設定する。
-function setMember(style_id) {
+function setMember(style_id, isTrigger) {
     let style_info = style_list.find((obj) => obj.style_id === style_id);
 
     // 同一のキャラIDは不許可
@@ -111,7 +111,9 @@ function setMember(style_id) {
     addAttackList(style_info, chara_no);
     addBuffList(style_info, chara_no);
     addAbility(style_info, chara_no);
-    $("#attack_list").trigger("change");
+    if (isTrigger) {
+        $("#attack_list").trigger("change");
+    }
 }
 
 // メンバーを外す
@@ -140,9 +142,10 @@ function loadTroopsList(troops_no) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${j}`);
         if (style_id !== null) {
             chara_no = j;
-            setMember(Number(style_id));
+            setMember(Number(style_id), false);
         }
     }
+    $("#attack_list").trigger("change");
 }
 
 // スタイルリセット

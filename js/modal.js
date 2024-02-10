@@ -20,7 +20,7 @@ function addModalEvent() {
     // モーダルを開く
     $('.showmodal').on('click', function() {
         chara_no = $(this).data("chara_no");
-        $('.modal_layer').addClass('isShow');
+        MicroModal.show('modal_style_section');
     });
 
     let narrow = {"physical": "", "element": "", "role": "" };
@@ -67,17 +67,12 @@ function addModalEvent() {
         removeMember();
         closeModel();
     });
-
-    // モーダルを閉じる
-    $('.modal_layer_mask').on('click', function() {
-        closeModel();
-    });
 }
 
 // モーダルを閉じる
 function closeModel() {
     chara_no = 0;
-    $('.modal_layer').removeClass('isShow');
+    MicroModal.close('modal_style_section');
 }
 
 // メンバーを設定する。

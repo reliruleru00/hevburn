@@ -644,76 +644,76 @@
       </div>
     </div>  
   </div>
-  <div class="modal_layer">
-    <div class="modal_layer_mask"></div>
-    <div class="modal_layer_inner">
-      <div class="modal_section">
-        <div class="modal_inner">
-          <div class="modal_inner_headline">
-            <div class="flex justify-center leading-10">
-              <div>スタイル選択</div>
-              <input type="button" id="calc" href="javascript:void(0)" class="remove_btn text-center absolute right-1" value="外す">
+  <div class="modal micromodal-slide" id="modal_style_section" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container_style" role="dialog" aria-modal="true" aria-labelledby="modal_section">
+        <div class="modal_section">
+          <div class="modal_inner">
+            <div class="modal_inner_headline">
+              <div class="flex leading-10">
+                <div class="mx-auto pl-16">スタイル選択</div>
+                <input type="button" id="calc" href="javascript:void(0)" class="remove_btn text-center mr-2" value="外す">
+              </div>
             </div>
-          </div>
-          <hr class="line"/>
-          <div class="flex">
-            <div class="w-8"></div>
-            <input type="image" class="narrow physical" id="physical_1" src="img/slash.webp" data-select="1">
-            <input type="image" class="narrow physical" id="physical_2" src="img/stab.webp" data-select="1">
-            <input type="image" class="narrow physical" id="physical_3" src="img/strike.webp" data-select="1">
-            <div class="w-12"></div>
-            <input type="image" class="narrow element" id="element_0" src="img/none.webp" data-select="1">
-            <input type="image" class="narrow element" id="element_1" src="img/fire.webp" data-select="1">
-            <input type="image" class="narrow element" id="element_2" src="img/ice.webp" data-select="1">
-            <input type="image" class="narrow element" id="element_3" src="img/thunder.webp" data-select="1">
-            <input type="image" class="narrow element" id="element_4" src="img/light.webp" data-select="1">
-            <input type="image" class="narrow element" id="element_5" src="img/dark.webp" data-select="1">
-          </div>
-          <div class="flex flex-wrap">
-            <input type="button" class="narrow role" id="role_1" value="ATTACKER" data-select="1">
-            <input type="button" class="narrow role" id="role_2" value="BREAKER" data-select="1">
-            <input type="button" class="narrow role" id="role_3" value="BLASTER" data-select="1">
-            <input type="button" class="narrow role" id="role_4" value="HEALER" data-select="1">
-            <input type="button" class="narrow role" id="role_5" value="BUFFER" data-select="1">
-            <input type="button" class="narrow role" id="role_6" value="DEBUFFER" data-select="1">
-            <input type="button" class="narrow role" id="role_7" value="DEFENDER" data-select="1">
-          </div>
-          <div class="search_result_area">
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31a.webp">
-              <div id="sytle_list_31A" class="grid grid-cols-8 troops_31A"></div>
+            <hr class="line"/>
+            <div class="narrow_element flex mx-auto">
+              <input type="image" class="narrow physical" id="physical_1" src="img/slash.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_2" src="img/stab.webp" data-select="1">
+              <input type="image" class="narrow physical" id="physical_3" src="img/strike.webp" data-select="1">
+              <div class="w-12"></div>
+              <input type="image" class="narrow element" id="element_0" src="img/none.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_1" src="img/fire.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_2" src="img/ice.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_3" src="img/thunder.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_4" src="img/light.webp" data-select="1">
+              <input type="image" class="narrow element" id="element_5" src="img/dark.webp" data-select="1">
             </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31b.webp">
-              <div id="sytle_list_31B" class="grid grid-cols-8 troops_31B"></div>
+            <div class="flex flex-wrap ml-2">
+              <input type="button" class="narrow role" id="role_1" value="ATTACKER" data-select="1">
+              <input type="button" class="narrow role" id="role_2" value="BREAKER" data-select="1">
+              <input type="button" class="narrow role" id="role_3" value="BLASTER" data-select="1">
+              <input type="button" class="narrow role" id="role_4" value="HEALER" data-select="1">
+              <input type="button" class="narrow role" id="role_5" value="BUFFER" data-select="1">
+              <input type="button" class="narrow role" id="role_6" value="DEBUFFER" data-select="1">
+              <input type="button" class="narrow role" id="role_7" value="DEFENDER" data-select="1">
             </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31c.webp">
-              <div id="sytle_list_31C" class="grid grid-cols-8 troops_31C"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31d.webp">
-              <div id="sytle_list_31D" class="grid grid-cols-8 troops_31D"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31e.webp">
-              <div id="sytle_list_31E" class="grid grid-cols-8 troops_31E"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31f.webp">
-              <div id="sytle_list_31F" class="grid grid-cols-8 troops_31F"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/31x.webp">
-              <div id="sytle_list_31X" class="grid grid-cols-8 troops_31X"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/30g.webp">
-              <div id="sytle_list_30G" class="grid grid-cols-8 troops_30G"></div>
-            </div>
-            <div class="troops">
-              <input type="image" class="emblem" src="img/angelbeats.webp">
-              <div id="sytle_list_AB" class="grid grid-cols-8  troops_AB"></div>
+            <div class="search_result_area">
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31a.webp">
+                <div id="sytle_list_31A" class="flex flex-wrap troops_31A"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31b.webp">
+                <div id="sytle_list_31B" class="flex flex-wrap troops_31B"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31c.webp">
+                <div id="sytle_list_31C" class="flex flex-wrap troops_31C"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31d.webp">
+                <div id="sytle_list_31D" class="flex flex-wrap troops_31D"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31e.webp">
+                <div id="sytle_list_31E" class="flex flex-wrap troops_31E"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31f.webp">
+                <div id="sytle_list_31F" class="flex flex-wrap troops_31F"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/31x.webp">
+                <div id="sytle_list_31X" class="flex flex-wrap troops_31X"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/30g.webp">
+                <div id="sytle_list_30G" class="flex flex-wrap troops_30G"></div>
+              </div>
+              <div class="troops">
+                <input type="image" class="emblem" src="img/angelbeats.webp">
+                <div id="sytle_list_AB" class="flex flex-wrap  troops_AB"></div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,18 +1,28 @@
 /* ---------------------------- */
 /* --- ModalSection --- */
 /* ---------------------------- */
-.modal__container_style {
+.container_style {
   border-top: 5px solid #5bc8ac;
   max-width: 600px;
   height: 90%;
   overflow-y: hidden;
 }
 
+.container_damage {
+  background-color: #fff;
+  padding: 30px;
+  max-width: 500px;
+  max-height: calc(100svh - 50px);
+  border-radius: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
 @media screen and (max-width: 768px) {
   .modal_layer_mask {
     height: 150vh;
   }
-  .modal__container_style {
+  .container_style {
     height: calc(100svh - 100px);
   }
 }
@@ -83,7 +93,7 @@ hr.line {
   }
   input.remove_btn {
     width: 50px;
-    height: 28px;
+    height: 40px;
     line-height: 28px;
     font-size: 1rem;
     color: #fff;

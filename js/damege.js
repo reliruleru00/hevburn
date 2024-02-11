@@ -807,6 +807,7 @@ function addBuffList(member_info) {
                 addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, false);
                 return;
             case 0: // 攻撃アップ
+            case 12: // 破壊率アップ
                 only_one = "only_one";
                 break;
             case 1: // 属性攻撃アップ
@@ -1021,6 +1022,7 @@ function getEffectSize(buff_kind, buff_id, member_info, skill_lv) {
         case 7:	// クリティカルダメージアップ
         case 9:	// 属性クリティカルダメージアップ
         case 10: // チャージ
+        case 12: // 破壊率アップ
             effect_size = getBuffEffectSize(buff_id, member_info, skill_lv, "3");
             break;
         case 6:	// クリティカル率アップ
@@ -1291,11 +1293,8 @@ function getSumAbilityEffectSize(ability_kind) {
 // 破壊率アップ効果量取得
 function getDestructionEffectSize() {
     let destruction_effect_size = 100;
-    let attack_info = getAttackInfo();
-    // 暫定：純愛アンビシャス(+)のみ+50%
-    if (attack_info.attack_id == 42 || attack_info.attack_id == 94) {
-        destruction_effect_size += 50;
-    }
+    destruction_effect_size += getSumEffectSize("destruction_rete_up");
+    destruction_effect_size += getSumAbilityEffectSize(10);
     let grade_sum = getGradeSum();
     destruction_effect_size -= grade_sum.destruction;
     return destruction_effect_size;

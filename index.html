@@ -38,6 +38,7 @@
     var chara_no;
     var select_troops = localStorage.getItem('select_troops');
     var select_style_list = [0, 0, 0, 0, 0, 0];
+    var sub_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
     var type_physical = ["", "slash", "stab", "strike"];
     var type_element = ["none", "fire", "ice", "thunder", "light", "dark"];
@@ -280,6 +281,29 @@
             </span>
             <div id="half_content_1"></div>
             <div id="half_content_2"></div>
+          </div>
+        </div>
+        <div class="sub_party">
+          <div class="flex ml-0 mt-2">
+            <label class="mt-3">他部隊選択</label>
+            <select id="sub_troops" class="mt-3">
+              <option value="-1" selected>なし</option>
+              <option value="0">部隊0</option>
+              <option value="1">部隊1</option>
+              <option value="2">部隊2</option>
+              <option value="3">部隊3</option>
+              <option value="4">部隊4</option>
+              <option value="5">部隊5</option>
+              <option value="6">部隊6</option>
+              <option value="7">部隊7</option>
+              <option value="8">部隊8</option>
+            </select>
+            <div id="sub_chara_container_0"><img class="sub_style" id="sub_chara_0" src="img/cross.png" data-chara_no="0"></div>
+            <div id="sub_chara_container_1"><img class="sub_style" id="sub_chara_1" src="img/cross.png" data-chara_no="1"></div>
+            <div id="sub_chara_container_2"><img class="sub_style" id="sub_chara_2" src="img/cross.png" data-chara_no="2"></div>
+            <div id="sub_chara_container_3"><img class="sub_style" id="sub_chara_3" src="img/cross.png" data-chara_no="3"></div>
+            <div id="sub_chara_container_4"><img class="sub_style" id="sub_chara_4" src="img/cross.png" data-chara_no="4"></div>
+            <div id="sub_chara_container_5"><img class="sub_style" id="sub_chara_5" src="img/cross.png" data-chara_no="5"></div>
           </div>
         </div>
         <div class="enemy_status mx-auto mt-2">

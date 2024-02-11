@@ -278,6 +278,10 @@ function setEventTrigger() {
     $("input[name=rule_tab]").on("change", function(event) {
         updateGrade();
     });
+    // サブパーティ変更
+    $("#sub_troops").on("change", function(event) {
+        loadSubTroopsList($(this).val());
+    });
     // ステータス保存
     $(".save").on("change", function(event) {
       if (navigator.cookieEnabled) {
@@ -342,6 +346,7 @@ function setEventTrigger() {
         calcDamage();
     });
 }
+
 class RestGauge {
     constructor() {
         this.min_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
@@ -1270,6 +1275,14 @@ function createEnemyList(enemy_class) {
         $(".score_attack").css("display", "block");
     } else {
         $(".score_attack").css("display", "none");
+    }
+    if (enemy_class == 1) {
+        // 異時層の場合、サブパーティを表示する。
+        $(".sub_party").css("display", "block");
+        sub_style_list = [0, 0, 0, 0, 0, 0];
+        $("#sub_troops").val(-1);
+    } else {
+        $(".sub_party").css("display", "none");
     }
     setEnemyStatus();
 }

@@ -827,8 +827,8 @@ function addBuffList(member_info) {
         switch (value.buff_kind) {
             case 3: // 防御ダウン
             case 4: // 属性防御ダウン
+            case 5: // 脆弱
             case 11: // 属性フィールド
-            case 15: // 脆弱
             case 19: // DP防御ダウン
             case 20: // 耐性ダウン
             case 21: // 永続防御ダウン

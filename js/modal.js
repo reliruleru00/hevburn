@@ -1,7 +1,7 @@
 class Member {
     constructor() {
         this.style_info = null;
-        this.select_chara = false;
+        this.is_select = false;
         this.chara_no = -1;
         this.str = 0;
         this.dex = 0;
@@ -107,7 +107,7 @@ function setMember(select_chara_no, style_id, isTrigger) {
     
     // メンバー情報作成
     let member_info = new Member();
-    member_info.select_chara = true;
+    member_info.is_select = true;
     member_info.chara_no = Number(select_chara_no);
     member_info.style_info = style_info;
  
@@ -175,10 +175,10 @@ function removeMember(select_chara_no) {
 
 // 部隊リストの呼び出し
 function loadTroopsList(troops_no) {
-    for (let j = 0; j < 6; j++) {
-        const style_id = localStorage.getItem(`troops_${troops_no}_${j}`);
+    for (let i = 0; i < 6; i++) {
+        const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
         if (style_id !== null) {
-            setMember(j, Number(style_id), false);
+            setMember(i, Number(style_id), false);
         }
     }
     $("#attack_list").trigger("change");
@@ -187,17 +187,15 @@ function loadTroopsList(troops_no) {
 // サブ部隊リストの呼び出し
 function loadSubTroopsList(troops_no) {
     // 既存のメンバーの情報を削除
-    for (let j = 0; j < 6; j++) {
-        $('#sub_chara_container_' + j).removeClass("ban_style");
+    for (let i = 0; i < 6; i++) {
+        removeSubMember(i);
     }
 
     // 新規メンバーの情報追加
-    for (let j = 0; j < 6; j++) {
-        const style_id = localStorage.getItem(`troops_${troops_no}_${j}`);
+    for (let i = 0; i < 6; i++) {
+        const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
         if (style_id !== null) {
-            setSubMember(j, Number(style_id));
-        } else {
-            removeSubMember(j);
+            setSubMember(i, Number(style_id));
         }
     }
     $("#attack_list").trigger("change");
@@ -208,16 +206,19 @@ function setSubMember(sub_chara_no, style_id) {
     let style_info = style_list.find((obj) => obj.style_id === style_id);
 
     let isDuplication = false;
-    // 同一のキャラIDは不許可
-    for(let idx in select_style_list) {
-        if (select_style_list[idx].chara_id === style_info.chara_id) {
+    // 同一のキャラIDがあるかどうかをチェック
+    for (let style of Object.values(select_style_list)) {
+        if (style?.style_info?.chara_id === style_info.chara_id) {
             isDuplication = true;
             break;
         }
     }
 
+    // メンバー情報作成
     let member_info = new Member();
     member_info.style_info = style_info;
+    member_info.chara_no = Number(sub_chara_no) + 10;
+
     // 画像切り替え
     $('#sub_chara_' + sub_chara_no).attr("src", "icon/" + style_info.image_url);
 
@@ -230,98 +231,42 @@ function setSubMember(sub_chara_no, style_id) {
     // ステータスを設定
     for (let j = 1; j < status_kbn.length; j++) {
         const status = localStorage.getItem(status_kbn[j] + "_" + style_info.chara_id);
-        if (status) member_info[status_kbn[j]] = status;
+        if (status) member_info[status_kbn[j]] = Number(status);
     }
-    const jewel_status = localStorage.getItem("jewel_" + style_info.chara_id);
-    if (jewel_status) member_info.jewel_status = jewel_status;
-    const limit_status = localStorage.getItem("limit_" + style_info.chara_id);
-    if (limit_status) member_info.limit_status = limit_status;
+    const jewel = localStorage.getItem("jewel_" + style_info.chara_id);
+    if (jewel) member_info.jewel_lv = Number(jewel);;
+    const limit_count = localStorage.getItem("limit_" + style_info.chara_id);
+    if (limit_count) member_info.limit_count = Number(limit_count);
 
     sub_style_list[sub_chara_no] = member_info;
 
     // デバフのみを追加
-    addSubMemberBuffList(style_info, sub_chara_no);
+    addBuffList(member_info);
+    // フィールドのみ追加
+    addAbility(member_info);
 }
 
 // メンバーを外す
 function removeSubMember(sub_chara_no) {
-    // // 入れ替えスタイルのスキルを削除
-    // let chara_id_class = ".chara_id-" + select_style_list[chara_no].chara_id;
-    // let parent = $(".include_lv " + chara_id_class + ":selected").parent();
-    // $.each(parent, function(index, value) {
-    //     // 暫定的にdisplay:none追加
-    //     $(value).find(chara_id_class).css("display", "none");
-    //     select2ndSkill($("#" + $(value).prop("id")));
-    // });
-    // // 該当メンバーのスキル削除
-    // $(chara_id_class).remove();
-    // select_style_list[chara_no] = 0;
-
     // 画像初期化
     $('#sub_chara_' + sub_chara_no).attr("src", "img/cross.png");
-}
+    $('#sub_chara_container_' + sub_chara_no).removeClass("ban_style");
 
-// サブメンバーバフリストに追加
-function addSubMemberBuffList(style, sub_chara_no) {
-    let buff_list = skill_buff.filter(obj => 
-        (obj.chara_id === style.chara_id || obj.chara_id === 0) && 
-        (obj.style_id === style.style_id || obj.style_id === 0)
-        );
-      
-    buff_list.forEach(value => {
-        let effect_size = getEffectSize(value.buff_kind, value.buff_id, sub_chara_no, value.max_lv);
-        let buff_element = 0;
-        let only_one = "";
-        
-        switch (value.buff_kind) {
-            case 11: // 属性フィールド
-                addElementField(style, value.buff_name, value.min_power, value.buff_element, value.buff_id, true);
-                return;
-            case 0:
-                only_one = "only_one";
-            break;
-            case 1: // 属性攻撃アップ
-                only_one = "only_one";
-            case 4: // 属性防御ダウン
-            case 20: // 耐性ダウン
-            case 22: // 永続属性防御ダウン
-                buff_element = value.buff_element;
-            break;
-            case 8: // 属性クリティカル率アップ
-            case 9: // 属性クリティカルダメージアップ
-                buff_element = value.buff_element;
-            case 6:
-            case 7:
-            case 16:
-            case 17:
-                only_one = "only_one";
-            break;
-        }
-        
-        let str_buff = buff_kbn[value.buff_kind];
-        if (value.skill_attack === 0) only_one = 0;
-        if (value.only_first === 1) only_one = "only_first";
-        let only_chara_id = value.only_me === 1 ? `only_chara_id-${style.chara_id}` : "public";
-        let option_text = `${chara_name[style.chara_id]}: ${value.buff_name} ${(Math.floor(effect_size * 100) / 100)}%`;
-        
-        var option = $('<option>')
-            .text(option_text)
-            .val(value.buff_id)
-            .data("select_lv", value.max_lv)
-            .data("max_lv", value.max_lv)
-            .data("chara_no", sub_chara_no)
-            .data("effect_size", effect_size)
-            .css("display", "none")
-            .addClass("buff_element-" + buff_element)
-            .addClass("buff_id-" + value.buff_id)
-            .addClass("variable_effect_size")
-            .addClass("skill_attack-" + value.skill_attack)
-            .addClass(only_chara_id)
-            .addClass(only_one)
-            .addClass("chara_id-" + style.chara_id);
-        
-        $("." + str_buff).append(option);
+    let member_info = sub_style_list[sub_chara_no]
+    if (member_info === undefined) {
+        return;
+    }
+    // 入れ替えスタイルのスキルを削除
+    let chara_id_class = ".chara_id-" + member_info.style_info.chara_id;
+    let parent = $(".include_lv " + chara_id_class + ":selected").parent();
+    $.each(parent, function(index, value) {
+        // 暫定的にdisplay:none追加
+        $(value).find(chara_id_class).css("display", "none");
+        select2ndSkill($("#" + $(value).prop("id")));
     });
+    // 該当メンバーのスキル削除
+    $(chara_id_class).remove();
+    sub_style_list[sub_chara_no] = undefined;
 }
 
 // スタイルリセット

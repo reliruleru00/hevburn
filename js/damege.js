@@ -139,8 +139,8 @@ function setEventTrigger() {
     $(".lv_effect").on("change", function(event) {
         let buff_type_id = $(this).attr("id").replace("_lv", "");
         let option = $("#" + buff_type_id + " option:selected");
-        let chara_no = option.data("chara_no");
-        let chara_id = select_style_list[chara_no].style_info.chara_id;
+        let chara_no = Number(option.data("chara_no"));
+        let chara_id = chara_no < 10 ? select_style_list[chara_no].style_info.chara_id : sub_style_list[chara_no - 10].style_info.chara_id;
         let buff_id = Number(option.val());
         let skill_lv = $(this).prop("selectedIndex") + 1;
         // バフ効果量更新
@@ -161,7 +161,7 @@ function setEventTrigger() {
         if (select_style_list[chara_no] === undefined) {
             return;
         }
-        select_style_list[chara_no].limit = limit_count;
+        select_style_list[chara_no].limit_count = limit_count;
         let chara_id_class = "chara_id-" + select_style_list[chara_no].style_info.chara_id;
         // アビリティのチェックボックスを更新
         $("input[type=checkbox]." + chara_id_class).each(function(index, value) {
@@ -178,7 +178,7 @@ function setEventTrigger() {
             updateBuffEffectSize($(value));
         });
         // アビリティ項目の表示設定
-        setAbilityDisplay(select_style_list[chara_no].limit, chara_id_class);
+        setAbilityDisplay(select_style_list[chara_no].limit_count, chara_id_class);
     });
     // 宝珠レベル変更
     $(".jewel").on("change", function(event) {
@@ -310,6 +310,10 @@ function setEventTrigger() {
         if ($(this).hasClass("selected_troops")) {
           return;
         }
+        // サブ部隊初期化
+        $("#sub_troops").val(-1);
+        loadSubTroopsList(-1);
+
         $(".selected_troops").removeClass("selected_troops");
         $(this).addClass("selected_troops");
         styleReset(false);
@@ -680,10 +684,11 @@ function renameSkill(skill_name) {
 function updateBuffEffectSize(option, skill_lv) {
     let buff_id = Number(option.val());
     skill_lv = skill_lv || Number(option.data("select_lv"));
-    let chara_no = option.data("chara_no");
+    let chara_no = Number(option.data("chara_no"));
     let skill_buff = getBuffIdToBuff(buff_id);
-    let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, select_style_list[chara_no], skill_lv);
-    let chara_id = select_style_list[chara_no].style_info.chara_id;
+    let member_info = chara_no < 10 ? select_style_list[chara_no] : sub_style_list[chara_no - 10];
+    let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, member_info, skill_lv);
+    let chara_id = member_info.style_info.chara_id;
     let effect_text = `${chara_name[chara_id]}: ${skill_buff.buff_name} ${Math.floor(effect_size * 100) / 100}%`;
     option.text(effect_text).data("effect_size", effect_size).data("select_lv", skill_lv);
 }
@@ -787,6 +792,7 @@ function addBuffList(member_info) {
         (obj.chara_id === chara_id || obj.chara_id === 0) && 
         (obj.style_id === member_info.style_info.style_id || obj.style_id === 0)
         );
+    let is_select = member_info.is_select;
       
     buff_list.forEach(value => {
         let effect_size = getEffectSize(value.buff_kind, value.buff_id, member_info, value.max_lv);
@@ -795,27 +801,30 @@ function addBuffList(member_info) {
         
         switch (value.buff_kind) {
             case 11: // 属性フィールド
-                addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, true);
+                addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, false);
                 return;
             case 0:
                 only_one = "only_one";
-            break;
+                if (!is_select) return;
+                break;
             case 1: // 属性攻撃アップ
                 only_one = "only_one";
+                if (!is_select) return;
             case 4: // 属性防御ダウン
             case 20: // 耐性ダウン
             case 22: // 永続属性防御ダウン
                 buff_element = value.buff_element;
-            break;
+                break;
             case 8: // 属性クリティカル率アップ
             case 9: // 属性クリティカルダメージアップ
                 buff_element = value.buff_element;
-            case 6:
-            case 7:
-            case 16:
-            case 17:
+            case 6: // クリ率
+            case 7: // クリダメ
+            case 16: // 連撃(小)
+            case 17: // 連撃(大)
                 only_one = "only_one";
-            break;
+                if (!is_select) return;
+                break;
         }
         
         let str_buff = buff_kbn[value.buff_kind];
@@ -883,6 +892,8 @@ function addBuffFunnel(buff_name, buff_id, chara_id, effect_size) {
 function addAbility(member_info) {
     let chara_id = member_info.style_info.chara_id;
     let ability_list = [member_info.style_info.ability0, member_info.style_info.ability1, member_info.style_info.ability3];
+    let is_select = member_info.is_select;
+
     for (let index = 0; index < ability_list.length; index++) {
         ability_id = ability_list[index];
         if (ability_id == 0 || ability_id > 1000) {
@@ -890,6 +901,10 @@ function addAbility(member_info) {
             continue;
         }
         ability_info = getAbilityInfo(ability_id);
+        if (!is_select && ability_info.ability_target) {
+            // 他部隊のアビリティはフィールドのみ許可
+            continue;
+        }
         let limit_border = index == 0 ? 0 : (index === 1 ? 1 : 3); 
         let display = "none";
 
@@ -900,7 +915,7 @@ function addAbility(member_info) {
         let element_type;
         switch (ability_info.ability_target) {
 	        case 0: // フィールド
-	            addElementField(member_info.style_info, ability_info.ability_name, ability_info.ability_power, ability_info.ability_element, 0, false);
+	            addElementField(member_info, ability_info.ability_name, ability_info.ability_power, ability_info.ability_element, 0, true);
 	            break;
 	        case 1: // 自分
 	            if (select_attack_skill && select_attack_skill.chara_id !== chara_id) {
@@ -1298,7 +1313,7 @@ function createEnemyList(enemy_class) {
     if (enemy_class == 1) {
         // 異時層の場合、サブパーティを表示する。
         $(".sub_party").css("display", "block");
-        sub_style_list = [0, 0, 0, 0, 0, 0];
+        sub_style_list = Array(6).fill(undefined);
         $("#sub_troops").val(-1);
     } else {
         $(".sub_party").css("display", "none");
@@ -1568,7 +1583,7 @@ function getBuffEffectSize(buff_id, member_info, skill_lv, target_jewel_type) {
     }
     // 機転
     let ability_id = member_info.style_info.ability3;
-    if (ability_id == 501 && member_info.limit_lv >= 3) {
+    if (ability_id == 501 && member_info.limit_count >= 3) {
         effect_size *= 1.25;
     }
     return effect_size;
@@ -1613,7 +1628,7 @@ function getDebuffEffectSize(buff_id, member_info, skill_lv) {
     }
     // 侵食
     let ability_id = member_info.style_info.ability3;
-    if (ability_id == 502 && member_info.limit_lv >= 3) {
+    if (ability_id == 502 && member_info.limit_count >= 3) {
         effect_size *= 1.25;
     }
     return effect_size;

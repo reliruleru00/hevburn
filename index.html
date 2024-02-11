@@ -37,8 +37,8 @@
   <script>
     var chara_no = -1;
     var select_troops = localStorage.getItem('select_troops');
-    var select_style_list = [undefined, undefined, undefined, undefined, undefined, undefined];
-    var sub_style_list = [0, 0, 0, 0, 0, 0];
+    var select_style_list = Array(6).fill(undefined);
+    var sub_style_list = Array(6).fill(undefined);
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
     var type_physical = ["", "slash", "stab", "strike"];
     var type_element = ["none", "fire", "ice", "thunder", "light", "dark"];

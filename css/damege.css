@@ -22,9 +22,10 @@ div.footer {
         height: calc(80px + env(safe-area-inset-bottom));
     }
     .display_area {
-        width: 505px;
+        width: 100svw;
+        min-width: 400px;
         display: block;
-    }
+    }    
 }
 
 :disabled {
@@ -114,29 +115,56 @@ select.filed {
 }
 
 .buff_area {
-    width: 615px
+    width: 615px;
 }
 .title_column {
-    width: 90px
+    width: 90px;
 }
-.type_column {
-    width: 70px
+.type1_column {
+    width: 70px;
+}
+.type2_column {
+    width: 90px;
 }
 .skill_column {
-    width: 310px
+    width: 310px;
 }
-@media screen and (max-width: 768px) {
+.skill_lv_column {
+    width: 55px;
+    max-width: 55px;
+}
+@media screen and (max-width: 615px) {
     .buff_area {
-        width: 505px
+        min-width: 400px;
+        width: 100%;
     }
     .title_column {
-        width: 60px
+        width: 10%;
     }
-    .type_column {
-        width: 40px
+    .type1_column {
+        width: 10%;
     }
-    .skill_column {
-        width: 250px
+    .type2_column {
+        width: 16.25%;
+    }
+    .skill_name_column {
+        width: calc(63.5% - 55px);
+    }
+}
+
+.enemy_select {
+    width: 430px;
+}
+.enemy_status {
+    width: 430px;
+}
+@media screen and (max-width: 430px) {
+    .enemy_select {
+        width: 400px;
+    }
+    .enemy_status {
+        width: 400px;
+        font-size: small;
     }
 }
 
@@ -159,7 +187,7 @@ img.select_style {
     width: 60px;
     margin-left: 3px;
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 482px) {
     .status_area {
         width: 402px;
     }
@@ -368,7 +396,7 @@ input[type="button"].durability_reflection {
     border-radius: 100vh;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 560px) {
     #damage_result {
         width: 360px;
         font-size: 12px;

@@ -35,9 +35,9 @@
   <script src="js/enemy.js"></script>
   <script src="js/grade.js"></script>
   <script>
-    var chara_no;
+    var chara_no = -1;
     var select_troops = localStorage.getItem('select_troops');
-    var select_style_list = [0, 0, 0, 0, 0, 0];
+    var select_style_list = [undefined, undefined, undefined, undefined, undefined, undefined];
     var sub_style_list = [0, 0, 0, 0, 0, 0];
     var status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
     var type_physical = ["", "slash", "stab", "strike"];
@@ -142,19 +142,13 @@
               <label>スタイル</label>
               <input type="button" id="style_reset_btn" value="リセット">
             </div>
-            <input type="hidden" id="jewel_type_0" value="">
-            <input type="hidden" id="jewel_type_1" value="">
-            <input type="hidden" id="jewel_type_2" value="">
-            <input type="hidden" id="jewel_type_3" value="">
-            <input type="hidden" id="jewel_type_4" value="">
-            <input type="hidden" id="jewel_type_5" value="">
           </div>
-          <img class="showmodal select_style" id="chara0" src="img/plus.png" data-chara_no="0">
-          <img class="showmodal select_style" id="chara1" src="img/plus.png" data-chara_no="1">
-          <img class="showmodal select_style" id="chara2" src="img/plus.png" data-chara_no="2">
-          <img class="showmodal select_style" id="chara3" src="img/plus.png" data-chara_no="3">
-          <img class="showmodal select_style" id="chara4" src="img/plus.png" data-chara_no="4">
-          <img class="showmodal select_style" id="chara5" src="img/plus.png" data-chara_no="5">
+          <img class="showmodal select_style" id="select_chara_0" src="img/plus.png" data-chara_no="0">
+          <img class="showmodal select_style" id="select_chara_1" src="img/plus.png" data-chara_no="1">
+          <img class="showmodal select_style" id="select_chara_2" src="img/plus.png" data-chara_no="2">
+          <img class="showmodal select_style" id="select_chara_3" src="img/plus.png" data-chara_no="3">
+          <img class="showmodal select_style" id="select_chara_4" src="img/plus.png" data-chara_no="4">
+          <img class="showmodal select_style" id="select_chara_5" src="img/plus.png" data-chara_no="5">
           <div>
 	          <label class="label_status">限界突破</label>
 	          <label class="label_status">力</label>
@@ -174,7 +168,7 @@
             <input type="number" id="mnd_0" class="status save" value="400">
             <input type="number" id="int_0" class="status effect_size save" value="400">
             <input type="number" id="luk_0" class="status effect_size save" value="400">
-            <select id="jewel_lv_0" class="jewel save"></select>
+            <select id="jewel_0" class="jewel save"></select>
             <label id="sp_cost_0">0</label>
           </div>
           <div>
@@ -185,7 +179,7 @@
             <input type="number" id="mnd_1" class="status save" value="400">
             <input type="number" id="int_1" class="status effect_size save" value="400">
             <input type="number" id="luk_1" class="status effect_size save" value="400">
-            <select id="jewel_lv_1" class="jewel save"></select>
+            <select id="jewel_1" class="jewel save"></select>
             <label id="sp_cost_1">0</label>
           </div>
           <div>
@@ -196,7 +190,7 @@
             <input type="number" id="mnd_2" class="status save" value="400">
             <input type="number" id="int_2" class="status effect_size save" value="400">
             <input type="number" id="luk_2" class="status effect_size save" value="400">
-            <select id="jewel_lv_2" class="jewel save"></select>
+            <select id="jewel_2" class="jewel save"></select>
             <label id="sp_cost_2">0</label>
           </div>
           <div>
@@ -207,7 +201,7 @@
             <input type="number" id="mnd_3" class="status save" value="400">
             <input type="number" id="int_3" class="status effect_size save" value="400">
             <input type="number" id="luk_3" class="status effect_size save" value="400">
-            <select id="jewel_lv_3" class="jewel save"></select>
+            <select id="jewel_3" class="jewel save"></select>
             <label id="sp_cost_3">0</label>
           </div>
           <div>
@@ -218,7 +212,7 @@
             <input type="number" id="mnd_4" class="status save" value="400">
             <input type="number" id="int_4" class="status effect_size save" value="400">
             <input type="number" id="luk_4" class="status effect_size save" value="400">
-            <select id="jewel_lv_4" class="jewel save"></select>
+            <select id="jewel_4" class="jewel save"></select>
             <label id="sp_cost_4">0</label>
           </div>
           <div>
@@ -229,7 +223,7 @@
             <input type="number" id="mnd_5" class="status save" value="400">
             <input type="number" id="int_5" class="status effect_size save" value="400">
             <input type="number" id="luk_5" class="status effect_size save" value="400">
-            <select id="jewel_lv_5" class="jewel save"></select>
+            <select id="jewel_5" class="jewel save"></select>
             <label id="sp_cost_5">0</label>
           </div>
         </div>

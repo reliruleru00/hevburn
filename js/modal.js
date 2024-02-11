@@ -1,3 +1,19 @@
+class Member {
+    constructor() {
+        this.style_info = null;
+        this.select_chara = false;
+        this.chara_no = -1;
+        this.str = 0;
+        this.dex = 0;
+        this.con = 0;
+        this.mnd = 0;
+        this.int = 0;
+        this.luk = 0;
+        this.jewel_lv = 0;
+        this.limit_count = 0;
+    }
+}
+
 // スタイルリスト作成
 function createStyleList() {
     $.each(style_list, function(index, value) {
@@ -57,69 +73,90 @@ function addModalEvent() {
 
     // スタイルを選択
     $('input.select_style_list').on('click', function(){
-        setMember($(this).data("style_id"), true)
+        setMember(chara_no, $(this).data("style_id"), true)
         closeModel();
     });
 
     // メンバーを外す
     $('.remove_btn').on('click', function() {
         localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
-        removeMember();
+        removeMember(chara_no);
         closeModel();
     });
 }
 
 // モーダルを閉じる
 function closeModel() {
-    chara_no = 0;
+    chara_no = -1;
     MicroModal.close('modal_style_section');
 }
 
 // メンバーを設定する。
-function setMember(style_id, isTrigger) {
+function setMember(select_chara_no, style_id, isTrigger) {
     let style_info = style_list.find((obj) => obj.style_id === style_id);
 
     // 同一のキャラIDは不許可
-    for(let idx in select_style_list) {
-        if (select_style_list[idx].chara_id === style_info.chara_id && chara_no != idx) {
+    for (let idx in select_style_list) {
+        if (idx !== select_chara_no && select_style_list[idx]?.chara_id === style_info.chara_id) {
             alert("同一キャラクターは複数選択できません");
             return false;
         }
     }
     // メンバーの情報を削除
-    removeMember();
+    removeMember(select_chara_no);
     
+    // メンバー情報作成
+    let member_info = new Member();
+    member_info.select_chara = true;
+    member_info.chara_no = Number(select_chara_no);
+    member_info.style_info = style_info;
+ 
+    localStorage.setItem(`troops_${select_troops}_${select_chara_no}`, style_id);
+
     // 画像切り替え
-    select_style_list[chara_no] = style_info;
-    localStorage.setItem(`troops_${select_troops}_${chara_no}`, style_id);
+    $('#select_chara_' + select_chara_no).attr("src", "icon/" + style_info.image_url);
 
-    $('.select_style[data-chara_no="' + chara_no + '"]').attr("src", "icon/" + style_info.image_url);
-
-    // 宝珠スキルタイプを設定
-    $("#jewel_type_" + chara_no).val(style_info.jewel_type);
     // ステータスを設定
     for (let j = 1; j < status_kbn.length; j++) {
         const status = localStorage.getItem(status_kbn[j] + "_" + style_info.chara_id);
-        if (status) $("#" + status_kbn[j] + "_" + chara_no).val(status);
+        if (status) {
+            $("#" + status_kbn[j] + "_" + select_chara_no).val(status);
+            member_info[status_kbn[j]] = Number(status);
+        }
     }
-    const jewel_status = localStorage.getItem("jewel_" + style_info.chara_id);
-    if (jewel_status) $("#jewel_" + chara_no).prop("selectedIndex", jewel_status);
-    const limit_status = localStorage.getItem("limit_" + style_info.chara_id);
-    if (limit_status) $("#limit_" + chara_no).prop("selectedIndex", limit_status);
+    const jewel = localStorage.getItem("jewel_" + style_info.chara_id);
+    if (jewel) {
+        $("#jewel_" + select_chara_no).prop("selectedIndex", jewel);
+        member_info.jewel_lv = Number(jewel);
+    } else {
+        member_info.jewel_lv = Number($("#jewel_" + select_chara_no).prop("selectedIndex"));
+    }
+    const limit_count = localStorage.getItem("limit_" + style_info.chara_id);
+    if (limit_count) {
+        $("#limit_" + select_chara_no).prop("selectedIndex", limit_count);
+        member_info.limit_count = Number(limit_count);
+    } else {
+        member_info.jewel_lv = Number($("#limit" + select_chara_no).prop("selectedIndex"));
+    }
 
     // スキル・バフ・アビリティを追加
-    addAttackList(style_info, chara_no);
-    addBuffList(style_info, chara_no);
-    addAbility(style_info, chara_no);
+    addAttackList(member_info);
+    addBuffList(member_info);
+    addAbility(member_info);
+    select_style_list[select_chara_no] = member_info;
+
     if (isTrigger) {
         $("#attack_list").trigger("change");
     }
 }
 
 // メンバーを外す
-function removeMember() {
+function removeMember(select_chara_no) {
+    if (select_style_list[select_chara_no] === undefined) {
+        return;
+    }
     // 入れ替えスタイルのスキルを削除
-    let chara_id_class = ".chara_id-" + select_style_list[chara_no].chara_id;
+    let chara_id_class = ".chara_id-" + select_style_list[select_chara_no].style_info.chara_id;
     let parent = $(".include_lv " + chara_id_class + ":selected").parent();
     $.each(parent, function(index, value) {
         // 暫定的にdisplay:none追加
@@ -128,10 +165,10 @@ function removeMember() {
     });
     // 該当メンバーのスキル削除
     $(chara_id_class).remove();
-    select_style_list[chara_no] = 0;
+    select_style_list[select_chara_no] = undefined;
 
     // 画像初期化
-    $('.select_style[data-chara_no="' + chara_no + '"]').attr("src", "img/plus.png");
+    $('#select_chara_' + select_chara_no).attr("src", "img/plus.png");
     // スキル情報編集
     $("#attack_list").trigger("change");
 }
@@ -141,55 +178,10 @@ function loadTroopsList(troops_no) {
     for (let j = 0; j < 6; j++) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${j}`);
         if (style_id !== null) {
-            chara_no = j;
-            setMember(Number(style_id), false);
+            setMember(j, Number(style_id), false);
         }
     }
     $("#attack_list").trigger("change");
-}
-
-class SubMember {
-    constructor() {
-        this.style_info = null;
-        this.jewel_type = 0;
-        this.str = 0;
-        this.dex = 0;
-        this.con = 0;
-        this.mnd = 0;
-        this.int = 0;
-        this.luk = 0;
-        this.jewel_status = 0;
-        this.limit_status = 0;
-    }
-    // 詳細反映
-    setDamageDetail() {
-        $("#detail_min_damage").val(Math.floor(this.min_damage).toLocaleString());
-        $("#detail_max_damage").val(Math.floor(this.max_damage).toLocaleString());
-        $("#detail_damage").val(Math.floor(this.avg_damage).toLocaleString());
-        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-            let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
-            let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp);
-            $("#rest_dp_rate_" + i).val(disp_rest);
-            // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
-            let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
-            // 対象の要素にスタイルを設定
-            $("#rest_dp_rate_" + i).css("background", gradientStyle);
-        }
-        let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
-        let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp);
-        $("#rest_hp_rate").val(disp_rest);
-        // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
-        let gradientStyle = generateGradientFromRange(disp_rest, "#BE71BE")
-        // 対象の要素にスタイルを設定
-        $("#rest_hp_rate").css("background", gradientStyle);
-
-        // 破壊率
-        const maxRate = Math.round(this.max_destruction_last_rate * 10) / 10;
-        const minRate = Math.round(this.min_destruction_last_rate * 10) / 10;
-        
-        const rateText = maxRate === minRate ? `${maxRate}%` : `${maxRate}%～${minRate}%`;
-        $("#detail_destruction_last_rate").text(rateText);
-    }
 }
 
 // サブ部隊リストの呼び出し
@@ -224,7 +216,7 @@ function setSubMember(sub_chara_no, style_id) {
         }
     }
 
-    let member_info = new SubMember();
+    let member_info = new Member();
     member_info.style_info = style_info;
     // 画像切り替え
     $('#sub_chara_' + sub_chara_no).attr("src", "icon/" + style_info.image_url);
@@ -235,8 +227,6 @@ function setSubMember(sub_chara_no, style_id) {
         return false;
     } 
 
-    // 宝珠スキルタイプを設定
-    member_info.jewel_type = style_info.jewel_type;
     // ステータスを設定
     for (let j = 1; j < status_kbn.length; j++) {
         const status = localStorage.getItem(status_kbn[j] + "_" + style_info.chara_id);
@@ -268,18 +258,18 @@ function removeSubMember(sub_chara_no) {
     // select_style_list[chara_no] = 0;
 
     // 画像初期化
-    $('.sub_style[data-chara_no="' + sub_chara_no + '"]').attr("src", "img/cross.png");
+    $('#sub_chara_' + sub_chara_no).attr("src", "img/cross.png");
 }
 
 // サブメンバーバフリストに追加
-function addSubMemberBuffList(style, chara_no) {
+function addSubMemberBuffList(style, sub_chara_no) {
     let buff_list = skill_buff.filter(obj => 
         (obj.chara_id === style.chara_id || obj.chara_id === 0) && 
         (obj.style_id === style.style_id || obj.style_id === 0)
         );
       
     buff_list.forEach(value => {
-        let effect_size = getEffectSize(value.buff_kind, value.buff_id, chara_no, value.max_lv);
+        let effect_size = getEffectSize(value.buff_kind, value.buff_id, sub_chara_no, value.max_lv);
         let buff_element = 0;
         let only_one = "";
         
@@ -319,7 +309,7 @@ function addSubMemberBuffList(style, chara_no) {
             .val(value.buff_id)
             .data("select_lv", value.max_lv)
             .data("max_lv", value.max_lv)
-            .data("chara_no", chara_no)
+            .data("chara_no", sub_chara_no)
             .data("effect_size", effect_size)
             .css("display", "none")
             .addClass("buff_element-" + buff_element)
@@ -334,15 +324,13 @@ function addSubMemberBuffList(style, chara_no) {
     });
 }
 
-
 // スタイルリセット
 function styleReset(isLocalStorageReset) {
     for (let i = 0; i < select_style_list.length; i++) {
         if (select_style_list[i] !== 0) {
-            chara_no = i;
-            removeMember();
+            removeMember(i);
             if (isLocalStorageReset) {
-                localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
+                localStorage.removeItem(`troops_${select_troops}_${i}`);
             }
         }
     }

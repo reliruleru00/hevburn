@@ -803,13 +803,11 @@ function addBuffList(member_info) {
             case 11: // 属性フィールド
                 addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, false);
                 return;
-            case 0:
+            case 0: // 攻撃アップ
                 only_one = "only_one";
-                if (!is_select) return;
                 break;
             case 1: // 属性攻撃アップ
                 only_one = "only_one";
-                if (!is_select) return;
             case 4: // 属性防御ダウン
             case 20: // 耐性ダウン
             case 22: // 永続属性防御ダウン
@@ -823,10 +821,20 @@ function addBuffList(member_info) {
             case 16: // 連撃(小)
             case 17: // 連撃(大)
                 only_one = "only_one";
+                break;
+        }
+        // サブメンバーは一部のみ許可
+        switch (value.buff_kind) {
+            case 3: // 防御ダウン
+            case 4: // 属性防御ダウン
+            case 11: // 属性フィールド
+            case 20: // 耐性ダウン
+            case 22: // 永続属性防御ダウン
+                break;
+            default:
                 if (!is_select) return;
                 break;
         }
-        
         let str_buff = buff_kbn[value.buff_kind];
         if (value.skill_attack === 0) only_one = 0;
         if (value.only_first === 1) only_one = "only_first";

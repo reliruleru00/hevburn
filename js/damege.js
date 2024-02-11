@@ -828,7 +828,10 @@ function addBuffList(member_info) {
             case 3: // 防御ダウン
             case 4: // 属性防御ダウン
             case 11: // 属性フィールド
+            case 15: // 脆弱
+            case 19: // DP防御ダウン
             case 20: // 耐性ダウン
+            case 21: // 永続防御ダウン
             case 22: // 永続属性防御ダウン
                 break;
             default:

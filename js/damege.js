@@ -1313,11 +1313,14 @@ function createEnemyList(enemy_class) {
     if (enemy_class == 1) {
         // 異時層の場合、サブパーティを表示する。
         $(".sub_party").css("display", "block");
-        sub_style_list = Array(6).fill(undefined);
-        $("#sub_troops").val(-1);
     } else {
         $(".sub_party").css("display", "none");
     }
+    // 既存のメンバーの情報を削除
+    for (let i = 0; i < 6; i++) {
+        removeSubMember(i);
+    }
+    $("#sub_troops").val(-1);
     setEnemyStatus();
 }
 

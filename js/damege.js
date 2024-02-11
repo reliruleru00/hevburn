@@ -692,6 +692,10 @@ function updateBuffEffectSize(option, skill_lv) {
     let chara_id = member_info.style_info.chara_id;
     let effect_text = `${chara_name[chara_id]}: ${skill_buff.buff_name} ${Math.floor(effect_size * 100) / 100}%`;
     option.text(effect_text).data("effect_size", effect_size).data("select_lv", skill_lv);
+    // 耐性が変更された場合
+    if (skill_buff.buff_kind == 20) {
+        updateEnemyResist();
+    }
 }
 
 // 弱点判定
@@ -716,14 +720,12 @@ function resetEnemyResist() {
 }
 
 // 敵耐性変更
-function updateEnemyResist(element) {
-    if (element === undefined) {
-        skill_info = getAttackInfo();
-        if (skill_info === undefined) {
-            return false
-        }
-        element = skill_info.attack_element;
+function updateEnemyResist() {
+    skill_info = getAttackInfo();
+    if (skill_info === undefined) {
+        return false
     }
+    let element = skill_info.attack_element;
     let grade_sum = getGradeSum();
     let enemy_info = getEnemyInfo();
     let resist_down = getSumEffectSize("resist_down");

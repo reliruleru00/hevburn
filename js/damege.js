@@ -38,6 +38,7 @@ function setEventTrigger() {
         }
         if (skill_info === undefined) {
             $("#attack_physical, #attack_element").attr("src", "img/blank.png");
+            $("div.footer").hide();
             // 選択無しの場合は、削除のみ
             return;
         }
@@ -495,7 +496,7 @@ function calcDamage() {
 
     // クリティカル表示
     $("#critical_rate").text(`(発生率: ${Math.round(critical_rate * 100) / 100}%)`);
-    $("footer").show();
+    $("div.footer").show();
 }
 
 // 倍率表示

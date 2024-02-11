@@ -80,7 +80,7 @@ function addModalEvent() {
     // メンバーを外す
     $('.remove_btn').on('click', function() {
         localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
-        removeMember(chara_no);
+        removeMember(chara_no, true);
         closeModel();
     });
 }
@@ -103,7 +103,7 @@ function setMember(select_chara_no, style_id, isTrigger) {
         }
     });
     // メンバーの情報を削除
-    removeMember(select_chara_no);
+    removeMember(select_chara_no, isTrigger);
     
     // メンバー情報作成
     let member_info = new Member();
@@ -151,7 +151,7 @@ function setMember(select_chara_no, style_id, isTrigger) {
 }
 
 // メンバーを外す
-function removeMember(select_chara_no) {
+function removeMember(select_chara_no, isTrigger) {
     if (select_style_list[select_chara_no] === undefined) {
         return;
     }
@@ -170,8 +170,9 @@ function removeMember(select_chara_no) {
     
     // 画像初期化
     $('#select_chara_' + select_chara_no).attr("src", "img/plus.png");
-    // スキル情報編集
-    $("#attack_list").trigger("change");
+    if (isTrigger) {
+        $("#attack_list").trigger("change");
+    }
 }
 
 // 部隊リストの呼び出し
@@ -274,10 +275,11 @@ function removeSubMember(sub_chara_no) {
 function styleReset(isLocalStorageReset) {
     $.each(select_style_list, function(index, value) {
         if (value) {
-            removeMember(index);
+            removeMember(index, false);
             if (isLocalStorageReset) {
                 localStorage.removeItem(`troops_${select_troops}_${index}`);
             }
         }
     });
+    $("#attack_list").trigger("change");
 }

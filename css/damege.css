@@ -1,7 +1,6 @@
 div.frame {
-    height: calc(100svh - 185px);
+    height: calc(100svh - 180px);
 }
-
 div.footer {
     position: fixed;
     left: 0px;
@@ -16,7 +15,7 @@ div.footer {
 }
 @media screen and (max-width: 768px) {
     div.frame {
-        height: calc(100svh - 155px);
+        height: calc(100svh - 150px);
     }
     div.footer {
         height: calc(80px + env(safe-area-inset-bottom));
@@ -25,7 +24,7 @@ div.footer {
         width: 100svw;
         min-width: 400px;
         display: block;
-    }    
+    }
 }
 
 :disabled {

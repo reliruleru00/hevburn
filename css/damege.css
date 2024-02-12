@@ -1,3 +1,4 @@
+/* 全体 */
 div.frame {
     height: calc(100svh - 180px);
 }
@@ -12,6 +13,10 @@ div.footer {
 .display_area {
     width: 1085px;
     display: flex;
+    font-size: 0.875rem;
+}
+.adjust_width {
+    width: 430px;
 }
 @media screen and (max-width: 768px) {
     div.frame {
@@ -22,15 +27,32 @@ div.footer {
     }
     .display_area {
         width: 100svw;
-        min-width: 400px;
+        min-width: 375px;
         display: block;
+        font-size: small;
+    }
+    .adjust_width {
+        width: 100%;
+        max-width: 400px;
+        min-width: 375px;
     }
 }
-
 :disabled {
     border-color: #FFF;
 }
+input[type="number"] {
+    text-align: center;
+    border: solid 1px #000;
+}
+input[type="text"]:not(:read-only) {
+    border: solid 1px #000;
+}
+select {
+    border: solid 1px #000;
+    height: 21px;
+}
 
+/* 部隊/ステータス */
 input.troops_btn {
     width: 40px;
     height: 40px;
@@ -64,21 +86,165 @@ input.troops_btn.selected_troops {
     border-radius: 100vh;
 }
 
-input[type="number"] {
+/* ステータスエリア */
+.area_title {
+    font-weight: bold;
+    margin-left: 5px;
+}
+.status_area {
+    width: 482px;
+}
+img.select_style {
+    width: 64px;
+    height: 64px;
+    margin-left: 4px;
+}
+img.sub_style {
+    width: 40px;
+    height: 40px;
+    margin-left: 2px;
+}
+.label_status {
+    line-height: 22px;
+    display: block;
+}
+
+.status,
+.limit,
+.jewel {
     text-align: center;
     width: 60px;
-    border: solid 1px #000;
+    margin-left: 3px;
+}
+@media screen and (max-width: 482px) {
+    .status_area {
+        width: 100%;
+        min-width: 375px;
+    }
+    .label_status {
+        line-height: 21px;
+        display: block;
+    }
+    img.select_style {
+        width: 48px;
+        height: 48px;
+        margin-left: 4px;
+    }
+    .status,
+    .limit,
+    .jewel {
+        text-align: center;
+        width: 50px;
+        margin-left: 3px;
+    }
+}
+/* 攻撃技 */
+#attack_list {
+    width: 64%;
+    max-width: 256px;
 }
 
-input[type="text"]:not(:read-only) {
-    border: solid 1px #000;
+#attack_physical,
+#attack_element  {
+    margin-top: -1px;
 }
 
-select {
-    border: solid 1px #000;
-    height: 21px;
+/* 敵情報 */
+.enemy_select {
+    width: 430px;
+}
+.enemy_label {
+    width: 80px;
+}
+.surround_area {
+    border: solid gray 2px;
+    border-radius: 20px;
+    padding: 5px;
+
+}
+@media screen and (max-width: 430px) {
+    .enemy_label {
+        width: 70px;
+    }
 }
 
+.enemy_weak {
+    font-weight: bold;
+    color: red;
+}
+.enemy_resist {
+    font-weight: bold;
+    color: blue;
+}
+.enemy_type_icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 4px;
+    margin-left: 5px;
+    margin-bottom: -8px;
+}
+.enemy_type_value {
+    text-align: center;
+    width: 32px;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 5px;
+}
+.selected {
+    border-radius: 10px;
+    background-color: #ffff00;
+}
+
+#enemy_destruction {
+    width: 48px;
+}
+.dp_gauge {
+    height: 22px;
+    display: flex;
+}
+.dp_range,
+.hp_range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 8px;
+    border-radius: 2rem;
+    border: 1px solid black;
+    margin-left: 5px;
+    margin-top: 6px;
+}
+.resist_area {
+    width: 95%;
+}
+@media screen and (max-width: 430px) {
+    #enemy_destruction {
+        width: 40px;
+    }
+    .dp_range,
+    .hp_range {
+        width: 100px;
+    }
+}
+
+input[type="range"].result_display::-webkit-slider-thumb {
+    display: none;
+}
+
+input[type="range"].result_display::-moz-range-thumb {
+    display: none;
+}
+
+input[type="range"].result_display::-ms-thumb {
+    display: none;
+}
+
+.gauge_rate {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    border: 0px;
+}
+
+/* バフエリア */
 table tr {
     line-height: 16px;
 }
@@ -135,8 +301,9 @@ select.filed {
 }
 @media screen and (max-width: 615px) {
     .buff_area {
-        min-width: 400px;
+        min-width: 375px;
         width: 100%;
+        font-size: small;
     }
     .title_column {
         width: 10%;
@@ -152,120 +319,6 @@ select.filed {
     }
 }
 
-.area_title {
-    font-weight: bold;
-    margin-left: 5px;
-}
-.enemy_select {
-    width: 430px;
-}
-.surround_area {
-    width: 430px;
-    border: solid gray 2px;
-    border-radius: 20px;
-    padding: 5px;
-
-}
-@media screen and (max-width: 430px) {
-    .enemy_select {
-        width: 400px;
-    }
-    .enemy_status {
-        font-size: small;
-    }
-    .surround_area {
-        width: 400px;
-    }
-}
-
-
-.status_area {
-    width: 482px;
-}
-img.select_style {
-    width: 64px;
-    height: 64px;
-    margin-left: 4px;
-}
-img.sub_style {
-    width: 40px;
-    height: 40px;
-    margin-left: 2px;
-}
-.label_status {
-    line-height: 22px;
-    display: block;
-}
-.status,
-.limit,
-.jewel {
-    text-align: center;
-    width: 60px;
-    margin-left: 3px;
-}
-@media screen and (max-width: 482px) {
-    .status_area {
-        width: 402px;
-    }
-    img.select_style {
-        width: 48px;
-        height: 48px;
-        margin-left: 4px;
-    }
-    input[type="number"] {
-        text-align: center;
-        width: 50px;
-        border: solid 1px #000;
-    }
-    .status,
-    .limit,
-    .jewel {
-        text-align: center;
-        width: 50px;
-        margin-left: 3px;
-    }
-}
-
-#attack_physical,
-#attack_element  {
-    margin-top: -1px;
-}
-
-.dp_gauge {
-    height: 22px;
-    display: flex;
-}
-.dp_range,
-.hp_range {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 120px;
-    height: 8px;
-    border-radius: 2rem;
-    border: 1px solid black;
-    margin-left: 5px;
-    margin-top: 6px;
-}
-
-input[type="range"].result_display::-webkit-slider-thumb {
-    display: none;
-}
-
-input[type="range"].result_display::-moz-range-thumb {
-    display: none;
-}
-
-input[type="range"].result_display::-ms-thumb {
-    display: none;
-}
-
-.gauge_rate {
-    display: inline-block;
-    width: 40px;
-    text-align: right;
-    border: 0px;
-}
-
 div.lv {
     display: none;
 }
@@ -278,39 +331,6 @@ div.lv select{
     height: 21px;
 }
 
-input.calc_btn {
-    width: 100px;
-    font-size: 20px;
-    color: #fff;
-    background: #149f14;
-    border-radius: 100vh;
-}
-
-.enemy_weak {
-    font-weight: bold;
-    color: red;
-}
-.enemy_resist {
-    font-weight: bold;
-    color: blue;
-}
-.enemy_type_icon {
-    width: 32px;
-    height: 32px;
-    margin-top: 4px;
-    margin-left: 5px;
-    margin-bottom: -8px;
-}
-.enemy_type_value {
-    text-align: center;
-    width: 32px;
-    background-color: rgba(0, 0, 0, 0);
-    margin-left: 5px;
-}
-.selected {
-    border-radius: 10px;
-    background-color: #ffff00;
-}
 /* ステータスの色　*/
 .status_attack_skill,
 .status_power_up1,
@@ -347,6 +367,7 @@ input.calc_btn {
     background-color: rgba(255, 0, 0, 0.3)
 }
 
+/* ダメージ詳細 */
 #damage_result {
     margin-top: -15px;
     width: 560px;
@@ -498,8 +519,9 @@ input[type=checkbox]:disabled + .checkbox01 {
 	cursor: default;
 }
 
+/* スコアアタック */
 .score_attack {
-    width: 400px;
+    width: 90%;
 }
 #score_turn {
     margin-left: 20px;
@@ -524,12 +546,10 @@ input[type=checkbox]:disabled + .checkbox01 {
 #half_tab_1:checked ~ #half_content_1 { display: block; }
 #half_tab_2:checked ~ #half_content_2 { display: block; }
 
-.sub_party {
-    width: 400px;
-}
+/* 異時層 */
 .ban_style {
     position: relative;
-  }
+}
 .ban_style::after {
     content: "";
     position: absolute;

@@ -23,8 +23,7 @@ a.header_link {
 }
 
 .logo {
-    font-size: 40px;
-    font-weight: 700;
+    height: 50px;
 }
 
 .hamburger .btn-gNav {

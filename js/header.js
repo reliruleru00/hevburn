@@ -10,7 +10,7 @@ $(function(){
         ui.append($('<li>').append($('<a>', {class: 'header_link', href: element.url, text: element.title})));
     });
     let headerHTML = $('<div>', {class: 'hamburger'})
-        .append($('<div>', {class: 'logo', text: 'LOGO'}))
+        .append($('<img>', {class: 'logo', src: 'img/title_log.webp'}))
         .append($('<p>', {class: 'btn-gNav'})
             .append($('<span>'))
             .append($('<span>'))

@@ -300,7 +300,8 @@
             <div id="sub_chara_container_5"><img class="sub_style" id="sub_chara_5" src="img/cross.png" data-chara_no="5"></div>
           </div>
         </div>
-        <div class="enemy_status mx-auto mt-2">
+        <div class="enemy_status surround_area mx-auto mt-2">
+          <label class="area_title">敵情報</label>
           <div class="flex">
             <div class="grid grid-cols-2 gap-1 w-40 h-16">
               <div class="text-right">能力値</div><input type="text" id="enemy_stat" value="" readonly class="w-12 text-right">
@@ -346,18 +347,69 @@
               </div>
             </div>
           </div>
+          <div class="w-96 mx-auto mt-2">
+            <div class="grid grid-cols-9">
+              <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text" id="enemy_physical_1" class="enemy_type_value" readonly></div>
+              <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text" id="enemy_physical_2" class="enemy_type_value" readonly></div>
+              <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text" id="enemy_physical_3" class="enemy_type_value" readonly></div>
+              <div class="none"><input type="image" class="enemy_type_icon" src="img/none.webp"><input type="text" id="enemy_element_0" class="enemy_type_value" readonly></div>
+              <div class="fire"><input type="image" class="enemy_type_icon" src="img/fire.webp"><input type="text" id="enemy_element_1" class="enemy_type_value" readonly></div>
+              <div class="ice"><input type="image" class="enemy_type_icon" src="img/ice.webp"><input type="text" id="enemy_element_2" class="enemy_type_value" readonly></div>
+              <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text" id="enemy_element_3" class="enemy_type_value" readonly></div>
+              <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text" id="enemy_element_4" class="enemy_type_value" readonly></div>
+              <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text" id="enemy_element_5" class="enemy_type_value" readonly></div>
+            </div>
+          </div>
         </div>
-        <div class="w-96 mx-auto my-2">
-          <div class="grid grid-cols-9">
-            <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text" id="enemy_physical_1" class="enemy_type_value" readonly></div>
-            <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text" id="enemy_physical_2" class="enemy_type_value" readonly></div>
-            <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text" id="enemy_physical_3" class="enemy_type_value" readonly></div>
-            <div class="none"><input type="image" class="enemy_type_icon" src="img/none.webp"><input type="text" id="enemy_element_0" class="enemy_type_value" readonly></div>
-            <div class="fire"><input type="image" class="enemy_type_icon" src="img/fire.webp"><input type="text" id="enemy_element_1" class="enemy_type_value" readonly></div>
-            <div class="ice"><input type="image" class="enemy_type_icon" src="img/ice.webp"><input type="text" id="enemy_element_2" class="enemy_type_value" readonly></div>
-            <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text" id="enemy_element_3" class="enemy_type_value" readonly></div>
-            <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text" id="enemy_element_4" class="enemy_type_value" readonly></div>
-            <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text" id="enemy_element_5" class="enemy_type_value" readonly></div>
+        <div class="surround_area mx-auto my-2">
+          <label class="area_title">他設定</label>
+          <div class="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
+            <div class="flex">
+              <div class="pt-0.5">属性リング</div>
+              <select id="elememt_ring" disabled>
+               <option value="0">無し</option>
+               <option value="2">+0(2%)</option>
+               <option value="4">+1(4%)</option>
+               <option value="6">+2(6%)</option>
+               <option value="8">+3(8%)</option>
+               <option value="10">+4(10%)</option>
+              </select>
+            </div>
+            <div class="flex">
+              <div class="pt-0.5">ピアス</div>
+              <select id="earring">
+                <option value="0">選択無し</option>
+                <option value="1" data-effect_size="10" data-type="attack">アタック10%</option>
+                <option value="2" data-effect_size="12" data-type="attack">アタック12%</option>
+                <option value="3" data-effect_size="15" data-type="attack">アタック15%</option>
+                <option value="4" data-effect_size="10" data-type="break">ブレイク10%</option>
+                <option value="5" data-effect_size="12" data-type="break">ブレイク12%</option>
+                <option value="6" data-effect_size="15" data-type="break">ブレイク15%</option>
+                <option value="7" data-effect_size="10" data-type="blast">ブラスト10%</option>
+                <option value="8" data-effect_size="12" data-type="blast">ブラスト12%</option>
+                <option value="9" data-effect_size="15" data-type="blast">ブラスト15%</option>
+              </select>
+            </div>
+            <div class="flex">
+              <div class="pt-0.5">トークン数</div>
+              <select id="token_count" class="token">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+            <input type="checkbox" id="overdrive"><label class="checkbox01" for="overdrive">オーバードライブ</label>
+            <input type="checkbox" id="fightingspirit" class="ml-3 pt-0.5"><label class="checkbox01" for="fightingspirit">闘志</label>
+            <input type="checkbox" id="misfortune" class="ml-3 pt-0.5"><label class="checkbox01" for="misfortune">厄</label>
+            <input type="checkbox" id="strong_break" class="ml-3 pt-0.5"><label class="checkbox01" for="strong_break">強ブレイク</label>
           </div>
         </div>
       </div>
@@ -563,59 +615,6 @@
             <tr>
               <td>全体</td>
               <td colspan="3" id="ability_all" class="text-left"></td>
-            </tr>
-            <tr>
-              <td class="kind">その他</td>
-              <td colspan="4" >
-                <div class="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
-                  <div class="flex">
-                    <div class="pt-0.5">属性リング</div>
-                    <select id="elememt_ring" disabled>
-                     <option value="0">無し</option>
-                     <option value="2">+0(2%)</option>
-                     <option value="4">+1(4%)</option>
-                     <option value="6">+2(6%)</option>
-                     <option value="8">+3(8%)</option>
-                     <option value="10">+4(10%)</option>
-                    </select>
-                  </div>
-                  <div class="flex">
-                    <div class="pt-0.5">ピアス</div>
-                    <select id="earring">
-                      <option value="0">選択無し</option>
-                      <option value="1" data-effect_size="10" data-type="attack">アタック10%</option>
-                      <option value="2" data-effect_size="12" data-type="attack">アタック12%</option>
-                      <option value="3" data-effect_size="15" data-type="attack">アタック15%</option>
-                      <option value="4" data-effect_size="10" data-type="break">ブレイク10%</option>
-                      <option value="5" data-effect_size="12" data-type="break">ブレイク12%</option>
-                      <option value="6" data-effect_size="15" data-type="break">ブレイク15%</option>
-                      <option value="7" data-effect_size="10" data-type="blast">ブラスト10%</option>
-                      <option value="8" data-effect_size="12" data-type="blast">ブラスト12%</option>
-                      <option value="9" data-effect_size="15" data-type="blast">ブラスト15%</option>
-                    </select>
-                  </div>
-                  <div class="flex">
-                    <div class="pt-0.5">トークン数</div>
-                    <select id="token_count" class="token">
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="6">6</option>
-                      <option value="7">7</option>
-                      <option value="8">8</option>
-                      <option value="9">9</option>
-                      <option value="10">10</option>
-                    </select>
-                  </div>
-                  <input type="checkbox" id="overdrive"><label class="checkbox01" for="overdrive">オーバードライブ</label>
-                  <input type="checkbox" id="fightingspirit" class="ml-3 pt-0.5"><label class="checkbox01" for="fightingspirit">闘志</label>
-                  <input type="checkbox" id="misfortune" class="ml-3 pt-0.5"><label class="checkbox01" for="misfortune">厄</label>
-                  <input type="checkbox" id="strong_break" class="ml-3 pt-0.5"><label class="checkbox01" for="strong_break">強ブレイク</label>
-                </div>
-              </td>
             </tr>
           </table>
         </div>

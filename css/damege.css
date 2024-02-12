@@ -152,21 +152,32 @@ select.filed {
     }
 }
 
+.area_title {
+    font-weight: bold;
+    margin-left: 5px;
+}
 .enemy_select {
     width: 430px;
 }
-.enemy_status {
+.surround_area {
     width: 430px;
+    border: solid gray 2px;
+    border-radius: 20px;
+    padding: 5px;
+
 }
 @media screen and (max-width: 430px) {
     .enemy_select {
         width: 400px;
     }
     .enemy_status {
-        width: 400px;
         font-size: small;
     }
+    .surround_area {
+        width: 400px;
+    }
 }
+
 
 .status_area {
     width: 482px;

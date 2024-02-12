@@ -113,6 +113,12 @@ function setEventTrigger() {
                     return;
                 }
             }
+            if (isOnlyUse(option)) {
+                if (!confirm(option.text() + "は\r\n通常、他スキルに設定出来ませんが、設定してよろしいですか？")) {
+                    $(this).prop("selectedIndex", 0);
+                    return;
+                }
+            }
             let select_lv = option.data("select_lv");
             if (select_lv !== undefined) {
                 let skill_info = getBuffIdToBuff(Number(option.val()));
@@ -358,6 +364,13 @@ function setEventTrigger() {
         calcDamage();
     });
     // ダメージ再計算
+    $("input[type=range]").on("mouseup", function(event) {
+        calcDamage();
+        if (!$(this).data("changed")) {
+            // changeイベントのデフォルト動作を防止
+            event.preventDefault();
+        }
+    });
     $(document).on("change", "input, select", function(event) {
         calcDamage();
     });
@@ -1076,6 +1089,10 @@ function select2ndSkill(select) {
                 $(option).prop("selected", false);
                 continue;
             }
+            if (isOnlyUse($(option))) {
+                $(option).prop("selected", false);
+                continue;
+            }
             if (buff_id == 0) {
                 // アビリティ
                 break;
@@ -1106,6 +1123,27 @@ function isOnlyBuff(option) {
             let buff_id = "buff_id-" + option.val();
             if ($("." + class_name +" option." + buff_id + ":selected").length > 1) {
                 return true;
+            }
+        }
+    }
+    return false;
+}
+
+// 他スキルに使用出来ない攻撃バフ
+function isOnlyUse(option) {
+    if (option.hasClass("only_one") && select_attack_skill !== undefined) {
+        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+            var attack_id = select_attack_skill.attack_id;
+            var class_list = option.attr("class").split(" ");
+            
+            for (var i = 0; i < class_list.length; i++) {
+                var class_name = class_list[i];
+                if (class_name.startsWith("skill_attack-")) {
+                    var partial_class = class_name.replace("skill_attack-", "");
+                    if (attack_id != Number(partial_class)) {
+                        return true;
+                    }
+                }
             }
         }
     }

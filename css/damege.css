@@ -152,6 +152,16 @@ img.sub_style {
 .enemy_label {
     width: 80px;
 }
+#enemy_select_label {
+    width: 50px;;
+}
+#enemy_class {
+    width: 120px;;
+}
+#enemy_list {
+    min-width: 200px;
+    max-width: 260px;
+}
 .surround_area {
     border: solid gray 2px;
     border-radius: 20px;
@@ -162,8 +172,11 @@ img.sub_style {
     .enemy_label {
         width: 70px;
     }
+    #enemy_class {
+        width: 110px;;
+    }
     #enemy_list {
-        max-width: 220px;
+        max-width: 240px;
     }
 }
 

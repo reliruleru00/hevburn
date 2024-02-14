@@ -311,10 +311,13 @@ select.filed {
     width: 55px;
     max-width: 55px;
 }
+.sp_only {
+    display: none;
+}
 @media screen and (max-width: 615px) {
     .buff_area {
-        min-width: 375px;
-        width: 100%;
+        min-width: 365px;
+        width: 95%;
         font-size: small;
     }
     .title_column {
@@ -328,6 +331,12 @@ select.filed {
     }
     .skill_name_column {
         width: calc(63.5% - 55px);
+    }
+    .pc_only {
+        display: none!important;
+    }
+    tr.sp_only {
+        display: table-row;
     }
 }
 

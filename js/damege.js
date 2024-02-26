@@ -1143,7 +1143,7 @@ function isOnlyUse(option) {
                 var class_name = class_list[i];
                 if (class_name.startsWith("skill_attack-")) {
                     var partial_class = class_name.replace("skill_attack-", "");
-                    if (Number(partial_class) != 0 && attack_id != Number(partial_class)) {
+                    if (Number(partial_class) != 0 && Number(partial_class) != 999 && attack_id != Number(partial_class)) {
                         return true;
                     }
                 }

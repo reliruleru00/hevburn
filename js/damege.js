@@ -133,6 +133,9 @@ function setEventTrigger() {
     $(".resist_down").on("change", function(event) {
         updateEnemyResist();
     });
+    $(".enemy_type_value").on("change", function(event) {
+        updateEnemyResist();
+    });
     // チャージ変更
     $("#charge").on("change", function(event) {
         let selected_index = $(this).prop("selectedIndex");
@@ -235,8 +238,20 @@ function setEventTrigger() {
             return;
         }
     });
+    // 破壊率上限変更
+    $("#enemy_destruction_limit").on("change", function(event) {
+        let destructionValue = Number($("#enemy_destruction_rate").val());
+        let maxDestruction = Number($(this).val());
+        if (maxDestruction <= 100) {
+            $(this).val(100);
+            maxDestruction = 100;
+        } 
+        if (maxDestruction < destructionValue) {
+            $("#enemy_destruction_rate").val(maxDestruction);
+        }
+    });
     // 破壊率変更
-    $("#enemy_destruction").on("change", function(event) {
+    $("#enemy_destruction_rate").on("change", function(event) {
         let destructionValue = Number($(this).val());
         if (destructionValue <= 100) {
             $(this).val(100);
@@ -253,7 +268,7 @@ function setEventTrigger() {
     });
     // 残りDP変更
     $(".dp_range").on("input", function(event) {
-        $("#enemy_destruction").val(100);
+        $("#enemy_destruction_rate").val(100);
         let dp_no = Number($(this).prop("id").replace(/\D/g, ''));
         setDpGarge(dp_no, $(this).val())
         if ($(this).val() == 0 && dp_no == 0) {
@@ -285,7 +300,7 @@ function setEventTrigger() {
         let enemy_info = getEnemyInfo();
         let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
         $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
-        $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
+        $("#enemy_destruction_rate").val(enemy_info.destruction_limit+ strong_break);
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
             setDpGarge(i, 0);
         }
@@ -338,9 +353,13 @@ function setEventTrigger() {
     $(".open_detail").on("click", function(event) {
         if ($(this).attr("id") == "modal_damage_detail_open1") {
             open_damage_detail = critical_detail;
+            $("#skill_power").hide();
+            $("#skill_power_critical").show();
             $("#magnification_critical").show();
         } else {
             open_damage_detail = damage_detail;
+            $("#skill_power").show();
+            $("#skill_power_critical").hide();
             $("#magnification_critical").hide();
         }
         open_damage_detail.setDamageDetail();
@@ -357,7 +376,7 @@ function setEventTrigger() {
         }
         let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
         setHpGarge(Math.ceil((open_damage_detail.avg_rest_hp / enemy_hp) * 100));
-        $("#enemy_destruction").val(Math.floor(open_damage_detail.avg_destruction_last_rate));
+        $("#enemy_destruction_rate").val(Math.floor(open_damage_detail.avg_destruction_last_rate));
 
         MicroModal.close('modal_damage_detail');
         // 自動選択外す
@@ -470,7 +489,7 @@ function calcDamage() {
     let weak_element = $("#enemy_element_" + skill_info.attack_element).val() / 100;
     let enemy_defence_rate = 1 - grade_sum.defense_rate / 100;
     let funnel_sum = 1 + getSumFunnelEffectList().reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
-    let destruction_rate = Number($("#enemy_destruction").val());
+    let destruction_rate = Number($("#enemy_destruction_rate").val());
     let special = 1 + Number($("#dp_range_0").val() == 0 ? skill_info.hp_damege / 100 : skill_info.dp_damege / 100);
     // 残DP補正(暫定)
     let dp_correction_rate = 1;
@@ -496,6 +515,7 @@ function calcDamage() {
     calculateDamage(critical_power * 1.1, skill_info, buff, debuff, fixed * critical_buff, "#critical_damage_max", undefined, critical_detail);
 	
     $("#skill_power").val((Math.floor(basePower * 100) / 100).toFixed(2));
+    $("#skill_power_critical").val((Math.floor(critical_power * 100) / 100).toFixed(2));
     $("#mag_buff").val(convertToPercentage(buff));
     $("#mag_debuff").val(convertToPercentage(debuff));
     $("#mag_element_field").val(convertToPercentage(element_field));
@@ -523,8 +543,9 @@ function convertToPercentage(value) {
 
 // ダメージの詳細計算
 function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruction_id, rest_damage) {
-    let destruction_rate = Number($("#enemy_destruction").val());
+    let destruction_rate = Number($("#enemy_destruction_rate").val());
     let max_destruction_rate = Number($("#enemy_destruction_limit").val());
+    let enemy_destruction = Number($("#enemy_destruction").val());
     let dp_penetration = Number($("#dp_range_1").val())== 0;
     let rest_dp = Array(DP_GAUGE_COUNT).fill(0);
     let dp_no = -1;  // 現在の使用DPゲージ番号を取得
@@ -535,8 +556,6 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
         }
     }
     let rest_hp = Number($("#enemy_hp").val().replace(/,/g, "")) * Number($("#hp_range").val()) / 100;
-    let enemy_destruction = getEnemyInfo().destruction;
-
     let hit_count = skill_info.hit_count;
     let buff_destruction = getDestructionEffectSize() / 100; 
     let destruction_size = enemy_destruction * skill_info.destruction * (1 + getEarringEffectSize("blast", 10 - hit_count)) * buff_destruction;
@@ -1370,6 +1389,16 @@ function createEnemyList(enemy_class) {
     } else {
         $(".sub_party").css("display", "none");
     }
+    if (enemy_class == 99) {
+        // 自由入力の場合、入力を解除する
+        $("#enemy_save").show();
+        $(".enemy_input").attr("readonly", false);
+        $("#enemy_list").addClass("short");
+    } else {
+        $("#enemy_save").hide();
+        $(".enemy_input").attr("readonly", true);
+        $("#enemy_list").removeClass("short");
+    }
     // 既存のメンバーの情報を削除
     for (let i = 0; i < 6; i++) {
         removeSubMember(i);
@@ -1442,7 +1471,8 @@ function setEnemyStatus() {
     $("#enemy_stat").val(enemy_info.enemy_stat);
     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
     $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
-    $("#enemy_destruction").val(enemy_info.destruction_limit+ strong_break);
+    $("#enemy_destruction_rate").val(enemy_info.destruction_limit+ strong_break);
+    $("#enemy_destruction").val(enemy_info.destruction);
     for (let i = 1; i <= 3; i++) {
         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
     }

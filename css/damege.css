@@ -327,8 +327,8 @@ select.filed {
     width: 310px;
 }
 .skill_lv_column {
-    width: 55px;
-    max-width: 55px;
+    width: 60px;
+    max-width: 60px;
 }
 .sp_only {
     display: none;
@@ -349,7 +349,7 @@ select.filed {
         width: 16.25%;
     }
     .skill_name_column {
-        width: calc(63.5% - 55px);
+        width: calc(63.5% - 60px);
     }
     .pc_only {
         display: none!important;
@@ -364,7 +364,6 @@ div.lv {
 }
 div.lv::before {
     content: "Lv";
-    margin-right: -4px;
 }
 div.lv select{
     text-align: center;

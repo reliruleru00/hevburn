@@ -475,6 +475,9 @@ class RestGauge {
 
 // 残りの実数値と全体値から、割合範囲を取得する。
 function calculatePercentage(min, max, total) {
+    if (total == 0) {
+        return "0%";
+    }
     // 最小値、最大値、全体値が0以下の場合、それぞれ0に設定
     min = Math.max(0, min);
     max = Math.max(0, max);

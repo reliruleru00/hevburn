@@ -349,6 +349,26 @@ function setEventTrigger() {
     $("#sub_troops").on("change", function(event) {
         loadSubTroopsList($(this).val());
     });
+    // 敵保存ボタンクリック
+    $("#enemy_save").on("click", function(event) {
+        let enemy_class_no = Number($("#enemy_list option:selected").val());
+        let enemy_name = window.prompt("敵名称を入力してください", "敵" + enemy_class_no);
+        if (enemy_name === null) {
+            return;
+        }
+        let enemy_info = {};
+        enemy_info.enemy_name = enemy_name
+        enemy_info.enemy_stat = $("#enemy_stat").val();
+        enemy_info.max_dp =  $("#enemy_dp_0").val() + "," + $("#enemy_dp_1").val() + ","  + $("#enemy_dp_2").val() + ","  + $("#enemy_dp_3").val();
+        enemy_info.max_hp =  $("#enemy_hp").val();
+        let enemy_info_status_list = ["destruction_limit", "destruction", 
+            "physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",
+        ];
+        enemy_info_status_list.forEach(value => {
+            enemy_info[value] = $("#enemy_" + value).val();
+        });
+        updateEnemyStatus(enemy_class_no, enemy_info);
+    });
     // ダメージ詳細を開く
     $(".open_detail").on("click", function(event) {
         if ($(this).attr("id") == "modal_damage_detail_open1") {
@@ -1504,6 +1524,14 @@ function setEnemyStatus() {
         sortEffectSize($(value));
         select2ndSkill($(value));
     });
+}
+
+// 敵ステータス更新
+function updateEnemyStatus(enemy_class_no, enemy_info) {
+    const enemy_class = 99;
+    let filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
+    let index = enemy_list.findIndex((obj) => obj === filtered_enemy[0]);
+    Object.assign(enemy_list[index], enemy_info);
 }
 
 // スコアアタック表示

@@ -419,7 +419,7 @@ function setEventTrigger() {
         calcDamage();
         if (!$(this).data("changed")) {
             // changeイベントのデフォルト動作を防止
-            event.preventDefault();
+            // event.preventDefault();
         }
     });
     $(document).on("change", "input, select", function(event) {

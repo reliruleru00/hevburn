@@ -134,7 +134,7 @@ function setEventTrigger() {
         updateEnemyResist();
     });
     $(".enemy_type_value").on("change", function(event) {
-        updateEnemyResist();
+        displayWeakRow();
     });
     // チャージ変更
     $("#charge").on("change", function(event) {
@@ -349,6 +349,14 @@ function setEventTrigger() {
     $("#sub_troops").on("change", function(event) {
         loadSubTroopsList($(this).val());
     });
+    // カンマ区切り
+    $(".comma").on('blur change input', function (event) {
+        let newValue = removeComma($(this).val())
+        // カンマ区切りに編集した値を取得する
+        let formattedValue = newValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        // フォームの値を置き換える
+        $(this).val(formattedValue);
+    });
     // 敵保存ボタンクリック
     $("#enemy_save").on("click", function(event) {
         let enemy_class_no = Number($("#enemy_list option:selected").val());
@@ -359,15 +367,17 @@ function setEventTrigger() {
         let enemy_info = {};
         enemy_info.enemy_name = enemy_name
         enemy_info.enemy_stat = $("#enemy_stat").val();
-        enemy_info.max_dp =  $("#enemy_dp_0").val() + "," + $("#enemy_dp_1").val() + ","  + $("#enemy_dp_2").val() + ","  + $("#enemy_dp_3").val();
-        enemy_info.max_hp =  $("#enemy_hp").val();
+        enemy_info.max_dp =  removeComma($("#enemy_dp_0").val()) + "," + removeComma($("#enemy_dp_1").val()) + ","  + removeComma($("#enemy_dp_2").val()) + ","  + removeComma($("#enemy_dp_3").val());
+        enemy_info.max_hp =  removeComma($("#enemy_hp").val());
         let enemy_info_status_list = ["destruction_limit", "destruction", 
             "physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",
         ];
         enemy_info_status_list.forEach(value => {
             enemy_info[value] = $("#enemy_" + value).val();
         });
+        $("#enemy_list option:selected").text(enemy_name);
         updateEnemyStatus(enemy_class_no, enemy_info);
+        localStorage.setItem("free_enemy_" + enemy_class_no, JSON.stringify(enemy_info));
     });
     // ダメージ詳細を開く
     $(".open_detail").on("click", function(event) {
@@ -783,7 +793,7 @@ function updateEnemyResist() {
     let grade_sum = getGradeSum();
     let enemy_info = getEnemyInfo();
     let resist_down = getSumEffectSize("resist_down");
-    let element_resist = enemy_info["element_" + element] + resist_down - grade_sum["element_" + element];
+    let element_resist = Number(enemy_info["element_" + element]) + resist_down - grade_sum["element_" + element];
     // 表示変更
     $("#enemy_element_" + element).val(Math.floor(element_resist));
     setEnemyElement("#enemy_element_" + element, Math.floor(element_resist));
@@ -1490,16 +1500,16 @@ function setEnemyStatus() {
     }
     $("#enemy_stat").val(enemy_info.enemy_stat);
     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
-    $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
-    $("#enemy_destruction_rate").val(enemy_info.destruction_limit+ strong_break);
-    $("#enemy_destruction").val(enemy_info.destruction);
+    $("#enemy_destruction_limit").val(Number(enemy_info.destruction_limit) + strong_break);
+    $("#enemy_destruction_rate").val(Number(enemy_info.destruction_limit) + strong_break);
+    $("#enemy_destruction").val(Number(enemy_info.destruction));
     for (let i = 1; i <= 3; i++) {
         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
     }
     for (let i = 0; i <= 5; i++) {
         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
     }
-    $("#enemy_hp").val(enemy_info.max_hp.toLocaleString());
+    $("#enemy_hp").val(Number(enemy_info.max_hp).toLocaleString());
     setHpGarge(100);
     let max_dp_list = enemy_info.max_dp.split(",");
     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
@@ -1801,6 +1811,12 @@ function setHpGarge(val) {
     $("#hp_range").val(val);
     $("#hp_rate").val(val + '%');
     applyGradient($("#hp_range"), "#7C4378", val);
+}
+// カンマ削除
+function removeComma(value) {
+    var regex = /[^0-9]/g;
+    var newValue = "0" + value.replace(regex, '');
+    return Number(newValue).toString()
 }
 // グラデーションを設定するメソッド
 function applyGradient($element, baseColor, percent) {

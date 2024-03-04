@@ -92,6 +92,13 @@
         $(value).prop("selectedIndex", 5);
       });
 
+      // 自由入力取得
+      for (let i = 0; i < 10; i++) {
+        let free_enemy = localStorage.getItem("free_enemy_" + i);
+        if (free_enemy !== null) {
+          updateEnemyStatus(i, JSON.parse(free_enemy));
+        }
+      }
       // 敵情報設定
       let enemy_class = localStorage.getItem("enemy_class");
       enemy_class = enemy_class ? enemy_class : "1";
@@ -354,22 +361,22 @@
                   <div class="w-5">DP</div>
                   <div>
                     <div class="dp_gauge">
-                      <input type="text" id="enemy_dp_3" value="" readonly class="w-20 text-right enemy_input">
+                      <input type="text" id="enemy_dp_3" value="" readonly class="w-20 text-right enemy_input comma" pattern="\d*">
                       <input type="range" id="dp_range_3" class="dp_range" min="0" max="100" step="1" value="0">
                       <output id="dp_rate_3" class="gauge_rate">0%</output>
                     </div>
                     <div class="dp_gauge">
-                      <input type="text" id="enemy_dp_2" value="" readonly class="w-20 text-right enemy_input">
+                      <input type="text" id="enemy_dp_2" value="" readonly class="w-20 text-right enemy_input comma" pattern="\d*">
                       <input type="range" id="dp_range_2" class="dp_range" min="0" max="100" step="1" value="0">
                       <output id="dp_rate_2" class="gauge_rate">0%</output>
                     </div>
                     <div class="dp_gauge">
-                      <input type="text" id="enemy_dp_1" value="" readonly class="w-20 text-right enemy_input">
+                      <input type="text" id="enemy_dp_1" value="" readonly class="w-20 text-right enemy_input comma" pattern="\d*">
                       <input type="range" id="dp_range_1" class="dp_range" min="0" max="100" step="1" value="0">
                       <output id="dp_rate_1" class="gauge_rate">0%</output>
                     </div>
                     <div class="dp_gauge">
-                      <input type="text" id="enemy_dp_0" value="" readonly class="w-20 text-right enemy_input">
+                      <input type="text" id="enemy_dp_0" value="" readonly class="w-20 text-right enemy_input comma" pattern="\d*">
                       <input type="range" id="dp_range_0" class="dp_range" min="0" max="100" step="1" value="0">
                       <output id="dp_rate_0" class="gauge_rate">0%</output>
                     </div>
@@ -379,7 +386,7 @@
                   <div class="w-5">HP</div>
                   <div>
                     <div class="flex">
-                      <input type="text" id="enemy_hp" value="" readonly class="w-20 text-right enemy_input">
+                      <input type="text" id="enemy_hp" value="" readonly class="w-20 text-right enemy_input comma">
                       <input type="range" id="hp_range" class="hp_range" min="0" max="100" step="1" value="0">
                       <output id="hp_rate" class="gauge_rate">0%</output>
                     </div>

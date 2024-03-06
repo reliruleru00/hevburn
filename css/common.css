@@ -14,6 +14,6 @@
 }
 @media screen and (min-width: 769px) {
     .display_sp_only {
-        display: none;
+        display: block;
     }
 }

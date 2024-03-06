@@ -1,0 +1,19 @@
+/* PCのみ表示 */
+.display_pc_only {
+    display: block;
+}
+@media screen and (max-width: 768px) {
+    .display_pc_only {
+        display: none;
+    }
+}
+
+/* スマートフォンのみ表示 */
+.display_sp_only {
+    display: none;
+}
+@media screen and (min-width: 769px) {
+    .display_sp_only {
+        display: none;
+    }
+}

@@ -1552,6 +1552,8 @@ function setEnemyStatus() {
         sortEffectSize($(value));
         select2ndSkill($(value));
     });
+    // 耐性変更時用に再実行
+    updateEnemyResist();
 }
 
 // 敵ステータス更新

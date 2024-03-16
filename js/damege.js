@@ -798,7 +798,7 @@ function updateEnemyResist() {
     let resist_down = getSumEffectSize("resist_down");
     let element_resist = Number(enemy_info["element_" + element]) - grade_sum["element_" + element];
     // 耐性打ち消し
-    if (resist_down > 0) {
+    if (resist_down > 0 && element_resist < 100) {
         element_resist = 100 + resist_down;
     }
     // 表示変更

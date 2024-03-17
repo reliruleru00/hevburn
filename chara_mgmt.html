@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1145880808347586"
+    crossorigin="anonymous"></script>
+  <meta content="ヘブンバーンズレッドのキャラクター管理ツールです。" name="description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RELI_hevburn" />
+  <meta name="twitter:title" content="ヘブバン キャラクター管理ツール" />
+  <meta name="twitter:description" content="ヘブンバーンズレッドのキャラクター管理ツールです。" />
+  <meta name="twitter:image" content="https://www.hbr-tool.com/img/summary_checker.png" />
+  <title>ヘブバン キャラクター管理ツール</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/6.2.2/handsontable.full.min.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/mgmt.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/6.2.2/handsontable.full.min.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/chara_style.js"></script>
+  <script src="js/chara_name.js"></script>
+  <script src="js/mgmt.js"></script>
+  <script>
+    const troop_name = ["31A", "31B", "31C", "31D", "31E", "31F", "31X", "30G", "AB!"]
+    let hot;
+    $(function(){ 
+      let grid = document.getElementById('grid');
+
+      let data = loadStorage();
+      hot = new Handsontable(grid, {
+        data: data,
+        colHeaders: true,
+        height: 800,
+        width: 1200,
+        columns: columns,
+        afterChange: afterChange,
+        afterGetColHeader: afterGetColHeader,
+      });
+    });
+
+  </script>
+</head>
+<body>
+  <main>
+    <div class="header"></div>
+    <div class="frame static w-screen h-screen overflow-y-scroll">
+      <div class="flex">
+        <div class="main_area mx-auto">
+          <div id="grid">
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

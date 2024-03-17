@@ -1,0 +1,46 @@
+@media screen and (max-width: 848px) {
+  .main_area {
+    width: 100%;
+  }
+  .select_style {
+    width: 69px;
+    height: 69px;
+  }
+  .emblem {
+    width: 69px;
+    height: 69px;
+  }
+}
+@media screen and (min-width: 848px) {
+  .main_area {
+    width: 828px;
+  }
+  .select_style {
+    width: 92px;
+    height: 92px;
+  } 
+  .emblem {
+    width: 92px;
+    height: 92px;
+  } 
+}
+
+div.frame {
+  height: calc(100svh - 75px);
+}
+
+td.limit_0 {
+  background-color: #fff;
+}
+td.limit_1 {
+  background-color: #7aff7a;
+}
+td.limit_2 {
+  background-color: #ffff7a;
+}
+td.limit_3 {
+  background-color: #ffbc7a;
+}
+td.limit_4 {
+  background-color: #ff7a7a;
+}

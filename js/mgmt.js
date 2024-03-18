@@ -5,14 +5,15 @@ function afterChange(changes, source) {
 }
 let nestedHeaders = [
     [
-        { label: '部隊', rowspan: 2, class: 'htMiddle' },
+        { label: '部<br>隊', rowspan: 2, class: 'htMiddle' },
         { label: 'キャラクター', rowspan: 2, class: 'htMiddle' },
-        { label: 'CLv', rowspan: 2, class: 'htMiddle' },
+        { label: 'Lv', rowspan: 2, class: 'htMiddle' },
         { label: '転生<br>回数', rowspan: 2, class: 'htMiddle' },
-        { label: 'スキル', rowspan: 2, class: 'htMiddle' },
+        { label: 'スキル<br>Lv', rowspan: 2, class: 'htMiddle' },
         { label: 'ジェネ<br>ライズ', rowspan: 2, class: 'htMiddle' },
         { label: 'エグゾウォッチャー', colspan: 5, class: 'htMiddle' },
         { label: 'レクタス/シニスター', colspan: 5, class: 'htMiddle' },
+        // { label: 'アモン', colspan: 5, class: 'htMiddle' },
     ],
     [
         { label: 'R', },
@@ -25,6 +26,11 @@ let nestedHeaders = [
         { label: 'Y', },
         { label: 'W', },
         { label: 'P', },
+        // { label: 'R', },
+        // { label: 'B', },
+        // { label: 'Y', },
+        // { label: 'W', },
+        // { label: 'P', },
     ]
 ];
 
@@ -66,31 +72,20 @@ function createNewCharaData() {
     let data = [];
     for (let i = 1; i < chara_full_name.length; i++) {
         let chara = {};
+        chara["id"] = i;
         chara["troop"] = troop_name[Math.floor((i - 1) / 6)];
         chara["name"] = chara_full_name[i];
         chara["lv"] = 120;
         chara["rein"] = 0;
-        chara["skill"] = "";
-        chara["generate"] = 0;
-        chara["Exo_R"] = 0;
-        chara["Exo_B"] = 0;
-        chara["Exo_Y"] = 0;
-        chara["Exo_W"] = 0;
-        chara["Exo_P"] = 0;
-        chara["Rectus_R"] = 0;
-        chara["Rectus_B"] = 0;
-        chara["Rectus_Y"] = 0;
-        chara["Rectus_W"] = 0;
-        chara["Rectus_P"] = 0;
         data.push(chara);
     }
     return data;
 }
 
 function saveStorage() {
-    let getData = hot.getSourceData();
-    localStorage.setItem('mgmt_json_data', JSON.stringify(getData));
+    localStorage.setItem('mgmt_json_data', JSON.stringify(data));
 }
+
 function loadStorage() {
     let jsondata = localStorage.getItem('mgmt_json_data');
     if (jsondata) {
@@ -98,7 +93,23 @@ function loadStorage() {
     } else {
         data = createNewCharaData();
     }
-    return data;
+}
+
+function getColumnOptions(data) {
+    return {
+        data: data,
+        colHeaders: true,
+        height: 800,
+        width: 600,
+        columns: columns,
+        afterChange: afterChange,
+        afterGetColHeader: afterGetColHeader,
+//        fixedColumnsLeft: 6, 
+        // 行追加禁止
+        afterCreateRow: function(index, amount){
+            data.splice(index, amount)
+        },
+    }
 }
 
 columns = [
@@ -106,14 +117,23 @@ columns = [
         data: "troop",
         className: "htCenter",
         readOnly: true,
+        renderer: function (instance, td, row, column, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            let rowData = instance.getSourceData()[row];
+            if (Number(rowData["id"]) % 6 == 0) {
+                $(td).addClass("underLine");
+            }
+        },
+        width: 35,
     },
     {
         data: "name",
         readOnly: true,
+        width: 150,
     },
     {
         data: "lv",
-        className: "htCenter",
+        className: "htCenter rightLine",
         type: "numeric",
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -128,11 +148,12 @@ columns = [
             } else if (value <= 170) {
                 $(td).addClass("limit_4");
             }
-        }
+        },
+        width: 30,
     },
     {
         data: "rein",
-        className: "htCenter",
+        className: "htCenter rightLine",
         type: "numeric",
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -147,54 +168,92 @@ columns = [
             } else if (value == 20) {
                 $(td).addClass("limit_4");
             }
-        }
+        },
+        width: 30,
     },
     {
         data: "skill",
-        className: "htCenter",
+        className: "htCenter rightLine",
+        width: 35,
     },
     {
         data: "generate",
-        className: "htCenter",
+        className: "htCenter rightLine",
+        width: 40,
     },
     {
         data: "Exo_R",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Exo_B",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Exo_Y",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Exo_W",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Exo_P",
-        className: "htRight",
+        className: "htCenter rightLine",
+        width: 25,
     },
     {
         data: "Rectus_R",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Rectus_B",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Rectus_Y",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Rectus_W",
-        className: "htRight",
+        className: "htCenter",
+        width: 25,
     },
     {
         data: "Rectus_P",
-        className: "htRight",
+        className: "htCenter rightLine",
+        width: 25,
     },
+    // {
+    //     data: "Amon_R",
+    //     className: "htCenter",
+    //     width: 25,
+    // },
+    // {
+    //     data: "Amon_B",
+    //     className: "htCenter",
+    //     width: 25,
+    // },
+    // {
+    //     data: "Amon_Y",
+    //     className: "htCenter",
+    //     width: 25,
+    // },
+    // {
+    //     data: "Amon_W",
+    //     className: "htCenter",
+    //     width: 25,
+    // },
+    // {
+    //     data: "Amon_P",
+    //     className: "htCenter rightLine",
+    //     width: 25,
+    // },
 ]

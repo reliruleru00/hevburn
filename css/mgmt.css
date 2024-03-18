@@ -1,32 +1,20 @@
-@media screen and (max-width: 848px) {
+@media screen and (max-width: 1200px) {
   .main_area {
     width: 100%;
   }
-  .select_style {
-    width: 69px;
-    height: 69px;
-  }
-  .emblem {
-    width: 69px;
-    height: 69px;
-  }
 }
-@media screen and (min-width: 848px) {
+@media screen and (min-width: 1200px) {
   .main_area {
-    width: 828px;
+    width: 1200px;
   }
-  .select_style {
-    width: 92px;
-    height: 92px;
-  } 
-  .emblem {
-    width: 92px;
-    height: 92px;
-  } 
 }
 
 div.frame {
   height: calc(100svh - 75px);
+}
+
+td, th {
+  font-size: 13px;
 }
 
 td.limit_0 {
@@ -43,4 +31,28 @@ td.limit_3 {
 }
 td.limit_4 {
   background-color: #ff7a7a;
+}
+
+tr:has(.underLine) > td {
+  border-bottom: double #000;
+}
+td.rightLine {
+  border-right: double #000;
+}
+.handsontable td:first-of-type {
+  border-left: double #000!important;
+}
+.handsontable .htDimmed {
+  color: #000!important;
+}
+td {
+  white-space: nowrap!important;
+}
+
+input[type="button"].default {
+  font-size: 16px;
+  color: #fff;
+  background: #149f14;
+  border-radius: 100vh;
+  height: 26px;
 }

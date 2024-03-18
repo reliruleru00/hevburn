@@ -25,21 +25,20 @@
   <script>
     const troop_name = ["31A", "31B", "31C", "31D", "31E", "31F", "31X", "30G", "AB!"]
     let hot;
+    let data;
+    loadStorage();
     $(function(){ 
-      let grid = document.getElementById('grid');
-
-      let data = loadStorage();
-      hot = new Handsontable(grid, {
-        data: data,
-        colHeaders: true,
-        height: 800,
-        width: 1200,
-        columns: columns,
-        afterChange: afterChange,
-        afterGetColHeader: afterGetColHeader,
+      let grid1 = document.getElementById('grid1');
+      let grid2 = document.getElementById('grid2');
+      let data1 = data.filter(function(item) {
+        return item["id"] <= 24 || 48 < item["id"];
       });
+      let data2 = data.filter(function(item) {
+        return item["id"] > 24 && item["id"] <= 48;
+      });
+      hot1 = new Handsontable(grid1, getColumnOptions(data1));
+      hot2 = new Handsontable(grid2, getColumnOptions(data2));
     });
-
   </script>
 </head>
 <body>
@@ -48,7 +47,30 @@
     <div class="frame static w-screen h-screen overflow-y-scroll">
       <div class="flex">
         <div class="main_area mx-auto">
-          <div id="grid">
+          <div class="flex">
+            <div class="mt-2">
+              オーブボス表示
+              <select>
+                <option selected>エグゾウォッチャー</option>
+                <option>レクタス/シニスター</option>
+                <option>アモン</option>
+              </select>
+              <select>
+                <option>エグゾウォッチャー</option>
+                <option selected>レクタス/シニスター</option>
+                <option>アモン</option>
+              </select>
+            </div>
+            <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="保存データ出力">
+            <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="保存データ読込">
+          </div>
+          <div class="flex">
+            <div id="grid1"></div>
+            <div>
+              <div id="grid2"></div>
+              ※データは端末に保存されます。
+            </div>
+          </div>
         </div>
       </div>
     </div>

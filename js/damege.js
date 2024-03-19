@@ -1639,7 +1639,11 @@ function sortEffectSize(selecter) {
 function getAttackInfo() {
     const attack_id = Number($("#attack_list option:selected").val());
     const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
-    return filtered_attack.length > 0 ? filtered_attack[0] : undefined;
+    let attack_info = filtered_attack.length > 0 ? filtered_attack[0] : undefined;
+    if (attack_info) {
+        attack_info.attack_physical = getCharaData(attack_info.chara_id).attack_physical;
+    }
+    return attack_info;
 }
 
 // 基礎攻撃力取得

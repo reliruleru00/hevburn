@@ -757,7 +757,8 @@ function updateBuffEffectSize(option, skill_lv) {
     let member_info = chara_no < 10 ? select_style_list[chara_no] : sub_style_list[chara_no - 10];
     let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, member_info, skill_lv);
     let chara_id = member_info.style_info.chara_id;
-    let effect_text = `${chara_name[chara_id]}: ${skill_buff.buff_name} ${Math.floor(effect_size * 100) / 100}%`;
+    let chara_name = getCharaData(chara_id).chara_short_name;
+    let effect_text = `${chara_name}: ${skill_buff.buff_name} ${Math.floor(effect_size * 100) / 100}%`;
     option.text(effect_text).data("effect_size", effect_size).data("select_lv", skill_lv);
     // 耐性が変更された場合
     if (skill_buff.buff_kind == 20) {
@@ -921,7 +922,8 @@ function addBuffList(member_info) {
         if (value.skill_attack === 0) only_one = 0;
         if (value.only_first === 1) only_one = "only_first";
         let only_chara_id = value.only_me === 1 ? `only_chara_id-${chara_id}` : "public";
-        let option_text = `${chara_name[chara_id]}: ${value.buff_name} ${(Math.floor(effect_size * 100) / 100)}%`;
+        let chara_name = getCharaData(chara_id).chara_short_name;
+        let option_text = `${chara_name}: ${value.buff_name} ${(Math.floor(effect_size * 100) / 100)}%`;
         
         var option = $('<option>')
             .text(option_text)
@@ -946,7 +948,8 @@ function addBuffList(member_info) {
 // フィールド追加
 function addElementField(member_info, field_name, effect_size, field_element, buff_id, limit_border) {
     let chara_id = member_info.style_info.chara_id;
-    let option_text = `${chara_name[chara_id]}: ${field_name} ${effect_size}%`;
+    let chara_name = getCharaData(chara_id).chara_short_name;
+    let option_text = `${chara_name}: ${field_name} ${effect_size}%`;
     let option = $('<option>')
         .text(option_text)
         .data("effect_size", effect_size)
@@ -1023,7 +1026,7 @@ function addAbility(member_info) {
 	        default:
 	            break;
         }
-        let name = chara_name[chara_id];
+        let name = getCharaData(chara_id).chara_short_name;
         let effect_size = ability_info.ability_power; 
         let id = target + chara_id + index;
         let chara_id_class = "chara_id-" + chara_id;

@@ -21,7 +21,7 @@ function createStyleList() {
     	let input = $('<input>')
             .attr("type", "image")
             .attr("src", source)
-            .attr("title", "[" + value.style_name + "]" + chara_full_name[value.chara_id])
+            .attr("title", "[" + value.style_name + "]" + getCharaData(value.chara_id).chara_name)
             .data("style_id", value.style_id)
             .addClass("select_style_list")
             .addClass("physical_" + value.physical)

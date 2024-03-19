@@ -88,15 +88,15 @@ function getThHtml(text) {
 }
 function createNewCharaData() {
     let data = [];
-    for (let i = 1; i < chara_full_name.length; i++) {
+    $.each(chara_name, function(index, value) {
         let chara = {};
-        chara["id"] = i;
-        chara["troop"] = troop_name[Math.floor((i - 1) / 6)];
-        chara["name"] = chara_full_name[i];
+        chara["id"] = index;
+        chara["troop"] = value.troops;
+        chara["name"] = value.chara_full_name;
         chara["lv"] = 120;
         chara["rein"] = 0;
         data.push(chara);
-    }
+    });
     return data;
 }
 

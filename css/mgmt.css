@@ -1,13 +1,14 @@
-@media screen and (max-width: 1200px) {
+@media screen and (min-width: 1164px) {
+  .main_area {
+    width: 1164px;
+  }
+}
+@media screen and (max-width: 1164px) {
   .main_area {
     width: 100%;
   }
 }
-@media screen and (min-width: 1200px) {
-  .main_area {
-    width: 1200px;
-  }
-}
+
 
 div.frame {
   height: calc(100svh - 75px);
@@ -17,20 +18,24 @@ td, th {
   font-size: 13px;
 }
 
+.handsontable th {
+  background-color: #D9E1F2!important;
+}
+
 td.limit_0 {
   background-color: #fff;
 }
 td.limit_1 {
-  background-color: #7aff7a;
+  background-color: #C6E0B4;
 }
 td.limit_2 {
-  background-color: #ffff7a;
+  background-color: #B4C6E7;
 }
 td.limit_3 {
-  background-color: #ffbc7a;
+  background-color: #FFE699;
 }
 td.limit_4 {
-  background-color: #ff7a7a;
+  background-color: #F4B084;
 }
 
 tr:has(.underLine) > td {

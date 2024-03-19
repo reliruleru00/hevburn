@@ -1,3 +1,21 @@
+
+function getColumnOptions(data) {
+    return {
+        data: data,
+        colHeaders: true,
+        height: 800,
+        width: 580,
+        columns: columns,
+        afterChange: afterChange,
+        afterGetColHeader: afterGetColHeader,
+//        fixedColumnsLeft: 6, 
+        // 行追加禁止
+        afterCreateRow: function(index, amount){
+            data.splice(index, amount)
+        },
+    }
+}
+
 function afterChange(changes, source) {
     if (source != "loadData") {
         saveStorage();
@@ -95,22 +113,6 @@ function loadStorage() {
     }
 }
 
-function getColumnOptions(data) {
-    return {
-        data: data,
-        colHeaders: true,
-        height: 800,
-        width: 600,
-        columns: columns,
-        afterChange: afterChange,
-        afterGetColHeader: afterGetColHeader,
-//        fixedColumnsLeft: 6, 
-        // 行追加禁止
-        afterCreateRow: function(index, amount){
-            data.splice(index, amount)
-        },
-    }
-}
 
 columns = [
     {
@@ -149,7 +151,7 @@ columns = [
                 $(td).addClass("limit_4");
             }
         },
-        width: 30,
+        width: 35,
     },
     {
         data: "rein",
@@ -169,7 +171,7 @@ columns = [
                 $(td).addClass("limit_4");
             }
         },
-        width: 30,
+        width: 35,
     },
     {
         data: "skill",

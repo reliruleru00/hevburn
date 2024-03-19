@@ -1641,7 +1641,7 @@ function getAttackInfo() {
     const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
     let attack_info = filtered_attack.length > 0 ? filtered_attack[0] : undefined;
     if (attack_info) {
-        attack_info.attack_physical = getCharaData(attack_info.chara_id).attack_physical;
+        attack_info.attack_physical = getCharaData(attack_info.chara_id).physical;
     }
     return attack_info;
 }

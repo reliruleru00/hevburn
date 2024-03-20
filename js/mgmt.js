@@ -88,11 +88,11 @@ function getThHtml(text) {
 }
 function createNewCharaData() {
     let data = [];
-    $.each(chara_name, function(index, value) {
+    $.each(chara_data, function(index, value) {
         let chara = {};
-        chara["id"] = index;
+        chara["id"] = chara_id;
         chara["troop"] = value.troops;
-        chara["name"] = value.chara_full_name;
+        chara["name"] = value.chara_name;
         chara["lv"] = 120;
         chara["rein"] = 0;
         data.push(chara);
@@ -113,8 +113,7 @@ function loadStorage() {
     }
 }
 
-
-columns = [
+baseColumns = [
     {
         data: "troop",
         className: "htCenter",
@@ -122,7 +121,7 @@ columns = [
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
             let rowData = instance.getSourceData()[row];
-            if (Number(rowData["id"]) % 6 == 0) {
+            if (Number(rowData["id"]) % 6 == 0 || Number(rowData["id"]) == 104) {
                 $(td).addClass("underLine");
             }
         },
@@ -183,7 +182,10 @@ columns = [
         className: "htCenter rightLine",
         width: 40,
     },
-    {
+];
+
+exoColumns = [
+     {
         data: "Exo_R",
         className: "htCenter",
         width: 25,
@@ -207,7 +209,9 @@ columns = [
         data: "Exo_P",
         className: "htCenter rightLine",
         width: 25,
-    },
+    },   
+];
+rectusColumns = [
     {
         data: "Rectus_R",
         className: "htCenter",
@@ -233,29 +237,31 @@ columns = [
         className: "htCenter rightLine",
         width: 25,
     },
-    // {
-    //     data: "Amon_R",
-    //     className: "htCenter",
-    //     width: 25,
-    // },
-    // {
-    //     data: "Amon_B",
-    //     className: "htCenter",
-    //     width: 25,
-    // },
-    // {
-    //     data: "Amon_Y",
-    //     className: "htCenter",
-    //     width: 25,
-    // },
-    // {
-    //     data: "Amon_W",
-    //     className: "htCenter",
-    //     width: 25,
-    // },
-    // {
-    //     data: "Amon_P",
-    //     className: "htCenter rightLine",
-    //     width: 25,
-    // },
-]
+];
+amonColumns = [
+    {
+        data: "Amon_R",
+        className: "htCenter",
+        width: 25,
+    },
+    {
+        data: "Amon_B",
+        className: "htCenter",
+        width: 25,
+    },
+    {
+        data: "Amon_Y",
+        className: "htCenter",
+        width: 25,
+    },
+    {
+        data: "Amon_W",
+        className: "htCenter",
+        width: 25,
+    },
+    {
+        data: "Amon_P",
+        className: "htCenter rightLine",
+        width: 25,
+    },
+];

@@ -26,6 +26,7 @@
     const troop_name = ["31A", "31B", "31C", "31D", "31E", "31F", "31X", "30G", "AB!"]
     let hot;
     let data;
+    let columns;
     loadStorage();
     $(function(){ 
       let grid1 = document.getElementById('grid1');
@@ -36,9 +37,32 @@
       let data2 = data.filter(function(item) {
         return item["id"] > 24 && item["id"] <= 48;
       });
+      columns = createColumns();
       hot1 = new Handsontable(grid1, getColumnOptions(data1));
       hot2 = new Handsontable(grid2, getColumnOptions(data2));
+
+      $(".orb").change(function() {
+        columns = createColumns();
+        hot1.updateSettings({columns: columns});
+        hot2.updateSettings({columns: columns});
+      });
     });
+
+    function createColumns() {
+      let newColumns = baseColumns;
+      newColumns = addOrbColumn(newColumns, $("#orb1").val());
+      newColumns = addOrbColumn(newColumns, $("#orb2").val());
+      return newColumns;
+    }
+
+    function addOrbColumn(columns, value) {
+      const orbColumns = {
+        "1": exoColumns,
+        "2": rectusColumns,
+        "3": amonColumns
+      };
+      return value in orbColumns ? columns.concat(orbColumns[value]) : columns;
+    }
   </script>
 </head>
 <body>
@@ -50,15 +74,15 @@
           <div class="flex">
             <div class="mt-2">
               オーブボス表示
-              <select>
-                <option selected>エグゾウォッチャー</option>
-                <option>レクタス/シニスター</option>
-                <option>アモン</option>
+              <select id="orb1" class="orb">
+                <option value="1" selected >エグゾウォッチャー</option>
+                <option value="2">レクタス/シニスター</option>
+                <option value="3">アモン</option>
               </select>
-              <select>
-                <option>エグゾウォッチャー</option>
-                <option selected>レクタス/シニスター</option>
-                <option>アモン</option>
+              <select id="orb2" class="orb">
+                <option value="1">エグゾウォッチャー</option>
+                <option value="2" selected>レクタス/シニスター</option>
+                <option value="3">アモン</option>
               </select>
             </div>
             <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="保存データ出力">

@@ -111,4 +111,5 @@
     {"style_id":110,"chara_id":1,"style_name":"The feel of the Throne","image_url":"RKayamoriCombat2023_R3_Thumbnail.webp","role":1,"element":1,"element2":5,"jewel_type":1,"ability0":237,"ability1":1101,"ability3":200},
     {"style_id":111,"chara_id":15,"style_name":"至高のひととき","image_url":"MTenneWizard_R3_Thumbnail.webp","role":6,"element":4,"element2":null,"jewel_type":4,"ability0":0,"ability1":1101,"ability3":1004},
     {"style_id":112,"chara_id":16,"style_name":"お花見怪人クシダンゴ","image_url":"YBungoDango_R3_Thumbnail.webp","role":2,"element":3,"element2":null,"jewel_type":1,"ability0":0,"ability1":1101,"ability3":1506},
+    {"style_id":113,"chara_id":11,"style_name":"ホップ・ステップ・スリップ！","image_url":"KHiiragiWaitress_R3_Thumbnail.webp","role":5,"element":0,"element2":null,"jewel_type":5,"ability0":1111,"ability1":1101,"ability3":1103},
 ];

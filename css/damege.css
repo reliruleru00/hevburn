@@ -247,7 +247,10 @@ input[type="button"]#enemy_save {
     width: 95%;
 }
 @media screen and (max-width: 430px) {
-    #enemy_destruction {
+#enemy_stat,
+#enemy_destruction_limit,
+#enemy_destruction_rate,
+#enemy_destruction {
         width: 40px;
     }
     .dp_range,

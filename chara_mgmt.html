@@ -18,51 +18,27 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/6.2.2/handsontable.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
   <script src="js/header.js"></script>
   <script src="js/chara_data.js"></script>
   <script src="js/chara_style.js"></script>
   <script src="js/mgmt.js"></script>
   <script>
-    const troop_name = ["31A", "31B", "31C", "31D", "31E", "31F", "31X", "30G", "AB!"]
-    let hot;
     let data;
     let columns;
     loadStorage();
     $(function(){ 
       let grid1 = document.getElementById('grid1');
       let grid2 = document.getElementById('grid2');
-      let data1 = data.filter(function(item) {
-        return item["id"] <= 24 || 48 < item["id"];
-      });
-      let data2 = data.filter(function(item) {
-        return item["id"] > 24 && item["id"] <= 48;
-      });
+      let data1 = getData1() 
+      let data2 = getData2(); 
       columns = createColumns();
       hot1 = new Handsontable(grid1, getColumnOptions(data1));
       hot2 = new Handsontable(grid2, getColumnOptions(data2));
 
-      $(".orb").change(function() {
-        columns = createColumns();
-        hot1.updateSettings({columns: columns});
-        hot2.updateSettings({columns: columns});
-      });
+      // イベント設定
+      setEventTrigger();
     });
-
-    function createColumns() {
-      let newColumns = baseColumns;
-      newColumns = addOrbColumn(newColumns, $("#orb1").val());
-      newColumns = addOrbColumn(newColumns, $("#orb2").val());
-      return newColumns;
-    }
-
-    function addOrbColumn(columns, value) {
-      const orbColumns = {
-        "1": exoColumns,
-        "2": rectusColumns,
-        "3": amonColumns
-      };
-      return value in orbColumns ? columns.concat(orbColumns[value]) : columns;
-    }
   </script>
 </head>
 <body>
@@ -71,22 +47,26 @@
     <div class="frame static w-screen h-screen overflow-y-scroll">
       <div class="flex">
         <div class="main_area mx-auto">
-          <div class="flex">
-            <div class="mt-2">
-              オーブボス表示
-              <select id="orb1" class="orb">
-                <option value="1" selected >エグゾウォッチャー</option>
-                <option value="2">レクタス/シニスター</option>
-                <option value="3">アモン</option>
-              </select>
-              <select id="orb2" class="orb">
-                <option value="1">エグゾウォッチャー</option>
-                <option value="2" selected>レクタス/シニスター</option>
-                <option value="3">アモン</option>
-              </select>
+          <div class="container">
+            <div>
+              <div class="mt-2">
+                オーブボス表示
+                <select id="orb1" class="orb">
+                  <option value="1" selected >エグゾウォッチャー</option>
+                  <option value="2">レクタス/シニスター</option>
+                  <option value="3">アモン</option>
+                </select>
+                <select id="orb2" class="orb">
+                  <option value="1">エグゾウォッチャー</option>
+                  <option value="2" selected>レクタス/シニスター</option>
+                  <option value="3">アモン</option>
+                </select>
+              </div>
             </div>
-            <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="保存データ出力">
-            <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="保存データ読込">
+            <div>
+              <input type="button" id="exportSaveBtn" class="w-32 mt-2 mb-2 default" value="保存データ出力">
+              <input type="button" id="importSaveBtn" class="w-32 mt-2 mb-2 default" value="保存データ読込">
+            </div>
           </div>
           <div class="flex">
             <div id="grid1"></div>

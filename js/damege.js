@@ -996,7 +996,7 @@ function addAbility(member_info) {
 
     for (let index = 0; index < ability_list.length; index++) {
         ability_id = ability_list[index];
-        if (ability_id == 0 || ability_id > 1000) {
+        if (ability_id == null || ability_id > 1000) {
             // 1000番以降は不要
             continue;
         }

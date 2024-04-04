@@ -17,7 +17,7 @@ class Member {
 // スタイルリスト作成
 function createStyleList() {
     $.each(style_list, function(index, value) {
-        if (value.rarity != 1) {
+        if (value.rarity != 1 && value.chara_id != 104) {
             return true;
         }
     	let source = "icon/" + value.image_url;

@@ -1479,6 +1479,7 @@ function createEnemyList(enemy_class) {
         $(".score_attack").css("display", "block");
         // 表示を逆順にする
         $("#enemy_list").html($("#enemy_list option").toArray().reverse());
+        $("#enemy_list").prop("selectedIndex", 0);
     } else {
         $(".score_attack").css("display", "none");
     }

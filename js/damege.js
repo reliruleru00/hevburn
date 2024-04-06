@@ -1571,6 +1571,9 @@ function getGradeSum() {
 // 敵ステータス設定
 function setEnemyStatus() {
     let enemy_info = getEnemyInfo();
+    if (enemy_info === undefined) {
+        return;
+    }
     if (enemy_info.score_attack_no) {
         displayScoreAttack(enemy_info);
     }

@@ -277,6 +277,21 @@ input[type="range"].result_display::-ms-thumb {
     text-align: right;
     border: 0px;
 }
+/* 予測スコア */
+.prediction {
+    display: inline-block;
+    width: 160px;
+    font-size: 16px;
+}
+
+.prediction_value {
+    width: 80px;
+    font-size: 16px;
+}
+.prediction_shift {
+    margin-left: -23px;
+    margin-right: 23px;
+}
 
 /* バフエリア */
 table tr {

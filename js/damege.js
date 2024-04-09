@@ -1719,9 +1719,9 @@ function calcScore(detail, grade_magn) {
     let damage_bonus_max = getDamageBonus(detail.max_damage, num);
     let damage_bonus_min = getDamageBonus(detail.min_damage, num);
     // 暫定固定値
-    let summary_score_avg = (level_bonus[num] + no_break_value + damage_bonus_avg) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47 * 2;
-    let summary_score_max = (level_bonus[num] + no_break_value + damage_bonus_max) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47 * 2;
-    let summary_score_min = (level_bonus[num] + no_break_value + damage_bonus_min) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47 * 2;
+    let summary_score_avg = (level_bonus[num] + no_break_value + damage_bonus_avg) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
+    let summary_score_max = (level_bonus[num] + no_break_value + damage_bonus_max) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
+    let summary_score_min = (level_bonus[num] + no_break_value + damage_bonus_min) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
     $("#lv_score").val(level_bonus[num].toLocaleString(0));
     $("#no_break_bonus").val(no_break_value.toLocaleString(0));
     $("#damage_bonus_avg").val(damage_bonus_avg.toLocaleString(0));

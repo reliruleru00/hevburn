@@ -1744,7 +1744,7 @@ function getDamageBonus(damage, num) {
         let magn = 1.1701 * Math.pow(rest_damage / damage_limit[num], -0.669);
         damage_bonus += Math.floor(rest_damage * magn / 100);
     }
-    return damage_bonus * 0.47;
+    return Math.floor(damage_bonus * 0.47);
 }
 
 // 敵耐性設定

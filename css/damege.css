@@ -615,7 +615,7 @@ input[type=checkbox]:disabled + .checkbox01 {
     margin-top: 10px;
     display: inline-block;
     background-color: #eee;
-    padding: 0.1rem 1.5rem;
+    padding: 0.1rem 2rem;
     border-radius: 0.5rem 0.5rem 0 0;
 }
 #half_tab > input[type="radio"]:checked + label {
@@ -630,6 +630,11 @@ input[type=checkbox]:disabled + .checkbox01 {
 #half_tab_1:checked ~ #half_content_1 { display: block; }
 #half_tab_2:checked ~ #half_content_2 { display: block; }
 #half_tab_3:checked ~ #half_content_3 { display: block; }
+@media screen and (max-width: 430px) {
+    #half_tab > label {
+        padding: 0.1rem 1rem;
+    }
+}
 
 /* 異時層 */
 .ban_style {

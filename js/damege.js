@@ -1719,9 +1719,9 @@ function calcScore(detail, grade_magn) {
     let damage_bonus_max = getDamageBonus(detail.max_damage, num);
     let damage_bonus_min = getDamageBonus(detail.min_damage, num);
     // 暫定固定値
-    let summary_score_avg = (level_bonus[num] + no_break_value + damage_bonus_avg) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
-    let summary_score_max = (level_bonus[num] + no_break_value + damage_bonus_max) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
-    let summary_score_min = (level_bonus[num] + no_break_value + damage_bonus_min) * turn_bonus[turn_count] * (1 + grade_magn / 100) * 0.47;
+    let summary_score_avg = (level_bonus[num] + no_break_value + damage_bonus_avg) * turn_bonus[turn_count] * (1 + grade_magn / 100);
+    let summary_score_max = (level_bonus[num] + no_break_value + damage_bonus_max) * turn_bonus[turn_count] * (1 + grade_magn / 100);
+    let summary_score_min = (level_bonus[num] + no_break_value + damage_bonus_min) * turn_bonus[turn_count] * (1 + grade_magn / 100);
     $("#lv_score").val(level_bonus[num].toLocaleString(0));
     $("#no_break_bonus").val(no_break_value.toLocaleString(0));
     $("#damage_bonus_avg").val(damage_bonus_avg.toLocaleString(0));
@@ -1744,7 +1744,7 @@ function getDamageBonus(damage, num) {
         let magn = 1.1701 * Math.pow(rest_damage / damage_limit[num], -0.669);
         damage_bonus += Math.floor(rest_damage * magn / 100);
     }
-    return damage_bonus;
+    return damage_bonus * 0.47;
 }
 
 // 敵耐性設定

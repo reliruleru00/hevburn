@@ -280,7 +280,7 @@ input[type="range"].result_display::-ms-thumb {
 /* 予測スコア */
 .prediction {
     display: inline-block;
-    width: 160px;
+    width: 180px;
     font-size: 16px;
 }
 
@@ -290,7 +290,7 @@ input[type="range"].result_display::-ms-thumb {
 }
 .prediction_shift {
     margin-left: -23px;
-    width: 183px;
+    width: 203px;
 }
 
 /* バフエリア */

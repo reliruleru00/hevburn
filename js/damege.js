@@ -347,9 +347,15 @@ function setEventTrigger() {
             if (select_style_list[chara_no] === undefined) {
                 return
             }
-            let chara_id= select_style_list[chara_no].style_info.chara_id;
-            let save_kbn = id_split[0];
-            localStorage.setItem(save_kbn + "_" + chara_id, $("#" + save_kbn + "_" + chara_no).val());
+            let member_info = select_style_list[chara_no];
+            let style_id = member_info.style_id;
+            // 新設定
+            let save_item = [member_info.style_info.rarity,
+                member_info.str, member_info.dex,
+                member_info.con, member_info.mnd,
+                member_info.int, member_info.luk,
+                member_info.limit_count, member_info.jewel_lv].join(",");
+            localStorage.setItem("style_" + style_id, save_item);
         }
       }
     });
@@ -1000,7 +1006,7 @@ function addElementField(member_info, field_name, effect_size, field_element, bu
 // アビリティ追加
 function addAbility(member_info) {
     let chara_id = member_info.style_info.chara_id;
-    let ability_list = [member_info.style_info.ability0, member_info.style_info.ability1, member_info.style_info.ability3];
+    let ability_list = [member_info.style_info.ability0, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
     let is_select = member_info.is_select;
 
     for (let index = 0; index < ability_list.length; index++) {
@@ -1009,23 +1015,25 @@ function addAbility(member_info) {
             // 1000番以降は不要
             continue;
         }
-        ability_info = getAbilityInfo(ability_id);
+        let ability_info = getAbilityInfo(ability_id);
         if (!is_select && ability_info.ability_target) {
             // 他部隊のアビリティはフィールドのみ許可
             continue;
         }
-        let limit_border = index == 0 ? 0 : (index === 1 ? 1 : 3); 
+        let limit_border = index == 0 ? 0 : (index === 1 ? 1 : (index === 2 ? 3 : (index === 3 ? 5 : 10))); 
         let display = "none";
 
-        if (ability_info.ability_element === 0 || (select_attack_skill && select_attack_skill.attack_element === ability_info.ability_element)) {
+        if ((ability_info.ability_element === 0 && ability_info.ability_physical == 0)
+            || (select_attack_skill && (select_attack_skill.attack_element === ability_info.ability_element || (select_attack_skill.attack_physical === ability_info.ability_physical)))) {
             display = "block";
         }
         let target;
         let element_type;
         let append = undefined;
+        let effect_size = ability_info.effect_size;
         switch (ability_info.ability_target) {
-	        case 0: // フィールド
-	            addElementField(member_info, ability_info.ability_name, ability_info.ability_power, ability_info.ability_element, 0, true);
+	        case 6: // フィールド
+	            addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.ability_element, 0, true);
                 continue;
 	        case 1: // 自分
 	            if (select_attack_skill && select_attack_skill.chara_id !== chara_id) {
@@ -1033,36 +1041,32 @@ function addAbility(member_info) {
 	            }
 	            target = "ability_self";
 	            element_type = "self_element"
+                // 狂乱の型/五月雨
+                if (ability_info.ability_id == 6 || ability_info.ability_id == 7) {
+                    // 追加
+                    var option1 = $('<option>').text("×1").val(1);
+                    var option2 = $('<option>').text("×2").val(2);
+                    append = $('<select>').append(option1).append(option2).addClass("ability_select");
+                }
 	            break;
 	        case 2: // 前衛
 	            target = "ability_front";
 	            element_type = "public buff_element"
 	            break;
-            case 6: // 前衛
+            case 3: // 後衛
 	            target = "ability_back";
 	            element_type = "public buff_element"
 	            break;
-            case 3:	// 常時
-	        case 4: // その他
+            case 4:	// 全体
+            case 5:	// 敵
+	        case 0: // その他
 	            target = "ability_all";
 	            element_type = "public buff_element"
 	            break;
-            case 5: // 狂乱の型/五月雨
-            if (select_attack_skill && select_attack_skill.chara_id !== chara_id) {
-                    display = "none"
-                }
-                target = "ability_self";
-                element_type = "self_element"
-                // 追加
-                var option1 = $('<option>').text("×1").val(1);
-                var option2 = $('<option>').text("×2").val(2);
-                append = $('<select>').append(option1).append(option2).addClass("ability_select");
-                break;
 	        default:
 	            break;
         }
         let name = getCharaData(chara_id).chara_short_name;
-        let effect_size = ability_info.ability_power; 
         let id = target + chara_id + index;
         let chara_id_class = "chara_id-" + chara_id;
         let input = $('<input>').attr("type", "checkbox").attr("id", id)
@@ -1070,6 +1074,7 @@ function addAbility(member_info) {
             .data("limit_border", limit_border)
             .data("ability_id", ability_id)
             .data("chara_no", member_info.chara_no)
+            .addClass("ability_physical-" + ability_info.ability_physical)
             .addClass("ability_element-" + ability_info.ability_element)
             .addClass("ability")
             .addClass(chara_id_class);
@@ -1091,24 +1096,24 @@ function addAbility(member_info) {
 
 // アビリティチェック設定
 function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_id) {
-    let disabled = ability_info.ability_type == 1 ? true : false;
+    let disabled = !ability_info.conditions;
     let checked = true;
     switch (ability_info.ability_target) {
         case 1: // 自分
-        case 5: // 狂乱の型、五月雨
-            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && ability_info.ability_type == 1);
+            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
             checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break;
         case 2: // 前衛
-            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && ability_info.ability_type == 1);
+            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
             checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break;
-        case 6: // 後衛
-            disabled = limit_count < limit_border || (!$(input).hasClass(chara_id) && ability_info.ability_type == 1);
+        case 3: // 後衛
+            disabled = limit_count < limit_border || (!$(input).hasClass(chara_id) && disabled);
             checked = limit_count >= limit_border && !$(input).hasClass(chara_id);
             break;
-        case 3:	// 常時
-        case 4:	// 常時
+        case 0:	// その他
+        case 4:	// 全体
+        case 5:	// 敵
             if (limit_count < limit_border) {
                 disabled = true;
                 checked = false;
@@ -1333,7 +1338,7 @@ function getSumBuffEffectSize() {
     }
     // トークン
     let token_count = Number($("#token_count").val());
-    sum_buff += token_count * getSumAbilityEffectSize(6);
+    sum_buff += token_count * getSumAbilityEffectSize(31);
     // 士気
     sum_buff += Number($("#morale_count").val()) * 5;
     return 1 + sum_buff / 100;
@@ -1343,7 +1348,7 @@ function getSumBuffEffectSize() {
 function getSumDebuffEffectSize() {
     // スキルデバフ合計
     let sum_debuff = getSumEffectSize("debuff");
-    sum_debuff += getSumAbilityEffectSize(7);
+    sum_debuff += getSumAbilityEffectSize(2);
     return 1 + sum_debuff / 100;
 }
 
@@ -1376,19 +1381,18 @@ function getSumFunnelEffectList() {
             funnel_list.push(size);
         }
     });
-    let effect_size = getSumAbilityEffectSize(5);
+    let effect_size = getSumAbilityEffectSize(6);
     let loop = 0;
-    let size = 0
-    if (effect_size == 50) {
+    if (effect_size == 10) {
         loop = 5;
         size = 10;
-    } else if (effect_size == 100) {
+    } else if (effect_size == 20) {
         loop = 10;
         size = 10;
-    } else if (effect_size == 120) {
+    } else if (effect_size == 40) {
         loop = 3;
         size = 40;
-    } else if (effect_size == 240) {
+    } else if (effect_size == 80) {
         loop = 6;
         size = 40;
     }
@@ -1419,7 +1423,7 @@ function getCriticalRate(member_info) {
     critical_rate += diff > 0 ? diff * 0.04 : 0;
     critical_rate = critical_rate > 15 ? 15 : critical_rate;
     critical_rate += getSumEffectSize("critical_rate");
-    critical_rate += getSumAbilityEffectSize(2);
+    critical_rate += getSumAbilityEffectSize(3);
     critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
     let grade_sum = getGradeSum();
     critical_rate -= grade_sum.critical;
@@ -1431,12 +1435,12 @@ function getCriticalRate(member_info) {
 function getCriticalBuff() {
     let critical_buff = 50;
     critical_buff += getSumEffectSize("critical_buff");
-    critical_buff += getSumAbilityEffectSize(3);
+    critical_buff += getSumAbilityEffectSize(4);
     return 1 + critical_buff / 100;
 }
 
 // アビリティ効果量合計取得
-function getSumAbilityEffectSize(ability_kind) {
+function getSumAbilityEffectSize(effect_type) {
     let ability_effect_size = 0;
     $("input[type=checkbox].ability:checked").each(function(index, value) {
         if ($(value).parent().css("display") === "none") {
@@ -1445,7 +1449,7 @@ function getSumAbilityEffectSize(ability_kind) {
         let ability_id = Number($(value).data("ability_id"));
         let ability_info = getAbilityInfo(ability_id);
         let effect_size = 0;
-        if (ability_info.ability_kind == ability_kind) {
+        if (ability_info.effect_type == effect_type) {
             effect_size = Number($(value).data("effect_size"));
         }
         if ($(value).parent().find("select").length > 0) {
@@ -1460,7 +1464,7 @@ function getSumAbilityEffectSize(ability_kind) {
 function getDestructionEffectSize() {
     let destruction_effect_size = 100;
     destruction_effect_size += getSumEffectSize("destruction_rete_up");
-    destruction_effect_size += getSumAbilityEffectSize(10);
+    destruction_effect_size += getSumAbilityEffectSize(5);
     let grade_sum = getGradeSum();
     destruction_effect_size -= grade_sum.destruction;
     return destruction_effect_size;

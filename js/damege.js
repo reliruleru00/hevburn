@@ -29,8 +29,10 @@ function setEventTrigger() {
             }
             if (select_attack_skill.attack_element !== 0 && (skill_info === undefined || select_attack_skill.attack_element !== skill_info.attack_element)) {
                 $(".buff_element-" + select_attack_skill.attack_element).hide();
-                $(".buff_physical-" + select_attack_skill.attack_physical).hide();
                 $(".row_element-" + select_attack_skill.attack_element).css("display", "none");
+            }
+            if (skill_info === undefined || select_attack_skill.attack_physical !== skill_info.attack_physical) {
+                $(".buff_physical-" + select_attack_skill.attack_physical).hide();
             }
 
             $(".status_attack_skill").removeClass("status_attack_skill");
@@ -49,8 +51,12 @@ function setEventTrigger() {
         let member_info = select_style_list[chara_no];
         let chara_id_class = "chara_id-" + skill_info.chara_id;
         $(".public.buff_element-0.buff_physical-0").show();
-        $(".public.buff_element-" + skill_info.attack_element).show();
-        $(".public.buff_physical-" + skill_info.attack_physical).show();
+        if (skill_info.attack_element != 0) {
+            $(".public.buff_element-" + skill_info.attack_element).show();
+        }
+        if (skill_info.attack_physical != 0) {
+            $(".public.buff_physical-" + skill_info.attack_physical).show();
+        }
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-0").show();
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-999").show();
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-" + skill_info.attack_id).show();
@@ -1035,6 +1041,7 @@ function addAbility(member_info) {
         let physical_type;
         let append = undefined;
         let effect_size = ability_info.effect_size;
+
         switch (ability_info.ability_target) {
 	        case 6: // フィールド
 	            addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.ability_element, 0, true);
@@ -1055,19 +1062,21 @@ function addAbility(member_info) {
                 }
 	            break;
 	        case 2: // 前衛
-	            target = "ability_front";
-	            element_type = "public buff_element"
-	            physical_type = "buff_physical"
-	            break;
             case 3: // 後衛
-	            target = "ability_back";
-	            element_type = "public buff_element"
-	            physical_type = "buff_physical"
-	            break;
-            case 4:	// 全体
             case 5:	// 敵
+            case 4:	// 全体
 	        case 0: // その他
-	            target = "ability_all";
+                switch (ability_info.activation_place) {
+                    case 1: // 前衛
+                        target = "ability_front";
+                        break;
+                    case 2: // 後衛
+                        target = "ability_back";
+                        break;
+                    case 3: // 全体
+                        target = "ability_all";
+                        break;
+                }
 	            element_type = "public buff_element"
 	            physical_type = "buff_physical"
 	            break;
@@ -1104,32 +1113,8 @@ function addAbility(member_info) {
 
 // アビリティチェック設定
 function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_id) {
-    let disabled = !ability_info.conditions;
-    let checked = true;
-    switch (ability_info.ability_target) {
-        case 1: // 自分
-            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
-            checked = limit_count >= limit_border && $(input).hasClass(chara_id);
-            break;
-        case 2: // 前衛
-            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
-            checked = limit_count >= limit_border && $(input).hasClass(chara_id);
-            break;
-        case 3: // 後衛
-            disabled = limit_count < limit_border || (!$(input).hasClass(chara_id) && disabled);
-            checked = limit_count >= limit_border && !$(input).hasClass(chara_id);
-            break;
-        case 0:	// その他
-        case 4:	// 全体
-        case 5:	// 敵
-            if (limit_count < limit_border) {
-                disabled = true;
-                checked = false;
-            } else {
-                checked = true;
-            }
-            break;
-    }
+    let disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && !ability_info.conditions);
+    let checked = limit_count >= limit_border && $(input).hasClass(chara_id);
     $(input).prop("checked", checked).attr("disabled", disabled);
 }
 

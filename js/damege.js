@@ -1119,8 +1119,8 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
         case 1:	// 自分
         case 2:	// 前衛
         case 3:	// 後衛
-            let disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
-            let checked = limit_count >= limit_border && $(input).hasClass(chara_id);
+            disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
+            checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break
         case 4:	// 全体
         case 0:	// その他

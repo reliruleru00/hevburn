@@ -29,6 +29,7 @@ function setEventTrigger() {
             }
             if (select_attack_skill.attack_element !== 0 && (skill_info === undefined || select_attack_skill.attack_element !== skill_info.attack_element)) {
                 $(".buff_element-" + select_attack_skill.attack_element).hide();
+                $(".buff_physical-" + select_attack_skill.attack_physical).hide();
                 $(".row_element-" + select_attack_skill.attack_element).css("display", "none");
             }
 
@@ -47,8 +48,9 @@ function setEventTrigger() {
         let chara_no = $(this).find("option:selected").data("chara_no");
         let member_info = select_style_list[chara_no];
         let chara_id_class = "chara_id-" + skill_info.chara_id;
+        $(".public.buff_element-0.buff_physical-0").show();
         $(".public.buff_element-" + skill_info.attack_element).show();
-        $(".public.buff_element-0").show();
+        $(".public.buff_physical-" + skill_info.attack_physical).show();
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-0").show();
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-999").show();
         $(".only_" + chara_id_class + ".buff_element-0.skill_attack-" + skill_info.attack_id).show();
@@ -348,7 +350,7 @@ function setEventTrigger() {
                 return
             }
             let member_info = select_style_list[chara_no];
-            let style_id = member_info.style_id;
+            let style_id = member_info.style_info.style_id;
             // 新設定
             let save_item = [member_info.style_info.rarity,
                 member_info.str, member_info.dex,
@@ -971,6 +973,7 @@ function addBuffList(member_info) {
             .data("chara_no", member_info.chara_no)
             .css("display", "none")
             .addClass("buff_element-" + buff_element)
+            .addClass("buff_physical-" + "0")
             .addClass("buff_id-" + value.buff_id)
             .addClass("variable_effect_size")
             .addClass("skill_attack-" + value.skill_attack)
@@ -1029,6 +1032,7 @@ function addAbility(member_info) {
         }
         let target;
         let element_type;
+        let physical_type;
         let append = undefined;
         let effect_size = ability_info.effect_size;
         switch (ability_info.ability_target) {
@@ -1041,6 +1045,7 @@ function addAbility(member_info) {
 	            }
 	            target = "ability_self";
 	            element_type = "self_element"
+	            physical_type = "self_physical"
                 // 狂乱の型/五月雨
                 if (ability_info.ability_id == 6 || ability_info.ability_id == 7) {
                     // 追加
@@ -1052,16 +1057,19 @@ function addAbility(member_info) {
 	        case 2: // 前衛
 	            target = "ability_front";
 	            element_type = "public buff_element"
+	            physical_type = "buff_physical"
 	            break;
             case 3: // 後衛
 	            target = "ability_back";
 	            element_type = "public buff_element"
+	            physical_type = "buff_physical"
 	            break;
             case 4:	// 全体
             case 5:	// 敵
 	        case 0: // その他
 	            target = "ability_all";
 	            element_type = "public buff_element"
+	            physical_type = "buff_physical"
 	            break;
 	        default:
 	            break;
@@ -1074,7 +1082,6 @@ function addAbility(member_info) {
             .data("limit_border", limit_border)
             .data("ability_id", ability_id)
             .data("chara_no", member_info.chara_no)
-            .addClass("ability_physical-" + ability_info.ability_physical)
             .addClass("ability_element-" + ability_info.ability_element)
             .addClass("ability")
             .addClass(chara_id_class);
@@ -1084,9 +1091,10 @@ function addAbility(member_info) {
             .addClass("checkbox01");
         let div = $('<div>').append(input).append(label)
             .addClass(element_type + "-" + ability_info.ability_element)
+            .addClass(physical_type + "-" + ability_info.ability_physical)
             .addClass(target)
             .addClass(chara_id_class)
-            .css("display", display)
+            .css("display", display);
         $("#" + target).append(div);
         if (append !== undefined) {
             $(div).append(append);

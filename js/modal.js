@@ -152,10 +152,10 @@ function setMember(select_chara_no, style_id, isTrigger) {
             $("#" + value + "_" + select_chara_no).val(items[index]);
             member_info[value] = Number(items[index]);
         });
-        $("#jewel_" + select_chara_no).val(items[7]);
-        $("#limit_" + select_chara_no).val(items[8]);
-        member_info.jewel_lv = Number(items[7]);
-        member_info.limit_count = Number(items[8]);
+        $("#limit_" + select_chara_no).val(items[7]);
+        $("#jewel_" + select_chara_no).val(items[8]);
+        member_info.limit_count = Number(items[7]);
+        member_info.jewel_lv = Number(items[8]);
     } else {
         // 旧設定
         $.each(status_kbn, function(index, value) {

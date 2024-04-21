@@ -156,7 +156,7 @@ function combineImagesWithHatching(create_style) {
     // canvasを画像として保存する
     var link = document.createElement('a');
     link.download = 'image.png';
-    link.href = canvas.toDataURL();
+    link.href = canvas[0].toDataURL();
     link.click();
 }
 

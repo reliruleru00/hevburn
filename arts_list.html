@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1145880808347586"
+    crossorigin="anonymous"></script>
+  <meta charset="unicode">
+  <meta content="ヘブンバーンズレッドのSSスタイル所持率チェッカーです。" name="description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RELI_hevburn" />
+  <meta name="twitter:title" content="ヘブバン スタイル所持率チェッカー" />
+  <meta name="twitter:description" content="ヘブンバーンズレッドのSSスタイル所持率チェッカーです。" />
+  <meta name="twitter:image" content="https://www.hbr-tool.com/img/summary_checker.png" />
+  <title>ヘブバン スタイル所持率チェッカー</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/arts.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/arts_list.js"></script>
+  <script src="js/arts.js"></script>
+  <script>
+    let select_count = 0;
+    let troop_list = ["31A", "31B", "31C", "31E"];
+    $(function () {
+      createArtsList();
+      setEventTrigger();
+    });
+  </script>
+</head>
+
+<body>
+  <main>
+    <div class="header"></div>
+    <div class="frame static w-screen h-screen overflow-y-scroll">
+      <div class="flex">
+        <div class="main_area mx-auto">
+          <div class="text-left flex">
+            <input type="button" id="openModalBtn" class="w-32 mt-2 mb-2 default" value="一覧画像を作成">
+            <div class="text-right">
+              <input type="button" id="btn_select" class="w-16 mt-2 mb-2 default" value="全選択">
+              <input type="button" id="btn_release" class="w-16 mt-2 mb-2 default" value="全解除">
+            </div>
+          </div>
+          <div class="flex">
+            <div class="troops">
+              <!-- <input type="image" class="emblem" src="img/31a.webp"> -->
+              <div id="arts_list_31A" class="flex flex-wrap troops_31A"></div>
+            </div>
+            <div class="troops">
+              <!-- <input type="image" class="emblem" src="img/31b.webp"> -->
+              <div id="arts_list_31B" class="flex flex-wrap troops_31B"></div>
+            </div>
+          </div>
+          <div class="flex">
+            <div class="troops">
+              <!-- <input type="image" class="emblem" src="img/31c.webp"> -->
+              <div id="arts_list_31C" class="flex flex-wrap troops_31C"></div>
+            </div>
+            <div class="troops">
+              <!-- <input type="image" class="emblem" src="img/31e.webp"> -->
+              <div id="arts_list_31E" class="flex flex-wrap troops_31E"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="modalOverlay" class="modal-overlay"></div>
+    <div id="modalContent" class="modal-content">
+      <div id="canvas-container"></div>
+    </div>
+  </main>
+  <!-- <footer>
+    <div class="w-[300px] mx-auto text-center">
+      <div class="flex text-2xl font-bold">
+        <div class="w-48">所持数</div>
+        <div class="flex">
+          <label id="style_select" class="text-red-700 text-3xl"></label>
+          <div calss="text-3xl">/</div><label id="style_all" class="mt-1"></label>
+        </div>
+      </div>
+      <div class="flex text-2xl font-bold">
+        <div class="w-48">コンプリート率</div>
+        <label id="rate_complate" class="text-center w-24"></label>
+      </div>
+      <input type="button" class="btn_post mt-2 mb-2 default" value="結果を𝕏にPOST">
+    </div>
+  </footer> -->
+</body>
+
+</html>

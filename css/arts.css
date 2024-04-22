@@ -1,27 +1,19 @@
-@media screen and (max-width: 848px) {
+@media screen and (max-width: 1280px) {
   .main_area {
-    width: 100%;
+    width: 555px;
   }
-  .select_style {
-    width: 69px;
-    height: 69px;
-  }
-  .emblem {
+  .select_arts {
     width: 69px;
     height: 69px;
   }
 }
-@media screen and (min-width: 848px) {
+@media screen and (min-width: 1280px) {
   .main_area {
     width: 1110px;
   }
   .select_arts {
     width: 92px;
     height: 130px;
-  } 
-  .emblem {
-    width: 92px;
-    height: 92px;
   } 
 }
 

@@ -93,7 +93,7 @@ a.header_link {
     padding: 0 5px;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1200px) {
     .btn-gNav {
         display: block;
     }

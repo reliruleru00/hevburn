@@ -4,7 +4,7 @@ function setEventTrigger() {
     $(".select_arts").on('click', function () {
         let select = $(this).data("select");
         let troops = $(this).data("troops");
-        
+
         if (select == "1") {
             released($(this), troops);
             select_count -= 1;
@@ -35,16 +35,8 @@ function setEventTrigger() {
     });
 
     //生成ボタン
-    $('#openModalBtn').click(function () {
-        // $('#modalOverlay, #modalContent').fadeIn();
-
+    $('#outputBtn').click(function () {
         combineImagesWithHatching(null);
-
-    });
-
-    // モーダル解除
-    $('#modalOverlay').click(function () {
-        $('#modalOverlay, #modalContent').fadeOut();
     });
 }
 
@@ -68,7 +60,7 @@ function saveLocalStrage(troops) {
         return;
     }
     let selectValues = [];
-    $('#arts_list_' + troops).children().each(function() {
+    $('#arts_list_' + troops).children().each(function () {
         selectValues.push($(this).data('select'));
     });
     localStorage.setItem("arts_select_" + troops, selectValues.join(','));
@@ -111,12 +103,6 @@ function createArtsList() {
 
 // 画像を生成して Canvas に描画する関数
 function combineImagesWithHatching(create_style) {
-    // var canvasContainer = $('#canvas-container');
-    // canvasContainer.empty(); // コンテナをクリア
-    // var canvas = $('<canvas>');
-    // var context = canvas[0].getContext('2d');
-
-    
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
     // Canvas サイズを設定
@@ -128,63 +114,37 @@ function combineImagesWithHatching(create_style) {
     canvas.width = scaledWidth * columns;
     canvas.height = scaledHeight * rows;
 
-    // Canvas をコンテナに追加
-    // canvasContainer.append(canvas);
-
-    // 画像をロードして描画
-    var loadedImages = 0;
-
-    function loadImageAndDraw(index, arts_info) {
-        var img = $('<img>');
-        let select = "1";
-        img[0].onload = function () {
-            var row = Math.floor(index / columns);
-            var col = index % columns;
-            context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-
-            // 未所持の場合網掛けを描画
-            if (select != "1") {
-                drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-            }
-            loadedImages++;
-        };
-        img[0].src = "arts/" + arts_info.image_url;
-    }
-
     // 画像をロードして描画
     for (var i = 0; i < arts_list.length; i++) {
-        // loadImageAndDraw(i, arts_list[i]);
         var img = $('<img>');
         let select = "1";
         img[0].src = "arts/" + arts_list[i].image_url;
-        var row = Math.floor(i / columns);
-        var col = i % columns;
+        let [row, col] = getRowColumn(i);
         context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
         // 未所持の場合網掛けを描画
         if (select != "1") {
             drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
         }
-        loadedImages++;
     }
 
-    // Canvas に描画する処理（ここでは赤い四角形を描画）
-    // context.fillStyle = 'red';
-    // context.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Canvas の内容を base64 エンコードしたデータ URL を生成
-    var dataURL = canvas.toDataURL();
-    
     // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
     var downloadLink = document.createElement('a');
-    downloadLink.href = dataURL;
+    downloadLink.href = canvas.toDataURL();
     downloadLink.download = 'image.png'; // ダウンロード時のファイル名
     downloadLink.click();
-    // canvasを画像として保存する
-    // var link = document.createElement('a');
-    // link.download = 'image.png';
-    // link.href = $('<canvas>')[0].toDataURL();
-    // link.click();
+}
+
+// 行と列の番号を計算する
+function getRowColumn(number) {
+    let stage = Math.floor(number / 36);
+    let vertical = Math.floor((number % 36) / 6);
+    let mass = Math.floor((number % 36) / 18);
+    let beside = number % 6;
+
+    let row = stage * 3 + vertical;
+    let column = mass * 6 + beside;
+    return [row, column];
 }
 
 // 網掛けを描画する関数

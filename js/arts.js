@@ -142,7 +142,7 @@ function combineImagesWithHatching(create_style) {
 // 行と列の番号を計算する
 function getRowColumn(number) {
     let stage = Math.floor(number / 36);
-    let vertical = Math.floor((number % 36) / 6);
+    let vertical = Math.floor((number % 18) / 6);
     let mass = Math.floor((number % 36) / 18);
     let beside = number % 6;
 

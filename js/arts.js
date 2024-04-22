@@ -128,11 +128,11 @@ function combineImagesWithHatching(create_style) {
         }
     });
     // 画像をロードして描画
-    for (var i = 0; i < arts_list.length; i++) {
+    $.each(arts_list, function (index, value) {
         let img = $('<img>');
         let select = arts_select_list[value.troops][index % 18];
-        img[0].src = "arts/" + arts_list[i].image_url;
-        let [row, col] = getRowColumn(i);
+        img[0].src = "arts/" + arts_list[index].image_url;
+        let [row, col] = getRowColumn(index);
         context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
         // 未所持の場合網掛けを描画

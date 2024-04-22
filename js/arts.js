@@ -139,10 +139,10 @@ function combineImagesWithHatching(create_style) {
         if (select != "1") {
             drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
         }
-    }
+    });
 
     // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
-    var downloadLink = document.createElement('a');
+    let downloadLink = document.createElement('a');
     downloadLink.href = canvas.toDataURL();
     downloadLink.download = 'image.png'; // ダウンロード時のファイル名
     downloadLink.click();

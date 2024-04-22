@@ -144,7 +144,7 @@ function combineImagesWithHatching(create_style) {
     // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
     let downloadLink = document.createElement('a');
     downloadLink.href = canvas.toDataURL();
-    downloadLink.download = 'image.png'; // ダウンロード時のファイル名
+    downloadLink.download = 'arts_deck.png'; // ダウンロード時のファイル名
     downloadLink.click();
 }
 
@@ -163,13 +163,13 @@ function getRowColumn(number) {
 // 網掛けを描画する関数
 function drawHatching(context, pos_x, pos_y, width, height) {
     context.beginPath();
-    for (var x = 0; x < width; x += 2) {
-        context.moveTo(x + pos_x, pos_y);
-        context.lineTo(x + pos_x, height + pos_y);
+    for (var x = pos_x; x < width + pos_x; x += interval) {
+        context.moveTo(x, pos_y);
+        context.lineTo(x, height + pos_y);
     }
-    for (var y = 0; y < height; y += 2) {
-        context.moveTo(pos_x, y + pos_y);
-        context.lineTo(width + pos_x, y + pos_y);
+    for (var y = pos_y; y < height + pos_y; y += interval) {
+        context.moveTo(pos_x, y);
+        context.lineTo(width + pos_x, y);
     }
     context.strokeStyle = 'rgba(0, 0, 0, 1)';
     context.stroke();

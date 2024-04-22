@@ -36,7 +36,7 @@ function setEventTrigger() {
 
     //生成ボタン
     $('#openModalBtn').click(function () {
-        $('#modalOverlay, #modalContent').fadeIn();
+        // $('#modalOverlay, #modalContent').fadeIn();
 
         combineImagesWithHatching(null);
 
@@ -111,22 +111,25 @@ function createArtsList() {
 
 // 画像を生成して Canvas に描画する関数
 function combineImagesWithHatching(create_style) {
-    var canvasContainer = $('#canvas-container');
-    canvasContainer.empty(); // コンテナをクリア
-    var canvas = $('<canvas>');
-    var context = canvas[0].getContext('2d');
+    // var canvasContainer = $('#canvas-container');
+    // canvasContainer.empty(); // コンテナをクリア
+    // var canvas = $('<canvas>');
+    // var context = canvas[0].getContext('2d');
 
+    
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
     // Canvas サイズを設定
     var columns = 12;
     var rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
     var scaledWidth = 512 / 4;
     var scaledHeight = 702 / 4;
-    canvas[0].width = scaledWidth * columns;
-    canvas[0].height = scaledHeight * rows;
+    canvas.width = scaledWidth * columns;
+    canvas.height = scaledHeight * rows;
 
     // Canvas をコンテナに追加
-    canvasContainer.append(canvas);
+    // canvasContainer.append(canvas);
 
     // 画像をロードして描画
     var loadedImages = 0;
@@ -150,14 +153,38 @@ function combineImagesWithHatching(create_style) {
 
     // 画像をロードして描画
     for (var i = 0; i < arts_list.length; i++) {
-        loadImageAndDraw(i, arts_list[i]);
+        // loadImageAndDraw(i, arts_list[i]);
+        var img = $('<img>');
+        let select = "1";
+        img[0].src = "arts/" + arts_list[i].image_url;
+        var row = Math.floor(i / columns);
+        var col = i % columns;
+        context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+
+        // 未所持の場合網掛けを描画
+        if (select != "1") {
+            drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+        }
+        loadedImages++;
     }
 
+    // Canvas に描画する処理（ここでは赤い四角形を描画）
+    // context.fillStyle = 'red';
+    // context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Canvas の内容を base64 エンコードしたデータ URL を生成
+    var dataURL = canvas.toDataURL();
+    
+    // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
+    var downloadLink = document.createElement('a');
+    downloadLink.href = dataURL;
+    downloadLink.download = 'image.png'; // ダウンロード時のファイル名
+    downloadLink.click();
     // canvasを画像として保存する
-    var link = document.createElement('a');
-    link.download = 'image.png';
-    link.href = canvas[0].toDataURL();
-    link.click();
+    // var link = document.createElement('a');
+    // link.download = 'image.png';
+    // link.href = $('<canvas>')[0].toDataURL();
+    // link.click();
 }
 
 // 網掛けを描画する関数

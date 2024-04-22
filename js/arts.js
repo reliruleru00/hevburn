@@ -163,13 +163,13 @@ function getRowColumn(number) {
 // 網掛けを描画する関数
 function drawHatching(context, pos_x, pos_y, width, height) {
     context.beginPath();
-    for (var x = pos_x; x < width + pos_x; x += 2) {
-        context.moveTo(x, pos_y);
-        context.lineTo(x, height + pos_y);
+    for (var x = 0; x < width; x += 2) {
+        context.moveTo(x + pos_x, pos_y);
+        context.lineTo(x + pos_x, height + pos_y);
     }
-    for (var y = pos_y; y < height + pos_y; y += 2) {
-        context.moveTo(pos_x, y);
-        context.lineTo(width + pos_x, y);
+    for (var y = 0; y < height; y += 2) {
+        context.moveTo(pos_x, y + pos_y);
+        context.lineTo(width + pos_x, y + pos_y);
     }
     context.strokeStyle = 'rgba(0, 0, 0, 1)';
     context.stroke();

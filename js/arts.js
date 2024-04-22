@@ -163,11 +163,11 @@ function getRowColumn(number) {
 // 網掛けを描画する関数
 function drawHatching(context, pos_x, pos_y, width, height) {
     context.beginPath();
-    for (var x = pos_x; x < width + pos_x; x += interval) {
+    for (var x = pos_x; x < width + pos_x; x += 2) {
         context.moveTo(x, pos_y);
         context.lineTo(x, height + pos_y);
     }
-    for (var y = pos_y; y < height + pos_y; y += interval) {
+    for (var y = pos_y; y < height + pos_y; y += 2) {
         context.moveTo(pos_x, y);
         context.lineTo(width + pos_x, y);
     }

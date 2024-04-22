@@ -113,8 +113,8 @@ function combineImagesWithHatching(create_style) {
     var columns = 12;
     var rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
-    var scaledWidth = 512 / 4;
-    var scaledHeight = 702 / 4;
+    var scaledWidth = Math.floor(512 / 4);
+    var scaledHeight = Math.floor(702 / 4);
     canvas.width = scaledWidth * columns;
     canvas.height = scaledHeight * rows;
 

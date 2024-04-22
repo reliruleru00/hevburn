@@ -7,37 +7,44 @@ function setEventTrigger() {
 
         if (select == "1") {
             released($(this), troops);
-            select_count -= 1;
+            deck_count -= 1;
         } else {
             selected($(this), troops);
-            select_count += 1;
+            deck_count += 1;
         }
-        // $("#style_select").text(select_count);
-        // setRateComplate();
+        setDeckCount();
     });
     // 全選択
     $("#btn_select").on('click', function () {
         $(".select_arts").each(function (index, value) {
             selected($(this));
         });
-        select_count = arts_list_.length;
-        // $("#select_arts").text(select_count);
-        // setRateComplate();
+        $.each(troop_list, function (index, value) {
+            saveLocalStrage(value);
+        });
+        deck_count = arts_list.length;
+        setDeckCount();
     });
     // 全解除
     $("#btn_release").on('click', function () {
         $(".select_arts").each(function (index, value) {
             released($(this));
         });
-        select_count = 0;
-        // $("#style_select").text(select_count);
-        // setRateComplate();
+        $.each(troop_list, function (index, value) {
+            saveLocalStrage(value);
+        });
+        deck_count = 0;
+        setDeckCount();
     });
-
     //生成ボタン
     $('#outputBtn').click(function () {
         combineImagesWithHatching(null);
     });
+}
+
+// デッキ枚数設定
+function setDeckCount() {
+    $("#deck_count").text(deck_count + "枚");
 }
 
 // 選択
@@ -82,7 +89,7 @@ function createArtsList() {
         let opacity = 0.3;
         let select = arts_select_list[value.troops][index % 18];
         if (select == "1") {
-            select_count += 1;
+            deck_count += 1;
             opacity = 1;
         }
 
@@ -95,11 +102,8 @@ function createArtsList() {
             .css("opacity", opacity);
         $("#arts_list_" + value.troops.replace("!", "")).append(input);
     });
-    // $("#style_all").text(style_list.length);
-    // $("#style_select").text(select_count);
-    // setRateComplate();
+    setDeckCount();
 }
-
 
 // 画像を生成して Canvas に描画する関数
 function combineImagesWithHatching(create_style) {

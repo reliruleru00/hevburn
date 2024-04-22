@@ -118,10 +118,19 @@ function combineImagesWithHatching(create_style) {
     canvas.width = scaledWidth * columns;
     canvas.height = scaledHeight * rows;
 
+    let arts_select_list = new Object();
+    $.each(troop_list, function (index, value) {
+        arts_select = localStorage.getItem("arts_select_" + value);
+        if (arts_select) {
+            arts_select_list[value] = arts_select.split(",");
+        } else {
+            arts_select_list[value] = Array(18).fill(0);
+        }
+    });
     // 画像をロードして描画
     for (var i = 0; i < arts_list.length; i++) {
-        var img = $('<img>');
-        let select = "1";
+        let img = $('<img>');
+        let select = arts_select_list[value.troops][index % 18];
         img[0].src = "arts/" + arts_list[i].image_url;
         let [row, col] = getRowColumn(i);
         context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);

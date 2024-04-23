@@ -152,26 +152,37 @@ function combineImagesWithHatching(create_style) {
     canvas.width = scaledWidth * columns;
     canvas.height = scaledHeight * rows;
 
+    let promises = [];
     // 画像をロードして描画
     $.each(create_style, function (index, value) {
         let img = $('<img>');
         let select = localStorage.getItem("style_has_" + value.style_id);
-        img[0].src = "select/" + value.image_url.replace("Thumbnail", "Select");
-        let row = Math.floor(index / columns);
-        let col = index % columns;
-        context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
-        // 未所持の場合網掛けを描画
-        if (select != "1") {
-            drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-        }
+        // 画像の読み込みを管理するプロミスを作成し、配列に追加する
+        var promise = new Promise(function (resolve, reject) {
+            img.on('load', function () {
+                let row = Math.floor(index / columns);
+                let col = index % columns;
+                context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+                // 未所持の場合網掛けを描画
+                if (select != "1") {
+                    drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+                }
+                resolve(); // 画像の読み込み完了時にresolveを呼び出す
+            });
+            img[0].src = "select/" + value.image_url.replace("Thumbnail", "Select");
+        });
+        promises.push(promise); // プロミスを配列に追加
     });
 
-    // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
-    let downloadLink = document.createElement('a');
-    downloadLink.href = canvas.toDataURL();
-    downloadLink.download = 'style_list.png'; // ダウンロード時のファイル名
-    downloadLink.click();
+    // すべてのプロミスが解決されたときに次の処理を実行する
+    Promise.all(promises).then(function() {
+        // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
+        let downloadLink = document.createElement('a');
+        downloadLink.href = canvas.toDataURL();
+        downloadLink.download = 'style_list.png'; // ダウンロード時のファイル名
+        downloadLink.click();
+    });
 }
 
 // 網掛けを描画する関数

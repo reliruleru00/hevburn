@@ -149,8 +149,8 @@ function compare( a, b ){
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = 376 / 2;
     let scaledHeight = 144 / 2;
-    canvas[0].width = scaledWidth * columns;
-    canvas[0].height = scaledHeight * rows;
+    canvas.width = scaledWidth * columns;
+    canvas.height = scaledHeight * rows;
 
     // 画像をロードして描画
     for (var i = 0; i < create_style.length; i++) {

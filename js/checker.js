@@ -159,7 +159,7 @@ function combineImagesWithHatching(create_style) {
         let select = localStorage.getItem("style_has_" + value.style_id);
 
         // 画像の読み込みを管理するプロミスを作成し、配列に追加する
-        var promise = new Promise(function (resolve, reject) {
+        let promise = new Promise(function (resolve, reject) {
             img.on('load', function () {
                 let row = Math.floor(index / columns);
                 let col = index % columns;
@@ -168,14 +168,13 @@ function combineImagesWithHatching(create_style) {
                 if (select != "1") {
                     drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
                 }
-                resolve(); // 画像の読み込み完了時にresolveを呼び出す
+                resolve();
             });
             img[0].src = "select/" + value.image_url.replace("Thumbnail", "Select");
         });
-        promises.push(promise); // プロミスを配列に追加
+        promises.push(promise);
     });
 
-    // すべてのプロミスが解決されたときに次の処理を実行する
     Promise.all(promises).then(function() {
         // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
         let downloadLink = document.createElement('a');

@@ -110,14 +110,14 @@ function combineImagesWithHatching(create_style) {
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
     // Canvas サイズを設定
-    let separate = 10;
+    let separate = 5;
     let columns = 12;
     let rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = Math.floor(512 / 4);
     let scaledHeight = Math.floor(702 / 4);
-    canvas.width = scaledWidth * columns + separate;
-    canvas.height = scaledHeight * rows + separate;
+    canvas.width = scaledWidth * columns + separate * 3;
+    canvas.height = scaledHeight * rows + separate * 3;
 
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -137,8 +137,8 @@ function combineImagesWithHatching(create_style) {
         let select = arts_select_list[value.troops][index % 18];
         img[0].src = "arts/" + arts_list[index].image_url;
         let [row, col] = getRowColumn(index);
-        let adjustRow = Math.floor(row / 3) * separate;
-        let adjustCol = Math.floor(col / 6) * separate;
+        let adjustRow = (Math.floor(row / 3) + 1) * separate;
+        let adjustCol = (Math.floor(col / 6) + 1) * separate;
         context.drawImage(img[0], col * scaledWidth + adjustCol, row * scaledHeight + adjustRow, scaledWidth, scaledHeight);
 
         // 未所持の場合網掛けを描画

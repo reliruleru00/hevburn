@@ -1,7 +1,7 @@
 // イベントトリガー設定
 function setEventTrigger() {
     // スタイル絞り込み
-    $(".select_style").on('click', function() {
+    $(".select_style").on('click', function () {
         let select = $(this).data("select");
         if (select == "1") {
             released($(this));
@@ -15,8 +15,8 @@ function setEventTrigger() {
     });
 
     // 全選択
-    $("#btn_select").on('click', function() {
-        $(".select_style").each(function(index, value) {
+    $("#btn_select").on('click', function () {
+        $(".select_style").each(function (index, value) {
             selected($(this));
         });
         select_count = style_list.length;
@@ -24,8 +24,8 @@ function setEventTrigger() {
         setRateComplate();
     });
     // 全解除
-    $("#btn_release").on('click', function() {
-        $(".select_style").each(function(index, value) {
+    $("#btn_release").on('click', function () {
+        $(".select_style").each(function (index, value) {
             released($(this));
         });
         select_count = 0;
@@ -34,7 +34,7 @@ function setEventTrigger() {
     });
 
     // ツイート
-    $(".btn_post").on('click', function() {
+    $(".btn_post").on('click', function () {
         let rate_complate = Math.floor(select_count / style_list.length * 1000) / 10;
         let message = `私のSSスタイル所持率は\r\n${select_count}/${style_list.length}(コンプリート率${rate_complate}%)です。\r\n`;
         shareOnTwitter(message);
@@ -44,7 +44,7 @@ function setEventTrigger() {
     $('#outputBtn').click(function () {
         let target = $('input[name="target"]:checked').val();
 
-        let filtered_style_list = style_list.filter(function(style) {
+        let filtered_style_list = style_list.filter(function (style) {
             let select = localStorage.getItem("style_has_" + style.style_id);
             return target == "all" || select == "1";
         });
@@ -98,7 +98,7 @@ function saveLocalStrage(style_id, select) {
 
 // スタイルリスト作成
 function createStyleList() {
-    $.each(style_list, function(index, value) {
+    $.each(style_list, function (index, value) {
         let source = "icon/" + value.image_url;
         let select = localStorage.getItem("style_has_" + value.style_id);
         let opacity = 0.3;
@@ -132,15 +132,15 @@ function setRateComplate() {
 }
 
 // 比較関数
-function compare( a, b ){
+function compare(a, b) {
     var r = 0;
-    if( a.chara_id < b.chara_id ){ r = -1; }
-    else if( a.chara_id > b.chara_id ){ r = 1; }
+    if (a.chara_id < b.chara_id) { r = -1; }
+    else if (a.chara_id > b.chara_id) { r = 1; }
     return r;
 }
 
- // 画像を生成して Canvas に描画する関数
- function combineImagesWithHatching(create_style) {
+// 画像を生成して Canvas に描画する関数
+function combineImagesWithHatching(create_style) {
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
     // Canvas サイズを設定
@@ -153,33 +153,29 @@ function compare( a, b ){
     canvas.height = scaledHeight * rows;
 
     // 画像をロードして描画
-    for (var i = 0; i < create_style.length; i++) {
-      let style_info = create_style[i];
-      let img = $('<img>');
-      let select = localStorage.getItem("style_has_" + style_info.style_id);
-      img[0].onload = function () {
-          var row = Math.floor(i / columns);
-          var col = i % columns;
-          context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+    $.each(create_style, function (index, value) {
+        let img = $('<img>');
+        let select = localStorage.getItem("style_has_" + value.style_id);
+        img[0].src = "select/" + value.image_url.replace("Thumbnail", "Select");
+        let row = Math.floor(index / columns);
+        let col = index % columns;
+        context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
 
-          // 未所持の場合網掛けを描画
-          if (select != "1") {
-              drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-          }
-      };
-      let path = "select/" + style_info.image_url.replace("Thumbnail", "Select");
-      img[0].src = path;
-    }
-    
+        // 未所持の場合網掛けを描画
+        if (select != "1") {
+            drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+        }
+    });
+
     // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
     let downloadLink = document.createElement('a');
     downloadLink.href = canvas.toDataURL();
-    downloadLink.download = 'arts_deck.png'; // ダウンロード時のファイル名
+    downloadLink.download = 'style_list.png'; // ダウンロード時のファイル名
     downloadLink.click();
 }
 
 // 網掛けを描画する関数
-function drawHatching(context, pos_x, pos_y ,width, height) {
+function drawHatching(context, pos_x, pos_y, width, height) {
     context.beginPath();
     for (var x = 0; x < width; x += 2) {
         context.moveTo(x + pos_x, pos_y);

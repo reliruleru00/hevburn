@@ -107,16 +107,17 @@ function createArtsList() {
 
 // 画像を生成して Canvas に描画する関数
 function combineImagesWithHatching(create_style) {
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
+    let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
     // Canvas サイズを設定
-    var columns = 12;
-    var rows = Math.ceil(arts_list.length / columns);
+    let separate = 10;
+    let columns = 12;
+    let rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
-    var scaledWidth = Math.floor(512 / 4);
-    var scaledHeight = Math.floor(702 / 4);
-    canvas.width = scaledWidth * columns;
-    canvas.height = scaledHeight * rows;
+    let scaledWidth = Math.floor(512 / 4);
+    let scaledHeight = Math.floor(702 / 4);
+    canvas.width = scaledWidth * columns + separate;
+    canvas.height = scaledHeight * rows + separate;
 
     let arts_select_list = new Object();
     $.each(troop_list, function (index, value) {
@@ -133,11 +134,13 @@ function combineImagesWithHatching(create_style) {
         let select = arts_select_list[value.troops][index % 18];
         img[0].src = "arts/" + arts_list[index].image_url;
         let [row, col] = getRowColumn(index);
-        context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+        let adjustRow = Math.floor(row / 3) * separate;
+        let adjustCol = Math.floor(col / 6) * separate;
+        context.drawImage(img[0], col * scaledWidth + adjustCol, row * scaledHeight + adjustRow, scaledWidth, scaledHeight);
 
         // 未所持の場合網掛けを描画
         if (select != "1") {
-            drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+            drawHatching(context, col * scaledWidth + adjustCol, row * scaledHeight + adjustRow, scaledWidth, scaledHeight);
         }
     });
 

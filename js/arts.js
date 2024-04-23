@@ -119,6 +119,9 @@ function combineImagesWithHatching(create_style) {
     canvas.width = scaledWidth * columns + separate;
     canvas.height = scaledHeight * rows + separate;
 
+    context.fillStyle = 'white';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
     let arts_select_list = new Object();
     $.each(troop_list, function (index, value) {
         arts_select = localStorage.getItem("arts_select_" + value);

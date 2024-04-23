@@ -1123,6 +1123,7 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
             checked = limit_count >= limit_border && $(input).hasClass(chara_id);
             break
         case 4:	// 全体
+        case 5:	// 敵
         case 0:	// その他
             if (limit_count < limit_border) {
                 disabled = true;

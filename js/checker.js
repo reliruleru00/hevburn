@@ -40,24 +40,17 @@ function setEventTrigger() {
         shareOnTwitter(message);
     });
 
-    //生成ボタン
-    $('#openModalBtn').click(function () {
-        $('#modalOverlay, #modalContent').fadeIn();
+    // ダウンロードボタン
+    $('#outputBtn').click(function () {
         let target = $('input[name="target"]:checked').val();
 
-        var filtered_style_list = style_list.filter(function(style) {
+        let filtered_style_list = style_list.filter(function(style) {
             let select = localStorage.getItem("style_has_" + style.style_id);
             return target == "all" || select == "1";
         });
         combineImagesWithHatching(filtered_style_list);
     });
-
-    // モーダル解除
-    $('#modalOverlay').click(function () {
-        $('#modalOverlay, #modalContent').fadeOut();
-    });
 }
-
 
 // Twitter起動
 function shareOnTwitter(message) {
@@ -148,48 +141,41 @@ function compare( a, b ){
 
  // 画像を生成して Canvas に描画する関数
  function combineImagesWithHatching(create_style) {
-    var canvasContainer = $('#canvas-container');
-    canvasContainer.empty(); // コンテナをクリア
-    var canvas = $('<canvas>');
-    var context = canvas[0].getContext('2d');
-
+    let canvas = document.createElement('canvas');
+    let context = canvas.getContext('2d');
     // Canvas サイズを設定
-    var columns = 4;
-    var rows = Math.ceil(create_style.length / columns);
+    let columns = 4;
+    let rows = Math.ceil(create_style.length / columns);
     // 画像の横幅と高さを半分に縮小
-    var scaledWidth = 376 / 2;
-    var scaledHeight = 144 / 2;
+    let scaledWidth = 376 / 2;
+    let scaledHeight = 144 / 2;
     canvas[0].width = scaledWidth * columns;
     canvas[0].height = scaledHeight * rows;
 
-    // Canvas をコンテナに追加
-    canvasContainer.append(canvas);
-
-    // 画像をロードして描画
-    var loadedImages = 0;
-
-    function loadImageAndDraw(index, style_info) {
-        var img = $('<img>');
-        let select = localStorage.getItem("style_has_" + style_info.style_id);
-        img[0].onload = function () {
-            var row = Math.floor(index / columns);
-            var col = index % columns;
-            context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-
-            // 未所持の場合網掛けを描画
-            if (select != "1") {
-                drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
-            }
-            loadedImages++;
-        };
-        let path = "select/" + style_info.image_url.replace("Thumbnail", "Select");
-        img[0].src = path;
-    }
-
     // 画像をロードして描画
     for (var i = 0; i < create_style.length; i++) {
-      loadImageAndDraw(i, create_style[i]);
+      let style_info = create_style[i];
+      let img = $('<img>');
+      let select = localStorage.getItem("style_has_" + style_info.style_id);
+      img[0].onload = function () {
+          var row = Math.floor(i / columns);
+          var col = i % columns;
+          context.drawImage(img[0], col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+
+          // 未所持の場合網掛けを描画
+          if (select != "1") {
+              drawHatching(context, col * scaledWidth, row * scaledHeight, scaledWidth, scaledHeight);
+          }
+      };
+      let path = "select/" + style_info.image_url.replace("Thumbnail", "Select");
+      img[0].src = path;
     }
+    
+    // ダウンロードリンクを作成し、クリック時にダウンロードされるよう設定
+    let downloadLink = document.createElement('a');
+    downloadLink.href = canvas.toDataURL();
+    downloadLink.download = 'arts_deck.png'; // ダウンロード時のファイル名
+    downloadLink.click();
 }
 
 // 網掛けを描画する関数

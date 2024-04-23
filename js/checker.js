@@ -40,8 +40,12 @@ function setEventTrigger() {
         shareOnTwitter(message);
     });
 
+    // 画像出力ボタン
+    $('#openModalBtn').click(function () {
+        $('#modalOverlay, #modalContent').fadeIn();
+    });
     // ダウンロードボタン
-    $('#outputBtn').click(function () {
+    $('#downloadBtn').click(function () {
         let target = $('input[name="target"]:checked').val();
 
         let filtered_style_list = style_list.filter(function (style) {
@@ -50,6 +54,12 @@ function setEventTrigger() {
         });
         combineImagesWithHatching(filtered_style_list);
     });
+
+    // モーダル解除
+    $('#modalOverlay').click(function () {
+        $('#modalOverlay, #modalContent').fadeOut();
+    });
+
 }
 
 // Twitter起動
@@ -144,7 +154,7 @@ function combineImagesWithHatching(create_style) {
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
     // Canvas サイズを設定
-    let columns = 4;
+    let columns = Number($("#image_columns").val());
     let rows = Math.ceil(create_style.length / columns);
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = 376 / 2;

@@ -1074,6 +1074,7 @@ function addAbility(member_info) {
                         target = "ability_back";
                         break;
                     case 3: // 全体
+                    case 0: // その他
                         target = "ability_all";
                         break;
                 }
@@ -1545,9 +1546,6 @@ function getEnemyInfo() {
 function updateGrade() {
     let enemy_info = getEnemyInfo();
     let grade_sum = getGradeSum();
-    $("#enemy_hp").val((enemy_info.max_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
-    let max_dp_list = enemy_info.max_dp.split(",");
-    $("#enemy_dp_0").val((max_dp_list[0] * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
     for (let i = 1; i <= 3; i++) {
         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i] - grade_sum["physical_" + i]);
     }
@@ -1655,17 +1653,17 @@ function updateEnemyStatus(enemy_class_no, enemy_info) {
 // スコアアタック敵ステータス設定
 function updateEnemyScoreAttack() {
     let enemy_info = getEnemyInfo();
+    let grade_sum = getGradeSum();
     let score_lv = Number($("#score_lv").val());
     let enemy_stat = score_stat[score_lv - 100];
     let enemy_hp =  getScoreHp(score_lv, Number(enemy_info.max_hp));
     let max_dp_list = enemy_info.max_dp.split(",");
     for (let i = 0; i < max_dp_list.length; i++) {
         let enemy_dp = getScoreDp(score_lv, Number(max_dp_list[i]));
-        $("#enemy_dp_" + i).val(enemy_dp.toLocaleString());
+        $("#enemy_dp_" + i).val((enemy_dp * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
     }
     $("#enemy_stat").val(enemy_stat);
-    $("#enemy_hp").val(enemy_hp.toLocaleString());
-    
+    $("#enemy_hp").val((enemy_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
 }
 
 // スコアタHP取得
@@ -1968,6 +1966,11 @@ function getDebuffEffectSize(buff_id, member_info, skill_lv) {
     let ability_id = member_info.style_info.ability3;
     if (ability_id == 502 && member_info.limit_count >= 3) {
         effect_size *= 1.25;
+    }
+    // 減退
+    let ability_id0 = member_info.style_info.ability0;
+    if (ability_id0 == 504) {
+        effect_size *= 1.1;
     }
     return effect_size;
 }

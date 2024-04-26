@@ -1668,18 +1668,10 @@ function updateEnemyScoreAttack() {
 
 // スコアタHP取得
 function getScoreHp(score_lv, max_hp) {
-    if (score_lv == 140) {
-        // 特殊対応
-        if (max_hp == 900000) {
-            return 7400000
-        } else {
-            return 8400000;
-        }
-    }
     let count1 = score_lv > 120 ? 20 : score_lv - 100;
     let count2 = score_lv > 138 ? 18 : score_lv > 120 ? score_lv - 120 : 0;
     let magn = Math.pow(1.055, count1) * Math.pow(1.05, count2);
-    return Math.ceil(max_hp * magn / 1000) * 1000;
+    return roundUpToFourSignificantFigures(max_hp * magn);
 }
 
 // スコアタDP取得
@@ -1687,7 +1679,18 @@ function getScoreDp(score_lv, max_dp) {
     let count1 = score_lv > 120 ? 20 : score_lv - 100;
     let count2 = score_lv > 120 ? score_lv - 120 : 0;
     let magn = Math.pow(1.04, count1) * Math.pow(1.05, count2);
-    return Math.ceil(max_dp * magn / 1000) * 1000;
+    return roundUpToFourSignificantFigures(max_dp * magn);
+}
+
+// 有効数字を3桁にする
+function roundUpToFourSignificantFigures(val) {
+    let num = Math.floor(val)
+    let significantFigures = num.toString().replace(/^-/, '').replace(/^0+/, '').length;
+    if (significantFigures < 4) {
+        return num;
+    }
+    let roundedNum = Math.ceil(num / Math.pow(10, significantFigures - 3)) * Math.pow(10, significantFigures - 3);
+    return roundedNum;
 }
 
 // スコアアタック表示

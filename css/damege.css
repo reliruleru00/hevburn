@@ -295,7 +295,7 @@ input[type="range"].result_display::-ms-thumb {
 /* 予測スコア */
 .prediction {
     display: inline-block;
-    width: 190px;
+    width: 200px;
     font-size: 16px;
     white-space: nowrap;
 }
@@ -305,8 +305,11 @@ input[type="range"].result_display::-ms-thumb {
 }
 .prediction_shift {
     margin-left: -23px;
-    width: 213px;
+    width: 223px;
     white-space: nowrap;
+}
+.prediction_none {
+    width: 130px;
 }
 .label_damage_bonus {
     margin-top: -3px;

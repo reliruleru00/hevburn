@@ -1368,7 +1368,11 @@ function getSumEffectSize(class_name) {
         if (selected.val() == "") {
             return true;
         }
-        effect_size += Number($(selected).data("text_effect_size"));
+        if ($(selected).data("text_effect_size")) {
+            effect_size += Number($(selected).data("text_effect_size"));
+        } else {
+            effect_size += Number($(selected).data("effect_size"));
+        }
     });
     return effect_size;
 }

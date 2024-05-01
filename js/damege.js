@@ -34,6 +34,8 @@ function setEventTrigger() {
             if (skill_info === undefined || select_attack_skill.attack_physical !== skill_info.attack_physical) {
                 $(".buff_physical-" + select_attack_skill.attack_physical).hide();
             }
+           // キャラ、スタイル専用非表示
+            $(".skill_unique").hide();
 
             $(".status_attack_skill").removeClass("status_attack_skill");
             // 敵情報初期化
@@ -50,6 +52,7 @@ function setEventTrigger() {
         let chara_no = $(this).find("option:selected").data("chara_no");
         let member_info = select_style_list[chara_no];
         let chara_id_class = "chara_id-" + skill_info.chara_id;
+        let style_id_class = "style_id-" + skill_info.style_id;
         $(".public.buff_element-0.buff_physical-0").show();
         if (skill_info.attack_element != 0) {
             $(".public.buff_element-" + skill_info.attack_element).show();
@@ -72,6 +75,9 @@ function setEventTrigger() {
             $("#elememt_ring").prop("selectedIndex", 0);
         }
         $(".self_element-0." + chara_id_class).show();
+        // キャラ、スタイル専用表示
+        $(".attack_" + style_id_class).show();
+        $(".attack_" + chara_id_class).show();
 
         // 該当ステータスに着色
         for (let i = 1; i <= 3; i++) {
@@ -108,6 +114,13 @@ function setEventTrigger() {
         // 敵情報再設定
         updateEnemyResist();
         createSkillLvList("skill_lv", max_lv, max_lv);
+    });
+    $("#skill_special_display").on("change", function(event) {
+        if ($("#skill_special_display").prop("checked")) {
+            $(".skill_kind-versatile").hide();
+        } else {
+            $(".skill_kind-versatile").show();
+        }
     });
     // バフスキル変更
     $(".include_lv").on("change", function(event) {
@@ -295,8 +308,14 @@ function setEventTrigger() {
             }
         }
     });
+    // プレイヤーDP変更
+    $(".player_dp_range").on("input", function(event) {
+        let val = $(this).val();
+        $("#player_dp_rate").val(val + '%');
+        applyGradient($(".player_dp_range"), "#4F7C8B", val / 1.5);
+    });
     // 残りDP変更
-    $(".dp_range").on("input", function(event) {
+    $(".enemy_dp_range").on("input", function(event) {
         $("#enemy_destruction_rate").val(100);
         let dp_no = Number($(this).prop("id").replace(/\D/g, ''));
         setDpGarge(dp_no, $(this).val())
@@ -567,12 +586,16 @@ function calcDamage() {
     let funnel_sum = 1 + getSumFunnelEffectList().reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
     let destruction_rate = Number($("#enemy_destruction_rate").val());
     let special = 1 + Number($("#dp_range_0").val() == 0 ? skill_info.hp_damege / 100 : skill_info.dp_damege / 100);
-    // 残DP補正(暫定)
-    let dp_correction_rate = 1;
-    if (skill_info.attack_id == 113) {
-        dp_correction_rate = 1.25;
-    } else if (skill_info.attack_id == 114) {
-        dp_correction_rate = 1.1;
+    // バーチカルフォース
+    let skill_unique_rate = 1;
+    if (skill_info.attack_id == 115) {
+        let dp_rate = Number($("#skill_unique_dp_rate").val());
+        dp_rate = dp_rate < 60 ? 60 : dp_rate;
+        skill_unique_rate += (dp_rate - 100) / 200
+    }
+    // 桜花の矢
+    if (skill_info.chara_id == 45 && $("#skill_unique_cherry_blossoms").prop("checked")) {
+        buff += 0.5
     }
 
     let critical_power = getBasePower(member_info, stat_up - 50);
@@ -582,7 +605,7 @@ function calcDamage() {
     damage_detail = new RestGauge();
     critical_detail = new RestGauge();
 
-    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate * dp_correction_rate;
+    let fixed = mindeye * fragile * token * element_field * weak_physical * weak_element * enemy_defence_rate * skill_unique_rate;
     calculateDamage(basePower, skill_info, buff, debuff, fixed, "#damage", "#destruction_last_rate", damage_detail);
     calculateDamage(basePower * 0.9, skill_info, buff, debuff, fixed, "#damage_min", undefined, damage_detail);
     calculateDamage(basePower * 1.1, skill_info, buff, debuff, fixed, "#damage_max", undefined, damage_detail);
@@ -929,12 +952,17 @@ function addAttackList(member_info) {
     );
 
     let attack_sort_list = attack_list.sort((x, y) => y.style_id - x.style_id);
+    let checked = $("#skill_special_display").prop("checked");
 
     attack_sort_list.forEach(value => {
+        let display = checked && value.attack_id > 1000 ? "none" : "block";
+        let kind = value.attack_id < 1000 ? "exclusive" : "versatile";
         let option = $('<option>')
-            .text(value.attack_name)
+            .text(`${value.attack_name}(${value.hit_count}Hit)`)
             .val(value.attack_id)
+            .css("display", display)
             .data("chara_no", member_info.chara_no)
+            .addClass("skill_kind-" +  kind)
             .addClass("chara_id-" + value.chara_id);
         $("#attack_list").append(option);
     });

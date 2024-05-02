@@ -53,6 +53,7 @@ function setEventTrigger() {
         let member_info = select_style_list[chara_no];
         let chara_id_class = "chara_id-" + skill_info.chara_id;
         let style_id_class = "style_id-" + skill_info.style_id;
+        let attack_id_class = "attack_id-" + skill_info.attack_id;
         $(".public.buff_element-0.buff_physical-0").show();
         if (skill_info.attack_element != 0) {
             $(".public.buff_element-" + skill_info.attack_element).show();
@@ -75,7 +76,8 @@ function setEventTrigger() {
             $("#elememt_ring").prop("selectedIndex", 0);
         }
         $(".self_element-0." + chara_id_class).show();
-        // キャラ、スタイル専用表示
+        // キャラ、スタイル、スキル専用表示
+        $(".attack_" + attack_id_class).show();
         $(".attack_" + style_id_class).show();
         $(".attack_" + chara_id_class).show();
 
@@ -592,6 +594,11 @@ function calcDamage() {
         let dp_rate = Number($("#skill_unique_dp_rate").val());
         dp_rate = dp_rate < 60 ? 60 : dp_rate;
         skill_unique_rate += (dp_rate - 100) / 200
+    }
+    // コーシュカ・アルマータ
+    if (skill_info.attack_id == 2162) {
+        let sp = Number($("#skill_unique_sp").val());
+        skill_unique_rate = (sp > 30 ? 30 : sp) / 30;
     }
     // 桜花の矢
     if (skill_info.chara_id == 45 && $("#skill_unique_cherry_blossoms").prop("checked")) {

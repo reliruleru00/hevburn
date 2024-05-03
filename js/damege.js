@@ -1829,6 +1829,7 @@ function calcScore(detail, grade_magn) {
 }
 
 function getDamageBonus(damage, num) {
+    damage *= Number($("#socre_enemy_unit").val());
     let damage_bonus;
     if (damage <= damage_limit[num]) {
         damage_bonus = Math.floor(damage / 100);
@@ -1838,8 +1839,7 @@ function getDamageBonus(damage, num) {
         let magn = 1.1701 * Math.pow(rest_damage / damage_limit[num], -0.669);
         damage_bonus += Math.floor(rest_damage * magn / 100);
     }
-    let socre_enemy_unit = Number($("#socre_enemy_unit").val());
-    return Math.floor(damage_bonus * socre_enemy_unit * 0.47);
+    return Math.floor(damage_bonus * 0.47);
 }
 
 // 敵耐性設定

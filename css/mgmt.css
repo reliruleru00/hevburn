@@ -1,19 +1,8 @@
-@media screen and (min-width: 1164px) {
-  .main_area {
-    width: 1164px;
-  }
-}
-@media screen and (max-width: 1164px) {
-  .main_area {
-    width: 100%;
-  }
-}
-
 div.frame {
   height: calc(100svh - 75px);
 }
 
-select.orb {
+select {
   border: solid 1px #000;
 }
 

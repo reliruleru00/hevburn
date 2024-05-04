@@ -3,18 +3,27 @@ let hot2;
 function setEventTrigger() {
     //　オーブ設定変更
     $(".orb").change(function() {
+        let width = getWidth();
         columns = createColumns();
-        hot1.updateSettings({columns: columns});
-        hot2.updateSettings({columns: columns});
+        if ($("#display_columns").val() == 1) {
+            hot1.updateSettings({columns: columns, width: width});
+        } else {
+            hot1.updateSettings({columns: columns, width: width});
+            hot2.updateSettings({columns: columns, width: width});
+        }
+        updateWidthSetting(width);
     });
 
+    $("#display_columns").change(function() {
+        createGrid();
+    });
     // データ保存ボタン
     $("#exportSaveBtn").on("click", function(event) {
         let compress = compressString(JSON.stringify(data));
         downloadStringAsFile(compress, "character_management.sav");
     });
 
-    // データy読込ボタン
+    // データ読込ボタン
     $("#importSaveBtn").on("click", function(event) {
         readFileAsString(function(content) {
             let decompress = decompressString(content) 
@@ -28,6 +37,56 @@ function setEventTrigger() {
         });
     });
 };
+
+function getWidth() {
+    let width = 350;
+    let values = [$("#orb1").val(), $("#orb2").val(), $("#orb3").val()];
+    let count = values.filter(value => value != 0).length;
+    return width + count * 125;
+}
+
+function createGrid() {
+    let grid1 = document.getElementById('grid1');
+    let grid2 = document.getElementById('grid2');
+    let width = getWidth();
+    if ($("#display_columns").val() == 1) {
+        if (hot1) {
+            hot1.updateSettings({data: data});
+        } else {
+            hot1 = new Handsontable(grid1, getColumnOptions(data, width));
+        }
+        if (hot2) {
+            hot2.destroy();
+            hot2 = undefined;
+            $("#grid2").hide();
+        }
+        $("#grid_area").addClass("grid-cols-1")
+        $("#grid_area").removeClass("grid-cols-2");
+    } else {
+        let data1 = getData1();
+        let data2 = getData2();
+        if (hot1) {
+            hot1.updateSettings({data: data1});
+        } else {
+            hot1 = new Handsontable(grid1, getColumnOptions(data1, width));
+        }
+        if (hot2) {
+            hot2.updateSettings({data: data2});
+        } else {
+            hot2 = new Handsontable(grid2, getColumnOptions(data2, width));
+        }
+        $("#grid_area").addClass("grid-cols-2")
+        $("#grid_area").removeClass("grid-cols-1")
+        $("#grid2").show();
+    }
+    updateWidthSetting(width)
+}
+
+function updateWidthSetting(width) {
+    let display_columns = $("#display_columns").val();
+    let main_width = 4 + width * display_columns;
+    $(".main_area").width(main_width);
+}
 
 // データ取得
 function getData1() {
@@ -44,8 +103,15 @@ function getData2() {
 // 行定義生成
 function createColumns() {
     let newColumns = baseColumns;
-    newColumns = addOrbColumn(newColumns, $("#orb1").val());
-    newColumns = addOrbColumn(newColumns, $("#orb2").val());
+    if ($("#orb1").val() != 0) {
+        newColumns = addOrbColumn(newColumns, $("#orb1").val());
+    }
+    if ($("#orb2").val() != 0) {
+        newColumns = addOrbColumn(newColumns, $("#orb2").val());
+    }
+    if ($("#orb3").val() != 0) {
+        newColumns = addOrbColumn(newColumns, $("#orb3").val());
+    }
     return newColumns;
 }
 
@@ -154,12 +220,12 @@ function readFileAsString(callback) {
  * 以下handson設定
  */
 // 行オプション
-function getColumnOptions(data) {
+function getColumnOptions(data, width) {
     return {
         data: data,
         colHeaders: true,
         height: 800,
-        width: 580,
+        width: width,
         columns: columns,
         afterChange: afterChange,
         afterGetColHeader: afterGetColHeader,
@@ -184,10 +250,16 @@ let nestedHeaders = [
         { label: '転生<br>回数', rowspan: 2, class: 'htMiddle' },
         { label: 'スキル<br>Lv', rowspan: 2, class: 'htMiddle' },
         { label: 'ジェネ<br>ライズ', rowspan: 2, class: 'htMiddle' },
-        { label: 'エグゾウォッチャー', colspan: 5, class: 'htMiddle' },
-        { label: 'レクタス/シニスター', colspan: 5, class: 'htMiddle' },
+        { colspan: 5, class: 'htMiddle', id :"orb1"},
+        { colspan: 5, class: 'htMiddle', id :"orb2"},
+        { colspan: 5, class: 'htMiddle', id :"orb3"},
     ],
     [
+        { label: 'R', },
+        { label: 'B', },
+        { label: 'Y', },
+        { label: 'W', },
+        { label: 'P', },
         { label: 'R', },
         { label: 'B', },
         { label: 'Y', },
@@ -201,8 +273,8 @@ let nestedHeaders = [
     ]
 ];
 
-let header = getHeaderHtml(nestedHeaders);
 function afterGetColHeader(col, TH) {
+    let header = getHeaderHtml(nestedHeaders);
     $('table.htCore thead').empty();
     $('table.htCore thead').prepend(header);
 }
@@ -212,14 +284,16 @@ function getHeaderHtml(nestedHeaders) {
         headerHtml.push('<tr>');
         for (const [index, value] of row.entries()) {
             if (typeof value == 'object') {
+                headerHtml.push('<th class=');
+                headerHtml.push(value.class != undefined ? '"' + value.class + '"' : '""');
+                headerHtml.push(value.colspan != undefined ? ' colspan="' + value.colspan + '"' : "");
+                headerHtml.push(value.rowspan != undefined ? ' rowspan="' + value.rowspan + '"' : "");
+                headerHtml.push(value.style != undefined ? ' style="' + value.style + '"' : "");
+                headerHtml.push('>');
                 if (value.label != undefined) {
-                    headerHtml.push('<th class=');
-                    headerHtml.push(value.class != undefined ? '"' + value.class + '"' : '""');
-                    headerHtml.push(value.colspan != undefined ? ' colspan="' + value.colspan + '"' : "");
-                    headerHtml.push(value.rowspan != undefined ? ' rowspan="' + value.rowspan + '"' : "");
-                    headerHtml.push(value.style != undefined ? ' style="' + value.style + '"' : "");
-                    headerHtml.push('>');
                     headerHtml.push(getThHtml(value.label));
+                } else {
+                    headerHtml.push($("#" + value.id +" option:selected").text());
                 }
             }
             else {
@@ -244,7 +318,8 @@ baseColumns = [
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
             let rowData = instance.getSourceData()[row];
-            if (Number(rowData["chara_id"]) % 6 == 0 || Number(rowData["chara_id"]) == 104) {
+            let chara_id = Number(rowData["chara_id"]);
+            if (chara_id < 100 && chara_id % 6 == 0 || chara_id == 104) {
                 $(td).addClass("underLine");
             }
         },

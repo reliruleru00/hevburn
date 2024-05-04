@@ -37,17 +37,12 @@
     let columns;
     loadStorage();
     $(function(){ 
-      let grid1 = document.getElementById('grid1');
-      let grid2 = document.getElementById('grid2');
-      let data1 = getData1() 
-      let data2 = getData2(); 
       columns = createColumns();
-      hot1 = new Handsontable(grid1, getColumnOptions(data1));
-      hot2 = new Handsontable(grid2, getColumnOptions(data2));
-
+      createGrid();
       // イベント設定
       setEventTrigger();
     });
+
   </script>
 </head>
 <body>
@@ -59,31 +54,40 @@
           <div class="container">
             <div>
               <div class="mt-2">
+                表示列数
+                <select id="display_columns" class="">
+                  <option value="1">1列表示</option>
+                  <option value="2" selected>2列表示</option>
+                </select>
                 オーブボス表示
                 <select id="orb1" class="orb">
+                  <option value="0">無し</option>
                   <option value="1" selected >エグゾウォッチャー</option>
                   <option value="2">レクタス/シニスター</option>
                   <option value="3">アモン</option>
                 </select>
                 <select id="orb2" class="orb">
+                  <option value="0">無し</option>
                   <option value="1">エグゾウォッチャー</option>
                   <option value="2" selected>レクタス/シニスター</option>
                   <option value="3">アモン</option>
                 </select>
+                <select id="orb3" class="orb">
+                  <option value="0">無し</option>
+                  <option value="1">エグゾウォッチャー</option>
+                  <option value="2">レクタス/シニスター</option>
+                  <option value="3" selected>アモン</option>
+                </select>
               </div>
             </div>
             <div>
-              <input type="button" id="exportSaveBtn" class="w-32 mt-2 mb-2 default" value="保存データ出力">
-              <input type="button" id="importSaveBtn" class="w-32 mt-2 mb-2 default" value="保存データ読込">
+              <input type="button" id="exportSaveBtn" class="w-32 mt-2 mb-2 default" value="データ出力">
+              <input type="button" id="importSaveBtn" class="w-32 mt-2 mb-2 default" value="データ読込">
             </div>
           </div>
-          <div class="flex">
+          <div id="grid_area" class="grid grid-cols-2">
             <div id="grid1"></div>
-            <div class="w-1"></div>
-            <div>
-              <div id="grid2"></div>
-              ※データは端末に保存されます。
-            </div>
+            <div id="grid2"></div>
           </div>
         </div>
       </div>

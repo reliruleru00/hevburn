@@ -85,7 +85,7 @@ function createGrid() {
 function updateWidthSetting(width) {
     let display_columns = $("#display_columns").val();
     let main_width = 4 + width * display_columns;
-    $(".main_area").width(main_width);
+    $("#grid_area").width(main_width);
 }
 
 // データ取得

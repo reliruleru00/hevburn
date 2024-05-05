@@ -6,6 +6,14 @@ select {
   border: solid 1px #000;
 }
 
+.top_flex {
+  display: flex;
+}
+@media screen and (max-width:1024px) {
+  .top_flex {
+    display: block;
+  }
+}
 .container {
   display: flex;
   justify-content: space-between;

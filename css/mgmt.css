@@ -23,6 +23,12 @@ td, th {
   font-size: 13px;
 }
 
+
+@media screen and (max-width:1024px) {
+  .htMiddle {
+    font-size: 12px;
+  }
+}
 .handsontable th {
   background-color: #D9E1F2!important;
 }

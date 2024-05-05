@@ -81,7 +81,7 @@ function createGrid() {
     }
     updateWidthSetting(width)
 }
-
+// 表示幅取得
 function updateWidthSetting(width) {
     let display_columns = $("#display_columns").val();
     let main_width = 4 + width * display_columns;
@@ -147,6 +147,18 @@ function replaceCharaData(jsondata) {
         }
     });
     return edited_chara_data;
+}
+
+// 初期設定
+function initSetting() {
+    if ($(window).width() <= 610) {
+      $("#display_columns").val(1);
+      $("#orb2").val(0);
+    } else if ($(window).width() <= 950) {
+      $("#display_columns").val(1);
+    } else if ($(window).width() <= 1200) {
+      $("#orb2").val(0);
+    }
 }
 
 // ストレージに保存

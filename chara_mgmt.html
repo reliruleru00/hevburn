@@ -37,12 +37,12 @@
     let columns;
     loadStorage();
     $(function(){ 
+      initSetting();
       columns = createColumns();
       createGrid();
       // イベント設定
       setEventTrigger();
     });
-
   </script>
 </head>
 <body>
@@ -88,15 +88,15 @@
                       <option value="0">無し</option>
                       <option value="1">エグゾウォッチャー</option>
                       <option value="2">レクタス/シニスター</option>
-                      <option value="3" selected>アモン</option>
+                      <option value="3">アモン</option>
                     </select>
                   </div>
                 </div>
               </div>
             </div>
             <div class="ml-2">
-              <input type="button" id="exportSaveBtn" class="w-20 mt-2 mb-2 default" value="データ出力">
-              <input type="button" id="importSaveBtn" class="w-20 mt-2 mb-2 default" value="データ読込">
+              <input type="button" id="exportSaveBtn" class="w-24 mt-2 mb-2 default" value="データ出力">
+              <input type="button" id="importSaveBtn" class="w-24 mt-2 mb-2 default" value="データ読込">
             </div>
           </div>
         </div>

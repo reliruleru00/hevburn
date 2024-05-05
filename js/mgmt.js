@@ -127,10 +127,10 @@ function addOrbColumn(columns, value) {
 
 // キャラデータ取得
 function replaceCharaData(jsondata) {
-    let editedCharaData = JSON.parse(JSON.stringify(jsondata));
+    let edited_chara_data = JSON.parse(JSON.stringify(chara_data));
 
     // chara_dataのループを行う
-    editedCharaData.forEach(value => {
+    edited_chara_data.forEach(value => {
         // chara_idを取得
         const chara_id = value.chara_id;
         // jsondataから同様のchara_idを持つ列を取得
@@ -146,7 +146,7 @@ function replaceCharaData(jsondata) {
             value["rein"] = 0;
         }
     });
-    return editedCharaData;
+    return edited_chara_data;
 }
 
 // ストレージに保存

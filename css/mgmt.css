@@ -30,23 +30,24 @@ td, th {
   }
 }
 .handsontable th {
-  background-color: #D9E1F2!important;
+  background-color: #afff60!important;
+  border-color: #149f14;
 }
 
 td.limit_0 {
   background-color: #fff;
 }
 td.limit_1 {
-  background-color: #C6E0B4;
+  background-color: #9eff9e;
 }
 td.limit_2 {
-  background-color: #B4C6E7;
+  background-color: #9eceff;
 }
 td.limit_3 {
-  background-color: #FFE699;
+  background-color: #ffce9e;
 }
 td.limit_4 {
-  background-color: #F4B084;
+  background-color: #ffa3a3;
 }
 
 tr:has(.underLine) > td {

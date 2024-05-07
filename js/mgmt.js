@@ -1,38 +1,46 @@
 let hot1;
 let hot2;
 function setEventTrigger() {
+    // 表示列数変更
+    $("#display_columns").change(function () {
+        createGrid();
+        saveInitDispaly();
+    });
     //　オーブ設定変更
-    $(".orb").change(function() {
+    $(".orb").change(function () {
         let width = getWidth();
         columns = createColumns();
         if ($("#display_columns").val() == 1) {
-            hot1.updateSettings({columns: columns, width: width});
+            hot1.updateSettings({ columns: columns, width: width });
         } else {
-            hot1.updateSettings({columns: columns, width: width});
-            hot2.updateSettings({columns: columns, width: width});
+            hot1.updateSettings({ columns: columns, width: width });
+            hot2.updateSettings({ columns: columns, width: width });
         }
         updateWidthSetting(width);
+        saveInitDispaly();
     });
 
-    $("#display_columns").change(function() {
-        createGrid();
-    });
     // データ保存ボタン
-    $("#exportSaveBtn").on("click", function(event) {
+    $("#exportSaveBtn").on("click", function (event) {
         let compress = compressString(JSON.stringify(data));
         downloadStringAsFile(compress, "character_management.sav");
     });
 
     // データ読込ボタン
-    $("#importSaveBtn").on("click", function(event) {
-        readFileAsString(function(content) {
-            let decompress = decompressString(content) 
+    $("#importSaveBtn").on("click", function (event) {
+        readFileAsString(function (content) {
+            let decompress = decompressString(content)
             let jsondata = JSON.parse(decompress);
             data = replaceCharaData(jsondata)
-            hot1.updateSettings({data: getData1()});
-            hot1.render();
-            hot2.updateSettings({data: getData2()});
-            hot2.render();
+            if ($("#display_columns").val() == 1) {
+                hot1.updateSettings({ data: data });
+                hot1.render();
+            } else {
+                hot1.updateSettings({ data: getData1() });
+                hot1.render();
+                hot2.updateSettings({ data: getData2() });
+                hot2.render();
+            }
             saveStorage();
         });
     });
@@ -51,7 +59,7 @@ function createGrid() {
     let width = getWidth();
     if ($("#display_columns").val() == 1) {
         if (hot1) {
-            hot1.updateSettings({data: data});
+            hot1.updateSettings({ data: data });
         } else {
             hot1 = new Handsontable(grid1, getColumnOptions(data, width));
         }
@@ -66,12 +74,12 @@ function createGrid() {
         let data1 = getData1();
         let data2 = getData2();
         if (hot1) {
-            hot1.updateSettings({data: data1});
+            hot1.updateSettings({ data: data1 });
         } else {
             hot1 = new Handsontable(grid1, getColumnOptions(data1, width));
         }
         if (hot2) {
-            hot2.updateSettings({data: data2});
+            hot2.updateSettings({ data: data2 });
         } else {
             hot2 = new Handsontable(grid2, getColumnOptions(data2, width));
         }
@@ -90,12 +98,12 @@ function updateWidthSetting(width) {
 
 // データ取得
 function getData1() {
-    return data.filter(function(item) {
+    return data.filter(function (item) {
         return item["chara_id"] <= 24 || 48 < item["chara_id"];
     });
 }
 function getData2() {
-    return data.filter(function(item) {
+    return data.filter(function (item) {
         return item["chara_id"] > 24 && item["chara_id"] <= 48;
     });
 }
@@ -151,14 +159,33 @@ function replaceCharaData(jsondata) {
 
 // 初期設定
 function initSetting() {
-    if ($(window).width() <= 610) {
-      $("#display_columns").val(1);
-      $("#orb2").val(0);
-    } else if ($(window).width() <= 950) {
-      $("#display_columns").val(1);
-    } else if ($(window).width() <= 1200) {
-      $("#orb2").val(0);
+    let mgmt_init_display = localStorage.getItem('mgmt_init_display');
+    if (mgmt_init_display) {
+        let init = JSON.parse(mgmt_init_display);
+        // 保存状態復元
+        $("#display_columns").val(init["display_columns"]);
+        for (let i = 0; i < 3; i++) {
+            $("#orb" + (i + 1)).val(init["orbs"][i]);
+        }
+    } else {
+        // 初期設定
+        if ($(window).width() <= 610) {
+            $("#display_columns").val(1);
+            $("#orb2").val(0);
+        } else if ($(window).width() <= 950) {
+            $("#display_columns").val(1);
+        } else if ($(window).width() <= 1200) {
+            $("#orb2").val(0);
+        }
     }
+}
+
+// 初期表示設定
+function saveInitDispaly() {
+    let init = new Object();
+    init["display_columns"] = $("#display_columns").val();
+    init["orbs"] = [$("#orb1").val(), $("#orb2").val(), $("#orb3").val()];
+    localStorage.setItem('mgmt_init_display', JSON.stringify(init));
 }
 
 // ストレージに保存
@@ -172,7 +199,7 @@ function loadStorage() {
     let jsonstr = localStorage.getItem('mgmt_json_data');
     let jsondata = []
     if (jsonstr) {
-        let decompress = decompressString(jsonstr) 
+        let decompress = decompressString(jsonstr)
         jsondata = JSON.parse(decompress);
     }
     data = replaceCharaData(jsondata)
@@ -213,11 +240,11 @@ function readFileAsString(callback) {
     input.type = 'file';
     input.accept = '.sav';
     // ファイルが選択された時の処理
-    input.addEventListener('change', function(event) {
+    input.addEventListener('change', function (event) {
         const file = event.target.files[0];
         const reader = new FileReader();
         // ファイルの読み込みが完了した時の処理
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             const content = event.target.result;
             callback(content); // コールバック関数を呼び出し、ファイルの内容を渡す
         };
@@ -241,9 +268,8 @@ function getColumnOptions(data, width) {
         columns: columns,
         afterChange: afterChange,
         afterGetColHeader: afterGetColHeader,
-//        fixedColumnsLeft: 6, 
         // 行追加禁止
-        afterCreateRow: function(index, amount){
+        afterCreateRow: function (index, amount) {
             data.splice(index, amount)
         },
     }
@@ -262,9 +288,9 @@ let nestedHeaders = [
         { label: '転生<br>回数', rowspan: 2, class: 'htMiddle' },
         { label: 'スキル<br>Lv', rowspan: 2, class: 'htMiddle' },
         { label: 'ジェネ<br>ライズ', rowspan: 2, class: 'htMiddle' },
-        { colspan: 5, class: 'htMiddle', id :"orb1"},
-        { colspan: 5, class: 'htMiddle', id :"orb2"},
-        { colspan: 5, class: 'htMiddle', id :"orb3"},
+        { colspan: 5, class: 'htMiddle', id: "1" },
+        { colspan: 5, class: 'htMiddle', id: "2" },
+        { colspan: 5, class: 'htMiddle', id: "3" },
     ],
     [
         { label: 'R', },
@@ -305,7 +331,19 @@ function getHeaderHtml(nestedHeaders) {
                 if (value.label != undefined) {
                     headerHtml.push(getThHtml(value.label));
                 } else {
-                    headerHtml.push($("#" + value.id +" option:selected").text());
+                    let selectedText = ''; // 選択されたテキストを保持する変数を定義
+                    let id = 1;
+                    for (let i = 1; i <= 3; i++) {
+                        const $selectedOption = $("#orb" + i + " option:selected");
+                        if ($selectedOption.val() != 0) {
+                            if (id == value.id) {
+                                selectedText = $selectedOption.text(); // 選択されたテキストを保持
+                                break;
+                            }
+                            id++;
+                        }
+                    }
+                    headerHtml.push(selectedText); // ループの外で保持したテキストを使用                    
                 }
             }
             else {
@@ -395,7 +433,7 @@ baseColumns = [
 ];
 
 exoColumns = [
-     {
+    {
         data: "Exo_R",
         className: "htCenter",
         width: 25,
@@ -419,7 +457,7 @@ exoColumns = [
         data: "Exo_P",
         className: "htCenter rightLine",
         width: 25,
-    },   
+    },
 ];
 rectusColumns = [
     {

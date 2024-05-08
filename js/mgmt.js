@@ -5,6 +5,7 @@ function setEventTrigger() {
     $("#display_columns").change(function () {
         createGrid();
         saveInitDispaly();
+        updateHeight();
     });
     //　オーブ設定変更
     $(".orb").change(function () {
@@ -44,7 +45,21 @@ function setEventTrigger() {
             saveStorage();
         });
     });
+
+    $(window).on('resize', function() {
+        updateHeight();
+    });
 };
+
+function updateHeight() {
+    if ($("#display_columns").val() == 1) {
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        const calculatedHeight = windowHeight - 125;
+        hot1.updateSettings({ height: calculatedHeight });
+    } else {
+        hot1.updateSettings({ height: 800 });
+    }
+}
 
 function getWidth() {
     let width = 350;

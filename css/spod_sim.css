@@ -1,0 +1,106 @@
+/* 全体 */
+div.frame {
+    height: calc(100svh - 180px);
+}
+.display_area {
+    width: 450px;
+    font-size: 0.875rem;
+}
+@media screen and (max-width: 768px) {
+}
+select {
+    border: solid 1px #000;
+    height: 21px;
+}
+
+/* 部隊/ステータス */
+input.troops_btn {
+    width: 40px;
+    height: 40px;
+    font-size: 25px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
+    box-shadow:0 6px 0 0 #005400;
+    transform: translateY(-6px);
+}
+
+input.troops_btn:hover {
+    box-shadow:0 2px 0 0 #005400;
+    transform: translateY(-2px);
+}
+
+input.troops_btn.selected_troops {
+    box-shadow:0 2px 0 0 #005400;
+    transform: translateY(-2px);
+}
+
+#style_reset_btn {
+    width: 50px;
+    font-size: 12px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
+}
+
+/* ステータスエリア */
+#char_list {
+    width: 482px;
+}
+img.select_style {
+    width: 64px;
+    height: 64px;
+    margin-left: 4px;
+}
+.label_status {
+    line-height: 22px;
+    display: block;
+}
+.limit,
+.bracelet,
+.chain {
+    height: 22px;
+    width: 60px;
+    margin-left: 3px;
+    text-align: center;
+}
+.limit:disabled {
+    border:solid 1px black ;
+}
+@media screen and (max-width: 482px) {
+    .status_area {
+        width: 100%;
+        min-width: 375px;
+    }
+    .label_status {
+        line-height: 21px;
+        display: block;
+    }
+    img.select_style {
+        width: 48px;
+        height: 48px;
+        margin-left: 4px;
+    }
+    .limit,
+    .bracelet,
+    .chain {
+        width: 50px;
+    }
+}
+/* 戦闘開始 */
+input[type="button"].battle_start {
+    width: 80px;
+    font-size: 16px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
+}
+
+#turn_area {
+    width: 720px;
+    margin: auto;
+}

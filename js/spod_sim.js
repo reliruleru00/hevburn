@@ -1,3 +1,22 @@
+
+class unit_data {
+    constructor() {
+        this.place_no = -1;
+        this.sp = 1;
+        this.baff_list = [];
+        this.add_turn = false;
+        this.unit = null;
+        this.normal_attack_element = 0;
+    }
+}
+class buff_date {
+    constructor() {
+        this.rest_turn = -1;
+        this.effect_size = 0;
+        this.baff_kind = 0;
+    }
+}
+
 function setEventTrigger() {
     // リセットボタン
     $("#style_reset_btn").on("click", function (event) {
@@ -25,14 +44,28 @@ function setEventTrigger() {
 
 /* 戦闘開始処理 */
 function battle_start() {
+    let unit_list = [];
+    // スタイル情報を作成
+    $.each(select_style_list, function (index, value) {
+        let  unit = new unit_data();
+        unit.place_no = index;
+        unit.sp += $("#chain_" + index).val();
+        unit.sp.normal_attack_element = $("#bracelet_" + index).val();
+        unit.style = value;
+        unit_list.push(unit);
+    });
+    addTurn(unit_list);
+}
+
+function addTurn(unit_list) {
     let div = $('<div>')
         .addClass("flex");
-    $.each(select_style_list, function (index, value) {
+    $.each(unit_list, function (index, value) {
         let img = $('<img>')
             .data("chara_no", index)
             .addClass("select_style");
-        if (value) {
-            img.attr("src", "icon/" + value.style_info.image_url)
+        if (value.style) {
+            img.attr("src", "icon/" + value.style.style_info.image_url)
         }
         div.append(img);
     });

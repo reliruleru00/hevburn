@@ -34,6 +34,7 @@
   <script src="js/chara_style.js"></script>
   <script src="js/modal.js"></script>
   <script src="js/spod_sim.js"></script>
+  <script src="js/skill_list.js"></script>
   <script>
     var chara_no = -1;
     $(function () {
@@ -49,8 +50,10 @@
       $(".limit").append($('<option>').text(10).val(10).css("display", "none"));
       $(".limit").append($('<option>').text(20).val(20).css("display", "none"));
       for (let i = 0; i <= 3; i++) {
-        $(".chain").append($('<option>').text("SP+" + i).val(i));
+        let option = $('<option>').text("SP+" + i).val(i);
+        $(".chain").append(option);
       }
+      $(".chain").val(3);
       ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"].forEach((element, index) => {
         $(".bracelet").append($('<option>').text(element).val(index));
       });

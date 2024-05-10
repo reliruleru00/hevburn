@@ -1,6 +1,6 @@
 /* 全体 */
 div.frame {
-    height: calc(100svh - 180px);
+    height: calc(100svh - 60px);
 }
 .display_area {
     width: 450px;
@@ -103,4 +103,56 @@ input[type="button"].battle_start {
 #turn_area {
     width: 720px;
     margin: auto;
+}
+
+.container {
+    display: flex;
+}
+.left {
+    flex: 1;
+}
+.right {
+    flex: 1;
+}
+.enemy_icon {
+    width: 48px;
+    height: 48px;
+}
+.od_icon {
+    width: 48px;
+    height: 48px;
+}
+.od_number {
+    width: 40px;
+    height: 40px;
+    margin-top: -45px;
+    margin-left: 3px;
+}
+
+.unit_skill {
+    font-size: 12px;
+    width: 125px;
+}
+.pursuit {
+    font-size: 12px;
+    width: 64px;
+}
+.unit_sp {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
+    margin-top: -72px;
+}
+.front_area .unit_sp {
+    margin-left: 84px
+}
+.back_area .unit_sp {
+    margin-left: 48px
+}
+img.unit_style {
+    width: 64px;
+    height: 64px;
+    margin-left: auto;
+    margin-right: auto;
 }

@@ -129,11 +129,14 @@ input[type="button"].battle_start {
     margin-left: 3px;
 }
 
-.unit_skill {
+.unit_selected {
+    background-color: #FF0;
+}
+.front_area .unit_skill {
     font-size: 12px;
     width: 125px;
 }
-.pursuit {
+.back_area .unit_skill {
     font-size: 12px;
     width: 64px;
 }

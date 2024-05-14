@@ -171,3 +171,6 @@ img.unit_style {
     margin-left: auto;
     margin-right: auto;
 }
+.hidden-option {
+    display: none;
+}

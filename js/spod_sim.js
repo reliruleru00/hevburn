@@ -1,23 +1,57 @@
+let last_turn;
+let turn_list = [];
 class turn_data {
     constructor() {
         this.turn_number = 0;
+        this.over_drive_turn = 0;
+        this.over_drive_max_turn = 0;
+        this.add_turn = false;
         this.enemy_debuff = [];
         this.unit_list = [];
-        this.over_drive = 0;
+        this.over_drive_gauge = 0;
     }
 
-    turnProceed() {
-        $.each(this.unit_list, function (index, value) {
-            if (!value.blank) {
-                value.turnProceed();
-            }
-        });
+    // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
+    turnProceed(val) {
+        this.unitSort();
+        if (val == 1) {
+            // 通常
+            $.each(this.unit_list, function (index, value) {
+                if (!value.blank) {
+                    value.unitTurnProceed();
+                }
+            });
+            this.turn_number++;
+        } else if(val == 3) {
+
+        } else {
+            // OD
+            this.over_drive_turn = 1;
+            this.over_drive_max_turn = Math.floor(this.over_drive_gauge / 100);
+        }
+        
+    }
+    unitSort() {
+        this.unit_list.sort((a, b) => a.place_no - b.place_no);
+    }
+    
+    getTurnNumber() {
+        const defalt_turn = "ターン" + this.turn_number;
+        // 追加ターン
+        if (this.add_turn) {
+            return `${defalt_turn} 追加ターン`;
+        }
+        // オーバードライブ中
+        if (this.over_drive_turn > 0) {
+            return `${defalt_turn} OverDrive${this.over_drive_turn}/${this.over_drive_max_turn}`;
+        }
+        return defalt_turn;
     }
 }
 
 class unit_data {
     constructor() {
-        this.place_no = -1;
+        this.place_no = 99;
         this.sp = 1;
         this.baff_list = [];
         this.add_turn = false;
@@ -27,7 +61,7 @@ class unit_data {
         this.blank = false;
     }
     
-    turnProceed() {
+    unitTurnProceed() {
         this.sp += 2;
         if (this.place_no <= 2) {
             // 前衛
@@ -64,7 +98,16 @@ function setEventTrigger() {
 
     // 戦闘開始ボタンクリック
     $(".battle_start").on("click", function (event) {
+        last_turn = 0;
         battle_start();
+    });
+
+    // 行動開始
+    $(document).on("click", ".next_turn", function(event) {
+        // 前ターンを不能
+        $(document).off("click", ".turn" + last_turn + " .unit_select");
+        // 次ターンを追加
+        addTurn(turn_list[turn_list.length - 1], 1);
     });
 }
 
@@ -92,19 +135,24 @@ function battle_start() {
     });
     turn_init.unit_list = unit_list;
     // 
-    addTurn(turn_init);
+    addTurn(turn_init, 1);
 }
 
-function addTurn(turn_data) {
+function addTurn(turn_data, kb_add_turn) {
+    last_turn++;
+    turn_data.turnProceed(kb_add_turn);
+    
+    let turn = $('<div>').addClass("turn").addClass("turn" + last_turn);
     let header_area = $('<div>').addClass("flex");
+    let turn_number = $('<div>').text(turn_data.getTurnNumber());
     let enemy = $('<div>').append($('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon")).addClass("left");
     let over_drive = $('<div>').append($('<img>').attr("src", "icon/EffectOverdrive1.webp").addClass("od_icon"))
                                 .append($('<img>').attr("src", "icon/NumberOverdrive1.webp").addClass("od_number"));
-    header_area.addClass("container").append(enemy).append(over_drive);
+    let over_drive_tmp = $('<div>').append($('<input>').val(0));
+    header_area.addClass("container").append(turn_number).append(enemy).append(over_drive_tmp);
     let party_member = $('<div>').addClass("flex");
     let front_area = $('<div>').addClass("flex").addClass("front_area");
     let back_area = $('<div>').addClass("flex").addClass("back_area");
-    turn_data.turnProceed();
     $.each(turn_data.unit_list, function (index, value) {
         let chara_div = $('<div>').addClass("unit_select");
         let img = $('<img>')
@@ -139,20 +187,30 @@ function addTurn(turn_data) {
         }
     });
     party_member.append(front_area).append(back_area)
-    $("#turn_area").append(header_area).append(party_member);
+    let select = $('<select>').addClass("action_select");
+    ["OD発動", "行動開始", "行動後OD"].forEach((element, index) => {
+        select.append($('<option>').text(element).val(index));
+    });
+    let start = $('<input>').attr("type", "button").val("行動開始").addClass("next_turn");
+    let footer_area = $('<div>').append(select).append(start);
+    back_area.append(footer_area);
+    turn.append(header_area).append(party_member);
+    $("#turn_area").append(turn);
+
     addUnitEvent(turn_data.unit_list);
+    turn_list.push(turn_data);
 }
 
 // ユニットイベント
-function addUnitEvent(unit_list, class_name) {
+function addUnitEvent(unit_list) {
     let first_click = null;
     let first_click_index = -1;
-    $(document).on("click", ".unit_select", function(event) {
+   $(document).on("click", ".turn" + last_turn + " .unit_select", function(event) {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
         let unit_data = getUnitData(unit_list, index);
-        if (unit_data.blank) {
+        if (!unit_data || unit_data.blank) {
             return;
         }
         // 最初にクリックされた要素かどうかを確認
@@ -172,11 +230,19 @@ function addUnitEvent(unit_list, class_name) {
             // 2回目にクリックされた要素を取得
             var second_click = clicked_element;
 
+            // 各要素の位置を取得
+            var firstPosition = first_click.position();
+            var secondPosition = second_click.position();
+            // クリックした要素を交換
+            first_click.animate({
+                left: secondPosition.left,
+                top: secondPosition.top
+            }, 500);
             // 要素を交換
-            first_click.after(second_click.clone());
-            second_click.after(first_click.clone());
-            first_click.remove();
-            second_click.remove();
+            // first_click.after(second_click.clone());
+            // second_click.after(first_click.clone());
+            // first_click.remove();
+            // second_click.remove();
 
             let first_click_unit_data = getUnitData(unit_list, first_click_index);
             first_click_unit_data.place_no = index;

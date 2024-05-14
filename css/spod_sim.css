@@ -105,6 +105,12 @@ input[type="button"].battle_start {
     margin: auto;
 }
 
+    
+.turn {
+    border: solid gray 2px;
+    border-radius: 20px;
+    padding: 5px;
+}
 .container {
     display: flex;
 }
@@ -138,7 +144,12 @@ input[type="button"].battle_start {
 }
 .back_area .unit_skill {
     font-size: 12px;
-    width: 64px;
+    width: 72px;
+}
+.action_select {
+    margin-top: 28px;
+    font-size: 12px;
+    width: 90px;
 }
 .unit_sp {
     font-size: 24px;
@@ -146,12 +157,13 @@ input[type="button"].battle_start {
     color: #fff;
     text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
     margin-top: -72px;
+    text-align: right
 }
 .front_area .unit_sp {
-    margin-left: 84px
+    margin-right: 28px;
 }
 .back_area .unit_sp {
-    margin-left: 48px
+    margin-right: 8px;
 }
 img.unit_style {
     width: 64px;

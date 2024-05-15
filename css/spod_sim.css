@@ -61,6 +61,7 @@ img.select_style {
     display: block;
 }
 .limit,
+.earring,
 .bracelet,
 .chain {
     height: 22px;
@@ -104,7 +105,6 @@ input[type="button"].battle_start {
     width: 720px;
     margin: auto;
 }
-
     
 .turn {
     border: solid gray 2px;
@@ -159,6 +159,10 @@ input[type="button"].battle_start {
     margin-top: -72px;
     text-align: right
 }
+.front_area, 
+.back_area {
+    height: 90px;
+}
 .front_area .unit_sp {
     margin-right: 28px;
 }
@@ -168,8 +172,6 @@ input[type="button"].battle_start {
 img.unit_style {
     width: 64px;
     height: 64px;
-    margin-left: auto;
-    margin-right: auto;
 }
 .hidden-option {
     display: none;

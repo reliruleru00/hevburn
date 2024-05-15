@@ -37,6 +37,7 @@
   <script src="js/skill_list.js"></script>
   <script>
     var chara_no = -1;
+    const EARRING_TYPE_LIST = ["アタック", "ブレイク", "ドライブ", "ブラスト"];
     $(function () {
       // スタイルリスト作成
       createStyleList();
@@ -49,6 +50,13 @@
       $(".limit").prop("selectedIndex", 2);
       $(".limit").append($('<option>').text(10).val(10).css("display", "none"));
       $(".limit").append($('<option>').text(20).val(20).css("display", "none"));
+      $(".earring").append($('<option>').text("無し").val(0));
+      EARRING_TYPE_LIST.forEach((element, index) => {
+        [10, 12, 15].forEach(effect_size => {
+          $(".earring").append($('<option>').text(`${element}${effect_size}%`).data("type", element).data("effect_size", effect_size));
+        });
+      });
+      $(".earring").val(0);
       for (let i = 0; i <= 3; i++) {
         let option = $('<option>').text("SP+" + i).val(i);
         $(".chain").append(option);
@@ -57,6 +65,7 @@
       ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"].forEach((element, index) => {
         $(".bracelet").append($('<option>').text(element).val(index));
       });
+      $(".bracelet").val(1);
 
       // スタイルリスト読み込み
       select_troops = select_troops ? select_troops : 0;
@@ -108,36 +117,43 @@
           <img class="showmodal select_style" id="select_chara_5" src="img/plus.png" data-chara_no="5">
           <div>
             <label class="label_status">限界突破</label>
+            <label class="label_status">ピアス</label>
             <label class="label_status">ブレス</label>
             <label class="label_status">チェーン</label>
           </div>
           <div>
             <select id="limit_0" class="limit save"></select>
+            <select id="earring_0" class="earring save"></select>
             <select id="bracelet_0" class="bracelet save"></select>
             <select id="chain_0" class="chain save"></select>
           </div>
           <div>
             <select id="limit_1" class="limit save"></select>
+            <select id="earring_1" class="earring save"></select>
             <select id="bracelet_1" class="bracelet save"></select>
             <select id="chain_1" class="chain save"></select>
           </div>
           <div>
             <select id="limit_2" class="limit save"></select>
+            <select id="earring_2" class="earring save"></select>
             <select id="bracelet_2" class="bracelet save"></select>
             <select id="chain_2" class="chain save"></select>
           </div>
           <div>
             <select id="limit_3" class="limit save"></select>
+            <select id="earring_3" class="earring save"></select>
             <select id="bracelet_3" class="bracelet save"></select>
             <select id="chain_3" class="chain save"></select>
           </div>
           <div>
             <select id="limit_4" class="limit save"></select>
+            <select id="earring_4" class="earring save"></select>
             <select id="bracelet_4" class="bracelet save"></select>
             <select id="chain_4" class="chain save"></select>
           </div>
           <div>
             <select id="limit_5" class="limit save"></select>
+            <select id="earring_5" class="earring save"></select>
             <select id="bracelet_5" class="bracelet save"></select>
             <select id="chain_5" class="chain save"></select>
           </div>

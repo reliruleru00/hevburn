@@ -35,14 +35,23 @@
   <script src="js/modal.js"></script>
   <script src="js/spod_sim.js"></script>
   <script src="js/skill_list.js"></script>
+  <script src="js/enemy.js"></script>
   <script>
-    var chara_no = -1;
+    let chara_no = -1;
     const EARRING_TYPE_LIST = ["アタック", "ブレイク", "ドライブ", "ブラスト"];
     $(function () {
       // スタイルリスト作成
       createStyleList();
       // モーダル系イベント追加
       addModalEvent();
+
+      let enemy_class = "1";
+      let enemy_list = "1"
+      $("#enemy_class").val(enemy_class);
+      createEnemyList(enemy_class);
+      $("#enemy_list").val(enemy_list);
+      setEnemyStatus();
+
 
       for (let i = 0; i <= 4; i++) {
         $(".limit").append($('<option>').text(i).val(i));
@@ -159,6 +168,53 @@
           </div>
         </div>
       </div>
+      <div class="surround_area mx-auto mt-2 adjust_width">
+        <div>
+          <label class="area_title">敵情報</label>
+          <div class="ml-4">
+            <select id="enemy_class">
+              <option value="1">異時層</option>
+              <option value="2">オーブボス</option>
+              <option value="3">時計塔(N)</option>
+              <option value="4">時計塔(H)</option>
+              <option value="5">宝珠の迷宮</option>
+              <option value="6">スコアアタック</option>
+              <option value="7">プリズムバトル</option>
+              <option value="8">恒星掃戦線</option>
+              <option value="9">イベント隠しボス</option>
+            </select>
+            <select id="enemy_list">
+            </select>
+            <select id="enemy_count">
+              <option value="1">1体</option>
+              <option value="2">2体</option>
+              <option value="3">3体</option>
+            </select>
+          </div>
+        </div>
+        <div class="resist_area mx-auto mt-2">
+          <div class="grid grid-cols-9">
+            <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text"
+                id="enemy_physical_1" class="enemy_type_value enemy_input" readonly></div>
+            <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text"
+                id="enemy_physical_2" class="enemy_type_value enemy_input" readonly></div>
+            <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text"
+                id="enemy_physical_3" class="enemy_type_value enemy_input" readonly></div>
+            <div class="none"><input type="image" class="enemy_type_icon" src="img/none.webp"><input type="text"
+                id="enemy_element_0" class="enemy_type_value enemy_input" readonly></div>
+            <div class="fire"><input type="image" class="enemy_type_icon" src="img/fire.webp"><input type="text"
+                id="enemy_element_1" class="enemy_type_value enemy_input" readonly></div>
+            <div class="ice"><input type="image" class="enemy_type_icon" src="img/ice.webp"><input type="text"
+                id="enemy_element_2" class="enemy_type_value enemy_input" readonly></div>
+            <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text"
+                id="enemy_element_3" class="enemy_type_value enemy_input" readonly></div>
+            <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text"
+                id="enemy_element_4" class="enemy_type_value enemy_input" readonly></div>
+            <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text"
+                id="enemy_element_5" class="enemy_type_value enemy_input" readonly></div>
+          </div>
+        </div>
+      </div>
       <div class="mx-auto w-[80px] mt-2">
         <input type="button" class="battle_start" value="戦闘開始">
       </div>
@@ -208,35 +264,35 @@
               <div class="search_result_area">
                 <div id="rank_ss">
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31a.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31a.webp">
                     <div id="sytle_list_1_31A" class="flex flex-wrap troops_31A"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31b.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31b.webp">
                     <div id="sytle_list_1_31B" class="flex flex-wrap troops_31B"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31c.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31c.webp">
                     <div id="sytle_list_1_31C" class="flex flex-wrap troops_31C"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31d.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31d.webp">
                     <div id="sytle_list_1_31D" class="flex flex-wrap troops_31D"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31e.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31e.webp">
                     <div id="sytle_list_1_31E" class="flex flex-wrap troops_31E"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31f.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31f.webp">
                     <div id="sytle_list_1_31F" class="flex flex-wrap troops_31F"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31x.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31x.webp">
                     <div id="sytle_list_1_31X" class="flex flex-wrap troops_31X"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/30g.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp30g.webp">
                     <div id="sytle_list_1_30G" class="flex flex-wrap troops_30G"></div>
                   </div>
                   <div class="troops">
@@ -246,35 +302,35 @@
                 </div>
                 <div id="rank_s" class="hidden">
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31a.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31a.webp">
                     <div id="sytle_list_2_31A" class="flex flex-wrap troops_31A"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31b.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31b.webp">
                     <div id="sytle_list_2_31B" class="flex flex-wrap troops_31B"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31c.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31c.webp">
                     <div id="sytle_list_2_31C" class="flex flex-wrap troops_31C"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31d.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31d.webp">
                     <div id="sytle_list_2_31D" class="flex flex-wrap troops_31D"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31e.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31e.webp">
                     <div id="sytle_list_2_31E" class="flex flex-wrap troops_31E"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31f.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31f.webp">
                     <div id="sytle_list_2_31F" class="flex flex-wrap troops_31F"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31x.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31x.webp">
                     <div id="sytle_list_2_31X" class="flex flex-wrap troops_31X"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/30g.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp30g.webp">
                     <div id="sytle_list_2_30G" class="flex flex-wrap troops_30G"></div>
                   </div>
                   <div class="troops">
@@ -284,35 +340,35 @@
                 </div>
                 <div id="rank_a" class="hidden">
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31a.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31a.webp">
                     <div id="sytle_list_3_31A" class="flex flex-wrap troops_31A"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31b.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31b.webp">
                     <div id="sytle_list_3_31B" class="flex flex-wrap troops_31B"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31c.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31c.webp">
                     <div id="sytle_list_3_31C" class="flex flex-wrap troops_31C"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31d.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31d.webp">
                     <div id="sytle_list_3_31D" class="flex flex-wrap troops_31D"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31e.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31e.webp">
                     <div id="sytle_list_3_31E" class="flex flex-wrap troops_31E"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31f.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31f.webp">
                     <div id="sytle_list_3_31F" class="flex flex-wrap troops_31F"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/31x.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp31x.webp">
                     <div id="sytle_list_3_31X" class="flex flex-wrap troops_31X"></div>
                   </div>
                   <div class="troops">
-                    <input type="image" class="emblem" src="img/30g.webp">
+                    <input type="image" class="emblem" src="img/DioramaStamp30g.webp">
                     <div id="sytle_list_3_30G" class="flex flex-wrap troops_30G"></div>
                   </div>
                 </div>

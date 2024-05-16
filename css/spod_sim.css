@@ -6,6 +6,9 @@ div.frame {
     width: 450px;
     font-size: 0.875rem;
 }
+.adjust_width {
+    width: 450px;
+}
 @media screen and (max-width: 768px) {
 }
 select {
@@ -100,6 +103,34 @@ input[type="button"].battle_start {
     background: #149f14;
     border-radius: 100vh;
 }
+/* 敵情報 */
+.surround_area {
+    border: solid gray 2px;
+    border-radius: 20px;
+    padding: 5px;
+
+}
+.enemy_weak {
+    font-weight: bold;
+    color: red;
+}
+.enemy_resist {
+    font-weight: bold;
+    color: blue;
+}
+.enemy_type_icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 4px;
+    margin-left: 5px;
+    margin-bottom: -8px;
+}
+.enemy_type_value {
+    text-align: center;
+    width: 32px;
+    background-color: rgba(0, 0, 0, 0);
+    margin-left: 5px;
+}
 
 #turn_area {
     width: 720px;
@@ -109,6 +140,7 @@ input[type="button"].battle_start {
 .turn {
     border: solid gray 2px;
     border-radius: 20px;
+    margin-top: 5px;
     padding: 5px;
 }
 .container {

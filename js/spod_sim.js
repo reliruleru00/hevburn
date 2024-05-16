@@ -92,7 +92,14 @@ function setEventTrigger() {
     $("#style_reset_btn").on("click", function (event) {
         styleReset(true);
     });
-
+    // 敵リストイベント
+    $("#enemy_class").on("change", function(event) {
+        let enemy_class = $(this).val();
+        createEnemyList(enemy_class);
+    });
+    $("#enemy_list").on("change", function(event) {
+        setEnemyStatus();
+    });
     // 部隊変更ボタンクリック
     $(".troops_btn").on("click", function (event) {
         if ($(this).hasClass("selected_troops")) {
@@ -121,6 +128,49 @@ function setEventTrigger() {
         addTurn(turn_list[turn_list.length - 1], 1);
     });
 }
+
+// 敵リスト作成
+function createEnemyList(enemy_class) {
+    $("#enemy_list").empty();
+    $.each(enemy_list, function(index, value) {
+        if (value.enemy_class == enemy_class) {
+            var option = $('<option>')
+                        .val(value.enemy_class_no);
+            if (enemy_class == 6) {
+                option.text(`#${value.score_attack_no} ${value.enemy_name}`)
+            } else {
+                option.text(value.enemy_name);
+            }
+            $("#enemy_list").append(option);
+        }
+    });
+    setEnemyStatus();
+}
+// 敵ステータス設定
+function setEnemyStatus() {
+    let enemy_info = getEnemyInfo();
+    if (enemy_info === undefined) {
+        return;
+    }
+    for (let i = 1; i <= 3; i++) {
+        setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
+    }
+    for (let i = 0; i <= 5; i++) {
+        setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
+    }
+}
+// 敵耐性設定
+function setEnemyElement(id, val) {
+    $(id).val(val);
+    $(id).removeClass("enemy_resist");
+    $(id).removeClass("enemy_weak");
+    if (val < 100) {
+        $(id).addClass("enemy_resist");
+    } else if (val >100) {
+        $(id).addClass("enemy_weak");
+    }
+}
+
 
 /* 戦闘開始処理 */
 function battle_start() {
@@ -293,6 +343,14 @@ function swapElements(firstElement, secondElement) {
 
     firstElement.replaceWith(secondClone);
     secondElement.replaceWith(firstClone);
+}
+
+// 敵情報取得
+function getEnemyInfo() {
+    const enemy_class = Number($("#enemy_class option:selected").val());
+    const enemy_class_no = Number($("#enemy_list option:selected").val());
+    const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
+    return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 }
 
 // ユニットデータ取得

@@ -50,6 +50,9 @@ class turn_data {
     }
     addOverDrive(add_od_gauge) {
         this.over_drive_gauge += add_od_gauge;
+        if (over_drive_gauge > 300) {
+            over_drive_gauge = 300;
+        }
     }
 }
 
@@ -210,10 +213,8 @@ function addTurn(turn_data, kb_add_turn) {
     let header_area = $('<div>').addClass("flex");
     let turn_number = $('<div>').text(turn_data.getTurnNumber());
     let enemy = $('<div>').append($('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon")).addClass("left");
-    let over_drive = $('<div>').append($('<img>').attr("src", "icon/EffectOverdrive1.webp").addClass("od_icon"))
-                                .append($('<img>').attr("src", "icon/NumberOverdrive1.webp").addClass("od_number"));
-    let over_drive_tmp = $('<div>').append($('<input>').val(turn_data.over_drive_gauge));
-    header_area.addClass("container").append(turn_number).append(enemy).append(over_drive_tmp);
+    let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
+    header_area.addClass("container").append(turn_number).append(enemy).append(over_drive);
     let party_member = $('<div>').addClass("flex");
     let front_area = $('<div>').addClass("flex").addClass("front_area");
     let back_area = $('<div>').addClass("flex").addClass("back_area");
@@ -277,7 +278,18 @@ function addTurn(turn_data, kb_add_turn) {
     addUnitEvent(turn_data.unit_list);
     turn_list.push(turn_data);
 }
-
+// ODゲージ生成
+function createOverDriveGauge(over_drive_gauge) {
+    let over_drive = $('<div>').addClass("flex");
+    let over_drive_text = $('<label>').text(`${over_drive_gauge % 100}%`).addClass("od_text");
+    let over_drive_img = $('<div>').append($('<img>').attr("src", "img/FrameOverdriveGaugeR.webp").addClass("od_icon"));
+    if (over_drive_gauge >= 100) {
+        let gauge = Math.floor(over_drive_gauge / 100);
+        over_drive_img.append($('<img>').attr("src", `img/ButtonOverdrive${gauge}Default.webp`).addClass("od_number"));
+    }
+    over_drive.append(over_drive_text).append(over_drive_img);
+    return over_drive;
+}
 // ユニットイベント
 function addUnitEvent(unit_list) {
     let first_click = null;

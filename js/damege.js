@@ -250,8 +250,8 @@ function setEventTrigger() {
             });
         }
     });
-    // 士気レベル変更
-    $("#morale_count").on("change", function(event) {
+    // 士気/夢の泪レベル変更
+    $("#morale_count, #tears_of_dreams").on("change", function(event) {
         // バフ効果量を更新
         $(".variable_effect_size").each(function(index, value) {
             updateBuffEffectSize($(value));
@@ -576,11 +576,16 @@ function calcDamage() {
     let misfortune = $("#misfortune").prop("checked") ? -20 : 0;
     // 士気
     let morale = Number($("#morale_count").val()) * -5;
+    // 夢の泪
+    let tears_of_dreams = 0;
+    if ($("#enemy_class").val() == 1) {
+        tears_of_dreams = Number($("#tears_of_dreams").val()) * tears_of_dreams_list[Number($("#enemy_list").val())];
+    }
     // メンバー
     let chara_no = $("#attack_list option:selected").data("chara_no");
     let member_info = select_style_list[chara_no];
     // 闘志or士気
-    let stat_up = morale < fightingspirit ? morale : fightingspirit;
+    let stat_up = (morale < fightingspirit ? morale : fightingspirit) - tears_of_dreams;
 
     let basePower = getBasePower(member_info, stat_up + misfortune);
     let buff = getSumBuffEffectSize();
@@ -2006,8 +2011,8 @@ function getBuffEffectSize(buff_id, member_info, skill_lv, target_jewel_type) {
         return skill_info.min_power;
     }
     // 士気
-    let morale = Number($("#morale_count").val()) * 5;
-    let status = member_info[status_kbn[skill_info.ref_status_1]] + morale;
+    let stat_up = getStatUp();
+    let status = member_info[status_kbn[skill_info.ref_status_1]] + stat_up;
     let min_power = skill_info.min_power * (1 + 0.03 * (skill_lv - 1));
     let max_power = skill_info.max_power * (1 + 0.02 * (skill_lv - 1));
     let skill_stat = skill_info.param_limit;
@@ -2046,9 +2051,9 @@ function getDebuffEffectSize(buff_id, member_info, skill_lv) {
         skill_lv = skill_info.max_lv;
     }
     // 士気
-    let morale = Number($("#morale_count").val()) * 5;
-    let status1 = member_info[status_kbn[skill_info.ref_status_1]] + morale;
-    let status2 = member_info[status_kbn[skill_info.ref_status_2]] + morale;
+    let stat_up = getStatUp();
+    let status1 = member_info[status_kbn[skill_info.ref_status_1]] + stat_up;
+    let status2 = member_info[status_kbn[skill_info.ref_status_2]] + stat_up;
     let min_power = skill_info.min_power * (1 + 0.05 * (skill_lv - 1));
     let max_power = skill_info.max_power * (1 + 0.02 * (skill_lv - 1));
     let status = (status1 * 2 + status2) / 3 - enemy_stat;
@@ -2102,6 +2107,16 @@ function getFunnelEffectSize(buff_id, member_info, skill_lv) {
     }
 
    return effect_size;
+}
+
+// ステータスアップ取得
+function getStatUp() {
+    let morale = Number($("#morale_count").val()) * 5;
+    let tears_of_dreams = 0;
+    if ($("#enemy_class").val() == 1) {
+        tears_of_dreams = Number($("#tears_of_dreams").val()) * tears_of_dreams_list[Number($("#enemy_list").val())];
+    }
+    return morale + tears_of_dreams;
 }
 
 // DPゲージ設定

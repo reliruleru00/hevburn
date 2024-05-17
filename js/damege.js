@@ -848,7 +848,7 @@ function updateBuffEffectSize(option, skill_lv) {
     let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, member_info, skill_lv);
     let chara_id = member_info.style_info.chara_id;
     let chara_name = getCharaData(chara_id).chara_short_name;
-    let ability_streng = getStrengthen(member_info, skill_buff.buff_kind);
+    let ability_streng = getStrengthen(member_info, skill_buff);
     // バフ強化1.2倍
     let strengthen = option.parent().parent().parent().find("input").prop("checked") ? 20 : 0;
     let text_effect_size = effect_size * (1 + (ability_streng + strengthen) / 100);
@@ -862,11 +862,11 @@ function updateBuffEffectSize(option, skill_lv) {
 }
 
 // バフ強化効果量取得
-function getStrengthen(member_info, buff_kind) {
+function getStrengthen(member_info, skill_buff) {
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
     let attack_up =  [0, 1];
-    if (attack_up.includes(buff_kind)) {
+    if (attack_up.includes(skill_buff.buff_kind)) {
         let ability_id3 = member_info.style_info.ability3;
         let ability_id0 = member_info.style_info.ability0;
         // 機転
@@ -884,16 +884,20 @@ function getStrengthen(member_info, buff_kind) {
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
     let defense_down =  [3, 4, 19, 20, 21, 22];
-    if (defense_down.includes(buff_kind)) {
+    if (defense_down.includes(skill_buff.buff_kind)) {
         // 侵食
-        let ability_id = member_info.style_info.ability3;
-        if (ability_id == 502 && member_info.limit_count >= 3) {
+        let ability_id3 = member_info.style_info.ability3;
+        if (ability_id3 == 502 && member_info.limit_count >= 3) {
             strengthen += 25;
         }
         // 減退
         let ability_id0 = member_info.style_info.ability0;
         if (ability_id0 == 504) {
             strengthen += 10;
+        }
+         // モロイウオ(あいな専用)
+         if (ability_id3 == 506 && $("#ability_all242").prop("checked") && skill_buff.sp_cost <=8) {
+            strengthen += 30;
         }
     }
     return strengthen;
@@ -1186,7 +1190,7 @@ function addAbility(member_info) {
             .addClass("ability")
             .addClass(chara_id_class);
         // スキル強化可変アビリティ
-        if (ability_id == 505) {
+        if (ability_id == 505 || ability_id == 506) {
             input.addClass("strengthen_ability");
             fg_update = true;
         }
@@ -1561,6 +1565,13 @@ function getSumAbilityEffectSize(effect_type) {
             return true;
         }
         let ability_id = Number($(value).data("ability_id"));
+        if (ability_id == 602) {
+            // キレアジ
+            let attack_info = getAttackInfo();
+            if (attack_info.sp_cost > 8) {
+                return true;
+            }
+        }
         let ability_info = getAbilityInfo(ability_id);
         let effect_size = 0;
         if (ability_info.effect_type == effect_type) {
@@ -2023,8 +2034,8 @@ function getBuffEffectSize(buff_id, member_info, skill_lv, target_jewel_type) {
     } else {
         effect_size += (max_power - min_power) / skill_stat * status + min_power;
     }
-    if (skill_info.buff_kind == 2) {
-        // 心眼はここまで
+    if (skill_info.buff_kind != 0 && skill_info.buff_kind != 1) {
+        // 攻撃力アップと属性攻撃アップ以外はここまで
         return effect_size;
     }
     // 宝珠分(SLvの恩恵を受けない)

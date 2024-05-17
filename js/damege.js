@@ -1074,6 +1074,7 @@ function addBuffList(member_info) {
             .addClass("buff_element-" + buff_element)
             .addClass("buff_physical-" + "0")
             .addClass("buff_id-" + value.buff_id)
+            .addClass("skill_id-" + value.skill_id)
             .addClass("variable_effect_size")
             .addClass("skill_attack-" + value.skill_attack)
             .addClass(only_chara_id)
@@ -1339,8 +1340,8 @@ function isOnlyBuff(option) {
     if (option.hasClass("only_one") && select_attack_skill !== undefined) {
         if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
             let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
-            let buff_id = "buff_id-" + option.val();
-            if ($("." + class_name +" option." + buff_id + ":selected").length > 1) {
+            let skill_id = "skill_id-" + option.data("skill-id");
+            if ($("." + class_name +" option." + skill_id + ":selected").length > 1) {
                 return true;
             }
         }
@@ -1487,6 +1488,12 @@ function getSumFunnelEffectList() {
             size = 10;
         } else if (effect_size == 30) {
             loop = 3;
+            size = 10;
+        } else if (effect_size == 10) {
+            loop = 1;
+            size = 10;
+        } else if (effect_size == 100) {
+            loop = 10;
             size = 10;
         } else if (effect_size == 120) {
             loop = 3;

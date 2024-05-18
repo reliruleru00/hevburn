@@ -1,7 +1,8 @@
 let last_turn;
 let turn_list = [];
-let physical_name = ["", "斬", "突", "打"] 
-let element_name = ["無", "火", "氷", "雷", "光", "闇"] 
+let now_turn;
+let physical_name = ["", "斬", "突", "打"]
+let element_name = ["無", "火", "氷", "雷", "光", "闇"]
 class turn_data {
     constructor() {
         this.turn_number = 0;
@@ -11,6 +12,7 @@ class turn_data {
         this.enemy_debuff = [];
         this.unit_list = [];
         this.over_drive_gauge = 0;
+        this.enemy_count = 1;
     }
 
     // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
@@ -24,14 +26,14 @@ class turn_data {
                 }
             });
             this.turn_number++;
-        } else if(val == 3) {
+        } else if (val == 3) {
 
         } else {
             // OD
             this.over_drive_turn = 1;
             this.over_drive_max_turn = Math.floor(this.over_drive_gauge / 100);
         }
-        
+
     }
     unitSort() {
         this.unit_list.sort((a, b) => a.place_no - b.place_no);
@@ -50,8 +52,8 @@ class turn_data {
     }
     addOverDrive(add_od_gauge) {
         this.over_drive_gauge += add_od_gauge;
-        if (over_drive_gauge > 300) {
-            over_drive_gauge = 300;
+        if (this.over_drive_gauge > 300) {
+            this.over_drive_gauge = 300;
         }
     }
 }
@@ -64,23 +66,35 @@ class unit_data {
         this.add_turn = false;
         this.unit = null;
         this.normal_attack_element = 0;
-        this.earring_type = 0;
         this.earring_effect_size = 0;
         this.skill_list = [];
         this.blank = false;
     }
-    
+
     unitTurnProceed() {
-        this.sp += 2;
-        if (this.place_no <= 2) {
-            // 前衛
-            this.sp += 1;
+        if (this.sp < 20) {
+            this.sp += 2;
+            if (this.place_no <= 2) {
+                // 前衛
+                this.sp += 1;
+            }
+            if (this.sp > 20) {
+                this.sp = 20
+            }
         }
     }
     payCost(sp_cost) {
         this.sp -= sp_cost;
     }
-    
+    getEarringEffectSize(hit_count) {
+        // ドライブ
+        if (this.earring_effect_size != 0) {
+            hit_count = hit_count < 1 ? 1 : hit_count;
+            hit_count = hit_count > 10 ? 10 : hit_count;
+            return (this.earring_effect_size - (10 / 9 * (hit_count - 1)));
+        }
+        return 0;
+    }
 }
 class buff_data {
     constructor() {
@@ -96,11 +110,11 @@ function setEventTrigger() {
         styleReset(true);
     });
     // 敵リストイベント
-    $("#enemy_class").on("change", function(event) {
+    $("#enemy_class").on("change", function (event) {
         let enemy_class = $(this).val();
         createEnemyList(enemy_class);
     });
-    $("#enemy_list").on("change", function(event) {
+    $("#enemy_list").on("change", function (event) {
         setEnemyStatus();
     });
     // 部隊変更ボタンクリック
@@ -115,30 +129,51 @@ function setEventTrigger() {
         localStorage.setItem('select_troops', select_troops);
         loadTroopsList(select_troops);
     });
-
     // 戦闘開始ボタンクリック
     $(".battle_start").on("click", function (event) {
         last_turn = 0;
+        $("#turn_area").html("");
         battle_start();
     });
-
+    // スキル変更
+    $(document).on("change", "select.unit_skill", function (event) {
+        // 消費SPを減らす
+        function tempDownSp(target, index, skill_id) {
+            let unit_data = getUnitData(index);
+            let skill_info = getSkillData(skill_id);
+            let unit_sp = unit_data.sp - skill_info.sp_cost;
+            $(target).text(unit_sp);
+            if (unit_sp < 0) {
+                $(target).addClass("minus");
+            } else {
+                $(target).removeClass("minus");
+            }
+        }
+        tempDownSp($(this).parent().find(".unit_sp"), $(this).index("select.unit_skill"), $(this).find('option:selected').val());
+    });
+    // ユニット交換イベントの伝播を止める
+    $(document).on("click", "select.unit_skill", function (event) {
+        event.stopPropagation();
+    });
     // 行動開始
-    $(document).on("click", ".next_turn", function(event) {
+    $(document).on("click", ".next_turn", function (event) {
         // 前ターンを不能
         $(document).off("click", ".turn" + last_turn + " .unit_select");
+        $(".turn" + last_turn + " select").prop("disabled", true);
+        $(".unit_selected").removeClass("unit_selected");
         startAction(last_turn);
         // 次ターンを追加
-        addTurn(turn_list[turn_list.length - 1], 1);
+        addTurn(now_turn, 1);
     });
 }
 
 // 敵リスト作成
 function createEnemyList(enemy_class) {
     $("#enemy_list").empty();
-    $.each(enemy_list, function(index, value) {
+    $.each(enemy_list, function (index, value) {
         if (value.enemy_class == enemy_class) {
             var option = $('<option>')
-                        .val(value.enemy_class_no);
+                .val(value.enemy_class_no);
             if (enemy_class == 6) {
                 option.text(`#${value.score_attack_no} ${value.enemy_name}`)
             } else {
@@ -169,11 +204,10 @@ function setEnemyElement(id, val) {
     $(id).removeClass("enemy_weak");
     if (val < 100) {
         $(id).addClass("enemy_resist");
-    } else if (val >100) {
+    } else if (val > 100) {
         $(id).addClass("enemy_weak");
     }
 }
-
 
 /* 戦闘開始処理 */
 function battle_start() {
@@ -187,8 +221,7 @@ function battle_start() {
         if (value) {
             unit.sp += Number($("#chain_" + index).val());
             unit.normal_attack_element = $("#bracelet_" + index).val();
-            unit.earring_type = $(`#earring_${index} option:selected`).data("type");
-            unit.earring_effect_size = $(`#earring_${index} option:selected`).data("effect_size");
+            unit.earring_effect_size = $(`#earring_${index} option:selected`).val();
             unit.style = value;
             unit.skill_list = skill_list.filter(obj =>
                 (obj.chara_id === value.style_info.chara_id || obj.chara_id === 0) &&
@@ -203,12 +236,15 @@ function battle_start() {
     turn_list.push(turn_init);
     // 
     addTurn(turn_init, 1);
+
+    // 領域表示
+    $("#battle_area").css("visibility", "visible");
 }
 
 function addTurn(turn_data, kb_add_turn) {
     last_turn++;
     turn_data.turnProceed(kb_add_turn);
-    
+
     let turn = $('<div>').addClass("turn").addClass("turn" + last_turn);
     let header_area = $('<div>').addClass("flex");
     let turn_number = $('<div>').text(turn_data.getTurnNumber());
@@ -225,6 +261,9 @@ function addTurn(turn_data, kb_add_turn) {
             .addClass("unit_style");
         if (unit.style) {
             let sp = $('<div>').text(unit.sp).addClass("unit_sp");
+            if (unit.sp < 0) {
+                sp.addClass("minus");
+            }
             img.attr("src", "icon/" + unit.style.style_info.image_url)
             chara_div.append(img).append(sp);
         } else {
@@ -241,14 +280,16 @@ function addTurn(turn_data, kb_add_turn) {
                 text += `(${physical_name[value.attack_physical]}・${element_name[unit.normal_attack_element]})`;
             } else if (value.skill_name == "追撃") {
                 text += `(${physical_name[value.attack_physical]})`;
-            } else if (value.attack_id){
+            } else if (value.attack_id) {
                 text += `(${physical_name[value.attack_physical]}・${element_name[value.attack_element]}/${value.sp_cost})`;
             } else {
                 text += `(${value.sp_cost})`;
             }
             option = $('<option>').text(text)
-                    .val(value.skill_id).addClass(value.skill_name == "追撃" ? "back" : "front");
+                .val(value.skill_id).addClass(value.skill_name == "追撃" ? "back" : "front");
             skill_select.append(option);
+        });
+        $.each(unit.buff_list, function (index, value) {
         });
         if (!unit.style) {
             skill_select.css("visibility", "hidden");
@@ -264,24 +305,17 @@ function addTurn(turn_data, kb_add_turn) {
         }
     });
     party_member.append(front_area).append(back_area)
-    let select = $('<select>').addClass("action_select");
-    ["OD発動", "行動開始", "行動開始+OD"].forEach((element, index) => {
-        select.append($('<option>').text(element).val(index));
-    });
-    select.val(1);
-    let start = $('<input>').attr("type", "button").val("次ターン").addClass("next_turn");
-    let footer_area = $('<div>').append(select).append(start);
-    back_area.append(footer_area);
     turn.append(header_area).append(party_member);
-    $("#turn_area").append(turn);
+    $("#turn_area").prepend(turn);
 
     addUnitEvent(turn_data.unit_list);
     turn_list.push(turn_data);
+    now_turn = turn_data;
 }
 // ODゲージ生成
 function createOverDriveGauge(over_drive_gauge) {
     let over_drive = $('<div>').addClass("flex");
-    let over_drive_text = $('<label>').text(`${over_drive_gauge % 100}%`).addClass("od_text");
+    let over_drive_text = $('<label>').text(`${(over_drive_gauge % 100).toFixed(2)}%`).addClass("od_text");
     let over_drive_img = $('<div>').append($('<img>').attr("src", "img/FrameOverdriveGaugeR.webp").addClass("od_icon"));
     if (over_drive_gauge >= 100) {
         let gauge = Math.floor(over_drive_gauge / 100);
@@ -294,11 +328,12 @@ function createOverDriveGauge(over_drive_gauge) {
 function addUnitEvent(unit_list) {
     let first_click = null;
     let first_click_index = -1;
-   $(document).on("click", ".turn" + last_turn + " .unit_select", function(event) {
+
+    $(document).on("click", ".turn" + last_turn + " .unit_select", function (event) {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
-        let unit_data = getUnitData(unit_list, index);
+        let unit_data = getUnitData(index);
         if (!unit_data || unit_data.blank) {
             return;
         }
@@ -319,7 +354,7 @@ function addUnitEvent(unit_list) {
             // 2回目にクリックされた要素を取得
             let second_click = clicked_element;
 
-            let first_click_unit_data = getUnitData(unit_list, first_click_index);
+            let first_click_unit_data = getUnitData(first_click_index);
             first_click_unit_data.place_no = index;
             unit_data.place_no = first_click_index;
 
@@ -327,10 +362,20 @@ function addUnitEvent(unit_list) {
             if (index >= 0 && index <= 2 && first_click_index >= 3 && first_click_index <= 5) {
                 setFrontOptions(first_click.find("select"));
                 setBackOptions(second_click.find("select"));
+                let second_sp = second_click.find(".unit_sp");
+                second_sp.text(unit_data.sp);
+                if (unit_data.sp > 0) {
+                    second_sp.removeClass("minus");
+                }
             }
             if (index >= 3 && index <= 5 && first_click_index >= 0 && first_click_index <= 2) {
                 setFrontOptions(second_click.find("select"));
                 setBackOptions(first_click.find("select"));
+                let first_sp = first_click.find(".unit_sp");
+                first_sp.text(first_click_unit_data.sp);
+                if (first_click_unit_data.sp > 0) {
+                    first_sp.removeClass("minus");
+                }
             }
             // 要素を交換
             swapElements(first_click, second_click)
@@ -343,18 +388,18 @@ function addUnitEvent(unit_list) {
 }
 
 // 要素を交換する関数
-function swapElements(firstElement, secondElement) {
-    const firstSelectVal = firstElement.find("select").val();
-    const secondSelectVal = secondElement.find("select").val();
+function swapElements(first_element, second_element) {
+    const first_select_val = first_element.find("select").val();
+    const second_select_val = second_element.find("select").val();
 
-    const firstClone = firstElement.clone();
-    const secondClone = secondElement.clone();
+    const first_clone = first_element.clone();
+    const second_clone = second_element.clone();
 
-    firstClone.find("select").val(firstSelectVal);
-    secondClone.find("select").val(secondSelectVal);
+    first_clone.find("select").val(first_select_val);
+    second_clone.find("select").val(second_select_val);
 
-    firstElement.replaceWith(secondClone);
-    secondElement.replaceWith(firstClone);
+    first_element.replaceWith(second_clone);
+    second_element.replaceWith(first_clone);
 }
 
 // 敵情報取得
@@ -364,17 +409,26 @@ function getEnemyInfo() {
     const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
     return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 }
-
 // ユニットデータ取得
-function getUnitData(unit_list, index) {
+function getUnitData(index) {
+    let unit_list = now_turn.unit_list;
     const filtered_unit = unit_list.filter((obj) => obj.place_no == index);
     return filtered_unit.length > 0 ? filtered_unit[0] : undefined;
 }
-
 // スキルデータ取得
 function getSkillData(skill_id) {
     const filtered_skill = skill_list.filter((obj) => obj.skill_id == skill_id);
     return filtered_skill.length > 0 ? filtered_skill[0] : undefined;
+}
+// 攻撃情報取得
+function getAttackInfo(attack_id) {
+    const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
+    return filtered_attack.length > 0 ? filtered_attack[0] : undefined;
+}
+// バフ情報取得
+function getBuffInfo(skill_id) {
+    const filtered_buff = skill_buff.filter((obj) => obj.skill_id === skill_id);
+    return filtered_buff;
 }
 
 // スキル設定
@@ -392,20 +446,70 @@ function setBackOptions(select) {
 // 行動開始
 function startAction(turn_number) {
     let seq = sortActionSeq(turn_number);
-    let turn_data = turn_list[turn_number]
-    let unit_list = turn_data.unit_list;
+    let enemy_count = now_turn.enemy_count;
     $.each(seq, function (index, skill_data) {
         let skill_info = skill_data.skill_info;
-        let unit_data = getUnitData(unit_list, skill_data.place_no);
+        let unit_data = getUnitData(skill_data.place_no);
         let sp_cost = skill_info.sp_cost;
         let od_plus = 0;
         if (skill_info.skill_name == "通常攻撃") {
             od_plus = 7.5
         } else if (skill_info.attack_id) {
-            od_plus = skill_info.hit_count * 2.5
+            let attack_info = getAttackInfo(skill_info.attack_id);
+            let earring = 1 + unit_data.getEarringEffectSize(10 - attack_info.hit_count) / 100;
+            let hit_od = Math.floor(2.5 * earring * 100) / 100
+            if (attack_info.range_area == 1) {
+                od_plus = attack_info.hit_count * hit_od;
+            } else {
+                od_plus = attack_info.hit_count * hit_od * enemy_count;
+            }
+        } else {
+            let buff_list = getBuffInfo(skill_info.skill_id, skill_data.place_no);
+            if (buff_list.length == 1) {
+                addBuffUnit(buff_list[0]);
+            }
         }
         unit_data.payCost(sp_cost);
-        turn_data.addOverDrive(od_plus);
+        now_turn.addOverDrive(od_plus);
+    });
+}
+
+// バフを追加
+function addBuffUnit(buff_info, place_no) {
+    let target_list;
+    switch (buff_info.range_area) {
+        case 0: // 場
+            break;
+        case 1: // 敵単体
+            break;
+        case 2: // 敵全体
+            break;
+        case 3: // 味方単体
+            break;
+        case 4: // 味方前衛
+            target_list.concat([0, 1, 2]);
+            break;
+        case 5: // 味方後衛
+            target_list.concat([3, 4, 5]);
+            break;
+        case 6: // 味方全員
+            target_list.concat([0, 1, 2, 3, 4, 5]);
+            break;
+        case 7: // 自分
+            target_list.push(place_no);
+            break;
+        case 8: // 自分以外
+            break;
+        default:
+            break;
+    }
+    $.each(target_list, function (index, target_no) {
+        let buff = new buff_data();
+        buff.rest_turn = buff_info.effect_count;
+        buff.baff_kind = buff_info.baff_kind;
+
+        let unit_data = getUnitData(skill_data.target_no);
+        unit_data.buff_list.push(unit_data);
     });
 }
 
@@ -415,8 +519,11 @@ function sortActionSeq(turn_number) {
     let attack_seq = [];
 
     // 前衛のスキルを取得
-    $(`.turn${turn_number} .front_area select.unit_skill`).each(function(index, element) {
+    $(`.turn${turn_number} .front_area select.unit_skill`).each(function (index, element) {
         let skill_id = $(element).val();
+        if (skill_id == 0) {
+            return true;
+        }
         let skill_info = getSkillData(skill_id);
         let skill_data = {
             skill_info: skill_info,

@@ -132,11 +132,22 @@ input[type="button"].battle_start {
     margin-left: 5px;
 }
 
-#turn_area {
+#battle_area {
     width: 720px;
     margin: auto;
+    display: flex;
+} 
+input[type="button"].next_turn {
+    width: 80px;
+    font-size: 16px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
 }
-    
+#turn_area {
+    width: 600px;
+}
+
 .turn {
     border: solid gray 2px;
     border-radius: 20px;
@@ -184,15 +195,24 @@ input[type="button"].battle_start {
 .action_select {
     margin-top: 28px;
     font-size: 12px;
-    width: 90px;
+    width: 120px;
 }
 .unit_sp {
     font-size: 24px;
     font-weight: bold;
     color: #fff;
-    text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black;
+    text-shadow:  2px  2px 10px #000 ,
+    -2px  2px 10px #000 ,
+     2px -2px 10px #000 ,
+    -2px -2px 10px #000;
     margin-top: -72px;
     text-align: right
+}
+.unit_sp.minus {
+    text-shadow:  2px  2px 10px #f00 ,
+    -2px  2px 10px #f00 ,
+     2px -2px 10px #f00 ,
+    -2px -2px 10px #f00;
 }
 .front_area, 
 .back_area {

@@ -35,10 +35,11 @@
   <script src="js/modal.js"></script>
   <script src="js/spod_sim.js"></script>
   <script src="js/skill_list.js"></script>
+  <script src="js/skill_attack.js"></script>
+  <script src="js/skill_buff.js"></script>
   <script src="js/enemy.js"></script>
   <script>
     let chara_no = -1;
-    const EARRING_TYPE_LIST = ["アタック", "ブレイク", "ドライブ", "ブラスト"];
     $(function () {
       // スタイルリスト作成
       createStyleList();
@@ -60,10 +61,8 @@
       $(".limit").append($('<option>').text(10).val(10).css("display", "none"));
       $(".limit").append($('<option>').text(20).val(20).css("display", "none"));
       $(".earring").append($('<option>').text("無し").val(0));
-      EARRING_TYPE_LIST.forEach((element, index) => {
-        [10, 12, 15].forEach(effect_size => {
-          $(".earring").append($('<option>').text(`${element}${effect_size}%`).data("type", element).data("effect_size", effect_size));
-        });
+      [10, 12, 15].forEach(effect_size => {
+        $(".earring").append($('<option>').text(`${effect_size}%`).val(effect_size));
       });
       $(".earring").val(0);
       for (let i = 0; i <= 3; i++) {
@@ -83,7 +82,6 @@
 
       // イベント設定
       setEventTrigger();
-
 
       // MicroModal初期化
       MicroModal.init({
@@ -218,8 +216,20 @@
       <div class="mx-auto w-[80px] mt-2">
         <input type="button" class="battle_start" value="戦闘開始">
       </div>
-      <div id="turn_area">
+      <div id="battle_area" style="visibility: hidden;">
+        <div id="turn_area">
 
+        </div>
+        <div>
+          <select class="action_select">
+            <option value="0">OD発動</option>
+            <option value="1" selected>行動開始</option>
+            <option value="2">行動開始+OD</option>
+          </select>
+          <div class="mx-auto w-[80px] mt-2">
+            <input type="button" value="次ターン" class="next_turn">
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal micromodal-slide" id="modal_style_section" aria-hidden="true">

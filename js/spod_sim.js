@@ -62,13 +62,14 @@ class unit_data {
     constructor() {
         this.place_no = 99;
         this.sp = 1;
-        this.baff_list = [];
+        this.buff_list = [];
         this.add_turn = false;
         this.unit = null;
         this.normal_attack_element = 0;
         this.earring_effect_size = 0;
         this.skill_list = [];
         this.blank = false;
+        this.first_ultimate = false;
     }
 
     unitTurnProceed() {
@@ -100,7 +101,7 @@ class buff_data {
     constructor() {
         this.rest_turn = -1;
         this.effect_size = 0;
-        this.baff_kind = 0;
+        this.buff_kind = 0;
     }
 }
 
@@ -142,6 +143,10 @@ function setEventTrigger() {
             let unit_data = getUnitData(index);
             let skill_info = getSkillData(skill_id);
             let unit_sp = unit_data.sp - skill_info.sp_cost;
+            // SP半減効果
+            if (harfSpSkill(skill_info, unit_data)) {
+                unit_sp += skill_info.sp_cost / 2;
+            }
             $(target).text(unit_sp);
             if (unit_sp < 0) {
                 $(target).addClass("minus");
@@ -248,7 +253,13 @@ function addTurn(turn_data, kb_add_turn) {
     let turn = $('<div>').addClass("turn").addClass("turn" + last_turn);
     let header_area = $('<div>').addClass("flex");
     let turn_number = $('<div>').text(turn_data.getTurnNumber());
-    let enemy = $('<div>').append($('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon")).addClass("left");
+    let enemy = $('<div>').append($('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon")).addClass("left flex");
+    let turn_enemy_count = $("<select>");
+    for (let i = 1; i <= 3; i++) {
+        let option = $("<option>").val(i).text(`×${i}体`);
+        turn_enemy_count.append(option);
+    }
+    enemy.append(turn_enemy_count);
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
     header_area.addClass("container").append(turn_number).append(enemy).append(over_drive);
     let party_member = $('<div>').addClass("flex");
@@ -259,13 +270,16 @@ function addTurn(turn_data, kb_add_turn) {
         let img = $('<img>')
             .data("chara_no", index)
             .addClass("unit_style");
+        let unit_div = $('<div>').addClass("flex");
         if (unit.style) {
             let sp = $('<div>').text(unit.sp).addClass("unit_sp");
             if (unit.sp < 0) {
                 sp.addClass("minus");
             }
             img.attr("src", "icon/" + unit.style.style_info.image_url)
-            chara_div.append(img).append(sp);
+            let inner_div = $('<div>').append(img).append(sp);
+            unit_div.append(inner_div);
+            chara_div.append(unit_div);
         } else {
             img.attr("src", "img/cross.png")
             chara_div.append(img);
@@ -289,8 +303,9 @@ function addTurn(turn_data, kb_add_turn) {
                 .val(value.skill_id).addClass(value.skill_name == "追撃" ? "back" : "front");
             skill_select.append(option);
         });
-        $.each(unit.buff_list, function (index, value) {
-        });
+        if (unit.buff_list.length > 0) {
+            unit_div.append(createBuffIconList(unit.buff_list));
+        }
         if (!unit.style) {
             skill_select.css("visibility", "hidden");
         }
@@ -312,6 +327,51 @@ function addTurn(turn_data, kb_add_turn) {
     turn_list.push(turn_data);
     now_turn = turn_data;
 }
+// バフアイコンリスト
+function createBuffIconList(buff_list) {
+    let div = $("<div>").addClass("icon_list flex flex-wrap");
+    $.each(buff_list, function (index, value) {
+        let img = $('<img>');
+        let src = "img/";
+        switch (value.buff_kind) {
+            case 0: // 攻撃力アップ
+            case 1: // 属性攻撃力アップ
+                src += "IconBuffAttack";
+                break;
+            case 2: // 心眼
+                src += "IconMindEye";
+                break;
+            case 6:	// クリティカル率アップ
+            case 8:	// 属性クリティカル率アップ
+                src += "IconCriticalRate";
+                break;
+            case 7:	// クリティカルダメージアップ
+            case 9:	// 属性クリティカルダメージアップ
+                src += "IconCriticalDamage";
+                break;
+            case 10: // チャージ
+                src += "IconCharge";
+                break;
+            case 16: // 連撃(小)
+                src += "IconFunnelS";
+                break;
+            case 17: // 連撃(大)
+                src += "IconFunnelL";
+                break;
+            case 12: // 破壊率アップ
+            default:
+                break;
+        }
+        if (value.buff_element != 0) {
+            src += value.buff_element;
+        }
+        src += ".webp";
+        img.attr("src", src).addClass("unit_buff");
+        div.append(img)
+    });
+    return div;
+}
+
 // ODゲージ生成
 function createOverDriveGauge(over_drive_gauge) {
     let over_drive = $('<div>').addClass("flex");
@@ -464,19 +524,91 @@ function startAction(turn_number) {
                 od_plus = attack_info.hit_count * hit_od * enemy_count;
             }
         } else {
-            let buff_list = getBuffInfo(skill_info.skill_id, skill_data.place_no);
+            let buff_list = getBuffInfo(skill_info.skill_id);
             if (buff_list.length == 1) {
-                addBuffUnit(buff_list[0]);
+                addBuffUnit(buff_list[0], skill_data.place_no);
             }
         }
+        origin(skill_info, unit_data);
         unit_data.payCost(sp_cost);
         now_turn.addOverDrive(od_plus);
     });
 }
 
+// 独自仕様
+function origin(skill_info, unit_data) {
+    if (harfSpSkill(skill_info, unit_data)) {
+        unit_data.sp += skill_info.sp_cost / 2;
+        unit_data.first_ultimate = true;
+    }
+    return;
+}
+
+function harfSpSkill(skill_info, unit_data) {
+    switch (skill_info.skill_id) {
+        case 416: // 必滅！ヴェインキック+
+            if (!unit_data.first_ultimate) {
+                return true;
+            }
+            break;
+    }
+    return false;
+}
+
 // バフを追加
 function addBuffUnit(buff_info, place_no) {
-    let target_list;
+    // 対象：場
+    if (buff_info.range_area == 0) {
+        if (buff_info.buff_kind == 13) {
+            // OD増加
+            now_turn.addOverDrive(buff_info.min_power);
+        }
+        return;
+    }
+
+    // 対象策定
+    let target_list = getTargetList(buff_info, place_no);
+
+    // バフ追加
+    $.each(target_list, function (index, target_no) {
+        let unit_data = getUnitData(target_no);
+        switch (buff_info.buff_kind) {
+            case 0: // 攻撃力アップ
+            case 1: // 属性攻撃力アップ
+            case 2: // 心眼
+            case 6:	// クリティカル率アップ
+            case 7:	// クリティカルダメージアップ
+            case 8:	// 属性クリティカル率アップ
+            case 9:	// 属性クリティカルダメージアップ
+            case 10: // チャージ
+            case 12: // 破壊率アップ
+            case 16: // 連撃(小)
+            case 17: // 連撃(大)
+                let buff = new buff_data();
+                buff.buff_kind = buff_info.buff_kind;
+                buff.buff_element = buff_info.buff_element;
+                unit_data.buff_list.push(buff);
+                break;
+            case 3: // 防御力ダウン
+            case 4: // 属性防御力ダウン
+            case 5: // 脆弱
+            case 19: // DP防御力ダウン
+            case 20: // 耐性ダウン
+            case 21: // 永続防御ダウン
+            case 22: // 永続属性防御ダウン
+                break;
+            case 23: // SP追加
+                unit_data.sp += buff_info.min_power;
+                break;
+            default:
+                break;
+        }
+    });
+}
+
+// ターゲットリスト追加
+function getTargetList(buff_info, place_no) {
+    let target_list = [];
     switch (buff_info.range_area) {
         case 0: // 場
             break;
@@ -487,13 +619,13 @@ function addBuffUnit(buff_info, place_no) {
         case 3: // 味方単体
             break;
         case 4: // 味方前衛
-            target_list.concat([0, 1, 2]);
+            target_list = target_list.concat([0, 1, 2]);
             break;
         case 5: // 味方後衛
-            target_list.concat([3, 4, 5]);
+            target_list = target_list.concat([3, 4, 5]);
             break;
         case 6: // 味方全員
-            target_list.concat([0, 1, 2, 3, 4, 5]);
+            target_list = target_list.concat([0, 1, 2, 3, 4, 5]);
             break;
         case 7: // 自分
             target_list.push(place_no);
@@ -503,14 +635,7 @@ function addBuffUnit(buff_info, place_no) {
         default:
             break;
     }
-    $.each(target_list, function (index, target_no) {
-        let buff = new buff_data();
-        buff.rest_turn = buff_info.effect_count;
-        buff.baff_kind = buff_info.baff_kind;
-
-        let unit_data = getUnitData(skill_data.target_no);
-        unit_data.buff_list.push(unit_data);
-    });
+    return target_list;
 }
 
 // 行動順を取得

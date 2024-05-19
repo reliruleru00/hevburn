@@ -164,18 +164,18 @@ input[type="button"].next_turn {
     flex: 1;
 }
 .enemy_icon {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
 }
 .od_icon {
     width: 61px;
     height: 48px;
 }
 .od_number {
-    width: 64px;
-    height: 64px;
-    margin-top: -56px;
-    margin-left: 6px;
+    width: 48px;
+    height: 48px;
+    margin-top: -48px;
+    margin-left: 14px;
 }
 .od_text {
     padding-top: 11px;
@@ -219,7 +219,7 @@ input[type="button"].next_turn {
     height: 90px;
 }
 .front_area .unit_sp {
-    margin-right: 28px;
+    /* margin-right: 60px; */
 }
 .back_area .unit_sp {
     margin-right: 8px;
@@ -228,6 +228,17 @@ img.unit_style {
     width: 64px;
     height: 64px;
 }
+img.unit_buff {
+    width: 20px;
+    height: 20px;
+}
+.back_area .icon_list {
+    display: none;
+}
+.icon_list {
+    width: 60px;
+}
+
 .hidden-option {
     display: none;
 }

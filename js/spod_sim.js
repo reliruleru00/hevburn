@@ -96,6 +96,44 @@ class unit_data {
         }
         return 0;
     }
+    getfunnelList() {
+        let ret = [];
+        let funnel_list = this.buff_list.filter(function (buff_info) {
+            return buff_info.buff_kind == 16 || buff_info.buff_kind == 17;
+        });
+        $.each(funnel_list, function (index, buff_info) {
+            let effect_size;
+            let effect_count;
+            let effect_unit;
+            if (buff_info.buff_kind == 16) {
+                effect_count = buff_info.effect_size;
+                effect_unit = 10
+            } else {
+                effect_count = buff_info.effect_size;
+                effect_unit = 40
+            }
+            effect_size = effect_unit * effect_unit;
+            ret.push({ "effect_count": effect_count, "effect_unit": effect_unit, "effect_size": effect_size });
+        });
+        // effect_sizeで降順にソート
+        ret.sort(function (a, b) {
+            return b.effect_size - a.effect_size;
+        });
+
+        // 上位2つの要素を取得
+        let top_two = ret.slice(0, 2);
+
+        // 新しいリストを作成
+        let result_list = [];
+
+        // 各要素のeffect_count分effect_unitを追加
+        top_two.forEach(function (item) {
+            for (let i = 0; i < item.effect_count; i++) {
+                result_list.push(item.effect_unit);
+            }
+        });
+        return result_list;
+    }
 }
 class buff_data {
     constructor() {
@@ -166,6 +204,7 @@ function setEventTrigger() {
         $(document).off("click", ".turn" + last_turn + " .unit_select");
         $(".turn" + last_turn + " select").prop("disabled", true);
         $(".unit_selected").removeClass("unit_selected");
+
         startAction(last_turn);
         // 次ターンを追加
         addTurn(now_turn, 1);
@@ -226,7 +265,7 @@ function battle_start() {
         if (value) {
             unit.sp += Number($("#chain_" + index).val());
             unit.normal_attack_element = $("#bracelet_" + index).val();
-            unit.earring_effect_size = $(`#earring_${index} option:selected`).val();
+            unit.earring_effect_size = Number($(`#earring_${index} option:selected`).val());
             unit.style = value;
             unit.skill_list = skill_list.filter(obj =>
                 (obj.chara_id === value.style_info.chara_id || obj.chara_id === 0) &&
@@ -237,6 +276,7 @@ function battle_start() {
         }
         unit_list.push(unit);
     });
+    turn_init.enemy_count = Number($("#enemy_count").val());;
     turn_init.unit_list = unit_list;
     turn_list.push(turn_init);
     // 
@@ -254,11 +294,12 @@ function addTurn(turn_data, kb_add_turn) {
     let header_area = $('<div>').addClass("flex");
     let turn_number = $('<div>').text(turn_data.getTurnNumber());
     let enemy = $('<div>').append($('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon")).addClass("left flex");
-    let turn_enemy_count = $("<select>");
+    let turn_enemy_count = $("<select>").attr("id", `enemy_count_turn${last_turn}`);
     for (let i = 1; i <= 3; i++) {
         let option = $("<option>").val(i).text(`×${i}体`);
         turn_enemy_count.append(option);
     }
+    turn_enemy_count.val(turn_data.enemy_count);
     enemy.append(turn_enemy_count);
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
     header_area.addClass("container").append(turn_number).append(enemy).append(over_drive);
@@ -389,7 +430,8 @@ function addUnitEvent(unit_list) {
     let first_click = null;
     let first_click_index = -1;
 
-    $(document).on("click", ".turn" + last_turn + " .unit_select", function (event) {
+//    $(document).on("click", ".turn" + last_turn + " .unit_select", function (event) {
+    $(".turn" + last_turn + " .unit_select").on("click", function (event) {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
@@ -452,8 +494,8 @@ function swapElements(first_element, second_element) {
     const first_select_val = first_element.find("select").val();
     const second_select_val = second_element.find("select").val();
 
-    const first_clone = first_element.clone();
-    const second_clone = second_element.clone();
+    const first_clone = first_element.clone(true);
+    const second_clone = second_element.clone(true);
 
     first_clone.find("select").val(first_select_val);
     second_clone.find("select").val(second_select_val);
@@ -506,30 +548,42 @@ function setBackOptions(select) {
 // 行動開始
 function startAction(turn_number) {
     let seq = sortActionSeq(turn_number);
-    let enemy_count = now_turn.enemy_count;
+    let enemy_count = Number($(`#enemy_count_turn${turn_number}`).val());
+    now_turn.enemy_count = enemy_count;
     $.each(seq, function (index, skill_data) {
         let skill_info = skill_data.skill_info;
         let unit_data = getUnitData(skill_data.place_no);
         let sp_cost = skill_info.sp_cost;
         let od_plus = 0;
-        if (skill_info.skill_name == "通常攻撃") {
-            od_plus = 7.5
-        } else if (skill_info.attack_id) {
-            let attack_info = getAttackInfo(skill_info.attack_id);
-            let earring = 1 + unit_data.getEarringEffectSize(10 - attack_info.hit_count) / 100;
-            let hit_od = Math.floor(2.5 * earring * 100) / 100
-            if (attack_info.range_area == 1) {
-                od_plus = attack_info.hit_count * hit_od;
-            } else {
-                od_plus = attack_info.hit_count * hit_od * enemy_count;
-            }
-        } else {
-            let buff_list = getBuffInfo(skill_info.skill_id);
-            if (buff_list.length == 1) {
-                addBuffUnit(buff_list[0], skill_data.place_no);
+        let attack_info;
+
+        let buff_list = getBuffInfo(skill_info.skill_id);
+        if (buff_list) {
+            for (let i = 0; i < buff_list.length; i++) {
+                addBuffUnit(buff_list[i], skill_data.place_no);
             }
         }
         origin(skill_info, unit_data);
+
+        let funnel_list = unit_data.getfunnelList();
+        if (skill_info.skill_name == "通常攻撃") {
+            od_plus = 7.5
+            attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
+            od_plus += funnel_list.length * 2.5 * enemy_count;
+        } else if (skill_info.attack_id) {
+            attack_info = getAttackInfo(skill_info.attack_id);
+            let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
+            let hit_od = Math.floor(2.5 * earring * 100) / 100
+            if (attack_info.range_area == 1) {
+                enemy_count = 1;
+            }
+            od_plus = attack_info.hit_count * hit_od * enemy_count;
+            od_plus += funnel_list.length * hit_od * enemy_count;
+        }
+
+        if (attack_info) {
+            consumeBuffUnit(unit_data.buff_list, attack_info);
+        }
         unit_data.payCost(sp_cost);
         now_turn.addOverDrive(od_plus);
     });
@@ -544,6 +598,7 @@ function origin(skill_info, unit_data) {
     return;
 }
 
+// 消費SP半減
 function harfSpSkill(skill_info, unit_data) {
     switch (skill_info.skill_id) {
         case 416: // 必滅！ヴェインキック+
@@ -565,13 +620,31 @@ function addBuffUnit(buff_info, place_no) {
         }
         return;
     }
+    // 個別判定
+    switch (buff_info.buff_id) {
+        case 111: // 豪快！パイレーツキャノン(敵1体)
+            if (now_turn.enemy_count != 1) {
+                return;
+            }
+            break;
+        case 112: // 豪快！パイレーツキャノン(敵2体)
+            if (now_turn.enemy_count != 2) {
+                return;
+            }
+            break;
+        case 113: // 豪快！パイレーツキャノン(敵3体)
+            if (now_turn.enemy_count != 3) {
+                return;
+            }
+            break;
+    }
 
     // 対象策定
     let target_list = getTargetList(buff_info, place_no);
-
     // バフ追加
     $.each(target_list, function (index, target_no) {
         let unit_data = getUnitData(target_no);
+        let buff = new buff_data();
         switch (buff_info.buff_kind) {
             case 0: // 攻撃力アップ
             case 1: // 属性攻撃力アップ
@@ -582,11 +655,20 @@ function addBuffUnit(buff_info, place_no) {
             case 9:	// 属性クリティカルダメージアップ
             case 10: // チャージ
             case 12: // 破壊率アップ
-            case 16: // 連撃(小)
-            case 17: // 連撃(大)
-                let buff = new buff_data();
                 buff.buff_kind = buff_info.buff_kind;
                 buff.buff_element = buff_info.buff_element;
+                unit_data.buff_list.push(buff);
+                break;
+            case 16: // 連撃(小)
+                buff.buff_kind = buff_info.buff_kind;
+                buff.effect_size = buff_info.min_power;
+                buff.buff_element = 0;
+                unit_data.buff_list.push(buff);
+                break;
+            case 17: // 連撃(大)
+                buff.buff_kind = buff_info.buff_kind;
+                buff.effect_size = 3;
+                buff.buff_element = 0;
                 unit_data.buff_list.push(buff);
                 break;
             case 3: // 防御力ダウン
@@ -605,6 +687,54 @@ function addBuffUnit(buff_info, place_no) {
         }
     });
 }
+
+// 攻撃時にバフ消費
+function consumeBuffUnit(buff_list, attack_info) {
+    let consume_kind = [];
+    // バフ追加
+    for (let i = buff_list.length - 1; i >= 0; i--) {
+        buff_info = buff_list[i];
+        const countWithFilter = consume_kind.filter(buff_kind => buff_kind === buff_info.buff_kind).length;
+        // 同一バフは2個まで
+        if (countWithFilter >= 2) {
+            if (attack_info.attack_id == 0) {
+                return true;
+            }
+        }
+        switch (buff_info.buff_kind) {
+            case 1: // 属性攻撃力アップ
+                if (attack_info.attack_element != buff_info.buff_element) {
+                    continue;
+                }
+            case 0: // 攻撃力アップ
+            case 2: // 心眼
+            case 10: // チャージ
+            case 12: // 破壊率アップ
+                // スキルでのみ消費
+                if (attack_info.attack_id == 0) {
+                    continue;
+                }
+                buff_list.splice(i, 1);
+                break;
+            case 8:	// 属性クリティカル率アップ
+            case 9:	// 属性クリティカルダメージアップ
+                if (attack_info.attack_element != buff_info.buff_element) {
+                    continue;
+                }
+            case 6:	// クリティカル率アップ
+            case 7:	// クリティカルダメージアップ
+            case 16: // 連撃(小)
+            case 17: // 連撃(大)
+                // 通常攻撃でも消費
+                buff_list.splice(i, 1);
+                break;
+            default:
+                break;
+        }
+        consume_kind.push(buff_info.buff_kind);
+    };
+}
+
 
 // ターゲットリスト追加
 function getTargetList(buff_info, place_no) {

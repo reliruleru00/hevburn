@@ -9,7 +9,7 @@ class turn_data {
         this.over_drive_turn = 0;
         this.over_drive_max_turn = 0;
         this.add_turn = false;
-        this.enemy_debuff = [];
+        this.enemy_debuff_list = [];
         this.unit_list = [];
         this.over_drive_gauge = 0;
         this.enemy_count = 1;
@@ -25,6 +25,8 @@ class turn_data {
                     value.unitTurnProceed();
                 }
             });
+            // 敵のデバフ消費
+            this.debuffConsumption();
             this.turn_number++;
         } else if (val == 3) {
 
@@ -33,7 +35,6 @@ class turn_data {
             this.over_drive_turn = 1;
             this.over_drive_max_turn = Math.floor(this.over_drive_gauge / 100);
         }
-
     }
     unitSort() {
         this.unit_list.sort((a, b) => a.place_no - b.place_no);
@@ -54,6 +55,16 @@ class turn_data {
         this.over_drive_gauge += add_od_gauge;
         if (this.over_drive_gauge > 300) {
             this.over_drive_gauge = 300;
+        }
+    }
+    debuffConsumption() {
+        for (let i = this.enemy_debuff_list.length - 1; i >= 0; i--) {
+            let debuff = this.enemy_debuff_list[i];
+            if (debuff.rest_turn <= 1) {
+                buff_list.splice(i, 1);
+            } else {
+                debuff.rest_turn -= 1;
+            }
         }
     }
 }
@@ -201,7 +212,7 @@ function setEventTrigger() {
     // 行動開始
     $(document).on("click", ".next_turn", function (event) {
         // 前ターンを不能
-        $(document).off("click", ".turn" + last_turn + " .unit_select");
+        $(".turn" + last_turn + " .unit_select").off("click");
         $(".turn" + last_turn + " select").prop("disabled", true);
         $(".unit_selected").removeClass("unit_selected");
 
@@ -300,7 +311,8 @@ function addTurn(turn_data, kb_add_turn) {
         turn_enemy_count.append(option);
     }
     turn_enemy_count.val(turn_data.enemy_count);
-    enemy.append(turn_enemy_count);
+    let debuuf_lidt = createBuffIconList(turn_data.enemy_debuff_list);
+    enemy.append(turn_enemy_count).append(debuuf_lidt);
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
     header_area.addClass("container").append(turn_number).append(enemy).append(over_drive);
     let party_member = $('<div>').addClass("flex");
@@ -382,6 +394,13 @@ function createBuffIconList(buff_list) {
             case 2: // 心眼
                 src += "IconMindEye";
                 break;
+            case 3: // 防御力ダウン
+            case 4: // 属性防御力ダウン
+                src += "IconBuffDefense";
+                break;
+            case 5: // 脆弱
+                src += "IconFragile";
+                break;
             case 6:	// クリティカル率アップ
             case 8:	// 属性クリティカル率アップ
                 src += "IconCriticalRate";
@@ -393,13 +412,27 @@ function createBuffIconList(buff_list) {
             case 10: // チャージ
                 src += "IconCharge";
                 break;
+            case 12: // 破壊率アップ
+                src += "IconDamageRate";
+                break;
+            case 14: // 闘志
+                src += "IconFightingSpirit";
+                break;
+            case 15: // 厄
+                src += "IconMisfortune";
+                break;
             case 16: // 連撃(小)
                 src += "IconFunnelS";
                 break;
             case 17: // 連撃(大)
                 src += "IconFunnelL";
                 break;
-            case 12: // 破壊率アップ
+            case 19: // DP防御ダウン
+                src += "IconBuffDefenseDP";
+                break;
+            case 20: // 耐性ダウン
+                src += "IconResistElement";
+                break;
             default:
                 break;
         }
@@ -430,7 +463,6 @@ function addUnitEvent(unit_list) {
     let first_click = null;
     let first_click_index = -1;
 
-//    $(document).on("click", ".turn" + last_turn + " .unit_select", function (event) {
     $(".turn" + last_turn + " .unit_select").on("click", function (event) {
         // クリックされた要素を取得
         let clicked_element = $(this);
@@ -638,54 +670,61 @@ function addBuffUnit(buff_info, place_no) {
             }
             break;
     }
-
+    let target_list;
     // 対象策定
-    let target_list = getTargetList(buff_info, place_no);
-    // バフ追加
-    $.each(target_list, function (index, target_no) {
-        let unit_data = getUnitData(target_no);
-        let buff = new buff_data();
-        switch (buff_info.buff_kind) {
-            case 0: // 攻撃力アップ
-            case 1: // 属性攻撃力アップ
-            case 2: // 心眼
-            case 6:	// クリティカル率アップ
-            case 7:	// クリティカルダメージアップ
-            case 8:	// 属性クリティカル率アップ
-            case 9:	// 属性クリティカルダメージアップ
-            case 10: // チャージ
-            case 12: // 破壊率アップ
+    switch (buff_info.buff_kind) {
+        case 0: // 攻撃力アップ
+        case 1: // 属性攻撃力アップ
+        case 2: // 心眼
+        case 6:	// クリティカル率アップ
+        case 7:	// クリティカルダメージアップ
+        case 8:	// 属性クリティカル率アップ
+        case 9:	// 属性クリティカルダメージアップ
+        case 10: // チャージ
+        case 12: // 破壊率アップ
+        case 16: // 連撃(小)
+        case 17: // 連撃(大)
+            // バフ追加
+            target_list = getTargetList(buff_info, place_no);
+            $.each(target_list, function (index, target_no) {
+                let unit_data = getUnitData(target_no);
+                let buff = new buff_data();
                 buff.buff_kind = buff_info.buff_kind;
                 buff.buff_element = buff_info.buff_element;
-                unit_data.buff_list.push(buff);
-                break;
-            case 16: // 連撃(小)
-                buff.buff_kind = buff_info.buff_kind;
                 buff.effect_size = buff_info.min_power;
-                buff.buff_element = 0;
                 unit_data.buff_list.push(buff);
-                break;
-            case 17: // 連撃(大)
-                buff.buff_kind = buff_info.buff_kind;
-                buff.effect_size = 3;
-                buff.buff_element = 0;
-                unit_data.buff_list.push(buff);
-                break;
-            case 3: // 防御力ダウン
-            case 4: // 属性防御力ダウン
-            case 5: // 脆弱
-            case 19: // DP防御力ダウン
-            case 20: // 耐性ダウン
-            case 21: // 永続防御ダウン
-            case 22: // 永続属性防御ダウン
-                break;
-            case 23: // SP追加
+            });
+            break;
+        case 3: // 防御力ダウン
+        case 4: // 属性防御力ダウン
+        case 5: // 脆弱
+        case 19: // DP防御力ダウン
+        case 20: // 耐性ダウン
+        case 21: // 永続防御ダウン
+        case 22: // 永続属性防御ダウン
+            // デバフ追加
+            let add_count = 1;
+            if (buff_info.range_area == 2) {
+                add_count = now_turn.enemy_count;
+            }
+            for (let i = 0; i < add_count; i++) {
+                let debuff = new buff_data();
+                debuff.buff_kind = buff_info.buff_kind;
+                debuff.buff_element = buff_info.buff_element;
+                debuff.effect_size = buff_info.min_power;
+                debuff.rest_turn = buff_info.effect_count;
+                now_turn.enemy_debuff_list.push(debuff);
+            }
+            break;
+        case 23: // SP追加
+            target_list = getTargetList(buff_info, place_no);
+            $.each(target_list, function (index, target_no) {
                 unit_data.sp += buff_info.min_power;
-                break;
-            default:
-                break;
-        }
-    });
+            });
+            break;
+        default:
+            break;
+    }
 }
 
 // 攻撃時にバフ消費

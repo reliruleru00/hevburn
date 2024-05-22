@@ -719,6 +719,7 @@ function addBuffUnit(buff_info, place_no) {
         case 23: // SP追加
             target_list = getTargetList(buff_info, place_no);
             $.each(target_list, function (index, target_no) {
+                let unit_data = getUnitData(target_no);
                 unit_data.sp += buff_info.min_power;
             });
             break;

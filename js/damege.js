@@ -623,7 +623,7 @@ function calcDamage() {
     // 貫通クリティカル
     if (skill_info.attack_id == 135) {
         critical_rate = 100;
-        critical_buff += 2.5;
+        weak_physical += 3;
     }
 
     damage_detail = new RestGauge();

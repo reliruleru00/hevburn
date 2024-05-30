@@ -600,9 +600,9 @@ function calcDamage() {
     let funnel_sum = 1 + getSumFunnelEffectList().reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
     let destruction_rate = Number($("#enemy_destruction_rate").val());
     let special = 1 + Number($("#dp_range_0").val() == 0 ? skill_info.hp_damege / 100 : skill_info.dp_damege / 100);
-    // バーチカルフォース
+    // バーチカルフォース/パドマ・ナーチュナー
     let skill_unique_rate = 1;
-    if (skill_info.attack_id == 115) {
+    if (skill_info.attack_id == 115 || skill_info.attack_id == 2167) {
         let dp_rate = Number($("#skill_unique_dp_rate").val());
         dp_rate = dp_rate < 60 ? 60 : dp_rate;
         skill_unique_rate += (dp_rate - 100) / 200
@@ -620,6 +620,11 @@ function calcDamage() {
     let critical_power = getBasePower(member_info, stat_up - 50);
     let critical_rate = getCriticalRate(member_info);
     let critical_buff = getCriticalBuff();
+    // 貫通クリティカル
+    if (skill_info.attack_id == 135) {
+        critical_rate = 100;
+        critical_buff += 2.5;
+    }
 
     damage_detail = new RestGauge();
     critical_detail = new RestGauge();
@@ -905,12 +910,16 @@ function getStrengthen(member_info, skill_buff) {
 
 // 弱点判定
 function isWeak() {
-    skill_info = getAttackInfo();
-    if (skill_info === undefined) {
+    attack_info = getAttackInfo();
+    if (attack_info === undefined) {
         return false
     }
-    let physical_resist = Number($("#enemy_physical_" + skill_info.attack_physical).val());
-    let element_resist = Number($("#enemy_element_" + skill_info.attack_element).val());
+    // 貫通クリティカル
+    if (attack_info.attack_id == 135) {
+        return true;
+    }
+    let physical_resist = Number($("#enemy_physical_" + attack_info.attack_physical).val());
+    let element_resist = Number($("#enemy_element_" + attack_info.attack_element).val());
     return physical_resist * element_resist > 10000;
 }
 

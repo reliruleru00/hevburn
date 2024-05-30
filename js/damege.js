@@ -1904,7 +1904,12 @@ function calcScore(detail, grade_magn) {
 function getDamageBonus(damage, num, score_attack) {
     damage *= Number($("#socre_enemy_unit").val());
     let damage_bonus;
-    let damage_limit_value = damage_limit1[num];
+    let damage_limit_value;
+    if (score_attack.enemy_count == 1) {
+        damage_limit1[num];
+    } else {
+        damage_limit2[num];
+    }
     if (damage <= damage_limit_value) {
         damage_bonus = Math.floor(damage / 100);
     } else {

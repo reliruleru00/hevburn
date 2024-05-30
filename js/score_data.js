@@ -9,6 +9,7 @@ let score_attack_list = [
     {"score_attack_no":49,"enemy_count":2,"max_damage_rate":0.470,"dp_rate1":1.040,"dp_rate2":1.050,"hp_rate1":1.055,"hp_rate2":1.050},
     {"score_attack_no":50,"enemy_count":2,"max_damage_rate":0.470,"dp_rate1":1.018,"dp_rate2":1.022,"hp_rate1":1.030,"hp_rate2":1.045},
     {"score_attack_no":51,"enemy_count":1,"max_damage_rate":0.670,"dp_rate1":1.020,"dp_rate2":1.020,"hp_rate1":1.040,"hp_rate2":1.050},
+    {"score_attack_no":52,"enemy_count":2,"max_damage_rate":0.670,"dp_rate1":1.020,"dp_rate2":1.020,"hp_rate1":1.040,"hp_rate2":1.050},
 ];
 
 // スコアタ情報取得

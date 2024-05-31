@@ -623,7 +623,7 @@ function calcDamage() {
     // 貫通クリティカル
     if (skill_info.attack_id == 135) {
         critical_rate = 100;
-        weak_physical += 3;
+        weak_physical = 4;
     }
 
     damage_detail = new RestGauge();
@@ -1815,34 +1815,6 @@ function updateEnemyScoreAttack() {
     $("#enemy_stat").val(enemy_stat);
     $("#enemy_hp").val((enemy_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
 }
-
-// スコアタHP取得
-function getScoreHp(score_lv, max_hp, score_attack) {
-    let count1 = score_lv > 120 ? 20 : score_lv - 100;
-    let count2 = score_lv > 120 ? score_lv - 120 : 0;
-    let magn = Math.pow(Number(score_attack.hp_rate1), count1) * Math.pow(Number(score_attack.hp_rate2), count2);
-    return Math.ceil(max_hp * magn / 1000) * 1000;
-}
-
-// スコアタDP取得
-function getScoreDp(score_lv, max_dp, score_attack) {
-    let count1 = score_lv > 120 ? 20 : score_lv - 100;
-    let count2 = score_lv > 120 ? score_lv - 120 : 0;
-    let magn = Math.pow(Number(score_attack.dp_rate1), count1) * Math.pow(Number(score_attack.dp_rate2), count2);
-    return Math.ceil(max_dp * magn / 1000) * 1000;
-}
-
-// 有効数字を3桁にする
-/*
-function roundUpToFourSignificantFigures(val) {
-    let num = Math.floor(val)
-    let significantFigures = num.toString().replace(/^-/, '').replace(/^0+/, '').length;
-    if (significantFigures < 4) {
-        return num;
-    }
-    let roundedNum = Math.ceil(num / Math.pow(10, significantFigures - 3)) * Math.pow(10, significantFigures - 3);
-    return roundedNum;
-}*/
 
 // スコアアタック表示
 function displayScoreAttack(enemy_info) {

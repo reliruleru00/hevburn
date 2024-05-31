@@ -11,9 +11,41 @@ let score_attack_list = [
     {"score_attack_no":51,"enemy_count":1,"max_damage_rate":0.670,"dp_rate1":1.020,"dp_rate2":1.020,"hp_rate1":1.040,"hp_rate2":1.050},
     {"score_attack_no":52,"enemy_count":2,"max_damage_rate":0.670,"dp_rate1":1.020,"dp_rate2":1.020,"hp_rate1":1.040,"hp_rate2":1.050},
 ];
+const const_score = {
+    "score_dp_52": [180000, 200000, 210000, 221000, 231000, 242000, 252000, 263000, 273000, 284000, 294000, 305000, 315000, 326000, 336000, 357000, 347000, 357000, 368000, 379000, 400000, 450000, 472000, 492000, 512000, 532000, 552000, 572000, 592000, 612000, 632000, 652000, 672000, 692000, 712000, 732000, 752000, 772000, 792000, 812000, 832000],
+    "score_hp_52": [1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3345000, 3590000, 3835000, 4080000, 4325000, 4570000, 4815000, 5060000, 5305000, 5550000, 5795000, 6040000, 6285000, 6530000, 6775000, 7020000, 7265000, 7510000, 7755000],
+};
 
 // スコアタ情報取得
 function getScoreAttack(score_attack_no) {
     const filtered_score_attack = score_attack_list.filter((obj) => obj.score_attack_no == score_attack_no);
     return filtered_score_attack.length > 0 ? filtered_score_attack[0] : undefined;
+}
+
+// スコアタHP取得
+function getScoreHp(score_lv, max_hp, score_attack) {
+    let lv_hp;
+    if (score_attack.score_attack_no <= 51) {
+        let count1 = score_lv > 120 ? 20 : score_lv - 100;
+        let count2 = score_lv > 120 ? score_lv - 120 : 0;
+        let magn = Math.pow(Number(score_attack.hp_rate1), count1) * Math.pow(Number(score_attack.hp_rate2), count2);
+        lv_hp = Math.ceil(max_hp * magn / 1000) * 1000;
+    } else {
+        lv_hp = const_score[`score_hp_${score_attack.score_attack_no}`][score_lv - 100];
+    }
+    return lv_hp;
+}
+
+// スコアタDP取得
+function getScoreDp(score_lv, max_dp, score_attack) {
+    let lv_dp;
+    if (score_attack.score_attack_no <= 51) {
+        let count1 = score_lv > 120 ? 20 : score_lv - 100;
+        let count2 = score_lv > 120 ? score_lv - 120 : 0;
+        let magn = Math.pow(Number(score_attack.dp_rate1), count1) * Math.pow(Number(score_attack.dp_rate2), count2);
+        lv_dp = Math.ceil(max_dp * magn / 1000) * 1000;
+    } else {
+        lv_dp =const_score[`score_dp_${score_attack.score_attack_no}`][score_lv - 100];
+    }
+    return lv_dp;
 }

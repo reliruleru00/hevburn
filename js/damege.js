@@ -987,7 +987,7 @@ function addAttackList(member_info) {
     let checked = $("#skill_special_display").prop("checked");
     let optgroup = $("<optgroup>");
     let chara_data = getCharaData(member_info.style_info.chara_id)
-    optgroup.attr("label", chara_data.chara_name).addClass("chara_id-" + value.chara_id);
+    optgroup.attr("label", chara_data.chara_name).addClass("chara_id-" + member_info.style_info.chara_id);
     $("#attack_list").append(optgroup);
 
     attack_sort_list.forEach(value => {

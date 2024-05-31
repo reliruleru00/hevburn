@@ -985,6 +985,10 @@ function addAttackList(member_info) {
 
     let attack_sort_list = attack_list.sort((x, y) => y.style_id - x.style_id);
     let checked = $("#skill_special_display").prop("checked");
+    let optgroup = $("<optgroup>");
+    let chara_data = getCharaData(member_info.style_info.chara_id)
+    optgroup.attr("label", chara_data.chara_name);
+    $("#attack_list").append(optgroup);
 
     attack_sort_list.forEach(value => {
         let display = checked && value.attack_id > 1000 ? "none" : "block";

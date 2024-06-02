@@ -27,7 +27,9 @@ class turn_data {
             });
             // 敵のデバフ消費
             this.debuffConsumption();
-            this.turn_number++;
+            if (!this.add_turn) {
+                this.turn_number++;
+            }
         } else if (val == 3) {
 
         } else {
@@ -92,6 +94,15 @@ class unit_data {
             }
             if (this.sp > 20) {
                 this.sp = 20
+            }
+        }
+
+        for (let i = this.buff_list.length - 1; i >= 0; i--) {
+            let buff = this.buff_list[i];
+            if (buff.rest_turn <= 1) {
+                this.buff_list.splice(i, 1);
+            } else {
+                buff.rest_turn -= 1;
             }
         }
     }
@@ -205,15 +216,13 @@ function setEventTrigger() {
         }
         tempDownSp($(this).parent().find(".unit_sp"), $(this).index("select.unit_skill"), $(this).find('option:selected').val());
     });
-    // ユニット交換イベントの伝播を止める
-    $(document).on("click", "select.unit_skill", function (event) {
-        event.stopPropagation();
-    });
+
     // 行動開始
     $(document).on("click", ".next_turn", function (event) {
         // 前ターンを不能
-        $(".turn" + last_turn + " .unit_select").off("click");
-        $(".turn" + last_turn + " select").prop("disabled", true);
+        $(`.turn${last_turn} select.unit_skill`).off("click");
+        $(`.turn${last_turn} .unit_select`).off("click");
+        $(`.turn${last_turn} select.unit_skill`).prop("disabled", true);
         $(".unit_selected").removeClass("unit_selected");
 
         startAction(last_turn);
@@ -299,7 +308,9 @@ function battle_start() {
 
 function addTurn(turn_data, kb_add_turn) {
     last_turn++;
-    turn_data.turnProceed(kb_add_turn);
+    if (!turn_data.add_turn) {
+        turn_data.turnProceed(kb_add_turn);
+    }
 
     let turn = $('<div>').addClass("turn").addClass("turn" + last_turn);
     let header_area = $('<div>').addClass("flex");
@@ -359,7 +370,13 @@ function addTurn(turn_data, kb_add_turn) {
         if (unit.buff_list.length > 0) {
             unit_div.append(createBuffIconList(unit.buff_list));
         }
-        if (!unit.style) {
+        // 行動不能
+        const recoil = unit.buff_list.filter((obj) => obj.buff_kind == 24);
+        if (recoil.length > 0) {
+            skill_select.css("visibility", "hidden");
+        }
+        // 対象外        
+        if (!unit.style || turn_data.add_turn && !unit.add_turn) {
             skill_select.css("visibility", "hidden");
         }
         chara_div.prepend(skill_select);
@@ -371,6 +388,7 @@ function addTurn(turn_data, kb_add_turn) {
             setBackOptions(skill_select);
             back_area.append(chara_div);
         }
+        unit.add_turn = false;
     });
     party_member.append(front_area).append(back_area)
     turn.append(header_area).append(party_member);
@@ -378,8 +396,11 @@ function addTurn(turn_data, kb_add_turn) {
 
     addUnitEvent(turn_data.unit_list);
     turn_list.push(turn_data);
+
+    turn_data.add_turn = false;
     now_turn = turn_data;
 }
+
 // バフアイコンリスト
 function createBuffIconList(buff_list) {
     let div = $("<div>").addClass("icon_list flex flex-wrap");
@@ -436,6 +457,9 @@ function createBuffIconList(buff_list) {
             case 24: // 行動不能
                 src += "IconRecoil";
                 break;
+            case 25: // 挑発
+                src += "IconTarget";
+                break;
             default:
                 break;
         }
@@ -466,7 +490,12 @@ function addUnitEvent(unit_list) {
     let first_click = null;
     let first_click_index = -1;
 
-    $(".turn" + last_turn + " .unit_select").on("click", function (event) {
+    // ユニット交換イベントの伝播を止める
+    $(`.turn${last_turn} select.unit_skill`).on("click", function (event) {
+        event.stopPropagation();
+    });
+
+    $(`.turn${last_turn} .unit_select`).on("click", function (event) {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
@@ -696,7 +725,11 @@ function addBuffUnit(buff_info, place_no) {
                 buff.buff_kind = buff_info.buff_kind;
                 buff.buff_element = buff_info.buff_element;
                 buff.effect_size = buff_info.min_power;
-                buff.rest_turn = buff_info.effect_count;
+                if (buff_info.buff_kind == 24) {
+                    buff.rest_turn = buff_info.effect_count;
+                } else {
+                    buff.rest_turn = 99;
+                }
                 unit_data.buff_list.push(buff);
             });
             break;
@@ -707,6 +740,7 @@ function addBuffUnit(buff_info, place_no) {
         case 20: // 耐性ダウン
         case 21: // 永続防御ダウン
         case 22: // 永続属性防御ダウン
+        case 25: // 挑発
             // デバフ追加
             let add_count = 1;
             if (buff_info.range_area == 2) {
@@ -728,6 +762,10 @@ function addBuffUnit(buff_info, place_no) {
                 unit_data.sp += buff_info.min_power;
             });
             break;
+        case 26: // 追加ターン
+            let unit_data = getUnitData(place_no);
+            unit_data.add_turn = true;
+            now_turn.add_turn = true;
         default:
             break;
     }
@@ -829,6 +867,9 @@ function sortActionSeq(turn_number) {
 
     // 前衛のスキルを取得
     $(`.turn${turn_number} .front_area select.unit_skill`).each(function (index, element) {
+        if ($(element).css("visibility") == "hidden") {
+            return true;
+        }
         let skill_id = $(element).val();
         if (skill_id == 0) {
             return true;

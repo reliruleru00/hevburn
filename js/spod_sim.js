@@ -198,10 +198,48 @@ function setEventTrigger() {
     });
     // スキル変更
     $(document).on("change", "select.unit_skill", function (event) {
+        let skill_id = $(this).find('option:selected').val();
+        let skill_info = getSkillData(skill_id);
+        let select = $(this);
+
+        // 処理B（モーダルを開く）
+        function targetSelect() {
+            return new Promise((resolve) => {
+                handleModalResult = resolve;
+                // モーダルにアイコンを表示
+                // モーダルを表示
+                MicroModal.show('modal_damage_detail', {
+                    onClose: modal => {
+                        if (modal.dataset.value === undefined) {
+                            // モーダル外をクリックして閉じた場合
+                            handleModalResult(null);
+                        }
+                    }});
+
+                // モーダルのボタンにクリックイベントを設定
+                $('.modal-button').one('click', function () {
+                    var value = $(this).data('value');
+                    $('#modal_damage_detail').data('value', value);  // モーダルに選択された値を保存
+                    MicroModal.close('modal_damage_detail');
+                    resolve(value); // モーダルの結果をresolve関数に渡す
+                });
+            });
+        }
+        async function openModal() {
+            let buff_list = getBuffInfo(skill_info.skill_id);
+            // 対象選択画面
+            if (buff_list.some(buff => buff.range_area == 3)) {
+                let target = await targetSelect();
+                if (!target) {
+                    select.prop("selectedIndex", 1);
+                    return;
+                }
+            }
+            tempDownSp(select.parent().find(".unit_sp"), select.index("select.unit_skill"));
+        }
         // 消費SPを減らす
-        function tempDownSp(target, index, skill_id) {
+        function tempDownSp(target, index) {
             let unit_data = getUnitData(index);
-            let skill_info = getSkillData(skill_id);
             let unit_sp = unit_data.sp - skill_info.sp_cost;
             // SP半減効果
             if (harfSpSkill(skill_info, unit_data)) {
@@ -214,7 +252,7 @@ function setEventTrigger() {
                 $(target).removeClass("minus");
             }
         }
-        tempDownSp($(this).parent().find(".unit_sp"), $(this).index("select.unit_skill"), $(this).find('option:selected').val());
+        openModal();
     });
 
     // 行動開始
@@ -622,10 +660,8 @@ function startAction(turn_number) {
         let attack_info;
 
         let buff_list = getBuffInfo(skill_info.skill_id);
-        if (buff_list) {
-            for (let i = 0; i < buff_list.length; i++) {
-                addBuffUnit(buff_list[i], skill_data.place_no);
-            }
+        for (let i = 0; i < buff_list.length; i++) {
+            addBuffUnit(buff_list[i], skill_data.place_no);
         }
         origin(skill_info, unit_data);
 

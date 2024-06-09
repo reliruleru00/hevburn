@@ -1,6 +1,7 @@
 let last_turn;
 let turn_list = [];
 let now_turn;
+let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"]
 let element_name = ["無", "火", "氷", "雷", "光", "闇"]
 class turn_data {
@@ -48,7 +49,7 @@ class turn_data {
                     this.fg_action = false;
                 }
             }
-        } else  {
+        } else {
             // OD
             this.over_drive_turn = 1;
             let over_drive_level = Math.floor(this.over_drive_gauge / 100)
@@ -58,7 +59,7 @@ class turn_data {
             if (val == 2) {
                 // 行動開始＋OD発動
                 this.fg_action = true;
-            } else if (val == 0){
+            } else if (val == 0) {
                 // OD発動
                 this.fg_action = false;
             }
@@ -229,6 +230,7 @@ function setEventTrigger() {
     $(".battle_start").on("click", function (event) {
         last_turn = 0;
         $("#battle_area").html("");
+        battle_enemy_info = getEnemyInfo();
         battle_start();
     });
     // スキル変更
@@ -304,14 +306,14 @@ function selectUnitSkill(select) {
     }
 
     async function processSkillChange() {
-        const buff_list = getBuffInfo(skill_info.skill_id);
+        const buff_list = getBuffInfo(skill_id);
         const target_selected = await handleTargetSelection(buff_list);
         if (!target_selected) return;
         setOverDrive();
     }
 
     function updateSp(target) {
-        let unit_sp = unit_data.sp - skill_info.sp_cost;
+        let unit_sp = unit_data.sp - skill_info?.sp_cost;
         if (harfSpSkill(skill_info, unit_data)) {
             unit_sp += skill_info.sp_cost / 2;
         }
@@ -326,7 +328,7 @@ function selectUnitSkill(select) {
 
 // 行動制限
 function updateAction(turn_data) {
-    let is_over_drive = (turn_data.over_drive_gauge +  turn_data.add_over_drive_gauge) > 100;
+    let is_over_drive = (turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) > 100;
     toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='2']`), is_over_drive);
 }
 
@@ -861,23 +863,49 @@ function getOverDrive(turn_number, enemy_count) {
             }
         });
         let funnel_list = unit_data.getfunnelList();
-
+        let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
         if (skill_info.skill_name == "通常攻撃") {
-            od_plus += 7.5
-            attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
-            od_plus += funnel_list.length * 2.5;
+            if (isResist(physical, unit_data.normal_attack_element)) {
+                od_plus += 7.5
+                od_plus += funnel_list.length * 2.5;
+            }
         } else if (skill_info.attack_id) {
             attack_info = getAttackInfo(skill_info.attack_id);
-            let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
-            let hit_od = Math.floor(2.5 * earring * 100) / 100
-            if (attack_info.range_area == 1) {
-                enemy_count = 1;
+            if (isResist(physical, attack_info.attack_element)) {
+                let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
+                let hit_od = Math.floor(2.5 * earring * 100) / 100
+                if (attack_info.range_area == 1) {
+                    enemy_count = 1;
+                }
+                od_plus += attack_info.hit_count * hit_od * enemy_count;
+                od_plus += funnel_list.length * hit_od * enemy_count;
             }
-            od_plus += attack_info.hit_count * hit_od * enemy_count;
-            od_plus += funnel_list.length * hit_od * enemy_count;
+        }
+    });
+    
+    // 後衛の選択取得
+    $(`.turn${turn_number} .back_area select.unit_skill option:selected`).each(function (index, element) {
+        if ($(element).css("visibility") == "hidden") {
+            return true;
+        }
+        let skill_id = $(element).val();
+        if (skill_id == 0) {
+            return true;
+        }
+        if ($(element).text().startsWith("追撃")) {
+            let skill_info = getSkillData(skill_id);
+            let chara_data = getCharaData(skill_info.chara_id);
+            od_plus += chara_data.pursuit * 2.5; 
         }
     });
     return od_plus;
+}
+
+// 耐性判定
+function isResist(physical, element) {
+    let physical_rate = battle_enemy_info[`physical_${physical}`];
+    let element_rate = battle_enemy_info[`element_${element}`];
+    return physical_rate / 100 * element_rate / 100 >= 1;
 }
 
 // 独自仕様
@@ -892,7 +920,7 @@ function origin(skill_info, unit_data) {
 // 消費SP半減
 function harfSpSkill(skill_info, unit_data) {
     switch (skill_info.skill_id) {
-        case 416: // 必滅！ヴェインキック+
+        case 422: // 必滅！ヴェインキック+
             if (!unit_data.first_ultimate) {
                 return true;
             }

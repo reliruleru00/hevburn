@@ -23,9 +23,9 @@ class turn_data {
         if (val == 1) {
             this.unitSort();
             // 通常
-            $.each(this.unit_list, function (index, value) {
-                if (!value.blank) {
-                    value.unitTurnProceed();
+            $.each(this.unit_list, function (index, unit) {
+                if (!unit.blank) {
+                    unit.unitTurnProceed();
                 }
             });
             // 敵のデバフ消費
@@ -104,12 +104,118 @@ class turn_data {
             }
         }
     }
+    abilityAction(action_kbn) {
+        const self = this;
+        $.each(this.unit_list, function (index, unit) {
+            if (unit.blank) {
+                return true;
+            }
+            let action_list = [];
+            switch (action_kbn) {
+                case 0: // 戦闘開始時
+                    action_list = unit.ability_battle_start;
+                    break;
+                case 1: // 自分のターン開始時
+                    action_list = unit.ability_self_start;
+                    break;
+                case 2: // 行動開始時
+                    action_list = unit.ability_action_start;
+                    break;
+                case 3: // 敵のターン開始時
+                    action_list = unit.ability_enemy_start;
+                    break;
+                case 4: // 追加ターン
+                    action_list = unit.ability_add_turn;
+                    break;
+                case 5: // オーバードライブ開始時
+                    action_list = unit.ability_over_drive;
+                    break;
+            }
+            $.each(action_list, function (index, ability) {
+                // 前衛
+                if (ability.activation_place == 1 && unit.place_no >= 3) {
+                    return true;
+                }
+                // 後衛
+                if (ability.activation_place == 2 && unit.place_no < 3) {
+                    return true;
+                }
+                let target_list = [];
+                switch (ability.ability_target) {
+                    case 1: // 自分
+                        target_list = [unit.place_no];
+                        break;
+                    case 2: // 味方前衛
+                        target_list = [0, 1, 2];
+                        break;
+                    case 3: // 味方後衛
+                        target_list = [3, 4, 5];
+                        break;
+                    case 4: // 味方全員
+                        target_list = [0, 1, 2, 3, 4, 5];
+                        break;
+                }
+                switch (ability.effect_type) {
+                    case 6: // 連撃数アップ
+                        let buff = new buff_data();
+                        buff.buff_kind = ability.effect_size == 40 ? 17 : 16;
+                        buff.buff_element = 0;
+                        buff.effect_size = ability.effect_size;
+                        buff.rest_turn = 99;
+                        unit.buff_list.push(buff);
+                        break;
+                    case 12: // SP回復
+                        $.each(target_list, function (index, target_no) {
+                            let unit_data = getUnitData(self, target_no);
+                            switch (ability.ability_id) {
+                                case 1109: // 吉報
+                                case 1111: // みなぎる士気
+                                case 1119: // 旺盛
+                                    unit_data.add_sp += ability.effect_size;
+                                    break;
+                                case 1112: // 好機
+                                    if (unit_data.sp <= 3) {
+                                        unit_data.sp += ability.effect_size;
+                                    }
+                                    break;
+                                case 1118: // 充填
+                                    // チャージ存在チェック
+                                    if (checkBuffExist(unit_data.buff_list, 10)) {
+                                        unit_data.add_sp += ability.effect_size;
+                                    }
+                                    break;
+                                default:
+                                    unit_data.sp += ability.effect_size;
+                                    break;
+                            }
+                        });
+                        break;
+                    case 14: // ODアップ
+                        this.over_drive_gauge += ability.effect_size;
+                        break;
+                    case 15: // 消費SPダウン
+                        break;
+                    case 22: // 厄
+                        break;
+                }
+            });
+        });
+    }
+}
+
+// バフ存在チェック
+function checkBuffExist(buff_list, buff_kind) {
+    let exist_list = buff_list.filter(function (buff_info) {
+        return buff_info.buff_kind == buff_kind;
+    });
+    return exist_list.length > 0;
 }
 
 class unit_data {
     constructor() {
         this.place_no = 99;
         this.sp = 1;
+        this.add_sp = 0;
         this.buff_list = [];
         this.add_turn = false;
         this.unit = null;
@@ -119,15 +225,17 @@ class unit_data {
         this.blank = false;
         this.first_ultimate = false;
         this.buff_target_chara_id = null;
+        this.ability_battle_start = [];
+        this.ability_self_start = [];
+        this.ability_action_start = [];
+        this.ability_enemy_start = [];
+        this.ability_add_turn = [];
+        this.ability_over_drive = [];
     }
 
     unitTurnProceed() {
         if (this.sp < 20) {
             this.sp += 2;
-            if (this.place_no <= 2) {
-                // 前衛
-                this.sp += 1;
-            }
             if (this.sp > 20) {
                 this.sp = 20
             }
@@ -392,6 +500,32 @@ function battle_start() {
                 (obj.chara_id === value.style_info.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === value.style_info.style_id || obj.style_id === 0)
             );
+            let limit = Number($("#limit_" + index).val());
+            [0, 1, 3, 5, 10].forEach(num => {
+                if (value.style_info[`ability${num}`] && num <= limit) {
+                    let ability_info = getAbilityInfo(value.style_info[`ability${num}`]);
+                    switch (ability_info.activation_timing) {
+                        case 0: // 戦闘開始時
+                            unit.ability_battle_start.push(ability_info);
+                            break;
+                        case 1: // 自分のターン開始時
+                            unit.ability_self_start.push(ability_info);
+                            break;
+                        case 2: // ターン開始時
+                            unit.ability_action_start.push(ability_info);
+                            break;
+                        case 3: // 敵ターン開始時
+                            unit.ability_enemy_start.push(ability_info);
+                            break;
+                        case 4: // 追加ターン
+                            unit.ability_add_turn.push(ability_info);
+                            break;
+                        case 5: // オーバードライブ開始時
+                            unit.ability_over_drive.push(ability_info);
+                            break;
+                    }
+                }
+            });
         } else {
             unit.blank = true;
         }
@@ -399,6 +533,9 @@ function battle_start() {
     });
     turn_init.enemy_count = Number($("#enemy_count").val());;
     turn_init.unit_list = unit_list;
+
+    // 戦闘開始アビリティ
+    turn_init.abilityAction(0);
     turn_list.push(turn_init);
 
     // 領域表示
@@ -413,6 +550,7 @@ function proceedTurn(turn_data, kb_add_turn) {
     last_turn++;
     if (!turn_data.add_turn) {
         turn_data.turnProceed(kb_add_turn);
+        turn_data.abilityAction(2); // ターン開始時
     }
 
     let turn = $('<div>').addClass(`turn turn${last_turn}`);
@@ -462,7 +600,7 @@ function proceedTurn(turn_data, kb_add_turn) {
         };
 
         const appendUnitDetails = () => {
-            const sp = $('<div>').text(unit.sp).addClass("unit_sp");
+            const sp = $('<div>').text(`${unit.sp}+${unit.add_sp}`).addClass("unit_sp");
             if (unit.sp < 0) sp.addClass("minus");
             img.attr("src", `icon/${unit.style.style_info.image_url}`);
             unit_div.append($('<div>').append(img).append(sp));
@@ -764,6 +902,11 @@ function getBuffInfo(skill_id) {
     const filtered_buff = skill_buff.filter((obj) => obj.skill_id === skill_id);
     return filtered_buff;
 }
+// アビリティ情報取得
+function getAbilityInfo(ability_id) {
+    const filtered_ability = ability_list.filter((obj) => obj.ability_id == ability_id);
+    return filtered_ability.length > 0 ? filtered_ability[0] : undefined;
+}
 
 // スキル設定
 function setFrontOptions(select) {
@@ -882,7 +1025,7 @@ function getOverDrive(turn_number, enemy_count) {
             }
         }
     });
-    
+
     // 後衛の選択取得
     $(`.turn${turn_number} .back_area select.unit_skill option:selected`).each(function (index, element) {
         if ($(element).css("visibility") == "hidden") {
@@ -895,7 +1038,7 @@ function getOverDrive(turn_number, enemy_count) {
         if ($(element).text().startsWith("追撃")) {
             let skill_info = getSkillData(skill_id);
             let chara_data = getCharaData(skill_info.chara_id);
-            od_plus += chara_data.pursuit * 2.5; 
+            od_plus += chara_data.pursuit * 2.5;
         }
     });
     return od_plus;

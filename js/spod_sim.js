@@ -168,26 +168,31 @@ class turn_data {
                     case 12: // SP回復
                         $.each(target_list, function (index, target_no) {
                             let unit_data = getUnitData(self, target_no);
-                            switch (ability.ability_id) {
-                                case 1109: // 吉報
-                                case 1111: // みなぎる士気
-                                case 1119: // 旺盛
-                                    unit_data.add_sp += ability.effect_size;
-                                    break;
-                                case 1112: // 好機
-                                    if (unit_data.sp <= 3) {
+                            if (unit_data.sp < 20) {
+                                switch (ability.ability_id) {
+                                    case 1109: // 吉報
+                                    case 1111: // みなぎる士気
+                                    case 1119: // 旺盛
+                                        unit_data.add_sp += ability.effect_size;
+                                        break;
+                                    case 1112: // 好機
+                                        if (unit_data.sp <= 3) {
+                                            unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    case 1118: // 充填
+                                        // チャージ存在チェック
+                                        if (checkBuffExist(unit_data.buff_list, 10)) {
+                                            unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    default:
                                         unit_data.sp += ability.effect_size;
-                                    }
-                                    break;
-                                case 1118: // 充填
-                                    // チャージ存在チェック
-                                    if (checkBuffExist(unit_data.buff_list, 10)) {
-                                        unit_data.sp += ability.effect_size;
-                                    }
-                                    break;
-                                default:
-                                    unit_data.sp += ability.effect_size;
-                                    break;
+                                        break;
+                                }
+                                if (unit_data.sp > 20) {
+                                    unit_data.sp = 20
+                                }
                             }
                         });
                         break;
@@ -339,8 +344,11 @@ function setEventTrigger() {
     });
     // 戦闘開始ボタンクリック
     $(".battle_start").on("click", function (event) {
+        // 初期化
         last_turn = 0;
         $("#battle_area").html("");
+        turn_list = [];
+
         battle_enemy_info = getEnemyInfo();
         battle_start();
     });
@@ -364,6 +372,36 @@ function setEventTrigger() {
         }
         // 次ターンを追加
         proceedTurn(now_turn, kb_action);
+    });
+
+    // ターンを戻す
+    $(document).on("click", ".return_turn", function (event) {
+        // 現ターンのイベント削除
+        $(`.turn${last_turn} select.unit_skill`).off("click");
+        $(`.turn${last_turn} .unit_select`).off("click");
+
+        // 前ターンを削除
+        function removeTurnsAfter(turn_number) {
+            // 選択したターン数より大きいターンの要素を取得し、削除
+            $(`#battle_area .turn`).filter(function() {
+                // クラス名からターン数を抽出
+                const turn_class = $(this).attr('class').match(/turn(\d+)/);
+                return turn_class && parseInt(turn_class[1]) > turn_number;
+            }).remove();
+
+            function removeTurnsAbove(temp_list, number) {
+                // 指定されたnumber以上の要素を削除
+                return temp_list.filter(turn => turn.turn_number <= number);
+            }
+            turn_list = removeTurnsAbove(turn_list, turn_number);
+        }
+        last_turn = $(this).data("trun_number");
+        removeTurnsAfter(last_turn);
+        now_turn = turn_list[turn_list.length - 1];
+
+        $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
+        $(`.turn${last_turn} select.action_select`).prop("disabled", false);
+        setTurnButton();
     });
 }
 
@@ -540,7 +578,6 @@ function battle_start() {
 
     // 戦闘開始アビリティ
     turn_init.abilityAction(0);
-    turn_list.push(turn_init);
 
     // 領域表示
     $("#battle_area").css("visibility", "visible");
@@ -671,7 +708,7 @@ function proceedTurn(turn_data, kb_action) {
         $('<div>').addClass('mx-auto w-[80px] mt-2').append(
             $('<input>').attr({ type: 'button', value: '次ターン' }).addClass('turn_button next_turn')
         ).append(
-            $('<input>').attr({ type: 'button', value: 'ここに戻す' }).addClass('turn_button return_turn')
+            $('<input>').attr({ type: 'button', value: 'ここに戻す' }).addClass('turn_button return_turn').data("trun_number", last_turn)
         )
     );
     back_area.append($div)
@@ -680,21 +717,25 @@ function proceedTurn(turn_data, kb_action) {
     $("#battle_area").prepend(turn);
 
     addUnitEvent(turn_data.unit_list);
-    turn_list.push(turn_data);
-
     turn_data.add_turn = false;
+    turn_list.push(deepClone(turn_data));
     now_turn = turn_data;
 
+    setTurnButton();
+    // ODゲージを設定
+    setOverDrive();
+    // 行動制限
+    updateAction(now_turn);
+}
+
+// ターンボタン表示設定
+function setTurnButton() {
     // 最初の要素のみ表示
     $('.next_turn:first').show();
     $('.next_turn:gt(0)').hide();
     // 最初の要素を非表示、以降の要素を表示
     $('.return_turn:first').hide();
-    $('.return_turn:gt(0)').show();
-    // ODゲージを設定
-    setOverDrive();
-    // 行動制限
-    updateAction(now_turn);
+    $('.return_turn:gt(0)').show();    
 }
 
 // SP表示取得

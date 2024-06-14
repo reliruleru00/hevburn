@@ -148,6 +148,12 @@ function setEventTrigger() {
                     return;
                 }
             }
+            if (isSameBuff($(option))) {
+                if (!confirm(option.text() + "は\r\n同一スキルが既に設定されています。設定してよろしいですか？")) {
+                    $(this).prop("selectedIndex", 0);
+                    return;
+                }
+            }
             if (isOtherOnlyUse($(option))) {
                 if (!confirm(option.text() + "は\r\n通常、自分に設定出来ませんが、設定してよろしいですか？")) {
                     $(this).prop("selectedIndex", 0);
@@ -613,8 +619,8 @@ function calcDamage() {
     // 花舞う、可憐のフレア
     if (skill_info.attack_id == 136) {
         let dp_rate = Number($("#skill_unique_dp_rate").val());
-        dp_rate = dp_rate < 60 ? 60 : dp_rate;
-        skill_unique_rate += (dp_rate - 100) / 200
+        dp_rate = dp_rate > 100 ? 100 : dp_rate;
+        skill_unique_rate += (100 - dp_rate) / 100 * 75 / 100;
     }
     // コーシュカ・アルマータ
     if (skill_info.attack_id == 2162) {
@@ -1346,10 +1352,14 @@ function select2ndSkill(select) {
                 $(option).prop("selected", false);
                 continue;
             }
-            if (isOtherOnlyUse($(option))) {
+            if (isSameBuff($(option))) {
                 $(option).prop("selected", false);
                 continue;
             }
+            if (isOtherOnlyUse($(option))) {
+                $(option).prop("selected", false);
+                continue;
+            }            
             if (buff_id == 0) {
                 // アビリティ
                 break;
@@ -1411,6 +1421,19 @@ function isOnlyUse(option) {
 function isOtherOnlyUse(option) {
     if (select_attack_skill !== undefined) {
         if (option.hasClass("only_other_chara_id-" + select_attack_skill.chara_id)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 複数設定出来ないバフで扱いは同一のもの
+function isSameBuff(option) {
+    let convert_skill_id = {"4" : "133", "133" : "4"};
+    if (option.hasClass("only_first")) {
+        let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
+        let buff_id = "buff_id-" + convert_skill_id[option.val()];
+        if ($("." + class_name + " option." + buff_id + ":selected").length > 0) {
             return true;
         }
     }

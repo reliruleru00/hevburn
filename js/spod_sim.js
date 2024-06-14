@@ -422,7 +422,7 @@ function setEventTrigger() {
 // スキル変更処理
 function selectUnitSkill(select) {
     const skill_id = Number(select.find('option:selected').val());
-    const sp_cost = select.find('option:selected').data("sp_cost");
+    let sp_cost = select.find('option:selected').data("sp_cost");
     const index = select.index("select.unit_skill");
     const unit_data = getUnitData(now_turn, index);
 
@@ -483,6 +483,10 @@ function selectUnitSkill(select) {
         let unit_sp = unit_data.sp - sp_cost;
         $(target).text(getDispSp(unit_data));
         $(target).toggleClass("minus", unit_sp < 0);
+    }
+    // コーシュカ・アルマータ
+    if (skill_id == 199) {
+        sp_cost = unit_data.sp;
     }
 
     processSkillChange();
@@ -832,6 +836,9 @@ function createBuffIconList(buff_list) {
             case 25: // 挑発
                 src += "IconTarget";
                 break;
+            case 27: // 全体挑発
+                src += "IconCover";
+                break;
             default:
                 break;
         }
@@ -1135,7 +1142,10 @@ function origin(skill_info, unit_data) {
 // 消費SP半減
 function harfSpSkill(turn_data, skill_info, unit_data) {
     switch (skill_info.skill_id) {
-        case 359: // とどけ！ 誓いのしるし(挑発)
+        case 327: // 姫君の寵愛
+        case 359: // とどけ！ 誓いのしるし
+        case 487: // 花舞う、可憐のフレア
+            // 挑発
             if (checkBuffExist(turn_data.enemy_debuff_list, 25)) {
                 return true;
             }
@@ -1203,6 +1213,7 @@ function addBuffUnit(turn_data, buff_info, place_no, buff_target_chara_id) {
         case 16: // 連撃(小)
         case 17: // 連撃(大)
         case 24: // 行動不能
+        case 27: // 全体挑発
             // バフ追加
             target_list = getTargetList(turn_data, buff_info, place_no, buff_target_chara_id);
             $.each(target_list, function (index, target_no) {
@@ -1213,6 +1224,8 @@ function addBuffUnit(turn_data, buff_info, place_no, buff_target_chara_id) {
                 buff.effect_size = buff_info.max_power;
                 if (buff_info.buff_kind == 24) {
                     buff.rest_turn = buff_info.effect_count;
+                } else if (buff_info.buff_kind == 27) {
+                    buff.rest_turn = buff_info.max_power;
                 } else {
                     buff.rest_turn = 99;
                 }
@@ -1321,18 +1334,19 @@ function getTargetList(turn_data, buff_info, place_no, buff_target_chara_id) {
             target_list.push(target_unit_data[0].place_no);
             break;
         case 4: // 味方前衛
-            target_list = target_list.concat([0, 1, 2]);
+            target_list = [0, 1, 2];
             break;
         case 5: // 味方後衛
-            target_list = target_list.concat([3, 4, 5]);
+            target_list = [3, 4, 5];
             break;
         case 6: // 味方全員
-            target_list = target_list.concat([0, 1, 2, 3, 4, 5]);
+            target_list = [...Array(6).keys()];
             break;
         case 7: // 自分
             target_list.push(place_no);
             break;
         case 8: // 自分以外
+            target_list = [...Array(6).keys()].filter(num => num !== place_no);
             break;
         default:
             break;
@@ -1340,7 +1354,7 @@ function getTargetList(turn_data, buff_info, place_no, buff_target_chara_id) {
     if (buff_info.target_element != 0) {
         for (let i = target_list.length - 1; i >= 0; i--) {
             let unit = getUnitData(turn_data, target_list[i]);
-            if (!unit || (unit.style.element != buff_info.target_element && unit.style.element != buff_info.target_element2)) {
+            if (unit.blank || (unit.style.style_info.element != buff_info.target_element && unit.style.style_info.element2 != buff_info.target_element)) {
                 target_list.splice(i, 1);
             }
         }

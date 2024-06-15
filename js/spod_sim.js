@@ -11,54 +11,94 @@ const KB_ABILIRY_BATTLE_START = 0;
 const KB_ABILIRY_SELF_START = 1;
 const KB_ABILIRY_ACTION_START = 2;
 const KB_ABILIRY_ENEMY_START = 3;
-const KB_ABILIRY_ADD_TURN = 4;
+const KB_ABILIRY_ADDITIONALTURN = 4;
 const KB_ABILIRY_OD_START = 5;
 const KB_ABILIRY_OTHER = 6;
 
+const BUFF_ATTACKUP = 0; // 攻撃力アップ
+const BUFF_ELEMENT_ATTACKUP = 1; // 属性アップ
+const BUFF_MINDEYE = 2; // 心眼
+const BUFF_DEFENSEDOWN = 3; // 防御ダウン
+const BUFF_ELEMENT_DEFENSEDOWN = 4; // 属性防御ダウン
+const BUFF_FRAGILE = 5; // 脆弱
+const BUFF_CRITICALRATEUP = 6; // クリ率
+const BUFF_CRITICALDAMAGEUP = 7; // クリダメ
+const BUFF_ELEMENT_CRITICALRATEUP = 8; // 属性クリ率
+const BUFF_ELEMENT_CRITICALDAMAGEUP = 9; // 属性クリダメ
+const BUFF_CHARGE = 10;// チャージ
+const BUFF_FIELD = 11; // フィールド
+const BUFF_DAMAGERATEUP = 12; // 破壊率アップ
+const BUFF_OVERDRIVEPOINTUP = 13; // OD増加
+const BUFF_FIGHTINGSPIRIT = 14; // 闘志
+const BUFF_MISFORTUNE = 15; // 厄
+const BUFF_FUNNEL_SMALL = 16; // 連撃(小)
+const BUFF_FUNNEL_LARGE = 17; // 連撃(大)
+const BUFF_STRONG_BREAK = 18; // 強ブレイク
+const BUFF_DEFENSEDP = 19; // DP防御ダウン
+const BUFF_RESISTDOWN = 20; // 耐性ダウン
+const BUFF_ETERNAL_DEFENSEDOWN = 21; // 永続防御力ダウン
+const BUFF_ELEMENT_ETERNAL_DEFENSEDOWN = 22; // 永続属性防御ダウン
+const BUFF_HEALSP = 23; // SP増加
+const BUFF_RECOIL = 24; // 行動不能
+const BUFF_TARGET = 25; // 挑発
+const BUFF_ADDITIONALTURN = 26 // 追加ターン
+const BUFF_COVER = 27; // 全体挑発
+const BUFF_GIVEATTACKBUFFUP = 28; // バフ強化
+const BUFF_GIVEDEBUFFUP = 29; // デバフ強化
+const BUFF_ARROWCHERRYBLOSSOMS = 30; // 桜花の矢
 class turn_data {
     constructor() {
         this.turn_number = 0;
         this.over_drive_turn = 0;
         this.over_drive_max_turn = 0;
-        this.add_turn = false;
+        this.additional_turn = false;
         this.enemy_debuff_list = [];
         this.unit_list = [];
         this.over_drive_gauge = 0;
         this.add_over_drive_gauge = 0;
         this.enemy_count = 1;
         this.fg_action = false;
+        this.front_sp_add = 0;
+        this.back_sp_add = 0;
+        this.step_turn = 0;
+        this.step_over_drive_down = 0;
+        this.step_sp_down = 0;
     }
 
     // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
     turnProceed(kb_next) {
+        let self = this;
         if (kb_next == KB_NEXT_ACTION) {
-            this.unitSort();
             // 通常
             $.each(this.unit_list, function (index, unit) {
                 if (!unit.blank) {
-                    unit.unitTurnProceed();
+                    unit.unitTurnProceed(self);
                 }
             });
-            // 敵のデバフ消費
-            this.debuffConsumption();
-            if (!this.add_turn) {
-                // オーバードライブ
-                if (this.over_drive_max_turn > 0) {
-                    this.over_drive_turn++;
-                    if (this.over_drive_max_turn < this.over_drive_turn) {
-                        // オーバードライブ終了
-                        this.over_drive_max_turn = 0;
-                        this.over_drive_turn = 0;
-                        if (this.fg_action) {
-                            this.turn_number++;
-                            this.fg_action = false;
-                        }
+            // オーバードライブ
+            if (this.over_drive_max_turn > 0) {
+                this.over_drive_turn++;
+                if (this.over_drive_max_turn < this.over_drive_turn) {
+                    // オーバードライブ終了
+                    this.over_drive_max_turn = 0;
+                    this.over_drive_turn = 0;
+                    if (this.fg_action) {
+                        this.turn_number++;
+                        this.fg_action = false;
                     }
-                } else {
-                    // 通常進行
-                    this.turn_number++;
-                    this.fg_action = false;
                 }
+            } else {
+                // 通常進行
+                this.turn_number++;
+                this.fg_action = false;
+                if (this.turn_number % this.step_turn == 0) {
+                    this.over_drive_gauge += this.step_over_drive_down;
+                    if (this.over_drive_gauge < 0) {
+                        this.over_drive_gauge = 0;
+                    }
+                }
+                // 敵のデバフ消費
+                this.debuffConsumption();
             }
         } else {
             // OD
@@ -66,7 +106,7 @@ class turn_data {
             let over_drive_level = Math.floor(this.over_drive_gauge / 100)
             this.startOverDrive(over_drive_level);
             this.over_drive_max_turn = over_drive_level;
-            this.over_drive_gauge %= 100;
+            this.over_drive_gauge = 0;
             this.add_over_drive_gauge = 0;
             if (kb_next == KB_NEXT_ACTION_OD) {
                 // 行動開始＋OD発動
@@ -83,7 +123,7 @@ class turn_data {
     getTurnNumber() {
         const defalt_turn = "ターン" + this.turn_number;
         // 追加ターン
-        if (this.add_turn) {
+        if (this.additional_turn) {
             return `${defalt_turn} 追加ターン`;
         }
         // オーバードライブ中
@@ -136,8 +176,8 @@ class turn_data {
                 case KB_ABILIRY_ENEMY_START: // 敵のターン開始時
                     action_list = unit.ability_enemy_start;
                     break;
-                case KB_ABILIRY_ADD_TURN: // 追加ターン
-                    action_list = unit.ability_add_turn;
+                case KB_ABILIRY_ADDITIONALTURN: // 追加ターン
+                    action_list = unit.ability_additional_turn;
                     break;
                 case KB_ABILIRY_OD_START: // オーバードライブ開始時
                     action_list = unit.ability_over_drive;
@@ -238,7 +278,7 @@ class unit_data {
         this.add_sp = 0;
         this.sp_cost = 0;
         this.buff_list = [];
-        this.add_turn = false;
+        this.additional_turn = false;
         this.unit = null;
         this.normal_attack_element = 0;
         this.earring_effect_size = 0;
@@ -250,14 +290,22 @@ class unit_data {
         this.ability_self_start = [];
         this.ability_action_start = [];
         this.ability_enemy_start = [];
-        this.ability_add_turn = [];
+        this.ability_additional_turn = [];
         this.ability_over_drive = [];
         this.ability_other = [];
     }
 
-    unitTurnProceed() {
+    unitTurnProceed(turn_data) {
         if (this.sp < 20) {
             this.sp += 2;
+            if (this.place_no < 3) {
+                this.sp += turn_data.front_sp_add;
+            } else {
+                this.sp += turn_data.back_sp_add;
+            }
+            if ((turn_data.turn_number + 1) % turn_data.step_turn == 0) {
+                this.sp += turn_data.step_sp_down;
+            }
             if (this.sp > 20) {
                 this.sp = 20
             }
@@ -329,6 +377,7 @@ class buff_data {
         this.rest_turn = -1;
         this.effect_size = 0;
         this.buff_kind = 0;
+        this.skill_id = -1;
     }
 }
 
@@ -547,12 +596,13 @@ function battle_start() {
     let turn_init = new turn_data();
     let unit_list = [];
 
+    let init_sp_add = Number($("#init_sp_add").val());
     // スタイル情報を作成
     $.each(select_style_list, function (index, value) {
         let unit = new unit_data();
         unit.place_no = index;
         if (value) {
-            unit.sp += Number($("#chain_" + index).val());
+            unit.sp += Number($("#chain_" + index).val()) + init_sp_add;
             unit.normal_attack_element = $("#bracelet_" + index).val();
             unit.earring_effect_size = Number($(`#earring_${index} option:selected`).val());
             unit.style = value;
@@ -577,8 +627,8 @@ function battle_start() {
                         case KB_ABILIRY_ENEMY_START: // 敵ターン開始時
                             unit.ability_enemy_start.push(ability_info);
                             break;
-                        case KB_ABILIRY_ADD_TURN: // 追加ターン
-                            unit.ability_add_turn.push(ability_info);
+                        case KB_ABILIRY_ADDITIONALTURN: // 追加ターン
+                            unit.ability_additional_turn.push(ability_info);
                             break;
                         case KB_ABILIRY_OD_START: // オーバードライブ開始時
                             unit.ability_over_drive.push(ability_info);
@@ -595,6 +645,15 @@ function battle_start() {
         }
         unit_list.push(unit);
     });
+
+    // 初期設定を読み込み
+    turn_init.over_drive_gauge = Number($("#init_over_drive").val());
+    turn_init.front_sp_add = Number($("#front_sp_add").val());
+    turn_init.back_sp_add = Number($("#back_sp_add").val());
+    turn_init.step_turn = Number($("#step_turn").val());
+    turn_init.step_over_drive_down = Number($("#step_over_drive_down").val());
+    turn_init.step_sp_down = Number($("#step_sp_down").val());
+
     turn_init.enemy_count = Number($("#enemy_count").val());;
     turn_init.unit_list = unit_list;
 
@@ -611,8 +670,9 @@ function battle_start() {
 // ターンを進める
 function proceedTurn(turn_data, kb_next) {
     last_turn++;
-    if (turn_data.add_turn) {
-        turn_data.abilityAction(KB_ABILIRY_ADD_TURN);
+    turn_data.unitSort();
+    if (turn_data.additional_turn) {
+        turn_data.abilityAction(KB_ABILIRY_ADDITIONALTURN);
     } else {
         turn_data.turnProceed(kb_next);
         if (kb_next == KB_NEXT_OD || kb_next == KB_NEXT_ACTION_OD) {
@@ -624,23 +684,25 @@ function proceedTurn(turn_data, kb_next) {
 
     let turn = $('<div>').addClass(`turn turn${last_turn}`);
     let header_area = $('<div>').addClass("header_area");
-    let header_container = $('<div>').addClass("flex container");
+    let header_left = $('<div>');
     let turn_number = $('<div>').text(turn_data.getTurnNumber()).addClass("turn_number");
     let enemy = $('<div>').addClass("left flex").append(
         $('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon"),
         $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
             ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`×${i + 1}体`))
         ).val(turn_data.enemy_count),
-        createBuffIconList(turn_data.enemy_debuff_list)
+        createBuffIconList(turn_data.enemy_debuff_list).addClass("enemy_icon_list")
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
 
-    header_container.append(enemy, over_drive);
-    header_area.append(turn_number, header_container);
+    header_left.append(turn_number).append(enemy);
+    header_area.append(header_left, over_drive);
 
     let party_member = $('<div>').addClass("flex");
     let front_area = $('<div>').addClass("flex front_area");
     let back_area = $('<div>').addClass("flex back_area");
+
+    turn_data.unitSort();
     $.each(turn_data.unit_list, function (index, unit) {
         const chara_div = $('<div>').addClass("unit_select");
         const img = $('<img>').data("chara_no", index).addClass("unit_style");
@@ -696,7 +758,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const handleRecoil = () => {
             const recoil = unit.buff_list.filter((obj) => obj.buff_kind == 24);
-            if (recoil.length > 0 || !unit.style || (turn_data.add_turn && !unit.add_turn)) {
+            if (recoil.length > 0 || !unit.style || (turn_data.additional_turn && !unit.additional_turn)) {
                 skill_select.css("visibility", "hidden");
             }
         };
@@ -729,7 +791,7 @@ function proceedTurn(turn_data, kb_next) {
         chara_div.prepend(skill_select);
         appendToArea();
 
-        unit.add_turn = false;
+        unit.additional_turn = false;
     });
 
     const $div = $('<div>').append(
@@ -750,7 +812,7 @@ function proceedTurn(turn_data, kb_next) {
     $("#battle_area").prepend(turn);
 
     addUnitEvent();
-    turn_data.add_turn = false;
+    turn_data.additional_turn = false;
     turn_list.push(turn_data);
     now_turn = turn_data;
 
@@ -784,60 +846,69 @@ function createBuffIconList(buff_list) {
         let img = $('<img>');
         let src = "img/";
         switch (value.buff_kind) {
-            case 0: // 攻撃力アップ
-            case 1: // 属性攻撃力アップ
+            case BUFF_ATTACKUP: // 攻撃力アップ
+            case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
                 src += "IconBuffAttack";
                 break;
-            case 2: // 心眼
+            case BUFF_MINDEYE: // 心眼
                 src += "IconMindEye";
                 break;
-            case 3: // 防御力ダウン
-            case 4: // 属性防御力ダウン
+            case BUFF_DEFENSEDOWN: // 防御力ダウン
+            case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
                 src += "IconBuffDefense";
                 break;
-            case 5: // 脆弱
+            case BUFF_FRAGILE: // 脆弱
                 src += "IconFragile";
                 break;
-            case 6:	// クリティカル率アップ
-            case 8:	// 属性クリティカル率アップ
+            case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+            case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
                 src += "IconCriticalRate";
                 break;
-            case 7:	// クリティカルダメージアップ
-            case 9:	// 属性クリティカルダメージアップ
+            case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+            case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
                 src += "IconCriticalDamage";
                 break;
-            case 10: // チャージ
+            case BUFF_CHARGE: // チャージ
                 src += "IconCharge";
                 break;
-            case 12: // 破壊率アップ
+            case BUFF_DAMAGERATEUP: // 破壊率アップ
                 src += "IconDamageRate";
                 break;
-            case 14: // 闘志
+            case BUFF_FIGHTINGSPIRIT: // 闘志
                 src += "IconFightingSpirit";
                 break;
-            case 15: // 厄
+            case BUFF_MISFORTUNE: // 厄
                 src += "IconMisfortune";
                 break;
-            case 16: // 連撃(小)
+            case BUFF_FUNNEL_SMALL: // 連撃(小)
                 src += "IconFunnelS";
                 break;
-            case 17: // 連撃(大)
+            case BUFF_FUNNEL_LARGE: // 連撃(大)
                 src += "IconFunnelL";
                 break;
-            case 19: // DP防御ダウン
+            case BUFF_DEFENSEDP: // DP防御ダウン
                 src += "IconBuffDefenseDP";
                 break;
-            case 20: // 耐性ダウン
+            case BUFF_RESISTDOWN: // 耐性ダウン
                 src += "IconResistElement";
                 break;
-            case 24: // 行動不能
+            case BUFF_RECOIL: // 行動不能
                 src += "IconRecoil";
                 break;
-            case 25: // 挑発
+            case BUFF_TARGET: // 挑発
                 src += "IconTarget";
                 break;
-            case 27: // 全体挑発
+            case BUFF_COVER: // 全体挑発
                 src += "IconCover";
+                break;
+            case BUFF_GIVEATTACKBUFFUP: // バフ強化
+                src += "IconGiveAttackBuffUp";
+                break;
+            case BUFF_GIVEDEBUFFUP: // デバフ強化
+                src += "IconGiveDebuffUp";
+                break;
+            case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
+                src += "IconArrowCherryBlossoms";
                 break;
             default:
                 break;
@@ -1018,7 +1089,7 @@ function startAction(turn_data, turn_number) {
 
         let buff_list = getBuffInfo(skill_info.skill_id);
         for (let i = 0; i < buff_list.length; i++) {
-            addBuffUnit(turn_data, buff_list[i], skill_data.place_no, unit_data.buff_target_chara_id);
+            addBuffUnit(turn_data, buff_list[i], skill_data.place_no, unit_data);
         }
         if (skill_info.skill_name == "通常攻撃") {
             attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
@@ -1078,7 +1149,7 @@ function getOverDrive(turn_number, enemy_count) {
                 }
                 // 連撃のみ処理
                 if (buff_info.buff_kind == 16 || buff_info.buff_kind == 17) {
-                    addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data.buff_target_chara_id);
+                    addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
                 }
             }
         });
@@ -1166,7 +1237,7 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
             }
             break;
         case 472: // ロリータフルバースト(追加ターン)
-            if (unit_data.add_turn) {
+            if (unit_data.additional_turn) {
                 return true;
             }
             break;
@@ -1175,7 +1246,7 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
 }
 
 // バフを追加
-function addBuffUnit(turn_data, buff_info, place_no, buff_target_chara_id) {
+function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
     // 対象：場
     if (buff_info.range_area == 0) {
         return;
@@ -1201,24 +1272,41 @@ function addBuffUnit(turn_data, buff_info, place_no, buff_target_chara_id) {
     let target_list;
     // 対象策定
     switch (buff_info.buff_kind) {
-        case 0: // 攻撃力アップ
-        case 1: // 属性攻撃力アップ
-        case 2: // 心眼
-        case 6:	// クリティカル率アップ
-        case 7:	// クリティカルダメージアップ
-        case 8:	// 属性クリティカル率アップ
-        case 9:	// 属性クリティカルダメージアップ
-        case 10: // チャージ
-        case 12: // 破壊率アップ
-        case 16: // 連撃(小)
-        case 17: // 連撃(大)
-        case 24: // 行動不能
-        case 27: // 全体挑発
+        case BUFF_ATTACKUP: // 攻撃力アップ
+        case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
+        case BUFF_MINDEYE: // 心眼
+        case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+        case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+        case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+        case BUFF_CHARGE: // チャージ
+        case BUFF_DAMAGERATEUP: // 破壊率アップ
+        case BUFF_FUNNEL_SMALL: // 連撃(小)
+        case BUFF_FUNNEL_LARGE: // 連撃(大)
+        case BUFF_RECOIL: // 行動不能
+        case BUFF_TARGET: // 挑発
+        case BUFF_COVER: // 全体挑発
+        case BUFF_GIVEATTACKBUFFUP: // バフ強化
+        case BUFF_GIVEDEBUFFUP: // デバフ強化
+        case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
             // バフ追加
-            target_list = getTargetList(turn_data, buff_info, place_no, buff_target_chara_id);
+            target_list = getTargetList(turn_data, buff_info, place_no, use_unit_data.buff_target_chara_id);
+            if (buff_info.buff_kind == 0 || buff_info.buff_kind == 1) {
+                // バフ強化を消費する。
+                use_unit_data.buff_list = use_unit_data.buff_list.filter(function (buff_info) {
+                    return buff_info.buff_kind != BUFF_GIVEATTACKBUFFUP;
+                });
+            }
+            let single_buff_list = [10, 24, 28, 29];
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 let buff = new buff_data();
+                // 単一バフ
+                if (single_buff_list.includes(buff_info.buff_kind)) {
+                    if (checkBuffExist(unit_data.buff_list, buff_info.buff_kind)) {
+                        return true;
+                    }
+                }
                 buff.buff_kind = buff_info.buff_kind;
                 buff.buff_element = buff_info.buff_element;
                 buff.effect_size = buff_info.max_power;
@@ -1229,42 +1317,50 @@ function addBuffUnit(turn_data, buff_info, place_no, buff_target_chara_id) {
                 } else {
                     buff.rest_turn = 99;
                 }
+                // 星屑のみ特殊仕様
+                if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
+                    buff.rest_turn = 3;
+                }
+                buff.skill_id = buff_info.skill_id;
                 unit_data.buff_list.push(buff);
             });
             break;
-        case 3: // 防御力ダウン
-        case 4: // 属性防御力ダウン
-        case 5: // 脆弱
-        case 19: // DP防御力ダウン
-        case 20: // 耐性ダウン
-        case 21: // 永続防御ダウン
-        case 22: // 永続属性防御ダウン
-        case 25: // 挑発
+        case BUFF_DEFENSEDOWN: // 防御力ダウン
+        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+        case BUFF_FRAGILE: // 脆弱
+        case BUFF_DEFENSEDP: // DP防御力ダウン
+        case BUFF_RESISTDOWN: // 耐性ダウン
+        case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+        case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
             // デバフ追加
             let add_count = 1;
             if (buff_info.range_area == 2) {
                 add_count = turn_data.enemy_count;
             }
+            // デバフ強化を消費する。
+            use_unit_data.buff_list = use_unit_data.buff_list.filter(function (buff_info) {
+                return buff_info.buff_kind != BUFF_GIVEDEBUFFUP || buff_info.buff_kind != BUFF_ARROWCHERRYBLOSSOMS;
+            });
             for (let i = 0; i < add_count; i++) {
                 let debuff = new buff_data();
                 debuff.buff_kind = buff_info.buff_kind;
                 debuff.buff_element = buff_info.buff_element;
                 debuff.effect_size = buff_info.min_power;
                 debuff.rest_turn = buff_info.effect_count;
+                debuff.skill_id = buff_info.skill_id;
                 turn_data.enemy_debuff_list.push(debuff);
             }
             break;
-        case 23: // SP追加
-            target_list = getTargetList(turn_data, buff_info, place_no, buff_target_chara_id);
+        case BUFF_HEALSP: // SP追加
+            target_list = getTargetList(turn_data, buff_info, place_no, use_unit_data.buff_target_chara_id);
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 unit_data.sp += buff_info.min_power;
             });
             break;
-        case 26: // 追加ターン
-            let unit_data = getUnitData(turn_data, place_no);
-            unit_data.add_turn = true;
-            turn_data.add_turn = true;
+        case BUFF_ADDITIONALTURN: // 追加ターン
+            use_unit_data.additional_turn = true;
+            turn_data.additional_turn = true;
         default:
             break;
     }
@@ -1284,29 +1380,34 @@ function consumeBuffUnit(buff_list, attack_info) {
             }
         }
         switch (buff_info.buff_kind) {
-            case 1: // 属性攻撃力アップ
+            case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
                 if (attack_info.attack_element != buff_info.buff_element) {
                     continue;
                 }
-            case 0: // 攻撃力アップ
-            case 2: // 心眼
-            case 10: // チャージ
-            case 12: // 破壊率アップ
+            case BUFF_ATTACKUP: // 攻撃力アップ
+            case BUFF_MINDEYE: // 心眼
+            case BUFF_CHARGE: // チャージ
+            case BUFF_DAMAGERATEUP: // 破壊率アップ
+            case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
                 // スキルでのみ消費
                 if (attack_info.attack_id == 0) {
                     continue;
                 }
                 buff_list.splice(i, 1);
                 break;
-            case 8:	// 属性クリティカル率アップ
-            case 9:	// 属性クリティカルダメージアップ
+            case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+            case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
                 if (attack_info.attack_element != buff_info.buff_element) {
                     continue;
                 }
-            case 6:	// クリティカル率アップ
-            case 7:	// クリティカルダメージアップ
-            case 16: // 連撃(小)
-            case 17: // 連撃(大)
+            case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+            case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+            case BUFF_FUNNEL_SMALL: // 連撃(小)
+            case BUFF_FUNNEL_LARGE: // 連撃(大)
+                // 星屑の航路は消費しない。
+                if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
+                    continue;
+                }
                 // 通常攻撃でも消費
                 buff_list.splice(i, 1);
                 break;

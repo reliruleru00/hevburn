@@ -286,6 +286,7 @@ class unit_data {
         this.blank = false;
         this.first_ultimate = false;
         this.buff_target_chara_id = null;
+        this.buff_effect_select_type = 0;
         this.ability_battle_start = [];
         this.ability_self_start = [];
         this.ability_action_start = [];
@@ -471,7 +472,6 @@ function setEventTrigger() {
 // スキル変更処理
 function selectUnitSkill(select) {
     const skill_id = Number(select.find('option:selected').val());
-    let sp_cost = select.find('option:selected').data("sp_cost");
     const index = select.index("select.unit_skill");
     const unit_data = getUnitData(now_turn, index);
 
@@ -481,7 +481,7 @@ function selectUnitSkill(select) {
         });
     }
 
-    function showModal() {
+    function showModalSelectTarget() {
         return new Promise((resolve) => {
             handleModalResult = resolve;
             setupModalIcons();
@@ -507,9 +507,34 @@ function selectUnitSkill(select) {
         });
     }
 
+    function showModalSelectEffect() {
+        return new Promise((resolve) => {
+            handleModalResult = resolve;
+
+            MicroModal.show('modal_select_effect', {
+                onClose: (modal) => {
+                    if ($(modal).data('value') === undefined) {
+                        handleModalResult(null);
+                    }
+                    $(modal).removeData('value');
+                }
+            });
+
+            const handleClick = function () {
+                const value = $(this).data('value');
+                $('#modal_select_effect').data('value', value);
+                MicroModal.close('modal_select_effect');
+                resolve(value);
+                $('.effect_button').off('click', handleClick);
+            };
+
+            $('.effect_button').on('click', handleClick);
+        });
+    }
+
     async function handleTargetSelection(buff_list) {
         if (buff_list.some(buff => buff.range_area == 3)) {
-            const target_no = await showModal();
+            const target_no = await showModalSelectTarget();
             if (!target_no && target_no !== 0) {
                 select.prop("selectedIndex", 1);
                 return false;
@@ -520,27 +545,82 @@ function selectUnitSkill(select) {
         return true;
     }
 
+    async function handleEffectSelection(skill_id) {
+        let effect_type = 0;
+        switch (skill_id) {
+            case 50: // トリック・カノン
+                effect_type = 1;
+                break;
+            case 357: // 次の主役はあなた
+                effect_type = 2;
+                break;
+            case 415: // 哀のスノードロップ
+            case 405: // 夢視るデザイア
+                effect_type = 3;
+                break;
+            case 22: // ブレスショット
+            case 33: // 闘気斬
+            case 113: // ヴィヴィットシュート
+            case 120: // リバースショット
+            case 132: // 砕華
+            case 190: // ゲインカノン
+            case 212: // 粛正
+            case 239: // キャンディ・バースト
+            case 259: // 不純なアリア
+            case 309: // フォーチュンスラッシュ
+            case 324: // トランスペイン
+            case 382: // エキゾーストノート
+            case 397: // 春雷
+            case 427: // ファンタズム
+                effect_type = 4;
+                break;
+            default:
+                break;
+        }
+        if (effect_type != 0) {
+            for (let i = 1; i <= 4; i++) {
+                if (i == effect_type) {
+                    $(`#effect_type${i}`).addClass("active");
+                } else {
+                    $(`#effect_type${i}`).removeClass("active");
+                }
+            }
+            const effect_select_type = await showModalSelectEffect();
+            if (!effect_select_type && effect_select_type !== 0) {
+                select.prop("selectedIndex", 1);
+                return false;
+            }
+            unit_data.buff_effect_select_type = effect_select_type;
+        }
+        return true;
+    }
+
     async function processSkillChange() {
         const buff_list = getBuffInfo(skill_id);
         const target_selected = await handleTargetSelection(buff_list);
-        if (!target_selected) return;
+        // if (!target_selected) return;
+        const effect_selected = await handleEffectSelection(skill_id);
+        // if (!effect_selected) return;
+
         setOverDrive();
+        let sp_cost = select.find('option:selected').data("sp_cost");
+        // コーシュカ・アルマータ
+        if (skill_id == 199) {
+            sp_cost = unit_data.sp;
+        }
+
+        updateSp(select.parent().find(".unit_sp"), sp_cost);
+        updateAction(now_turn)
     }
 
-    function updateSp(target) {
+    function updateSp(target, sp_cost) {
         unit_data.sp_cost = sp_cost;
         let unit_sp = unit_data.sp - sp_cost;
         $(target).text(getDispSp(unit_data));
         $(target).toggleClass("minus", unit_sp < 0);
     }
-    // コーシュカ・アルマータ
-    if (skill_id == 199) {
-        sp_cost = unit_data.sp;
-    }
 
     processSkillChange();
-    updateSp(select.parent().find(".unit_sp"));
-    updateAction(now_turn)
 }
 
 // 行動制限
@@ -892,6 +972,10 @@ function createBuffIconList(buff_list) {
             case BUFF_RESISTDOWN: // 耐性ダウン
                 src += "IconResistElement";
                 break;
+            case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+            case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+                src += "IconBuffDefenseE";
+                break;
             case BUFF_RECOIL: // 行動不能
                 src += "IconRecoil";
                 break;
@@ -963,7 +1047,7 @@ function addUnitEvent() {
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
         let unit_data = getUnitData(now_turn, index);
-        if (!unit_data || unit_data.blank) {
+        if (!unit_data || unit_data.blank || now_turn.additional_turn) {
             return;
         }
         // 最初にクリックされた要素かどうかを確認
@@ -1100,7 +1184,7 @@ function startAction(turn_data, turn_number) {
         if (attack_info) {
             consumeBuffUnit(unit_data.buff_list, attack_info);
         }
-        origin(skill_info, unit_data);
+        origin(turn_data, skill_info, unit_data);
         unit_data.payCost();
     });
 
@@ -1118,51 +1202,33 @@ function getOverDrive(turn_number, enemy_count) {
     $.each(seq, function (index, skill_data) {
         let skill_info = skill_data.skill_info;
         let unit_data = getUnitData(temp_turn, skill_data.place_no);
-        let attack_info;
-
         let buff_list = getBuffInfo(skill_info.skill_id);
+
         buff_list.forEach(function (buff_info) {
-            let skip = false;
-            // 個別判定
-            switch (buff_info.buff_id) {
-                case 111: // 豪快！パイレーツキャノン(敵1体)
-                    if (temp_turn.enemy_count != 1) {
-                        skip = true;
-                    }
-                    break;
-                case 112: // 豪快！パイレーツキャノン(敵2体)
-                    if (temp_turn.enemy_count != 2) {
-                        skip = true;
-                    }
-                    break;
-                case 113: // 豪快！パイレーツキャノン(敵3体)
-                    if (temp_turn.enemy_count != 3) {
-                        skip = true;
-                    }
-                    break;
+            // OD増加
+            if (buff_info.buff_kind == 13) {
+                // 哀のスノードロップBREAKなし
+                if (buff_info.buff_id == 123 && unit_data.buff_effect_select_type == 0) {
+                    return true;
+                }
+                // サービス・エースが可変
+                od_plus += buff_info.max_power;
             }
-            if (!skip) {
-                // OD増加
-                if (buff_info.buff_kind == 13) {
-                    // サービス・エースが可変
-                    od_plus += buff_info.max_power;
-                }
-                // 連撃のみ処理
-                if (buff_info.buff_kind == 16 || buff_info.buff_kind == 17) {
-                    addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
-                }
+            // 連撃のみ処理
+            if (buff_info.buff_kind == 16 || buff_info.buff_kind == 17) {
+                addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
             }
         });
         let funnel_list = unit_data.getfunnelList();
         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
         if (skill_info.skill_name == "通常攻撃") {
-            if (isResist(physical, unit_data.normal_attack_element)) {
+            if (isResist(physical, unit_data.normal_attack_element, skill_info.attack_id)) {
                 od_plus += 7.5
                 od_plus += funnel_list.length * 2.5;
             }
         } else if (skill_info.attack_id) {
-            attack_info = getAttackInfo(skill_info.attack_id);
-            if (isResist(physical, attack_info.attack_element)) {
+            let attack_info = getAttackInfo(skill_info.attack_id);
+            if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
                 let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
                 let hit_od = Math.floor(2.5 * earring * 100) / 100
                 if (attack_info.range_area == 1) {
@@ -1193,18 +1259,29 @@ function getOverDrive(turn_number, enemy_count) {
 }
 
 // 耐性判定
-function isResist(physical, element) {
+function isResist(physical, element, attack_id) {
     let physical_rate = battle_enemy_info[`physical_${physical}`];
     let element_rate = battle_enemy_info[`element_${element}`];
+    if (attack_id == 135 || attack_id == 137) {
+        physical_rate = 400;
+        element_rate = 100;
+    }
     return physical_rate / 100 * element_rate / 100 >= 1;
 }
 
 // 独自仕様
-function origin(skill_info, unit_data) {
+function origin(turn_data, skill_info, unit_data) {
     switch (skill_info.skill_id) {
         // 初回判定
+        case 387: // 流星+
         case 422: // 必滅！ヴェインキック+
             unit_data.first_ultimate = true;
+            break;
+        case 177: // エリミネイト・ポッシブル
+            let target_unit_data = getUnitData(turn_data, unit_data.buff_target_chara_id)
+            if (target_unit_data.sp < 3) {
+                target_unit_data.sp = 3;
+            }
             break;
     }
     return;
@@ -1251,8 +1328,30 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
     if (buff_info.range_area == 0) {
         return;
     }
+
     // 個別判定
     switch (buff_info.buff_id) {
+        case 2: // トリック・カノン(攻撃力低下)
+        case 46: // 次の主役はあなた(破壊率200％未満)
+        case 141: // 夢視るデザイア(SP回復)
+        case 3301: // ブレスショット(SP回復)
+        case 3302: // 闘気斬(SP回復)
+        case 3303: // ヴィヴィットシュート(SP回復)
+        case 3304: // リバースショット(SP回復)
+        case 3305: // 砕華(SP回復)
+        case 3306: // ゲインカノン(SP回復)
+        case 3307: // 粛正(SP回復)
+        case 3308: // キャンディ・バースト(SP回復)
+        case 3309: // 不純なアリア(SP回復)
+        case 3310: // フォーチュンスラッシュ(SP回復)
+        case 3311: // トランスペイン(SP回復)
+        case 3312: // エキゾーストノート(SP回復)
+        case 3313: // 春雷(SP回復)
+        case 3314: // ファンタズム(SP回復)
+            if (use_unit_data.buff_effect_select_type == 0) {
+                return;
+            }
+            break;
         case 111: // 豪快！パイレーツキャノン(敵1体)
             if (turn_data.enemy_count != 1) {
                 return;
@@ -1265,6 +1364,16 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             break;
         case 113: // 豪快！パイレーツキャノン(敵3体)
             if (turn_data.enemy_count != 3) {
+                return;
+            }
+            break;
+        case 3315: // スイーツチャージ！(1ターン目のみ)
+            if (turn_data.turn_number != 1) {
+                return;
+            }
+            break;
+        case 99: // 流星+
+            if (use_unit_data.first_ultimate) {
                 return;
             }
             break;
@@ -1346,7 +1455,11 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 debuff.buff_kind = buff_info.buff_kind;
                 debuff.buff_element = buff_info.buff_element;
                 debuff.effect_size = buff_info.min_power;
-                debuff.rest_turn = buff_info.effect_count;
+                if (buff_info.buff_kind == BUFF_ETERNAL_DEFENSEDOWN || buff_info.buff_kind == BUFF_ELEMENT_ETERNAL_DEFENSEDOWN) {
+                    debuff.rest_turn = 99;
+                } else {
+                    debuff.rest_turn = buff_info.effect_count;
+                }
                 debuff.skill_id = buff_info.skill_id;
                 turn_data.enemy_debuff_list.push(debuff);
             }

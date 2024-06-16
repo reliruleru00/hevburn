@@ -292,3 +292,34 @@ input[type='image'].select_target {
 .hidden-option {
     display: none;
 }
+
+/* モーダル画面*/
+.modal_label {
+    font-size: 20px;
+    font-weight: bold;
+}
+.select_effect {
+    display: none;
+}
+
+.select_effect.active {
+    display: block;
+    text-align: center;
+}
+
+.effect_button {
+    width: 150px;
+    font-size: 16px;
+    color: #fff;
+    background: #149f14;
+    border-radius: 100vh;
+}
+
+.effect_button:hover {
+    background: #1ec11e; /* ハイライトカラー */
+}
+
+.effect_button:active {
+    background: #117f11; /* 押下時のカラー */
+    transform: scale(0.95); /* 押下時の縮小 */
+}

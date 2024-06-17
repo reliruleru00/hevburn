@@ -7,6 +7,7 @@ let element_name = ["無", "火", "氷", "雷", "光", "闇"];
 const KB_NEXT_OD = 0;
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
+
 const KB_ABILIRY_BATTLE_START = 0;
 const KB_ABILIRY_SELF_START = 1;
 const KB_ABILIRY_ACTION_START = 2;
@@ -210,9 +211,10 @@ class turn_data {
                         target_list = [0, 1, 2, 3, 4, 5];
                         break;
                 }
+                let buff;
                 switch (ability.effect_type) {
                     case 6: // 連撃数アップ
-                        let buff = new buff_data();
+                        buff = new buff_data();
                         buff.buff_kind = ability.effect_size == 40 ? 17 : 16;
                         buff.buff_element = 0;
                         buff.effect_size = ability.effect_size == 40 ? 3 : 5;
@@ -257,10 +259,25 @@ class turn_data {
                         break;
                     case 22: // 厄
                         break;
+                    case 23: // 桜花の矢
+                        buff = new buff_data();
+                        buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
+                        buff.buff_element = 0;
+                        buff.rest_turn = 99;
+                        unit.buff_list.push(buff);
+                        break;
                 }
             });
         });
     }
+}
+
+// アビリティ存在チェック
+function checkAbilityExist(ability_list, ability_id) {
+    let exist_list = ability_list.filter(function (ability_info) {
+        return ability_info.ability_id == ability_id;
+    });
+    return exist_list.length > 0;
 }
 
 // バフ存在チェック
@@ -269,6 +286,18 @@ function checkBuffExist(buff_list, buff_kind) {
         return buff_info.buff_kind == buff_kind;
     });
     return exist_list.length > 0;
+}
+
+// メンバー存在チェック
+function checkMember(unit_list, troops) {
+    let member_list = unit_list.filter(function (unit_info) {
+        if (unit_info.style) {
+            let chara_info = getCharaData(unit_info.style.style_info.chara_id);
+            return chara_info.troops == troops;
+        }
+        return false;
+    });
+    return member_list.length;
 }
 
 class unit_data {
@@ -788,7 +817,7 @@ function proceedTurn(turn_data, kb_next) {
         const img = $('<img>').data("chara_no", index).addClass("unit_style");
         const unit_div = $('<div>').addClass("flex");
         const skill_select = $('<select>').addClass("unit_skill");
-        var sp_cost = 0;
+        let sp_cost = 0;
 
         const createOptionText = (value) => {
             let text = value.skill_name;
@@ -799,11 +828,11 @@ function proceedTurn(turn_data, kb_next) {
                 sp_cost = 0;
                 text += `(${physical_name[value.attack_physical]})`;
             } else if (value.attack_id) {
-                sp_cost = harfSpSkill(turn_data, value, unit) ? value.sp_cost / 2 : value.sp_cost;
+                sp_cost = getSpCost(turn_data, value, unit);
                 text += `(${physical_name[value.attack_physical]}・${element_name[value.attack_element]}/${sp_cost})`;
             } else {
-                sp_cost = value.sp_cost;
-                text += `(${value.sp_cost})`;
+                sp_cost = getSpCost(turn_data, value, unit);
+                text += `(${sp_cost})`;
             }
             return text;
         };
@@ -1273,8 +1302,10 @@ function isResist(physical, element, attack_id) {
 function origin(turn_data, skill_info, unit_data) {
     switch (skill_info.skill_id) {
         // 初回判定
+        case 335: // ルーイン・イリュージョン
         case 387: // 流星+
         case 422: // 必滅！ヴェインキック+
+        case 450: // 醒めたる思い
             unit_data.first_ultimate = true;
             break;
         case 177: // エリミネイト・ポッシブル
@@ -1285,6 +1316,22 @@ function origin(turn_data, skill_info, unit_data) {
             break;
     }
     return;
+}
+
+// 消費SP取得
+function getSpCost(turn_data, skill_info, unit) {
+    let sp_cost = skill_info.sp_cost;
+    if (harfSpSkill(turn_data, skill_info, unit)) {
+        sp_cost /= 2
+    }
+    // 追加ターン
+    if (turn_data.additional_turn) {
+        // クイックリキャスト
+        if (checkAbilityExist(unit.ability_other, 1506)) {
+            sp_cost -=2;
+        }
+    }
+    return sp_cost
 }
 
 // 消費SP半減
@@ -1315,6 +1362,11 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
             break;
         case 472: // ロリータフルバースト(追加ターン)
             if (unit_data.additional_turn) {
+                return true;
+            }
+            break;
+        case 419: // リミット・インパクト+(31A3人以上)
+            if (checkMember(turn_data.unit_list, "31A") >= 3) {
                 return true;
             }
             break;
@@ -1372,8 +1424,16 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 return;
             }
             break;
-        case 99: // 流星+
+        case 39: // ルーイン・イリュージョン(クリダメ)
+        case 40: // ルーイン・イリュージョン(心眼)
+        case 92: // 醒めたる思い(雷属性攻撃アップ)
+        case 99: // 流星+(連撃)
             if (use_unit_data.first_ultimate) {
+                return;
+            }
+            break;
+        case 76: // フローズン・ワルツ(連撃)
+            if (turn_data.over_drive_max_turn == 0) {
                 return;
             }
             break;

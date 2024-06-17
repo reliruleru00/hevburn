@@ -1273,7 +1273,7 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
         case 2:	// 前衛
         case 3:	// 後衛
             // 前衛または後衛
-            if (ability_info.activation_place == 1 || ability_info.activation_place == 2) {
+            if (ability_info.activation_place == 1 || ability_info.activation_place == 2 || !$(input).hasClass(chara_id)) {
                 disabled = false;
             } else {
                 disabled = true;
@@ -1284,7 +1284,7 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
         case 5:	// 敵
         case 0:	// その他
             // 前衛または後衛
-            if (ability_info.activation_place == 1 || ability_info.activation_place == 2) {
+            if (ability_info.activation_place == 1 || ability_info.activation_place == 2 || !$(input).hasClass(chara_id)) {
                 disabled = false;
             } else {
                 disabled = true;

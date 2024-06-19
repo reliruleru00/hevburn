@@ -97,6 +97,7 @@ class turn_data {
                     }
                 });
                 this.turn_number++;
+                this.abilityAction(KB_ABILIRY_SELF_START);
                 this.fg_action = false;
                 if (this.turn_number % this.step_turn == 0) {
                     this.over_drive_gauge += this.step_over_drive_down;
@@ -1576,7 +1577,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 debuff.buff_kind = buff_info.buff_kind;
                 debuff.buff_element = buff_info.buff_element;
                 debuff.effect_size = buff_info.min_power;
-                if (buff_info.buff_kind == BUFF_ETERNAL_DEFENSEDOWN || buff_info.buff_kind == BUFF_ELEMENT_ETERNAL_DEFENSEDOWN) {
+                if (buff_info.buff_kind == BUFF_RESISTDOWN || buff_info.buff_kind == BUFF_ETERNAL_DEFENSEDOWN || buff_info.buff_kind == BUFF_ELEMENT_ETERNAL_DEFENSEDOWN) {
                     debuff.rest_turn = 99;
                 } else {
                     debuff.rest_turn = buff_info.effect_count;

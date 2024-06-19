@@ -76,6 +76,7 @@ class turn_data {
     // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
     turnProceed(kb_next) {
         let self = this;
+        this.enemy_debuff_list.sort((a, b) => a.buff_kind - b.buff_kind);
         if (kb_next == KB_NEXT_ACTION) {
             // オーバードライブ
             if (this.over_drive_max_turn > 0) {

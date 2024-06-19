@@ -77,12 +77,6 @@ class turn_data {
     turnProceed(kb_next) {
         let self = this;
         if (kb_next == KB_NEXT_ACTION) {
-            // 通常
-            $.each(this.unit_list, function (index, unit) {
-                if (!unit.blank) {
-                    unit.unitTurnProceed(self);
-                }
-            });
             // オーバードライブ
             if (this.over_drive_max_turn > 0) {
                 this.over_drive_turn++;
@@ -97,6 +91,11 @@ class turn_data {
                 }
             } else {
                 // 通常進行
+                $.each(this.unit_list, function (index, unit) {
+                    if (!unit.blank) {
+                        unit.unitTurnProceed(self);
+                    }
+                });
                 this.turn_number++;
                 this.fg_action = false;
                 if (this.turn_number % this.step_turn == 0) {

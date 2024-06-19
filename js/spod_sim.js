@@ -483,7 +483,7 @@ function setEventTrigger() {
             $("#battle_area").html("");
             turn_list = [];
             battle_enemy_info = getEnemyInfo();
-            
+
             battle_start();
         }
     });
@@ -856,6 +856,7 @@ function proceedTurn(turn_data, kb_next) {
     header_left.append(turn_number).append(enemy);
     header_area.append(header_left, over_drive);
 
+    let party_member = $('<div>').addClass("party_member");
     let front_area = $('<div>').addClass("flex front_area");
     let back_area = $('<div>').addClass("flex back_area");
 
@@ -964,7 +965,8 @@ function proceedTurn(turn_data, kb_next) {
         )
     );
     back_area.append($div)
-    turn.append(header_area).append(front_area).append(back_area);
+    party_member.append(front_area).append(back_area)
+    turn.append(header_area).append(party_member);
     $("#battle_area").prepend(turn);
 
     addUnitEvent();

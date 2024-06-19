@@ -197,7 +197,9 @@ img.select_style {
     padding: 0px 5px 5px 5px;
     display: flex;
 }
-
+.party_member {
+    display: flex;
+}
 @media screen and (max-width: 768px) {
     #battle_area {
         width: 400px;
@@ -207,6 +209,10 @@ img.select_style {
     .turn {
         display: block;
     }
+
+    .party_member {
+        display: block;
+    }    
 }
 
 .header_area {

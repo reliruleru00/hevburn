@@ -563,9 +563,9 @@ function calculatePercentage(min, max, total, dphp) {
         return Math.ceil((temp_min / total) * 100) + '%';
     } else {
         if (dphp == "hp") {
-            return Math.ceil((max / total) * 100) + '%～' + Math.ceil((min / total) * 100) + '%';
+            return Math.ceil((min / total) * 100) + '%～' + Math.ceil((max / total) * 100) + '%';
         } else {
-            return Math.ceil((temp_max / total) * 100) + '%～' + Math.ceil((temp_min / total) * 100) + '%';
+            return Math.ceil((temp_min / total) * 100) + '%～' + Math.ceil((temp_max / total) * 100) + '%';
         }
     }
 }

@@ -525,7 +525,7 @@ class RestGauge {
         $("#detail_damage").val(Math.floor(this.avg_damage).toLocaleString());
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
             let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
-            let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp);
+            let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp, "dp");
             $("#rest_dp_rate_" + i).val(disp_rest);
             // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
             let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
@@ -533,7 +533,7 @@ class RestGauge {
             $("#rest_dp_rate_" + i).css("background", gradientStyle);
         }
         let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
-        let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp);
+        let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp, "hp");
         $("#rest_hp_rate").val(disp_rest);
         // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
         let gradientStyle = generateGradientFromRange(disp_rest, "#BE71BE")
@@ -550,19 +550,23 @@ class RestGauge {
 }
 
 // 残りの実数値と全体値から、割合範囲を取得する。
-function calculatePercentage(min, max, total) {
+function calculatePercentage(min, max, total, dphp) {
     if (total == 0) {
         return "0%";
     }
     // 最小値、最大値、全体値が0以下の場合、それぞれ0に設定
-    min = Math.max(0, min);
-    max = Math.max(0, max);
+    let temp_min = Math.max(0, min);
+    let temp_max = Math.max(0, max);
 
     // 最小値と最大値が同じ場合は、範囲指定しない
-    if (Math.ceil((min / total) * 100) === Math.ceil((max / total) * 100)) {
-        return Math.ceil((min / total) * 100) + '%';
+    if (Math.ceil((temp_min / total) * 100) === Math.ceil((temp_max / total) * 100)) {
+        return Math.ceil((temp_min / total) * 100) + '%';
     } else {
-        return Math.ceil((min / total) * 100) + '%～' + Math.ceil((max / total) * 100) + '%';
+        if (dphp == "hp") {
+            return Math.ceil((max / total) * 100) + '%～' + Math.ceil((min / total) * 100) + '%';
+        } else {
+            return Math.ceil((temp_max / total) * 100) + '%～' + Math.ceil((temp_min / total) * 100) + '%';
+        }
     }
 }
 let damage_detail = null;

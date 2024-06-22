@@ -748,7 +748,7 @@ function calculateDamage(basePower, skill_info, buff, debuff, fixed, id, destruc
 
     // 0以下補正
     rest_dp = rest_dp.map(dp => Math.max(0, dp));
-    rest_hp = Math.max(0, rest_hp);
+//    rest_hp = Math.max(0, rest_hp);
     if (id.includes("max")) {
         rest_damage.max_rest_dp = rest_dp;
         rest_damage.max_rest_hp = rest_hp;

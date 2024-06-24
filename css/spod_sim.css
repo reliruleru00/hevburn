@@ -364,3 +364,7 @@ input[type='image'].select_target {
     width: 40px;
     height: 40px;
 }
+
+.detail_line_height {
+    line-height: 1.2;
+}

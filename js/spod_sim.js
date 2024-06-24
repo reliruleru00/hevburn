@@ -81,6 +81,11 @@ class turn_data {
             // オーバードライブ
             if (this.over_drive_max_turn > 0) {
                 this.over_drive_turn++;
+                $.each(this.unit_list, function (index, unit) {
+                    if (!unit.blank) {
+                        unit.unitOverDriveTurnProceed();
+                    }
+                });
                 if (this.over_drive_max_turn < this.over_drive_turn) {
                     // オーバードライブ終了
                     this.over_drive_max_turn = 0;
@@ -231,7 +236,7 @@ class turn_data {
                         buff.buff_kind = ability.effect_size == 40 ? BUFF_ABILITY_FUNNEL_LARGE : BUFF_ABILITY_FUNNEL_SMALL;
                         buff.buff_element = 0;
                         buff.effect_size = ability.effect_size == 40 ? 3 : 5;
-                        buff.rest_turn = 99;
+                        buff.rest_turn = -1;
                         unit.buff_list.push(buff);
                         break;
                     case 12: // SP回復
@@ -278,7 +283,7 @@ class turn_data {
                         buff = new buff_data();
                         buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
                         buff.buff_element = 0;
-                        buff.rest_turn = 99;
+                        buff.rest_turn = -1;
                         unit.buff_list.push(buff);
                         break;
                 }
@@ -359,7 +364,7 @@ class unit_data {
 
         for (let i = this.buff_list.length - 1; i >= 0; i--) {
             let buff = this.buff_list[i];
-            if (buff.rest_turn <= 1) {
+            if (buff.rest_turn == 1) {
                 this.buff_list.splice(i, 1);
             } else {
                 buff.rest_turn -= 1;
@@ -372,7 +377,7 @@ class unit_data {
             let buff_info = this.buff_list[i];
             // 星屑の航路/星屑の航路+
             if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
-                if (buff_info.rest_turn <= 1) {
+                if (buff_info.rest_turn == 1) {
                     this.buff_list.splice(i, 1);
                 } else {
                     buff_info.rest_turn -= 1;
@@ -381,7 +386,12 @@ class unit_data {
         }
     }
     buffSort() {
-        this.buff_list.sort((a, b) => a.buff_kind - b.buff_kind);
+        this.buff_list.sort((a, b) => {
+            if (a.buff_kind === b.buff_kind) {
+                return a.effect_size - b.effect_size;
+            }
+            return a.buff_kind - b.buff_kind;
+        });
     }
     payCost() {
         this.sp -= this.sp_cost;
@@ -445,6 +455,7 @@ class buff_data {
         this.effect_size = 0;
         this.buff_kind = 0;
         this.skill_id = -1;
+        this.buff_name = null;
     }
 }
 
@@ -491,9 +502,14 @@ function setEventTrigger() {
     // 行動選択変更
     $(document).on("change", "select.action_select", function (event) {
         if ($(this).val() == "0") {
-            $(`.turn${last_turn} .front_area select.unit_skill`).prop("selectedIndex", 1);
+            $(`.turn${last_turn} .front_area select.unit_skill`).prop("selectedIndex", 0);
             $(`.turn${last_turn} .back_area select.unit_skill`).prop("selectedIndex", 0);
             $(`.turn${last_turn} select.unit_skill`).trigger("change");
+            $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", true);
+            $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", true);
+        } else {
+            $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", false);
+            $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", false);
         }
     });
 
@@ -1197,17 +1213,26 @@ function addUnitEvent() {
         }
     });
 
-    // デバフリストの表示    
-    $(`.turn${last_turn} .enemy_icon_list`).on("click", function (event) {
+    // バフ詳細表示
+    function showBuffList(event, buff_list) {
         let buff_detail = $("#buff_detail");
-        buff_detail.html();
-        $.each(now_turn.enemy_debuff_list, function (index, buff_info) {
-            let div = $("<div>");
+        buff_detail.html("");
+        $.each(buff_list, function (index, buff_info) {
+            let div = $("<div>").addClass("flex detail_line_height");
             let img = getBuffIconImg(buff_info).addClass("icon_buff_detail");;
             div.append(img);
-            buff_detail.append(div)
+            let label = $("<label>");
+            let buff_kind_name = getBuffKindName(buff_info);
+            let turn = buff_info.rest_turn < 0 ? "∞" : buff_info.rest_turn;
+            label.html(`${buff_kind_name}<br>${buff_info.buff_name}(残りターン${turn})`);
+            buff_detail.append(div.append(label));
         });
         MicroModal.show('modal_buff_detail_list');
+        event.stopPropagation();
+    }
+    // デバフリストの表示    
+    $(`.turn${last_turn} .enemy_icon_list`).on("click", function (event) {
+        showBuffList(event, now_turn.enemy_debuff_list);
     });
     // バフリストの表示    
     $(`.turn${last_turn} .icon_list`).on("click", function (event) {
@@ -1216,16 +1241,7 @@ function addUnitEvent() {
         if (!unit_data || unit_data.blank || now_turn.additional_turn) {
             return;
         }
-        let buff_detail = $("#buff_detail");
-        buff_detail.html();
-        $.each(unit_data.buff_list, function (index, buff_info) {
-            let div = $("<div>");
-            let img = getBuffIconImg(buff_info).addClass("icon_buff_detail");;
-            div.append(img);
-            buff_detail.append(div)
-        });
-        MicroModal.show('modal_buff_detail_list');
-        event.stopPropagation();
+        showBuffList(event, unit_data.buff_list);
     });
 }
 
@@ -1575,28 +1591,13 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             let single_buff_list = [BUFF_CHARGE, BUFF_RECOIL, BUFF_GIVEATTACKBUFFUP, BUFF_GIVEDEBUFFUP, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH];
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
-                let buff = new buff_data();
                 // 単一バフ
                 if (single_buff_list.includes(buff_info.buff_kind)) {
                     if (checkBuffExist(unit_data.buff_list, buff_info.buff_kind)) {
                         return true;
                     }
                 }
-                buff.buff_kind = buff_info.buff_kind;
-                buff.buff_element = buff_info.buff_element;
-                buff.effect_size = buff_info.max_power;
-                if (buff_info.buff_kind == 24) {
-                    buff.rest_turn = buff_info.effect_count;
-                } else if (buff_info.buff_kind == 27) {
-                    buff.rest_turn = buff_info.max_power;
-                } else {
-                    buff.rest_turn = -1;
-                }
-                // 星屑のみ特殊仕様
-                if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
-                    buff.rest_turn = 3;
-                }
-                buff.skill_id = buff_info.skill_id;
+                let buff = createBuffData(buff_info);
                 unit_data.buff_list.push(buff);
             });
             break;
@@ -1617,16 +1618,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 return buff_info.buff_kind != BUFF_GIVEDEBUFFUP || buff_info.buff_kind != BUFF_ARROWCHERRYBLOSSOMS;
             });
             for (let i = 0; i < add_count; i++) {
-                let debuff = new buff_data();
-                debuff.buff_kind = buff_info.buff_kind;
-                debuff.buff_element = buff_info.buff_element;
-                debuff.effect_size = buff_info.min_power;
-                if (buff_info.buff_kind == BUFF_RESISTDOWN || buff_info.buff_kind == BUFF_ETERNAL_DEFENSEDOWN || buff_info.buff_kind == BUFF_ELEMENT_ETERNAL_DEFENSEDOWN) {
-                    debuff.rest_turn = -1;
-                } else {
-                    debuff.rest_turn = buff_info.effect_count;
-                }
-                debuff.skill_id = buff_info.skill_id;
+                let debuff = createBuffData(buff_info);
                 turn_data.enemy_debuff_list.push(debuff);
             }
             break;
@@ -1643,6 +1635,36 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         default:
             break;
     }
+}
+
+function createBuffData(buff_info) {
+    let buff = new buff_data();
+    buff.buff_kind = buff_info.buff_kind;
+    buff.buff_element = buff_info.buff_element;
+    buff.effect_size = buff_info.max_power;
+    buff.buff_name = buff_info.buff_name
+    buff.skill_id = buff_info.skill_id;
+    switch (buff_info.buff_kind) {
+        case BUFF_DEFENSEDOWN: // 防御力ダウン
+        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+        case BUFF_FRAGILE: // 脆弱
+        case BUFF_DEFENSEDP: // DP防御力ダウン 
+        case BUFF_RECOIL: // 行動不能
+            buff.rest_turn = buff_info.effect_count;
+            break;
+        case BUFF_COVER: // 行動不能
+            buff.rest_turn = buff_info.max_power;
+            break;
+        default:
+            buff.rest_turn = -1;
+            break;
+    }
+
+    // 星屑のみ特殊仕様
+    if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
+        buff.rest_turn = 3;
+    }
+    return buff;
 }
 
 // 攻撃時にバフ消費
@@ -1695,6 +1717,93 @@ function consumeBuffUnit(buff_list, attack_info) {
             consume_kind.push(buff_info.buff_kind);
         }
     };
+}
+
+// バフ名称取得
+function getBuffKindName(buff_info) {
+    let buff_kind_name = "";
+    if (buff_info.buff_element != 0) {
+        buff_kind_name = element_name[buff_info.buff_element] + "属性";
+    }
+
+    switch (buff_info.buff_kind) {
+        case BUFF_ATTACKUP: // 攻撃力アップ
+        case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
+            buff_kind_name += "攻撃力アップ";
+            break;
+        case BUFF_MINDEYE: // 心眼
+            buff_kind_name += "心眼";
+            break;
+        case BUFF_DEFENSEDOWN: // 防御力ダウン
+        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+            buff_kind_name += "防御力ダウン";
+            break;
+        case BUFF_FRAGILE: // 脆弱
+            buff_kind_name += "脆弱";
+            break;
+        case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+            buff_kind_name += "クリティカル率アップ";
+            break;
+        case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+        case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+            buff_kind_name += "クリティカルダメージアップ";
+            break;
+        case BUFF_CHARGE: // チャージ
+            buff_kind_name += "チャージ";
+            break;
+        case BUFF_DAMAGERATEUP: // 破壊率アップ
+            buff_kind_name += "破壊率アップ";
+            break;
+        case BUFF_FIGHTINGSPIRIT: // 闘志
+            buff_kind_name += "闘志";
+            break;
+        case BUFF_MISFORTUNE: // 厄
+            buff_kind_name += "厄";
+            break;
+        case BUFF_FUNNEL_SMALL: // 連撃(小)
+        case BUFF_ABILITY_FUNNEL_SMALL: // アビリティ連撃(小)
+            buff_kind_name += "連撃(小)";
+            break;
+        case BUFF_FUNNEL_LARGE: // 連撃(大)
+        case BUFF_ABILITY_FUNNEL_LARGE: // アビリティ連撃(大)
+            buff_kind_name += "連撃(大)";
+            break;
+        case BUFF_DEFENSEDP: // DP防御力ダウン
+            buff_kind_name += "DP防御力ダウン";
+            break;
+        case BUFF_RESISTDOWN: // 耐性ダウン
+            buff_kind_name += "耐性無効/耐性ダウン";
+            break;
+        case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+        case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+            buff_kind_name += "防御力ダウン";
+            break;
+        case BUFF_RECOIL: // 行動不能
+            buff_kind_name += "行動不能";
+            break;
+        case BUFF_TARGET: // 挑発
+            buff_kind_name += "挑発";
+            break;
+        case BUFF_COVER: // 全体挑発
+            buff_kind_name += "全体挑発";
+            break;
+        case BUFF_GIVEATTACKBUFFUP: // バフ強化
+            buff_kind_name += "バフ強化";
+            break;
+        case BUFF_GIVEDEBUFFUP: // デバフ強化
+            buff_kind_name += "デバフ強化";
+            break;
+        case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
+            buff_kind_name += "桜花の矢";
+            break;
+        case BUFF_ETERNAL_OARH: // 永遠なる誓い
+            buff_kind_name += "永遠なる誓い";
+            break;
+        default:
+            break;
+    }
+    return buff_kind_name;
 }
 
 

@@ -163,7 +163,7 @@ class turn_data {
     debuffConsumption() {
         for (let i = this.enemy_debuff_list.length - 1; i >= 0; i--) {
             let debuff = this.enemy_debuff_list[i];
-            if (debuff.rest_turn <= 1) {
+            if (debuff.rest_turn == 1) {
                 this.enemy_debuff_list.splice(i, 1);
             } else {
                 debuff.rest_turn -= 1;
@@ -507,6 +507,8 @@ function setEventTrigger() {
         // 前ターンを不能
         $(`.turn${last_turn} select.unit_skill`).off("click");
         $(`.turn${last_turn} .unit_select`).off("click");
+        $(`.turn${last_turn} .icon_list`).off("click");
+        $(`.turn${last_turn} .enemy_icon_list`).off("click");
         $(`.turn${last_turn} select.unit_skill`).prop("disabled", true);
         $(`.turn${last_turn} select.action_select`).prop("disabled", true);
         $(".unit_selected").removeClass("unit_selected");
@@ -924,7 +926,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const appendBuffList = () => {
             if (unit.buff_list.length > 0) {
-                unit_div.append(createBuffIconList(unit.buff_list));
+                unit_div.append(createBuffIconList(unit.buff_list).addClass("icon_list"));
             }
         };
 
@@ -1000,95 +1002,102 @@ function getDispSp(unit_data) {
 
 // バフアイコンリスト
 function createBuffIconList(buff_list) {
-    let div = $("<div>").addClass("icon_list flex flex-wrap");
-    $.each(buff_list, function (index, value) {
-        let img = $('<img>');
-        let src = "img/";
-        switch (value.buff_kind) {
-            case BUFF_ATTACKUP: // 攻撃力アップ
-            case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
-                src += "IconBuffAttack";
-                break;
-            case BUFF_MINDEYE: // 心眼
-                src += "IconMindEye";
-                break;
-            case BUFF_DEFENSEDOWN: // 防御力ダウン
-            case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-                src += "IconBuffDefense";
-                break;
-            case BUFF_FRAGILE: // 脆弱
-                src += "IconFragile";
-                break;
-            case BUFF_CRITICALRATEUP:	// クリティカル率アップ
-            case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-                src += "IconCriticalRate";
-                break;
-            case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
-            case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-                src += "IconCriticalDamage";
-                break;
-            case BUFF_CHARGE: // チャージ
-                src += "IconCharge";
-                break;
-            case BUFF_DAMAGERATEUP: // 破壊率アップ
-                src += "IconDamageRate";
-                break;
-            case BUFF_FIGHTINGSPIRIT: // 闘志
-                src += "IconFightingSpirit";
-                break;
-            case BUFF_MISFORTUNE: // 厄
-                src += "IconMisfortune";
-                break;
-            case BUFF_FUNNEL_SMALL: // 連撃(小)
-            case BUFF_ABILITY_FUNNEL_SMALL: // アビリティ連撃(小)
-                src += "IconFunnelS";
-                break;
-            case BUFF_FUNNEL_LARGE: // 連撃(大)
-            case BUFF_ABILITY_FUNNEL_LARGE: // アビリティ連撃(大)
-                src += "IconFunnelL";
-                break;
-            case BUFF_DEFENSEDP: // DP防御ダウン
-                src += "IconBuffDefenseDP";
-                break;
-            case BUFF_RESISTDOWN: // 耐性ダウン
-                src += "IconResistElement";
-                break;
-            case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-            case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-                src += "IconBuffDefenseE";
-                break;
-            case BUFF_RECOIL: // 行動不能
-                src += "IconRecoil";
-                break;
-            case BUFF_TARGET: // 挑発
-                src += "IconTarget";
-                break;
-            case BUFF_COVER: // 全体挑発
-                src += "IconCover";
-                break;
-            case BUFF_GIVEATTACKBUFFUP: // バフ強化
-                src += "IconGiveAttackBuffUp";
-                break;
-            case BUFF_GIVEDEBUFFUP: // デバフ強化
-                src += "IconGiveDebuffUp";
-                break;
-            case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
-                src += "IconArrowCherryBlossoms";
-                break;
-            case BUFF_ETERNAL_OARH: // 永遠なる誓い
-                src += "iconEternalOath";
-                break;
-            default:
-                break;
-        }
-        if (value.buff_element != 0) {
-            src += value.buff_element;
-        }
-        src += ".webp";
-        img.attr("src", src).addClass("unit_buff");
+    let div = $("<div>").addClass("flex flex-wrap");
+    $.each(buff_list, function (index, buff_info) {
+        let img = getBuffIconImg(buff_info);
+        img.addClass("unit_buff");
         div.append(img)
     });
     return div;
+}
+
+// バフアイコン取得
+function getBuffIconImg(buff_info) {
+    let img = $('<img>');
+    let src = "img/";
+    switch (buff_info.buff_kind) {
+        case BUFF_ATTACKUP: // 攻撃力アップ
+        case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
+            src += "IconBuffAttack";
+            break;
+        case BUFF_MINDEYE: // 心眼
+            src += "IconMindEye";
+            break;
+        case BUFF_DEFENSEDOWN: // 防御力ダウン
+        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+            src += "IconBuffDefense";
+            break;
+        case BUFF_FRAGILE: // 脆弱
+            src += "IconFragile";
+            break;
+        case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+            src += "IconCriticalRate";
+            break;
+        case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+        case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+            src += "IconCriticalDamage";
+            break;
+        case BUFF_CHARGE: // チャージ
+            src += "IconCharge";
+            break;
+        case BUFF_DAMAGERATEUP: // 破壊率アップ
+            src += "IconDamageRate";
+            break;
+        case BUFF_FIGHTINGSPIRIT: // 闘志
+            src += "IconFightingSpirit";
+            break;
+        case BUFF_MISFORTUNE: // 厄
+            src += "IconMisfortune";
+            break;
+        case BUFF_FUNNEL_SMALL: // 連撃(小)
+        case BUFF_ABILITY_FUNNEL_SMALL: // アビリティ連撃(小)
+            src += "IconFunnelS";
+            break;
+        case BUFF_FUNNEL_LARGE: // 連撃(大)
+        case BUFF_ABILITY_FUNNEL_LARGE: // アビリティ連撃(大)
+            src += "IconFunnelL";
+            break;
+        case BUFF_DEFENSEDP: // DP防御ダウン
+            src += "IconBuffDefenseDP";
+            break;
+        case BUFF_RESISTDOWN: // 耐性ダウン
+            src += "IconResistElement";
+            break;
+        case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+        case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+            src += "IconBuffDefenseE";
+            break;
+        case BUFF_RECOIL: // 行動不能
+            src += "IconRecoil";
+            break;
+        case BUFF_TARGET: // 挑発
+            src += "IconTarget";
+            break;
+        case BUFF_COVER: // 全体挑発
+            src += "IconCover";
+            break;
+        case BUFF_GIVEATTACKBUFFUP: // バフ強化
+            src += "IconGiveAttackBuffUp";
+            break;
+        case BUFF_GIVEDEBUFFUP: // デバフ強化
+            src += "IconGiveDebuffUp";
+            break;
+        case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
+            src += "IconArrowCherryBlossoms";
+            break;
+        case BUFF_ETERNAL_OARH: // 永遠なる誓い
+            src += "iconEternalOath";
+            break;
+        default:
+            break;
+    }
+    if (buff_info.buff_element != 0) {
+        src += buff_info.buff_element;
+    }
+    src += ".webp";
+    img.attr("src", src);
+    return img;
 }
 
 // ODゲージ生成
@@ -1186,6 +1195,37 @@ function addUnitEvent() {
             // OD再表示
             setOverDrive(now_turn);
         }
+    });
+
+    // デバフリストの表示    
+    $(`.turn${last_turn} .enemy_icon_list`).on("click", function (event) {
+        let buff_detail = $("#buff_detail");
+        buff_detail.html();
+        $.each(now_turn.enemy_debuff_list, function (index, buff_info) {
+            let div = $("<div>");
+            let img = getBuffIconImg(buff_info).addClass("icon_buff_detail");;
+            div.append(img);
+            buff_detail.append(div)
+        });
+        MicroModal.show('modal_buff_detail_list');
+    });
+    // バフリストの表示    
+    $(`.turn${last_turn} .icon_list`).on("click", function (event) {
+        let index = $(this).parent().parent().index();
+        let unit_data = getUnitData(now_turn, index);
+        if (!unit_data || unit_data.blank || now_turn.additional_turn) {
+            return;
+        }
+        let buff_detail = $("#buff_detail");
+        buff_detail.html();
+        $.each(unit_data.buff_list, function (index, buff_info) {
+            let div = $("<div>");
+            let img = getBuffIconImg(buff_info).addClass("icon_buff_detail");;
+            div.append(img);
+            buff_detail.append(div)
+        });
+        MicroModal.show('modal_buff_detail_list');
+        event.stopPropagation();
     });
 }
 
@@ -1550,7 +1590,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 } else if (buff_info.buff_kind == 27) {
                     buff.rest_turn = buff_info.max_power;
                 } else {
-                    buff.rest_turn = 99;
+                    buff.rest_turn = -1;
                 }
                 // 星屑のみ特殊仕様
                 if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
@@ -1582,7 +1622,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 debuff.buff_element = buff_info.buff_element;
                 debuff.effect_size = buff_info.min_power;
                 if (buff_info.buff_kind == BUFF_RESISTDOWN || buff_info.buff_kind == BUFF_ETERNAL_DEFENSEDOWN || buff_info.buff_kind == BUFF_ELEMENT_ETERNAL_DEFENSEDOWN) {
-                    debuff.rest_turn = 99;
+                    debuff.rest_turn = -1;
                 } else {
                     debuff.rest_turn = buff_info.effect_count;
                 }

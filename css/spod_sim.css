@@ -359,3 +359,8 @@ input[type='image'].select_target {
     width: 150px;
     font-size: 16px;
 }
+
+.icon_buff_detail {
+    width: 40px;
+    height: 40px;
+}

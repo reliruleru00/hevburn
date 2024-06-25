@@ -510,6 +510,7 @@ function setEventTrigger() {
         } else {
             $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", false);
             $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", false);
+            setOverDrive();
         }
     });
 
@@ -868,7 +869,7 @@ function proceedTurn(turn_data, kb_next) {
         $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
             ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`×${i + 1}体`))
         ).val(turn_data.enemy_count),
-        createBuffIconList(turn_data.enemy_debuff_list).addClass("enemy_icon_list")
+        createBuffIconList(turn_data.enemy_debuff_list, 5).addClass("enemy_icon_list")
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
 
@@ -942,7 +943,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const appendBuffList = () => {
             if (unit.buff_list.length > 0) {
-                unit_div.append(createBuffIconList(unit.buff_list).addClass("icon_list"));
+                unit_div.append(createBuffIconList(unit.buff_list, 3).addClass("icon_list"));
             }
         };
 
@@ -1017,13 +1018,28 @@ function getDispSp(unit_data) {
 }
 
 // バフアイコンリスト
-function createBuffIconList(buff_list) {
-    let div = $("<div>").addClass("flex flex-wrap");
+function createBuffIconList(buff_list, loop_limit) {
+    let div = $("<div>").addClass("scroll-container");
+    let inner = $("<div>").addClass("scroll-content");
     $.each(buff_list, function (index, buff_info) {
         let img = getBuffIconImg(buff_info);
         img.addClass("unit_buff");
-        div.append(img)
+        inner.append(img)
     });
+
+    if (inner.find(".unit_buff").length > loop_limit) {
+        inner.addClass('scroll');
+        // 既存のunit_buffクラスのアイコンを複製して追加
+        let unit_buffs = inner.find(".unit_buff");
+        unit_buffs.each(function() {
+            let cloned_icon = $(this).clone();
+            inner.append(cloned_icon);
+        });
+    } else {
+        inner.removeClass('scroll');
+    }
+
+    div.append(inner);
     return div;
 }
 
@@ -1132,12 +1148,16 @@ function createOverDriveGauge(over_drive_gauge) {
 // ODテキスト生成
 function setOverDrive() {
     let turn_data = now_turn;
-    let enemy_count = Number($(`#enemy_count_turn${last_turn}`).val());
-    let add_over_drive_gauge = getOverDrive(last_turn, enemy_count);
-    turn_data.add_over_drive_gauge = add_over_drive_gauge;
     let over_drive_gauge = turn_data.over_drive_gauge;
-    over_drive_gauge += add_over_drive_gauge;
-    over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
+    if ($(`.turn${last_turn} select.action_select`).val() == "0") {
+        over_drive_gauge = 0;
+    } else {
+        let enemy_count = Number($(`#enemy_count_turn${last_turn}`).val());
+        let add_over_drive_gauge = getOverDrive(last_turn, enemy_count);
+        turn_data.add_over_drive_gauge = add_over_drive_gauge;
+        over_drive_gauge += add_over_drive_gauge;
+        over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
+    }
     $(`.turn${last_turn} .od_text`).html(`${(turn_data.over_drive_gauge).toFixed(2)}%<br>⇒${over_drive_gauge.toFixed(2)}%`);
 }
 
@@ -1773,7 +1793,7 @@ function getBuffKindName(buff_info) {
             buff_kind_name += "DP防御力ダウン";
             break;
         case BUFF_RESISTDOWN: // 耐性ダウン
-            buff_kind_name += "耐性無効/耐性ダウン";
+            buff_kind_name += "耐性打ち消し/ダウン";
             break;
         case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
         case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン

@@ -323,11 +323,11 @@ img.unit_buff {
 }
 
 .icon_list {
-    width: 75px;
+    width: 72px;
 }
 
 .enemy_icon_list {
-    width: 130px;
+    width: 120px;
 }
 
 input[type='image'].select_target {
@@ -338,6 +338,27 @@ input[type='image'].select_target {
 
 .hidden-option {
     display: none;
+}
+
+/* アイコンスクロール */
+.scroll-container {
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+}
+.scroll-content {
+    display: flex;
+}
+.scroll-content.scroll {
+    animation: scroll 10s linear infinite;
+}
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
 }
 
 /* モーダル画面*/

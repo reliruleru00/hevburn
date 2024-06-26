@@ -585,7 +585,7 @@ function setEventTrigger() {
 // スキル変更処理
 function selectUnitSkill(select) {
     const skill_id = Number(select.find('option:selected').val());
-    const index = select.index("select.unit_skill");
+    const index = select.index(`.turn${last_turn} select.unit_skill`);
     const unit_data = getUnitData(now_turn, index);
 
     function setupModalIcons() {

@@ -589,7 +589,7 @@ function selectUnitSkill(select) {
     const unit_data = getUnitData(now_turn, index);
 
     function setupModalIcons() {
-        $("img.unit_style").each((index, value) => {
+        $(`.turn${last_turn} img.unit_style"`).each((index, value) => {
             $(`#select_target${index}`).attr("src", $(value).attr("src")).data("value", index);
         });
     }

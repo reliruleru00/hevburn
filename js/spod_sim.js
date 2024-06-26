@@ -1,9 +1,12 @@
+const styleSheet = document.createElement('style');
+document.head.appendChild(styleSheet);
 let last_turn;
 let turn_list = [];
 let now_turn;
 let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
+let next_display;
 
 const KB_NEXT_OD = 0;
 const KB_NEXT_ACTION = 1;
@@ -487,17 +490,29 @@ function setEventTrigger() {
         localStorage.setItem('select_troops', select_troops);
         loadTroopsList(select_troops);
     });
+    // ソート順
+    $("#next_display").on("change", function (event) {
+        localStorage.setItem("next_display", $(this).val());
+    });
+    // 上書き確認
+    $("#is_overwrite").on("change", function (event) {
+        localStorage.setItem("is_overwrite", $(this).prop("checked"));
+    });
     // 戦闘開始ボタンクリック
     $(".battle_start").on("click", function (event) {
-        if ($("#battle_area").css("visibility") === "hidden" || confirm("現在の結果が消えますが、よろしいですか？")) {
-            // 初期化
-            last_turn = 0;
-            $("#battle_area").html("");
-            turn_list = [];
-            battle_enemy_info = getEnemyInfo();
-
-            battle_start();
+        if ($("#is_overwrite").prop("checked")) {
+            if ($("#battle_area").css("visibility") !== "hidden" && !confirm("現在の結果が消えますが、よろしいですか？")) {
+                return;
+            }
         }
+        // 初期化
+        last_turn = 0;
+        next_display = $("#next_display").val();
+        $("#battle_area").html("");
+        turn_list = [];
+        battle_enemy_info = getEnemyInfo();
+
+        procBattleStart();
     });
     // 行動選択変更
     $(document).on("change", "select.action_select", function (event) {
@@ -634,7 +649,7 @@ function selectUnitSkill(select) {
         if (buff_list.some(buff => buff.range_area == 3)) {
             const target_no = await showModalSelectTarget();
             if (!target_no && target_no !== 0) {
-                select.prop("selectedIndex", 1);
+                select.prop("selectedIndex", 0);
                 return false;
             }
             const target_unit_data = getUnitData(now_turn, target_no);
@@ -685,7 +700,7 @@ function selectUnitSkill(select) {
             }
             const effect_select_type = await showModalSelectEffect();
             if (!effect_select_type && effect_select_type !== 0) {
-                select.prop("selectedIndex", 1);
+                select.prop("selectedIndex", 0);
                 return false;
             }
             unit_data.buff_effect_select_type = effect_select_type;
@@ -770,7 +785,7 @@ function setEnemyElement(id, val) {
 }
 
 /* 戦闘開始処理 */
-function battle_start() {
+function procBattleStart() {
     let turn_init = new turn_data();
     let unit_list = [];
 
@@ -869,7 +884,7 @@ function proceedTurn(turn_data, kb_next) {
         $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
             ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`×${i + 1}体`))
         ).val(turn_data.enemy_count),
-        createBuffIconList(turn_data.enemy_debuff_list, 5).addClass("enemy_icon_list")
+        createBuffIconList(turn_data.enemy_debuff_list, 5, 7).addClass("enemy_icon_list")
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
 
@@ -943,7 +958,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const appendBuffList = () => {
             if (unit.buff_list.length > 0) {
-                unit_div.append(createBuffIconList(unit.buff_list, 3).addClass("icon_list"));
+                unit_div.append(createBuffIconList(unit.buff_list, 3, index).addClass("icon_list"));
             }
         };
 
@@ -987,7 +1002,11 @@ function proceedTurn(turn_data, kb_next) {
     back_area.append($div)
     party_member.append(front_area).append(back_area)
     turn.append(header_area).append(party_member);
-    $("#battle_area").prepend(turn);
+    if (next_display == "1") {
+        $("#battle_area").prepend(turn);
+    } else {
+        $("#battle_area").append(turn);
+    }
 
     addUnitEvent();
     turn_data.additional_turn = false;
@@ -1003,12 +1022,21 @@ function proceedTurn(turn_data, kb_next) {
 
 // ターンボタン表示設定
 function setTurnButton() {
-    // 最初の要素のみ表示
-    $('.next_turn:first').show();
-    $('.next_turn:gt(0)').hide();
-    // 最初の要素を非表示、以降の要素を表示
-    $('.return_turn:first').hide();
-    $('.return_turn:gt(0)').show();
+    if (next_display == "1") {
+        // 最初の要素のみ表示
+        $('.next_turn:first').show();
+        $('.next_turn:gt(0)').hide();
+        // 最初の要素を非表示、以降の要素を表示
+        $('.return_turn:first').hide();
+        $('.return_turn:gt(0)').show();
+    } else {
+        // 最後の要素のみ表示
+        $('.next_turn:last').show();
+        $('.next_turn:not(:last)').hide();
+        // 最後の要素を非表示、以前の要素を表示
+        $('.return_turn:last').hide();
+        $('.return_turn:not(:last)').show();
+    }
 }
 
 // SP表示取得
@@ -1018,7 +1046,7 @@ function getDispSp(unit_data) {
 }
 
 // バフアイコンリスト
-function createBuffIconList(buff_list, loop_limit) {
+function createBuffIconList(buff_list, loop_limit, chara_index) {
     let div = $("<div>").addClass("scroll-container");
     let inner = $("<div>").addClass("scroll-content");
     $.each(buff_list, function (index, buff_info) {
@@ -1027,16 +1055,43 @@ function createBuffIconList(buff_list, loop_limit) {
         inner.append(img)
     });
 
-    if (inner.find(".unit_buff").length > loop_limit) {
+    let unit_buffs = inner.find(".unit_buff");
+    if (unit_buffs.length > loop_limit * 2) {
         inner.addClass('scroll');
+
+        // アイコンの数によってアニメーションの速度を調整
+        const duration = unit_buffs.length * 0.5; // 例: アイコン数に応じて2秒ごとに1アイコンがスクロール
+
+        // @keyframesを動的に生成
+        const animationName = `scroll-${last_turn}-${chara_index}`;
+        const translateXValue = unit_buffs.length * 24;
+        const keyframes = `
+      @keyframes ${animationName} {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-${translateXValue}px);
+        }
+      }
+    `;
+        // 既存の同名アニメーションを削除
+        for (let i = 0; i < styleSheet.sheet.cssRules.length; i++) {
+            if (styleSheet.sheet.cssRules[i].name === animationName) {
+                styleSheet.sheet.deleteRule(i);
+                break;
+            }
+        }
+        // 新しいアニメーションを追加
+        inner[0].style.animation = `${animationName} ${duration}s linear infinite`;
+        styleSheet.sheet.insertRule(keyframes, styleSheet.sheet.cssRules.length);
         // 既存のunit_buffクラスのアイコンを複製して追加
-        let unit_buffs = inner.find(".unit_buff");
-        unit_buffs.each(function() {
+        unit_buffs.each(function () {
             let cloned_icon = $(this).clone();
             inner.append(cloned_icon);
         });
     } else {
-        inner.removeClass('scroll');
+        inner.removeClass('scroll').addClass("flex-wrap");
     }
 
     div.append(inner);

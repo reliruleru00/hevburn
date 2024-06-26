@@ -179,7 +179,7 @@ img.select_style {
 /* バトルエリア */
 #battle_area {
     width: 1125px;
-    margin: auto;
+    margin: 5px auto 20px auto;
 }
 
 .turn_button {
@@ -197,9 +197,11 @@ img.select_style {
     padding: 0px 5px 5px 5px;
     display: flex;
 }
+
 .party_member {
     display: flex;
 }
+
 @media screen and (max-width: 768px) {
     #battle_area {
         width: 400px;
@@ -212,7 +214,7 @@ img.select_style {
 
     .party_member {
         display: block;
-    }    
+    }
 }
 
 .header_area {
@@ -346,20 +348,11 @@ input[type='image'].select_target {
     white-space: nowrap;
     display: flex;
 }
+
 .scroll-content {
     display: flex;
 }
-.scroll-content.scroll {
-    animation: scroll 10s linear infinite;
-}
-@keyframes scroll {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(-100%);
-    }
-}
+
 
 /* モーダル画面*/
 .modal_label {

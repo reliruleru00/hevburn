@@ -1519,6 +1519,10 @@ function getSpCost(turn_data, skill_info, unit) {
         if (checkAbilityExist(unit.ability_other, 1506)) {
             sp_cost -= 2;
         }
+        // 優美なる剣舞
+        if (checkAbilityExist(unit.ability_other, 1512)) {
+            sp_cost -= 2;
+        }
     }
     return sp_cost
 }
@@ -1534,22 +1538,26 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
                 return true;
             }
             break;
-        case 361: // にゃんこ大魔法(防御ダウン)
+        case 361: // にゃんこ大魔法
+            // 防御ダウン
             if (checkBuffExist(turn_data.enemy_debuff_list, 3)) {
                 return true;
             }
             break;
-        case 381: // 御稲荷神話(脆弱)
+        case 381: // 御稲荷神話
+            // 脆弱
             if (checkBuffExist(turn_data.enemy_debuff_list, 5)) {
                 return true;
             }
             break;
         case 422: // 必滅！ヴェインキック+
+            // 初回
             if (!unit_data.first_ultimate) {
                 return true;
             }
             break;
         case 472: // ロリータフルバースト
+        case 493: // 蒼焔ノ螺旋
             // 追加ターン
             if (unit_data.additional_turn) {
                 return true;

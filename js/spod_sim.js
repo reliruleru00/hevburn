@@ -806,7 +806,7 @@ function procBattleStart() {
                 (obj.style_id === value.style_info.style_id || obj.style_id === 0)
             );
             let limit = Number($("#limit_" + index).val());
-            [0, 1, 3, 5, 10].forEach(num => {
+            ["0", "00", "1", "3", "5", "10"].forEach(num => {
                 if (value.style_info[`ability${num}`] && num <= limit) {
                     let ability_info = getAbilityInfo(value.style_info[`ability${num}`]);
                     switch (ability_info.activation_timing) {

@@ -97,6 +97,8 @@ class turn_data {
                         this.turn_number++;
                         this.fg_action = false;
                     }
+                    // 敵のデバフ消費
+                    this.debuffConsumption();
                 }
             } else {
                 // 通常進行

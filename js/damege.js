@@ -1899,6 +1899,7 @@ function updateEnemyScoreAttack() {
         $("#enemy_dp_" + i).val((enemy_dp * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
     }
     $("#enemy_stat").val(enemy_stat);
+    $("#socre_enemy_unit").val(score_attack.enemy_count);
     $("#enemy_hp").val((enemy_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
 }
 

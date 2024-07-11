@@ -316,7 +316,7 @@ select#socre_enemy_unit {
 }
 
 /* バフエリア */
-input[type="button"].all_delete {
+#all_delete {
     font-size: 12px;
     width: 85px;
     margin-left: 70px;

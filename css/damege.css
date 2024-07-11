@@ -398,6 +398,9 @@ select.filed {
     display: none;
 }
 @media screen and (max-width: 615px) {
+    #all_delete {
+        margin-left: 0px;
+    }
     .buff_area {
         min-width: 365px;
         width: 95%;

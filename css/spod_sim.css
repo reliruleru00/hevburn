@@ -162,6 +162,10 @@ img.select_style {
     margin-left: 5px;
 }
 
+.enemy_input {
+    border: #000 solid 1px;
+}
+
 /* 補助入力 */
 .step_od_gauge {
     text-align: right;

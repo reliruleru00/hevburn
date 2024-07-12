@@ -131,6 +131,7 @@ function setEventTrigger() {
     // バフを全て外す
     $("#all_delete").on("click", function (event) {
         $(".include_lv").prop("selectedIndex", 0);
+        $(".element_field").prop("selectedIndex", 0);
         $(".include_lv").trigger("change");
         updateEnemyResist();
     });

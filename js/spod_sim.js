@@ -513,7 +513,12 @@ function setEventTrigger() {
         $("#battle_area").html("");
         turn_list = [];
         battle_enemy_info = getEnemyInfo();
-
+        for (let i = 1; i <= 3; i++) {
+            battle_enemy_info[`enemy_physical_${i}`] = $("#enemy_physical_" + i).val();
+        }
+        for (let i = 0; i <= 5; i++) {
+            battle_enemy_info[`enemy_element_${i}`] = $("#enemy_element_" + i).val();
+        }
         procBattleStart();
     });
     // 行動選択変更
@@ -806,6 +811,7 @@ function procBattleStart() {
         let unit = new unit_data();
         unit.place_no = index;
         if (value) {
+            unit.sp = Number($("#init_sp_" + index).val());
             unit.sp += Number($("#chain_" + index).val()) + init_sp_add;
             unit.normal_attack_element = $("#bracelet_" + index).val();
             unit.earring_effect_size = Number($(`#earring_${index} option:selected`).val());

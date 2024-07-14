@@ -481,14 +481,16 @@ function setEventTrigger() {
         setEnemyStatus();
     });
     $('.enemy_type_value').on('input', function () {
-        let value = $(this).val().replace(/[^\d]/g, '');
-        let int_value = parseInt(value, 10);
-        if (int_value < 0) {
-            int_value = 0;
-        } else if (int_value > 999) {
-            int_value = 999;
+        if (!isNaN(value)) {
+            let value = $(this).val().replace(/[^\d]/g, '');
+            let int_value = parseInt(value, 10);
+            if (int_value < 0) {
+                int_value = 0;
+            } else if (int_value > 999) {
+                int_value = 999;
+            }
+            $(this).val(int_value);
         }
-        $(this).val(int_value);
     });
     $('.enemy_type_value').on('blur', function () {
         let value = parseInt($(this).val(), 10);

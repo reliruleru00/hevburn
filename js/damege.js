@@ -1002,13 +1002,13 @@ function updateEnemyResist() {
         setEnemyElement("#enemy_element_0", 100);
         let physical = attack_info.attack_physical;
         let week_value = 100;
-        if (attack_info.attack_id == 84) {
-            // 唯雅粛正(チャージ)
-            week_value = 300;
-        } else {
+        if (attack_info.attack_id == 135) {
             // 華麗なるファントム・シーフ
+            week_value += 400;
+        } else {
+            // 唯雅粛正(チャージ)
             // トゥルーペネトレーター+
-            week_value = 400;
+            week_value += 300;
         }
         $(`#enemy_physical_${physical}`).val(week_value);
         setEnemyElement(`#enemy_physical_${physical}`, week_value);

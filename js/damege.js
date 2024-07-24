@@ -1187,7 +1187,8 @@ function addBuffList(member_info) {
             .addClass(only_chara_id)
             .addClass(only_other_id)
             .addClass(only_one)
-            .addClass("chara_id-" + chara_id);
+            .addClass("chara_id-" + chara_id)
+        ;
 
         $("." + str_buff).append(option);
         $("." + str_buff + " .buff_id-" + value.buff_id + ".chara_id-" + chara_id).each(function (index, value) {
@@ -1418,7 +1419,8 @@ function select2ndSkill(select) {
         let option = select.find("option")[i];
         if ($(option).css("display") !== "none") {
             let buff_id = Number($(option).val());
-            if (buff_id == 1000 || buff_id == 1300 || buff_id == 1600 || buff_id == 1700) {
+            let buff_info = getBuffIdToBuff(buff_id);
+            if (buff_info.skill_id > 9000) {
                 // アタッカライズ、クリシン、コンセ、ソフニング
                 continue;
             }

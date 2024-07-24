@@ -221,6 +221,8 @@ function removeMember(select_chara_no, isTrigger) {
     // 該当メンバーのスキル削除
     $(chara_id_class).remove();
     $(".display_chara_id-" + chara_id).css("display", "none");
+    $(".display_chara_id-" + chara_id  + " input").prop("checked", false);
+    $(".display_chara_id-" + chara_id  + " input").trigger("change");
     select_style_list[select_chara_no] = undefined;
     // 消費SP初期化
     $('#sp_cost_' + select_chara_no).text(0);
@@ -342,6 +344,8 @@ function removeSubMember(sub_chara_no) {
     // 該当メンバーのスキル削除
     $(chara_id_class).remove();
     $(".display_chara_id-" + chara_id).css("display", "none");
+    $(".display_chara_id-" + chara_id  + " input").prop("checked", false);
+    $(".display_chara_id-" + chara_id  + " input").trigger("change");
     sub_style_list[sub_chara_no] = undefined;
 }
 

@@ -81,13 +81,13 @@ function createArtsList() {
         if (arts_select) {
             arts_select_list[value] = arts_select.split(",");
         } else {
-            arts_select_list[value] = Array(18).fill(0);
+            arts_select_list[value] = Array(24).fill(0);
         }
     });
     $.each(arts_list, function (index, value) {
         let source = "arts/" + value.image_url;
         let opacity = 0.3;
-        let select = arts_select_list[value.troops][index % 18];
+        let select = arts_select_list[value.troops][index % 24];
         if (select == "1") {
             deck_count += 1;
             opacity = 1;
@@ -128,7 +128,7 @@ function combineImagesWithHatching(create_style) {
         if (arts_select) {
             arts_select_list[value] = arts_select.split(",");
         } else {
-            arts_select_list[value] = Array(18).fill(0);
+            arts_select_list[value] = Array(24).fill(0);
         }
     });
 
@@ -136,7 +136,7 @@ function combineImagesWithHatching(create_style) {
     // 画像をロードして描画
     $.each(arts_list, function (index, value) {
         let img = $('<img>');
-        let select = arts_select_list[value.troops][index % 18];
+        let select = arts_select_list[value.troops][index % 24];
 
         // 画像の読み込みを管理するプロミスを作成し、配列に追加する
         let promise = new Promise(function (resolve, reject) {

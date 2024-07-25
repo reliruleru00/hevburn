@@ -113,7 +113,7 @@ function combineImagesWithHatching() {
     // Canvas サイズを設定
     let separate = 5;
     let columns = 12;
-    let rows = Math.ceil(arts_list.length / columns);
+    let rows = 10;
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = Math.floor(512 / 4);
     let scaledHeight = Math.floor(702 / 4);
@@ -179,20 +179,20 @@ function getRowColumn(troops, rarity, chara_id) {
         stage = 0;
         mass = 1;
     } else if (troops == "31C") {
-        stage = 1;
+        stage = 4;
         mass = 0;
     } else if (troops == "31E") {
-        stage = 1;
+        stage = 4;
         mass = 1;
     } else if (troops == "31F") {
-        stage = 2;
+        stage = 7;
         mass = 0;
     }
 
     let vertical = rarity;
     let beside = chara_id - 1;
 
-    let row = stage * 3 + vertical;
+    let row = stage + vertical;
     let column = mass * 6 + beside;
     return [row, column];
 }

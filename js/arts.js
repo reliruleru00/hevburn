@@ -189,7 +189,7 @@ function getRowColumn(troops, rarity, chara_id) {
         mass = 0;
     }
 
-    let vertical = rarity;
+    let vertical = rarity - 1;
     let beside = chara_id - 1;
 
     let row = stage + vertical;

@@ -87,7 +87,8 @@ function createArtsList() {
     $.each(arts_list, function (index, value) {
         let source = "arts/" + value.image_url;
         let opacity = 0.3;
-        let select = arts_select_list[value.troops][index % 24];
+        let idx = (Number(value.rarity) - 1) * 6 + Number(value.chara_id) - 1;
+        let select = arts_select_list[value.troops][idx];
         if (select == "1") {
             deck_count += 1;
             opacity = 1;
@@ -111,7 +112,7 @@ function combineImagesWithHatching() {
     let context = canvas.getContext('2d');
     // Canvas サイズを設定
     let separate = 5;
-    let columns = 6;
+    let columns = 12;
     let rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = Math.floor(512 / 4);
@@ -136,13 +137,14 @@ function combineImagesWithHatching() {
     // 画像をロードして描画
     $.each(arts_list, function (index, value) {
         let img = $('<img>');
-        let select = arts_select_list[value.troops][index % 24];
+        let idx = (Number(value.rarity) - 1) * 6 + Number(value.chara_id) - 1;
+        let select = arts_select_list[value.troops][idx];
 
         // 画像の読み込みを管理するプロミスを作成し、配列に追加する
         let promise = new Promise(function (resolve, reject) {
             img.on('load', function () {
-                let [row, col] = getRowColumn(index);
-                let adjustRow = (Math.floor(row / 3) + 1) * separate;
+                let [row, col] = getRowColumn(value.troops, Number(value.rarity), Number(value.chara_id));
+                let adjustRow = (Math.floor(row / 4) + 1) * separate;
                 let adjustCol = (Math.floor(col / 6) + 1) * separate;
                 context.drawImage(img[0], col * scaledWidth + adjustCol, row * scaledHeight + adjustRow, scaledWidth, scaledHeight);
 
@@ -167,11 +169,28 @@ function combineImagesWithHatching() {
 }
 
 // 行と列の番号を計算する
-function getRowColumn(number) {
-    let stage = Math.floor(number / 36);
-    let vertical = Math.floor((number % 18) / 6);
-    let mass = Math.floor((number % 36) / 18);
-    let beside = number % 6;
+function getRowColumn(troops, rarity, chara_id) {
+    let stage = 0;
+    let mass = 0;
+    if (troops == "31A") {
+        stage = 0;
+        mass = 0;
+    } else if (troops == "31B") {
+        stage = 0;
+        mass = 1;
+    } else if (troops == "31C") {
+        stage = 1;
+        mass = 0;
+    } else if (troops == "31E") {
+        stage = 1;
+        mass = 1;
+    } else if (troops == "31F") {
+        stage = 2;
+        mass = 0;
+    }
+
+    let vertical = rarity;
+    let beside = chara_id - 1;
 
     let row = stage * 3 + vertical;
     let column = mass * 6 + beside;

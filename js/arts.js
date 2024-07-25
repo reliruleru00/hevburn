@@ -36,9 +36,9 @@ function setEventTrigger() {
         deck_count = 0;
         setDeckCount();
     });
-    //生成ボタン
+    // 生成ボタン
     $('#outputBtn').click(function () {
-        combineImagesWithHatching(null);
+        combineImagesWithHatching();
     });
 }
 
@@ -106,12 +106,12 @@ function createArtsList() {
 }
 
 // 画像を生成して Canvas に描画する関数
-function combineImagesWithHatching(create_style) {
+function combineImagesWithHatching() {
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
     // Canvas サイズを設定
     let separate = 5;
-    let columns = 12;
+    let columns = 6;
     let rows = Math.ceil(arts_list.length / columns);
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = Math.floor(512 / 4);

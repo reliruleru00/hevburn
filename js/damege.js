@@ -946,7 +946,7 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 10;
         }
         // エクシード(菅原専用)
-        if (ability_list.includes(505) == 505 && $("#ability_all463").prop("checked")) {
+        if (ability_list.includes(505) && $("#ability_all463").prop("checked")) {
             strengthen += 30;
         }
     }

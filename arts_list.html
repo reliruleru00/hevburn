@@ -9,7 +9,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-N7FD0VTLNH"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-N7FD0VTLNH');
   </script>
@@ -31,9 +31,8 @@
   <script src="js/arts_list.js"></script>
   <script src="js/arts.js"></script>
   <script>
-    let deck_count = 0;
-    let troop_list = ["31A", "31B", "31C", "31E", "31F"];
     $(function () {
+      createTroopList();
       createArtsList();
       setEventTrigger();
     });
@@ -69,26 +68,18 @@
             <input type="button" id="btn_select" class="w-16 mt-2 mb-2 default" value="全選択">
             <input type="button" id="btn_release" class="w-16 mt-2 mb-2 default" value="全解除">
           </div>
-          <div class="clear-left flex text-2xl font-bold">
-            <div class="w-32">デッキ枚数</div>
-            <label id="deck_count" class="text-center w-24"></label>
+          <div class="clear-left flex">
+            <div class="flex text-2xl font-bold">
+              <div class="w-32">デッキ枚数</div>
+              <label id="deck_count" class="text-center w-24"></label>
+            </div>
+            <select id="show_arts" class="border border-black text-lg font-bold">
+              <option value="0">全数</option>
+              <option value="2">ENDLESSシーズン2</option>
+              <option value="3">ENDLESSシーズン3</option>
+            </select>
           </div>
-          <div class="grid grid-cols-1 xl:grid-cols-2">
-            <div class="troops">
-              <div id="arts_list_31A" class="flex flex-wrap troops_31A h-min"></div>
-            </div>
-            <div class="troops">
-              <div id="arts_list_31B" class="flex flex-wrap troops_31B h-min"></div>
-            </div>
-            <div class="troops">
-              <div id="arts_list_31C" class="flex flex-wrap troops_31C h-min"></div>
-            </div>
-            <div class="troops">
-              <div id="arts_list_31E" class="flex flex-wrap troops_31E h-min"></div>
-            </div>
-            <div class="troops">
-              <div id="arts_list_31F" class="flex flex-wrap troops_31F h-min"></div>
-            </div>
+          <div id="arts_troops" class="grid grid-cols-1 xl:grid-cols-2">
           </div>
         </div>
         <div class="display_pc_only mx-auto mt-20">

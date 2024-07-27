@@ -946,7 +946,7 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 10;
         }
         // エクシード(菅原専用)
-        if (ability_list.includes(505) == 505 && $("#ability_all462").prop("checked")) {
+        if (ability_list.includes(505) == 505 && $("#ability_all463").prop("checked")) {
             strengthen += 30;
         }
     }
@@ -963,7 +963,7 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 10;
         }
         // モロイウオ(あいな専用)
-        if (ability_list.includes(506)  && $("#ability_all242").prop("checked") && skill_buff.sp_cost <= 8) {
+        if (ability_list.includes(506)  && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
             strengthen += 30;
         }
     }

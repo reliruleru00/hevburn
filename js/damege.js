@@ -1230,7 +1230,7 @@ function addAbility(member_info) {
             // 他部隊のアビリティはフィールドのみ許可
             continue;
         }
-        let limit_border = index == 0 ? 0 : (index === 1 ? 1 : (index === 2 ? 3 : (index === 3 ? 5 : 10)));
+        let limit_border = index <= 1 ? 0 : (index === 2 ? 1 : (index === 3 ? 3 : (index === 4 ? 5 : 10)));
         let display = "none";
 
         if ((ability_info.ability_element === 0 && ability_info.ability_physical == 0)

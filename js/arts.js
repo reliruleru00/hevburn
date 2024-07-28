@@ -224,8 +224,8 @@ function getRowSize(show_list) {
             add = TROOPS_ARTS_COUNT[value];
         } else {
             add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];
-            add = 0;
             stage += add;
+            add = 0;
         }
     });
     return stage + add;

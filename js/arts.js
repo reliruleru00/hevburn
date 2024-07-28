@@ -155,7 +155,9 @@ function combineImagesWithHatching() {
     // Canvas サイズを設定
     let separate = 5;
     let columns = 12;
-    let rows = 10;
+
+    let show_list = getShowTroopsList();
+    let rows = getRowSize(show_list);
     // 画像の横幅と高さを半分に縮小
     let scaledWidth = Math.floor(512 / 4);
     let scaledHeight = Math.floor(702 / 4);
@@ -176,9 +178,11 @@ function combineImagesWithHatching() {
     });
 
     let promises = [];
-    let show_list = getShowTroopsList();
     // 画像をロードして描画
     $.each(arts_list, function (index, value) {
+        if (!show_list.includes(value)) {
+            return true;
+        }
         let img = $('<img>');
         let idx = (Number(value.rarity) - 1) * 6 + Number(value.chara_id) - 1;
         let select = arts_select_list[value.troops][idx];
@@ -209,6 +213,21 @@ function combineImagesWithHatching() {
         downloadLink.download = 'arts_deck.png'; // ダウンロード時のファイル名
         downloadLink.click();
     });
+}
+
+// 画像の行サイズ取得
+function getRowSize(show_list) {
+    let stage = 0;
+    let add = 0;
+    $.each(show_list, function (index, value) {
+        if (index % 2 == 0) {
+            add = TROOPS_ARTS_COUNT[value];
+        } else {
+            add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];
+            stage += add;
+        }
+    });
+    return stage;
 }
 
 // 行と列の番号を計算する

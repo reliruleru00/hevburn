@@ -180,7 +180,7 @@ function combineImagesWithHatching() {
     let promises = [];
     // 画像をロードして描画
     $.each(arts_list, function (index, value) {
-        if (!show_list.includes(value)) {
+        if (!show_list.includes(value.troops)) {
             return true;
         }
         let img = $('<img>');

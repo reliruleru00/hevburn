@@ -222,7 +222,7 @@ function getRowColumn(show_list, troops, rarity, chara_id) {
             mass = index % 2;
             return false;
         }
-        if (index % 2) {
+        if (index % 2 == 0) {
             add = TROOPS_ARTS_COUNT[value];
         } else {
             add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];

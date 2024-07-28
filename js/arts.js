@@ -50,15 +50,7 @@ function setEventTrigger() {
     });
     // 表示変更
     $("#show_arts").on('change', function () {
-        let show_list = troop_list;
-        switch ($(this).val()) {
-            case "2":
-                show_list = endless2nd;
-                break;
-            case "3":
-                show_list = endless3rd;
-                break;
-        }
+        let show_list = getShowTroopsList()
         $.each(troop_list, function (index, value) {
             if (show_list.includes(value)) {
                 $(`#arts_list_${value}`).show();
@@ -72,6 +64,20 @@ function setEventTrigger() {
     $('#outputBtn').click(function () {
         combineImagesWithHatching();
     });
+}
+
+// 表示部隊リスト取得
+function getShowTroopsList() {
+    let show_list = troop_list;
+    switch ($("#show_arts").val()) {
+        case "2":
+            show_list = endless2nd;
+            break;
+        case "3":
+            show_list = endless3rd;
+            break;
+    }
+    return show_list
 }
 
 // デッキ枚数設定
@@ -170,6 +176,7 @@ function combineImagesWithHatching() {
     });
 
     let promises = [];
+    let show_list = getShowTroopsList();
     // 画像をロードして描画
     $.each(arts_list, function (index, value) {
         let img = $('<img>');
@@ -179,7 +186,7 @@ function combineImagesWithHatching() {
         // 画像の読み込みを管理するプロミスを作成し、配列に追加する
         let promise = new Promise(function (resolve, reject) {
             img.on('load', function () {
-                let [row, col] = getRowColumn(value.troops, Number(value.rarity), Number(value.chara_id));
+                let [row, col] = getRowColumn(show_list, value.troops, Number(value.rarity), Number(value.chara_id));
                 let adjustRow = (Math.floor(row / 4) + 1) * separate;
                 let adjustCol = (Math.floor(col / 6) + 1) * separate;
                 context.drawImage(img[0], col * scaledWidth + adjustCol, row * scaledHeight + adjustRow, scaledWidth, scaledHeight);
@@ -205,25 +212,23 @@ function combineImagesWithHatching() {
 }
 
 // 行と列の番号を計算する
-function getRowColumn(troops, rarity, chara_id) {
+function getRowColumn(show_list, troops, rarity, chara_id) {
     let stage = 0;
     let mass = 0;
-    if (troops == "31A") {
-        stage = 0;
-        mass = 0;
-    } else if (troops == "31B") {
-        stage = 0;
-        mass = 1;
-    } else if (troops == "31C") {
-        stage = 4;
-        mass = 0;
-    } else if (troops == "31E") {
-        stage = 4;
-        mass = 1;
-    } else if (troops == "31F") {
-        stage = 7;
-        mass = 0;
-    }
+
+    let add = 0;
+    $.each(show_list, function (index, value) {
+        if (value == troops) {
+            mass = index % 2;
+            return false;
+        }
+        if (index % 2) {
+            add = TROOPS_ARTS_COUNT[value];
+        } else {
+            add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];
+            stage += add;
+        }
+    });
 
     let vertical = rarity - 1;
     let beside = chara_id - 1;

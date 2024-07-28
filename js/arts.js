@@ -222,9 +222,9 @@ function getRowSize(show_list) {
     $.each(show_list, function (index, value) {
         if (index % 2 == 0) {
             add = TROOPS_ARTS_COUNT[value];
-            add = 0;
         } else {
             add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];
+            add = 0;
             stage += add;
         }
     });

@@ -1698,6 +1698,10 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 return;
             }
             break;
+        // 多重追加防止
+        case 56: // 破壊のシニシズム
+            return;
+            break;
     }
     let target_list;
     // 対象策定

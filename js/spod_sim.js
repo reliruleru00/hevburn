@@ -407,7 +407,7 @@ class unit_data {
         if (this.earring_effect_size != 0) {
             hit_count = hit_count < 1 ? 1 : hit_count;
             hit_count = hit_count > 10 ? 10 : hit_count;
-            return (this.earring_effect_size - (10 / 9 * (hit_count - 1)));
+            return (this.earring_effect_size - ((this.earring_effect_size - 5) / 9 * (11 - hit_count)));
         }
         return 0;
     }
@@ -1482,7 +1482,7 @@ function getOverDrive(turn_number, enemy_count) {
         } else if (skill_info.attack_id) {
             let attack_info = getAttackInfo(skill_info.attack_id);
             if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
-                let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
+                let earring = 1 + unit_data.getEarringEffectSize(attack_info.hit_count) / 100;
                 let hit_od = Math.floor(2.5 * earring * 100) / 100
                 if (attack_info.range_area == 1) {
                     enemy_count = 1;

@@ -483,6 +483,14 @@ function setEventTrigger() {
         }
         open_damage_detail.setDamageDetail();
     });
+    // バフ選択画面を開く
+    $("#open_select_buff").on("click", function (event) {
+        $("#select_buff").html("");
+        $.each(select_style_list, function (index, value) {
+        });
+        $("#select_buff").html("");
+        MicroModal.show('modal_select_buff');
+    });
     // 残り耐久反映
     $(".durability_reflection").on("click", function (event) {
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
@@ -898,7 +906,7 @@ function updateFieldEffectSize() {
         let chara_no = Number(option.data("chara_no"));
         let member_info = chara_no < 10 ? select_style_list[chara_no] : sub_style_list[chara_no - 10];
         let chara_id = member_info.style_info.chara_id;
-        let chara_name = getCharaData(chara_id).chara_short_name;    
+        let chara_name = getCharaData(chara_id).chara_short_name;
         // フィールド強化15%
         let strengthen = $(".strengthen_field").parent().find("input").prop("checked") ? 15 : 0;
         let effect_size = skill_buff.max_power + strengthen;
@@ -959,11 +967,11 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 25;
         }
         // 減退
-        if (ability_list.includes(504) ) {
+        if (ability_list.includes(504)) {
             strengthen += 10;
         }
         // モロイウオ(あいな専用)
-        if (ability_list.includes(506)  && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
+        if (ability_list.includes(506) && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
             strengthen += 30;
         }
     }
@@ -1033,7 +1041,7 @@ function updateEnemyResist() {
         }
         $(`#enemy_physical_${physical}`).val(week_value);
         setEnemyElement(`#enemy_physical_${physical}`, week_value);
-}
+    }
     displayWeakRow();
 }
 
@@ -1186,7 +1194,7 @@ function addBuffList(member_info) {
             .addClass(only_other_id)
             .addClass(only_one)
             .addClass("chara_id-" + chara_id)
-        ;
+            ;
 
         $("." + str_buff).append(option);
         $("." + str_buff + " .buff_id-" + value.buff_id + ".chara_id-" + chara_id).each(function (index, value) {

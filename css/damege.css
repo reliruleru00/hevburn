@@ -316,10 +316,9 @@ select#socre_enemy_unit {
 }
 
 /* バフエリア */
-#all_delete {
+.buff_btn {
     font-size: 12px;
     width: 85px;
-    margin-left: 70px;
 }
 table tr {
     line-height: 16px;

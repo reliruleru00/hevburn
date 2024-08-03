@@ -407,7 +407,7 @@ class unit_data {
         if (this.earring_effect_size != 0) {
             hit_count = hit_count < 1 ? 1 : hit_count;
             hit_count = hit_count > 10 ? 10 : hit_count;
-            return (this.earring_effect_size - ((this.earring_effect_size - 5) / 9 * (11 - hit_count)));
+            return (this.earring_effect_size - ((this.earring_effect_size - 5) / 9 * (10 - hit_count)));
         }
         return 0;
     }

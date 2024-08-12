@@ -898,7 +898,7 @@ function updateFieldEffectSize() {
         let chara_no = Number(option.data("chara_no"));
         let member_info = chara_no < 10 ? select_style_list[chara_no] : sub_style_list[chara_no - 10];
         let chara_id = member_info.style_info.chara_id;
-        let chara_name = getCharaData(chara_id).chara_short_name;    
+        let chara_name = getCharaData(chara_id).chara_short_name;
         // フィールド強化15%
         let strengthen = $(".strengthen_field").parent().find("input").prop("checked") ? 15 : 0;
         let effect_size = skill_buff.max_power + strengthen;
@@ -959,15 +959,15 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 25;
         }
         // 減退
-        if (ability_list.includes(504) ) {
+        if (ability_list.includes(504)) {
             strengthen += 10;
         }
         // モロイウオ(あいな専用)
-        if (ability_list.includes(506)  && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
+        if (ability_list.includes(506) && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
             strengthen += 30;
         }
         // 王の眼差し
-        if (ability_list.includes(507)  && $("#ability_front11").prop("checked")) {
+        if (ability_list.includes(507) && $("#ability_front11").prop("checked")) {
             strengthen += 25;
         }
     }
@@ -1037,7 +1037,7 @@ function updateEnemyResist() {
         }
         $(`#enemy_physical_${physical}`).val(week_value);
         setEnemyElement(`#enemy_physical_${physical}`, week_value);
-}
+    }
     displayWeakRow();
 }
 
@@ -1190,7 +1190,7 @@ function addBuffList(member_info) {
             .addClass(only_other_id)
             .addClass(only_one)
             .addClass("chara_id-" + chara_id)
-        ;
+            ;
 
         $("." + str_buff).append(option);
         $("." + str_buff + " .buff_id-" + value.buff_id + ".chara_id-" + chara_id).each(function (index, value) {
@@ -1605,6 +1605,8 @@ function getSumBuffEffectSize() {
     sum_buff += Number($("#morale_count").val()) * 5;
     // 永遠なる誓い
     sum_buff += $("#eternal_vows").prop("checked") ? 50 : 0;
+    // 制圧戦
+    sum_buff += getBikePartsEffectSize("buff");
     return 1 + sum_buff / 100;
 }
 
@@ -1612,7 +1614,10 @@ function getSumBuffEffectSize() {
 function getSumDebuffEffectSize() {
     // スキルデバフ合計
     let sum_debuff = getSumEffectSize("debuff");
+    // 防御ダウンアビリティ
     sum_debuff += getSumAbilityEffectSize(2);
+    // 制圧戦
+    sum_debuff += getBikePartsEffectSize("debuff");
     return 1 + sum_debuff / 100;
 }
 
@@ -1686,6 +1691,50 @@ function getSumTokenEffectSize(buff_id, chara_no, skill_lv) {
     return 1;
 }
 
+// 制圧戦のバイクパーツ取得
+function getBikePartsEffectSize(buff_kind) {
+    // 制圧戦以外は無し
+    if ($("#enemy_class").val() != 11) {
+        return 0;
+    }
+    let buff = 0;
+    let debuff = 0;
+    let critical_rate = 0;
+    let critical_buff = 0;
+    for (let i = 1; i <= 3; i++) {
+        let option = Number($(`#bike_parts_${i}`).val());
+        switch (option) {
+            case 1: // 攻撃＋
+                buff += 20;
+                break;
+            case 2: // クリティカル率＋
+                critical_rate += 30;
+                break;
+            case 4: // 敵防御ダウン
+                debuff += 30;
+                break;
+            case 5: // 攻撃＋＋
+                buff += 50;
+                break;
+            case 7: // クリティカル率ダメージ＋
+                critical_buff += 30;
+                break;
+        }
+    }
+    switch (buff_kind) {
+        case "buff":
+            return buff;
+        case "debuff":
+            return debuff;
+        case "critical_rate":
+            return critical_rate;
+        case "critical_buff":
+            return critical_buff;
+        default:
+            return 0;
+    }
+}
+
 // クリティカル率取得
 function getCriticalRate(member_info) {
     let critical_rate = 1.5;
@@ -1700,6 +1749,8 @@ function getCriticalRate(member_info) {
     critical_rate = critical_rate < 0 ? 0 : critical_rate;
     // 永遠なる誓い
     critical_rate += $("#eternal_vows").prop("checked") ? 15 : 0;
+    // 制圧戦
+    critical_rate += getBikePartsEffectSize("critical_rate");
     return critical_rate > 100 ? 100 : critical_rate;
 }
 
@@ -1710,6 +1761,8 @@ function getCriticalBuff() {
     critical_buff += getSumAbilityEffectSize(4);
     // 星空の航路+
     critical_buff += $("option.skill_id-490:selected").length * 30;
+    // 制圧戦
+    critical_buff += getBikePartsEffectSize("critical_buff");
     return 1 + critical_buff / 100;
 }
 
@@ -1795,6 +1848,12 @@ function createEnemyList(enemy_class) {
         $(".sub_party").css("display", "block");
     } else {
         $(".sub_party").css("display", "none");
+    }
+    if (enemy_class == 11) {
+        // 制圧戦、バイクバフを表示する。
+        $(".bike_buff").css("display", "block");
+    } else {
+        $(".bike_buff").css("display", "none");
     }
     if (enemy_class == 99) {
         // 自由入力の場合、入力を解除する

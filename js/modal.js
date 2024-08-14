@@ -352,6 +352,9 @@ function removeSubMember(sub_chara_no) {
 // スタイルリセット
 function styleReset(isLocalStorageReset) {
     $.each(select_style_list, function(index, value) {
+        if (index > 5) {
+            return false;
+        }
         if (value) {
             removeMember(index, false);
             if (isLocalStorageReset) {

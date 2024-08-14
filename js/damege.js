@@ -297,19 +297,28 @@ function setEventTrigger() {
         });
         if (has_charge) {
             toggleItemVisibility(`.skill_id-8001`, true);
-            select2ndSkill($(".charge"));
+            $(".charge").each(function (index, value) {
+                sortEffectSize($(value));
+                select2ndSkill($(value));
+            });
         } else {
             toggleItemVisibility(`.skill_id-8001`, false);
         }
         if (has_mindeye) {
             toggleItemVisibility(`.skill_id-8002`, true);
-            select2ndSkill($(".mindeye"));
+            $(".mindeye").each(function (index, value) {
+                sortEffectSize($(value));
+                select2ndSkill($(value));
+            });
         } else {
             toggleItemVisibility(`.skill_id-8002`, false);
         }
         if (has_funnel) {
             toggleItemVisibility(`.skill_id-8003`, true);
-            select2ndSkill($(".funnel"));
+            $(".funnel").each(function (index, value) {
+                sortEffectSize($(value));
+                select2ndSkill($(value));
+            });
         } else {
             toggleItemVisibility(`.skill_id-8003`, false);
         }
@@ -1904,6 +1913,7 @@ function createEnemyList(enemy_class) {
     if (enemy_class == 11) {
         // 制圧戦、バイクバフを表示する。
         $(".bike_buff").css("display", "block");
+        $(".bike_parts").val(0);
         // メンバー情報作成
         let member_info = new Member();
         member_info.is_select = true;

@@ -1,5 +1,5 @@
 let select_troops = localStorage.getItem('select_troops');
-let select_style_list = Array(6).fill(undefined);
+let select_style_list = Array(7).fill(undefined);
 let sub_style_list = Array(6).fill(undefined);
 let status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
 

@@ -1915,7 +1915,7 @@ function createEnemyList(enemy_class) {
         select_style_list[6] = member_info;
         addBuffList(member_info);
     } else {
-        select_style_list[6] = 0;
+        select_style_list[6] = undefined;
         removeMember(6, true);
         $(".bike_buff").css("display", "none");
     }

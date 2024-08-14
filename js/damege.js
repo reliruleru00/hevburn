@@ -1915,8 +1915,10 @@ function createEnemyList(enemy_class) {
         select_style_list[6] = member_info;
         addBuffList(member_info);
     } else {
-        select_style_list[6] = undefined;
-        removeMember(6, true);
+        if(select_style_list[6]) {
+            removeMember(6, true);
+            select_style_list[6] = undefined;
+        }
         $(".bike_buff").css("display", "none");
     }
     if (enemy_class == 99) {

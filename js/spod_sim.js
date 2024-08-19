@@ -78,7 +78,6 @@ class turn_data {
 
     // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
     turnProceed(kb_next) {
-        let self = this;
         this.enemy_debuff_list.sort((a, b) => a.buff_kind - b.buff_kind);
         if (kb_next == KB_NEXT_ACTION) {
             // オーバードライブ
@@ -94,30 +93,11 @@ class turn_data {
                     this.over_drive_max_turn = 0;
                     this.over_drive_turn = 0;
                     if (this.fg_action) {
-                        this.turn_number++;
-                        this.fg_action = false;
+                        this.nextTurn();
                     }
-                    // 敵のデバフ消費
-                    this.debuffConsumption();
                 }
             } else {
-                // 通常進行
-                $.each(this.unit_list, function (index, unit) {
-                    if (!unit.blank) {
-                        unit.unitTurnProceed(self);
-                    }
-                });
-                this.turn_number++;
-                this.abilityAction(KB_ABILIRY_SELF_START);
-                this.fg_action = false;
-                if (this.turn_number % this.step_turn == 0) {
-                    this.over_drive_gauge += this.step_over_drive_down;
-                    if (this.over_drive_gauge < 0) {
-                        this.over_drive_gauge = 0;
-                    }
-                }
-                // 敵のデバフ消費
-                this.debuffConsumption();
+                this.nextTurn();
             }
         } else {
             // OD
@@ -140,6 +120,26 @@ class turn_data {
                 this.fg_action = false;
             }
         }
+    }
+    nextTurn() {
+        let self = this;
+        // 通常進行
+        $.each(this.unit_list, function (index, unit) {
+            if (!unit.blank) {
+                unit.unitTurnProceed(self);
+            }
+        });
+        this.turn_number++;
+        this.fg_action = false;
+        this.abilityAction(KB_ABILIRY_SELF_START);
+        if (this.turn_number % this.step_turn == 0) {
+            this.over_drive_gauge += this.step_over_drive_down;
+            if (this.over_drive_gauge < 0) {
+                this.over_drive_gauge = 0;
+            }
+        }
+        // 敵のデバフ消費
+        this.debuffConsumption();
     }
     unitSort() {
         this.unit_list.sort((a, b) => a.place_no - b.place_no);
@@ -407,7 +407,7 @@ class unit_data {
         if (this.earring_effect_size != 0) {
             hit_count = hit_count < 1 ? 1 : hit_count;
             hit_count = hit_count > 10 ? 10 : hit_count;
-            return (this.earring_effect_size - (10 / 9 * (hit_count - 1)));
+            return (this.earring_effect_size - ((this.earring_effect_size - 5) / 9 * (10 - hit_count)));
         }
         return 0;
     }
@@ -553,7 +553,11 @@ function setEventTrigger() {
             setOverDrive();
         }
     });
-
+    // スキル変更
+    $(document).on("change", "select.enemy_count", function (event) {
+        // ODゲージを設定
+        setOverDrive();
+    });
     // スキル変更
     $(document).on("change", "select.unit_skill", function (event) {
         // スキル変更処理
@@ -600,7 +604,9 @@ function setEventTrigger() {
         removeTurnsAfter(last_turn);
         now_turn = turn_list[turn_list.length - 1];
 
-        $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
+        if ($(`.turn${last_turn} select.action_select`).val() != KB_NEXT_OD) {
+            $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
+        }
         $(`.turn${last_turn} select.action_select`).prop("disabled", false);
         addUnitEvent();
         setTurnButton();
@@ -772,7 +778,7 @@ function selectUnitSkill(select) {
 
 // 行動制限
 function updateAction(turn_data) {
-    let is_over_drive = (turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) > 100;
+    let is_over_drive = (turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) >= 100;
     toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='2']`), is_over_drive);
 }
 
@@ -826,6 +832,9 @@ function procBattleStart() {
     let init_sp_add = Number($("#init_sp_add").val());
     // スタイル情報を作成
     $.each(select_style_list, function (index, value) {
+        if (index >= 6) {
+            return false;
+        }
         let unit = new unit_data();
         unit.place_no = index;
         if (value) {
@@ -918,7 +927,7 @@ function proceedTurn(turn_data, kb_next) {
         $('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon"),
         $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
             ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`×${i + 1}体`))
-        ).val(turn_data.enemy_count),
+        ).val(turn_data.enemy_count).addClass("enemy_count"),
         createBuffIconList(turn_data.enemy_debuff_list, 5, 7).addClass("enemy_icon_list")
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
@@ -1226,7 +1235,7 @@ function getBuffIconImg(buff_info) {
 function createOverDriveGauge(over_drive_gauge) {
     let over_drive = $('<div>').addClass("flex");
     let over_drive_label = $('<label>').addClass("od_text");
-    let over_drive_img = $('<div>').append($('<img>').attr("src", "img/FrameOverdriveGaugeR.webp").addClass("od_icon"));
+    let over_drive_img = $('<div>').append($('<img>').attr("src", "img/FrameOverdriveGaugeR.webp").addClass("od_icon")).addClass("inc_od_icon");
     if (over_drive_gauge >= 100) {
         let gauge = Math.floor(over_drive_gauge / 100);
         over_drive_img.append($('<img>').attr("src", `img/ButtonOverdrive${gauge}Default.webp`).addClass("od_number"));
@@ -1482,7 +1491,7 @@ function getOverDrive(turn_number, enemy_count) {
         } else if (skill_info.attack_id) {
             let attack_info = getAttackInfo(skill_info.attack_id);
             if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
-                let earring = 1 + unit_data.getEarringEffectSize(11 - attack_info.hit_count) / 100;
+                let earring = 1 + unit_data.getEarringEffectSize(attack_info.hit_count) / 100;
                 let hit_od = Math.floor(2.5 * earring * 100) / 100
                 if (attack_info.range_area == 1) {
                     enemy_count = 1;
@@ -1611,12 +1620,12 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
                 return true;
             }
             break;
-        case 495: // レッドラウンドイリュージョン
-            // 影分身
-            if (unit_data.buff_effect_select_type == 1) {
-                return true;
-            }
-            break;
+        // case 495: // レッドラウンドイリュージョン
+        //     // 影分身
+        //     if (unit_data.buff_effect_select_type == 1) {
+        //         return true;
+        //     }
+        //     break;
     }
     return false;
 }
@@ -1697,6 +1706,10 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             if (turn_data.additional_turn) {
                 return;
             }
+            break;
+        // 多重追加防止
+        case 56: // 破壊のシニシズム
+            return;
             break;
     }
     let target_list;

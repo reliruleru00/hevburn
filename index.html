@@ -75,6 +75,7 @@
       "permanent_element_down",
     ];
     const DP_GAUGE_COUNT = 4;
+    const BIKE_PARTS_LIST = ["無し(その他)", "攻撃＋", "クリティカル率＋", "チャージ", "敵防御ダウン", "攻撃＋＋", "心眼", "クリティカル率ダメージ＋", "連撃＋"];
     $(function () {
       // スタイルリスト作成
       createStyleList();
@@ -96,6 +97,15 @@
         for (let i = 0; i <= 5; i++) $(value).append($('<option>').text(i).val(i))
         $(value).prop("selectedIndex", 5);
       });
+
+      // スコアタレベル
+      var selectOptions = '';
+      BIKE_PARTS_LIST.forEach(function(value, index) {
+        selectOptions += '<option value="' + index + '">' + value + '</option>';
+      });
+      $('#bike_parts_1').html(selectOptions);
+      $('#bike_parts_2').html(selectOptions);
+      $('#bike_parts_3').html(selectOptions);
 
       // スコアタレベル
       var selectOptions = '';
@@ -315,6 +325,7 @@
                 <option value="8">恒星掃戦線</option>
                 <option value="9">イベント隠しボス</option>
                 <option value="10">時の修練場</option>
+                <option value="11">制圧戦</option>
                 <option value="99">自由入力</option>
               </select>
               <select id="enemy_list">
@@ -411,6 +422,21 @@
                   <option value="5">5</option>
                 </select>
               </div>
+            </div>
+          </div>
+          <div class="bike_buff adjust_width mx-auto">
+            <div class="mt-2">
+              メンバーの全能力＋
+              <input type="number" min="0" max="190" step="1" id="all_status_up" value="0" class="limit_number">
+            </div>
+            <div class="mt-1">
+              <sapn>バイクパーツ</sapn>
+              <select id="bike_parts_1" class="bike_parts w-24">
+              </select>
+              <select id="bike_parts_2" class="bike_parts w-24">
+              </select>
+              <select id="bike_parts_3" class="bike_parts w-24">
+              </select>
             </div>
           </div>
           <div class="enemy_status surround_area mx-auto mt-2 adjust_width">
@@ -759,7 +785,7 @@
                 <td><select id="defense_down1" class="debuff redisplay defense_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class=""><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class=""><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td>
                   <div class="lv"><select id="defense_down1_lv" class="lv_effect"></select></div>
                 </td>
@@ -769,7 +795,7 @@
                 <td><select id="defense_down2" class="debuff redisplay defense_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class=""><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class=""><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td>
                   <div class="lv"><select id="defense_down2_lv" class="lv_effect"></select></div>
                 </td>
@@ -820,7 +846,7 @@
                     class="debuff redisplay permanent_defense_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class=""><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class=""><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td class="">
                   <div class="lv"><select id="defense_down1_lv" class="lv_effect"></select></div>
                 </td>
@@ -831,7 +857,7 @@
                     class="debuff redisplay permanent_defense_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class=""><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class=""><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td class="">
                   <div class="lv"><select id="defense_down2_lv" class="lv_effect"></select></div>
                 </td>
@@ -842,7 +868,7 @@
                     class="debuff redisplay permanent_element_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class="row_element-2 row_element-5"><label class="strengthen display_chara_id-11 hidden"><input
+                <td class="row_element-2 row_element-5"><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input
                       type="checkbox"><span>強化</span></label></td>
                 <td class="row_element-2 row_element-5">
                   <div class="lv"><select id="element_down1_lv" class="lv_effect"></select></div>
@@ -854,7 +880,7 @@
                     class="debuff redisplay permanent_element_down include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class="row_element-2 row_element-5"><label class="strengthen display_chara_id-11 hidden"><input
+                <td class="row_element-2 row_element-5"><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input
                       type="checkbox"><span>強化</span></label></td>
                 <td class="row_element-2 row_element-5">
                   <div class="lv"><select id="element_down2_lv" class="lv_effect"></select></div>
@@ -865,7 +891,7 @@
                 <td class="row_weak"><select id="fragile1" class="fragile redisplay include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class="row_weak"><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class="row_weak"><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td class="row_weak">
                   <div class="lv"><select id="fragile1_lv" class="lv_effect"></select></div>
                 </td>
@@ -875,7 +901,7 @@
                 <td class="row_weak"><select id="fragile2" class="fragile redisplay include_lv">
                     <option selected value="">無し</option>
                   </select></td>
-                <td class="row_weak"><label class="strengthen display_chara_id-11 hidden"><input type="checkbox"><span>強化</span></label></td>
+                <td class="row_weak"><label class="strengthen display_chara_id-11 display_chara_id-45 hidden"><input type="checkbox"><span>強化</span></label></td>
                 <td class="row_weak">
                   <div class="lv"><select id="fragile2_lv" class="lv_effect"></select></div>
                 </td>

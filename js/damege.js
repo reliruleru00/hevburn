@@ -1229,7 +1229,7 @@ function addBuffList(member_info) {
                 break;
         }
         let str_buff = buff_kbn[value.buff_kind];
-        if (value.skill_attack === 0) only_one = 0;
+        if (!value.skill_attack1) only_one = undefined;
         if (value.only_first === 1) only_one = "only_first";
         let only_chara_id = value.range_area == 7 ? `only_chara_id-${chara_id}` : "public";
         let only_other_id = value.range_area === 8 ? `only_other_chara_id-${chara_id}` : "";
@@ -1246,12 +1246,19 @@ function addBuffList(member_info) {
             .addClass("buff_id-" + value.buff_id)
             .addClass("skill_id-" + value.skill_id)
             .addClass("variable_effect_size")
-            .addClass("skill_attack-" + value.skill_attack)
             .addClass(only_chara_id)
             .addClass(only_other_id)
             .addClass(only_one)
             .addClass("chara_id-" + chara_id)
             ;
+        if (value.skill_attack1) {
+            option.addClass("skill_attack-" + value.skill_attack1)
+        } else {
+            option.addClass("skill_attack-0")
+        }
+        if (value.skill_attack2) {
+            option.addClass("skill_attack-" + value.skill_attack2);
+        }
 
         $("." + str_buff).append(option);
         $("." + str_buff + " .buff_id-" + value.buff_id + ".chara_id-" + chara_id).each(function (index, value) {
@@ -1547,15 +1554,17 @@ function isOnlyUse(option) {
             var attack_id = select_attack_skill.attack_id;
             var class_list = option.attr("class").split(" ");
 
+            let ret = true;
             for (var i = 0; i < class_list.length; i++) {
                 var class_name = class_list[i];
                 if (class_name.startsWith("skill_attack-")) {
                     var partial_class = class_name.replace("skill_attack-", "");
-                    if (Number(partial_class) != 0 && Number(partial_class) != 999 && attack_id != Number(partial_class)) {
-                        return true;
+                    if (Number(partial_class) != 0 && Number(partial_class) != 999 && attack_id == Number(partial_class)) {
+                        ret = false;
                     }
                 }
             }
+            return ret;
         }
     }
     return false;
@@ -1925,7 +1934,7 @@ function createEnemyList(enemy_class) {
         select_style_list[6] = member_info;
         addBuffList(member_info);
     } else {
-        if(select_style_list[6]) {
+        if (select_style_list[6]) {
             removeMember(6, true);
             select_style_list[6] = undefined;
         }

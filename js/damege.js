@@ -542,9 +542,7 @@ function setEventTrigger() {
     // バフ選択画面を開く
     $("#open_select_buff").on("click", function (event) {
         $("#select_buff").html("");
-        $.each(select_style_list, function (index, value) {
-        });
-        $("#select_buff").html("");
+        createBuffList();
         MicroModal.show('modal_select_buff');
     });
     // 残り耐久反映
@@ -1171,6 +1169,43 @@ function createSkillLvList(id, max_lv, select_lv) {
     $select.prop("disabled", (max_lv === 1));
 }
 
+function createBuffList() {
+    let html = $("<div>");
+    $.each(select_style_list, function (index, value) {
+        if (value) {
+            let div = $("<div>").addClass(`buff_chara_id-${index}`);
+            let chara_id = value.style_info.chara_id;
+            let chara_name = getCharaData(chara_id).chara_name;
+            let span = $("<span>").addClass(`chara_name`);
+            span.append(chara_name);
+            div.append(span);
+            html.append(div);
+        }
+    });
+    $("#select_buff").html(html);
+    let visible_options = $('select[name="buff"] option').not(function () {
+        return $(this).parent().is('span');
+    });
+    // 重複チェック用の一時配列を作成
+    let processedKeys = [];
+    $.each(visible_options, function (index, value) {
+        let buff_id = Number($(value).val());
+        let buff_info = getBuffIdToBuff(buff_id);
+        let chara_no = $(value).data("chara_no");
+        let skill_id = $(value).data("skill_id");
+        let uniqueKey = chara_no + '-' + skill_id;
+
+        if (buff_info && !processedKeys.includes(uniqueKey)) {
+            // 重複チェック配列に uniqueKey を追加
+            processedKeys.push(uniqueKey);
+
+            let div = $("<div>");
+            div.append(buff_info.buff_name);
+            $(`.buff_chara_id-${chara_no}`).append(div);
+        }
+    });
+}
+
 // バフリストに追加
 function addBuffList(member_info) {
     let chara_id = member_info.style_info.chara_id;
@@ -1242,7 +1277,8 @@ function addBuffList(member_info) {
         let only_chara_id = value.range_area == 7 ? `only_chara_id-${chara_id}` : "public";
         let only_other_id = value.range_area === 8 ? `only_other_chara_id-${chara_id}` : "";
 
-        var option = $('<option>')
+        let span = $('<span>')
+        let option = $('<option>')
             .val(value.buff_id)
             .data("select_lv", value.max_lv)
             .data("max_lv", value.max_lv)
@@ -1261,7 +1297,8 @@ function addBuffList(member_info) {
             .addClass("chara_id-" + chara_id)
             ;
 
-        $("." + str_buff).append(option);
+        span.append(option);
+        $("." + str_buff).append(span);
         $("." + str_buff + " .buff_id-" + value.buff_id + ".chara_id-" + chara_id).each(function (index, value) {
             updateBuffEffectSize($(value));
         });
@@ -1933,7 +1970,7 @@ function createEnemyList(enemy_class) {
         select_style_list[6] = member_info;
         addBuffList(member_info);
     } else {
-        if(select_style_list[6]) {
+        if (select_style_list[6]) {
             removeMember(6, true);
             select_style_list[6] = undefined;
         }

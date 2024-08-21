@@ -624,3 +624,9 @@ input[type="button"].durability_reflection {
     background-color: rgba(128, 0, 0, 0.5); /* 黒色の半透明レイヤー */
     pointer-events: none; /* マウスイベントを透過させる */
 }
+
+/* バフ一括設定 */
+span.chara_name {
+    font-weight: bold;
+    font-size: 20px;
+}

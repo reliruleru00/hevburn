@@ -542,8 +542,21 @@ function setEventTrigger() {
     // バフ選択画面を開く
     $("#open_select_buff").on("click", function (event) {
         $("#select_buff").html("");
+        $("#orb_buff").prop("checked", false);
         createBuffList();
         MicroModal.show('modal_select_buff');
+    });
+    // バフ詳細オーブチェック
+    $("#orb_buff").on("change", function (event) {
+        if ($(this).prop("checked")) {
+            $(".orb_buff").css("display", "flex");
+        } else {
+            $(".orb_buff").css("display", "none");
+        }
+    });
+    // バフ一括設定
+    $("#bulk_buff_setting").on("click", function (event) {
+        setBuffList();
     });
     // 残り耐久反映
     $(".durability_reflection").on("click", function (event) {
@@ -1173,8 +1186,8 @@ function createBuffList() {
     let html = $("<div>");
     $.each(select_style_list, function (index, value) {
         if (value) {
-            let div = $("<div>").addClass(`buff_chara_id-${index}`);
             let chara_id = value.style_info.chara_id;
+            let div = $("<div>").addClass(`buff_chara_id-${chara_id}`);
             let chara_name = getCharaData(chara_id).chara_name;
             let span = $("<span>").addClass(`chara_name`);
             span.append(chara_name);
@@ -1187,23 +1200,56 @@ function createBuffList() {
         return $(this).parent().is('span');
     });
     // 重複チェック用の一時配列を作成
-    let processedKeys = [];
+    let processed_keys = [];
     $.each(visible_options, function (index, value) {
         let buff_id = Number($(value).val());
         let buff_info = getBuffIdToBuff(buff_id);
-        let chara_no = $(value).data("chara_no");
+        let chara_id = $(value).data("chara_id");
         let skill_id = $(value).data("skill_id");
-        let uniqueKey = chara_no + '-' + skill_id;
+        let unique_key = chara_id + '-' + skill_id;
 
-        if (buff_info && !processedKeys.includes(uniqueKey)) {
+        if (buff_info && !processed_keys.includes(unique_key)) {
             // 重複チェック配列に uniqueKey を追加
-            processedKeys.push(uniqueKey);
+            processed_keys.push(unique_key);
 
-            let div = $("<div>");
-            div.append(buff_info.buff_name);
-            $(`.buff_chara_id-${chara_no}`).append(div);
+            let div = $("<div>").addClass("buff_container");
+            let inner_name = $("<div>").append(buff_info.buff_name);
+            let inner_radio = $("<div>").addClass("multi-way-choice");
+            for (let i = 0; i <= 2; i++) {
+                let input_id = unique_key + "_" + i;
+                let input = $("<input>")
+                    .addClass("bulk_buff")
+                    .attr("type", "radio")
+                    .attr("name", unique_key)
+                    .attr("id", input_id).val(i);
+                let label = $("<label>").attr("for", input_id).text(i);
+                if (i == 0) {
+                    input.prop('checked', true);
+                }
+                inner_radio.append(input).append(label)
+            }
+            if (buff_info.skill_id > 9000) {
+                div.addClass("orb_buff");
+            }
+            div.append(inner_name).append(inner_radio);
+            $(`.buff_chara_id-${chara_id}`).append(div);
         }
     });
+}
+
+// バフリスト設定
+function setBuffList() {
+    let processed_keys = [];
+    $(".bulk_buff:checked").each(function (index, value) {
+        if ($(value).is(":visible")) {
+            let val = Number($(value).val());
+            let unique_key = $(value).prop("name");
+            for (let i = 0; i < val; i++) {
+                processed_keys.push(unique_key);
+            }
+        }
+    });
+    MicroModal.close('modal_select_buff');
 }
 
 // バフリストに追加
@@ -1292,6 +1338,7 @@ function addBuffList(member_info, member_kind) {
             .data("max_lv", value.max_lv)
             .data("chara_no", member_info.chara_no)
             .data("skill_id", value.skill_id)
+            .data("chara_id", chara_id)
             .css("display", "none")
             .addClass("buff_element-" + buff_element)
             .addClass("buff_physical-" + "0")

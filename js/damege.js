@@ -143,7 +143,7 @@ function setEventTrigger() {
         if (selected_index === 0) {
             resetSkillLv(id);
         } else {
-            let option = $(this).find("option").eq(selected_index);
+            let option = $(this).find("option:selected");
             if (isOnlyBuff(option)) {
                 if (!confirm(option.text() + "は\r\n通常、複数付与出来ませんが、設定してよろしいですか？")) {
                     $(this).prop("selectedIndex", 0);

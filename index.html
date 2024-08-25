@@ -382,7 +382,7 @@
               <div id="half_content_3"></div>
             </div>
           </div>
-          <div class="sub_party adjust_width">
+          <div class="hard_layer adjust_width">
             <div class="flex ml-0 mt-2">
               <label class="mt-3">他部隊選択</label>
               <select id="sub_troops" class="mt-3">
@@ -411,9 +411,9 @@
                   data-chara_no="5"></div>
             </div>
             <div>
-              <div class="flex ml-6">
+              <div class="flex ml-6 leading-6">
                 夢の泪
-                <select id="tears_of_dreams" type="number" value="0" class="ml-2 w-12">
+                <select id="tears_of_dreams" type="number" value="0" class="ml-2 w-12 text-center h-6">
                   <option value="0" selected>0</option>
                   <option value="1">1</option>
                   <option value="2">2</option>
@@ -421,6 +421,10 @@
                   <option value="4">4</option>
                   <option value="5">5</option>
                 </select>
+                <div id="skull_feather_1st" class="ml-2 hidden">
+                  防御力アップ×
+                  <input type="number" id="skull_feather_1st_defense" class="text-center h-6" min="0" max="20" value="0">
+                </div>
               </div>
             </div>
           </div>

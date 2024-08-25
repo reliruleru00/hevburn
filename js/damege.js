@@ -1,6 +1,6 @@
 // 貫通クリティカル
 let penetration_attack_list = [84, 135, 137];
-/** 敵リスト*/ 
+/** 敵リスト*/
 // 異時層
 const KB_ENEMY_CLASS_HARD_LAYER = 1;
 // オーブボス
@@ -2018,7 +2018,7 @@ function getGradeSum() {
     if (enemy_info == undefined) {
         return;
     }
-    if (enemy_info.enemy_class != 6) {
+    if (enemy_info.enemy_class != KB_ENEMY_CLASS_SCORE_ATTACK) {
         // スコアタ以外の場合は、基本値
         return grade_sum;
     }
@@ -2051,16 +2051,20 @@ function setEnemyStatus() {
     if (enemy_info === undefined) {
         return;
     }
-    // 種別ごと設定
-    if (enemy_info.enemy_class == KB_ENEMY_CLASS_HARD_LAYER) { 
-        if (enemy_info.enemy_class_no == 12 || enemy_info.enemy_class_no == 13) {
-            $("#skull_feather_1st").css("display", "block");
-        } else {
-            $("#skull_feather_1st").css("display", "none");
-        }
-    } else if (enemy_class == KB_ENEMY_CLASS_SCORE_ATTACK) {
-        displayScoreAttack(enemy_info);
+    // 種別ごとの設定
+    switch (enemy_info.enemy_class) {
+        case KB_ENEMY_CLASS_HARD_LAYER:
+            if (enemy_info.enemy_class_no == 12 || enemy_info.enemy_class_no == 13) {
+                $("#skull_feather_1st").css("display", "block");
+            } else {
+                $("#skull_feather_1st").css("display", "none");
+            }
+            break;
+        case KB_ENEMY_CLASS_SCORE_ATTACK:
+            displayScoreAttack(enemy_info);
+            break;
     }
+
     $("#enemy_stat").val(enemy_info.enemy_stat);
     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
     $("#enemy_destruction_limit").val(Number(enemy_info.destruction_limit) + strong_break);

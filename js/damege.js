@@ -1207,6 +1207,7 @@ function createSkillLvList(id, max_lv, select_lv) {
     $select.prop("disabled", (max_lv === 1));
 }
 
+// バフリスト生成
 function createBuffList() {
     let html = $("<div>");
     $.each(select_style_list, function (index, value) {
@@ -1220,6 +1221,36 @@ function createBuffList() {
             html.append(div);
         }
     });
+
+    switch (Number($("#enemy_class").val())) {
+        case KB_ENEMY_CLASS_HARD_LAYER:
+            $.each(sub_style_list, function (index, value) {
+                if (value) {
+                    let chara_id = value.style_info.chara_id;
+                    let div = $("<div>").addClass(`buff_chara_id-${chara_id}`);
+                    let chara_name = getCharaData(chara_id).chara_name;
+                    let span = $("<span>").addClass(`chara_name`);
+                    span.append(chara_name);
+                    div.append(span);
+                    html.append(div);
+                }
+            });
+            break;
+        case KB_ENEMY_CLASS_CONTROL_BATTLE:
+            $.each(support_style_list, function (index, value) {
+                if (value) {
+                    let chara_id = value.style_info.chara_id;
+                    let div = $("<div>").addClass(`buff_chara_id-${chara_id}`);
+                    let chara_name = getCharaData(chara_id).chara_name;
+                    let span = $("<span>").addClass(`chara_name`);
+                    span.append(chara_name);
+                    div.append(span);
+                    html.append(div);
+                }
+            });
+            break;
+    }
+
     $("#select_buff").html(html);
     let visible_options = $('select[name="buff"] option').not(function () {
         return $(this).parent().is('span');

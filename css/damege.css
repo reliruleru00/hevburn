@@ -686,7 +686,6 @@ span.chara_name {
     padding: 1px 8px;
     margin-right: -1px;
     border: 1px solid rgba(0, 0, 0, 0.4);
-    transition: all 0.2s ease-in;
 }
 .multi-way-choice:hover {
     cursor: pointer;

@@ -1470,7 +1470,9 @@ function addElementField(member_info, field_name, effect_size, field_element, bu
         .addClass("public")
         .addClass(`buff_element-${field_element}`)
         .addClass(`chara_id-${chara_id}`);
-    $("#element_field").append(option);
+    let span = $('<span>')
+    span.append(option);
+    $("#element_field").append(span);
 }
 
 // アビリティ追加

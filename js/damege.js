@@ -1252,7 +1252,7 @@ function createBuffList() {
     }
 
     $("#select_buff").html(html);
-    let visible_options = $('select[name="buff"] option').not(function () {
+    let visible_options = $('select[name="buff"]:visible option').not(function () {
         return $(this).parent().is('span');
     });
     // 重複チェック用の一時配列を作成

@@ -317,8 +317,8 @@ select#socre_enemy_unit {
 
 /* バフエリア */
 .buff_btn {
-    font-size: 12px;
-    width: 85px;
+    width: 75px;
+    margin-top: 2px;
 }
 table tr {
     line-height: 16px;

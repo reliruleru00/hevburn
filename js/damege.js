@@ -914,6 +914,27 @@ function getEarringEffectSize(type, hit_count) {
     return 0;
 }
 
+// チェーン効果量取得
+function getChainEffectSize(type) {
+    switch ($("#chain").val()) {
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+            switch (type) {
+                case "skill":
+                    return 10;
+                case "blast":
+                    return 10;
+                default:
+                    break;
+            }
+            break;
+    }
+    return 0;
+}
+
 // 消費SP計算
 function getSpCost() {
     // SP消費量計算
@@ -1889,6 +1910,7 @@ function getSumBuffEffectSize() {
     if ($("#overdrive").prop("checked")) {
         sum_buff += 10;
     }
+    sum_buff += getChainEffectSize("skill");
     // トークン
     let token_count = Number($("#token_count").val());
     sum_buff += token_count * getSumAbilityEffectSize(31);
@@ -2092,6 +2114,7 @@ function getDestructionEffectSize(hit_count) {
     destruction_effect_size += getSumEffectSize("destruction_rete_up");
     destruction_effect_size += getSumAbilityEffectSize(5);
     destruction_effect_size += getEarringEffectSize("blast", 10 - hit_count);
+    destruction_effect_size += getChainEffectSize("blast");
     destruction_effect_size -= grade_sum.destruction;
     return destruction_effect_size / 100;
 }

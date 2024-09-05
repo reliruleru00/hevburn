@@ -744,8 +744,8 @@ function calcDamage() {
         dp_rate = dp_rate > 100 ? 100 : dp_rate;
         skill_unique_rate += (100 - dp_rate) / 100 * 75 / 100;
     }
-    // コーシュカ・アルマータ
-    if (attack_info.attack_id == 2162) {
+    // コーシュカ・アルマータ/疾きこと風の如し
+    if (attack_info.attack_id == 2162 || attack_info.attack_id == 517) {
         let sp = Number($("#skill_unique_sp").val());
         skill_unique_rate = (sp > 30 ? 30 : sp) / 30;
     }

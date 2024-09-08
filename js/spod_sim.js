@@ -1054,8 +1054,12 @@ function proceedTurn(turn_data, kb_next) {
         )
     );
     back_area.append($div)
-    party_member.append(front_area).append(back_area)
-    turn.append(header_area).append(party_member);
+
+    party_member.append(front_area).append(back_area);
+    let remark_area = $('<div>').addClass("remark_area");
+    let remaek_text = $("<textarea>").addClass("remaek_text")
+    remark_area.append(remaek_text);
+    turn.append(header_area).append(party_member).append(remark_area);
     if (next_display == "1") {
         $("#battle_area").prepend(turn);
     } else {

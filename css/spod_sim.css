@@ -168,7 +168,7 @@ img.select_style {
 
 /* バトルエリア */
 #battle_area {
-    width: 1125px;
+    width: 1500px;
     margin: 5px auto 20px auto;
 }
 
@@ -190,6 +190,13 @@ img.select_style {
 
 .party_member {
     display: flex;
+}
+
+.remaek_text {
+    margin: 5px;
+    border: solid 1px;
+    width: 360px;
+    height: 50px;
 }
 
 @media screen and (max-width: 768px) {

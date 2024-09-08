@@ -1475,6 +1475,7 @@ function getOverDrive(turn_number, enemy_count) {
         let skill_info = skill_data.skill_info;
         let unit_data = getUnitData(temp_turn, skill_data.place_no);
         let buff_list = getBuffInfo(skill_info.skill_id);
+        let attack_info = getAttackInfo(skill_info.attack_id);
 
         buff_list.forEach(function (buff_info) {
             // OD増加
@@ -1484,7 +1485,12 @@ function getOverDrive(turn_number, enemy_count) {
                     return true;
                 }
                 // サービス・エースが可変
-                od_plus += buff_info.max_power;
+                if (skill_info.attack_id) {
+                    let earring = 1 + unit_data.getEarringEffectSize(attack_info.hit_count) / 100;
+                    od_plus += Math.floor(buff_info.max_power * earring * 100) / 100;
+                } else {
+                    od_plus += buff_info.max_power;
+                }
             }
             // 連撃のみ処理
             if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind)) {
@@ -1499,7 +1505,6 @@ function getOverDrive(turn_number, enemy_count) {
                 od_plus += funnel_list.length * 2.5;
             }
         } else if (skill_info.attack_id) {
-            let attack_info = getAttackInfo(skill_info.attack_id);
             if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
                 let earring = 1 + unit_data.getEarringEffectSize(attack_info.hit_count) / 100;
                 let hit_od = Math.floor(2.5 * earring * 100) / 100

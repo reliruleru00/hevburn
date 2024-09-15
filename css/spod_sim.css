@@ -101,7 +101,8 @@ img.select_style {
     .limit,
     .earring,
     .bracelet,
-    .chain {
+    .chain,
+    .init_sp {
         width: 50px;
     }
 }

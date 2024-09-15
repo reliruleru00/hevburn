@@ -168,7 +168,7 @@ img.select_style {
 
 /* バトルエリア */
 #battle_area {
-    width: 1500px;
+    width: 1400px;
     margin: 5px auto 20px auto;
 }
 
@@ -184,7 +184,7 @@ img.select_style {
     border: solid gray 2px;
     border-radius: 20px;
     margin-top: 5px;
-    padding: 0px 5px 5px 5px;
+    padding: 0px 5px 0px 5px;
     display: flex;
 }
 
@@ -193,10 +193,11 @@ img.select_style {
 }
 
 .remaek_text {
-    margin: 5px;
+    margin: 5px 5px 0px 5px;
     border: solid 1px;
     width: 360px;
-    height: 50px;
+    height: 60px;
+    resize: none;
 }
 
 @media screen and (max-width: 768px) {
@@ -211,6 +212,10 @@ img.select_style {
 
     .party_member {
         display: block;
+    }
+    
+    .remaek_text {
+        height: 25px;
     }
 }
 
@@ -302,7 +307,7 @@ img.select_style {
 
 .front_area,
 .back_area {
-    height: 70px;
+    height: 72px;
 }
 
 .front_area .unit_sp {

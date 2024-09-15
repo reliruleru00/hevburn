@@ -833,6 +833,7 @@ function setEnemyStatus() {
     for (let i = 0; i <= 5; i++) {
         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
     }
+    $("#enemy_count").val(enemy_info.enemy_count);
 }
 // 敵耐性設定
 function setEnemyElement(id, val) {

@@ -1933,7 +1933,7 @@ function consumeBuffUnit(buff_list, attack_info, skill_info) {
                     break;
                 case BUFF_EX_DOUBLE:	// EXスキル連続使用
                     // EXスキルでのみ消費
-                    if (skill_info.kb_skill != 1 && skill_info.kb_skill != 2) {
+                    if (skill_info.skill_kind != 1 && skill_info.skill_kind != 2) {
                         continue;
                     }
                     buff_list.splice(i, 1);

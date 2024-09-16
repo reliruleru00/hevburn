@@ -1539,16 +1539,16 @@ function getOverDrive(turn_number, enemy_count) {
         });
         let funnel_list = unit_data.getfunnelList();
         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
+        correction = 1 + (badies + earring) /100;
+        let hit_od = Math.floor(2.5 * correction * 100) / 100;
 
         if (skill_info.skill_name == "通常攻撃") {
             if (isResist(physical, unit_data.normal_attack_element, skill_info.attack_id)) {
-                unit_od_plus += 7.5
-                unit_od_plus += funnel_list.length * 2.5;
+                unit_od_plus += hit_od * 3;
+                unit_od_plus += hit_od * funnel_list.length;
             }
         } else if (skill_info.attack_id) {
             if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
-                correction = 1 + (badies + earring) /100;
-                let hit_od = Math.floor(2.5 * correction * 100) / 100;
                 if (attack_info.range_area == 1) {
                     enemy_count = 1;
                 }

@@ -1801,7 +1801,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                     return buff_info.buff_kind != BUFF_GIVEATTACKBUFFUP;
                 });
             }
-            let single_buff_list = [BUFF_CHARGE, BUFF_RECOIL, BUFF_GIVEATTACKBUFFUP, BUFF_GIVEDEBUFFUP, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_BABIED];
+            let single_buff_list = [BUFF_CHARGE, BUFF_RECOIL, BUFF_GIVEATTACKBUFFUP, BUFF_GIVEDEBUFFUP, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 // 単一バフ

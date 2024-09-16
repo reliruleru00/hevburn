@@ -461,8 +461,12 @@ class unit_data {
             return b.effect_size - a.effect_size;
         });
 
-        // 上位2つの要素を取得
-        let top_two = ret.slice(0, 2 + ability_count);
+        let consume = 2;
+        if (checkBuffExist(this.buff_list, BUFF_EX_DOUBLE)) {
+            consume = 4;
+        }
+        // 上位の要素を取得       
+        let top_two = ret.slice(0, consume + ability_count);
 
         // 新しいリストを作成
         let result_list = [];
@@ -575,7 +579,7 @@ function setEventTrigger() {
             setOverDrive();
         }
     });
-    // スキル変更
+    // 敵カウント変更
     $(document).on("change", "select.enemy_count", function (event) {
         // ODゲージを設定
         setOverDrive();
@@ -869,7 +873,7 @@ function procBattleStart() {
             unit.skill_list = skill_list.filter(obj =>
                 (obj.chara_id === value.style_info.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === value.style_info.style_id || obj.style_id === 0) &&
-                obj.kb_skill != 1
+                obj.skill_active == 0
             );
             let limit = Number($("#limit_" + index).val());
             ["0", "00", "1", "3", "5", "10"].forEach(num => {
@@ -1478,7 +1482,7 @@ function startAction(turn_data, turn_number) {
         }
 
         if (attack_info) {
-            consumeBuffUnit(unit_data.buff_list, attack_info);
+            consumeBuffUnit(unit_data.buff_list, attack_info, skill_info);
         }
         origin(turn_data, skill_info, unit_data);
         unit_data.payCost();
@@ -1516,8 +1520,8 @@ function getOverDrive(turn_number, enemy_count) {
                     unit_od_plus += buff_info.max_power;
                 }
             }
-            // 連撃のみ処理
-            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind)) {
+            // 連撃のみとオギャり状態処理
+            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind) || buff_info.buff_kind == BUFF_BABIED) {
                 addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
             }
         });
@@ -1535,13 +1539,17 @@ function getOverDrive(turn_number, enemy_count) {
                 if (attack_info.range_area == 1) {
                     enemy_count = 1;
                 }
-                unit_od_plus += attack_info.hit_count * hit_od * enemy_count;
+                if (checkBuffExist(unit_data.buff_list, BUFF_EX_DOUBLE)) {
+                    unit_od_plus += attack_info.hit_count * hit_od * 2 * enemy_count;
+                } else {
+                    unit_od_plus += attack_info.hit_count * hit_od * enemy_count;
+                }
                 unit_od_plus += funnel_list.length * hit_od * enemy_count;
             }
         }
 
         // オギャり状態
-        if (checkBuffExist(buff_list, BUFF_BABIED)) {
+        if (checkBuffExist(unit_data.buff_list, BUFF_BABIED)) {
             unit_od_plus *= 1.2;
         }
         od_plus += unit_od_plus;
@@ -1620,7 +1628,7 @@ function getSpCost(turn_data, skill_info, unit) {
             sp_cost -= 2;
         }
     }
-    return sp_cost
+    return sp_cost < 0 ? 0 : sp_cost;
 }
 
 // 消費SP半減
@@ -1761,10 +1769,6 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 return;
             }
             break;
-        // 多重追加防止
-        case 56: // 破壊のシニシズム
-            return;
-            break;
     }
     let target_list;
     // 対象策定
@@ -1881,14 +1885,18 @@ function createBuffData(buff_info) {
 }
 
 // 攻撃時にバフ消費
-function consumeBuffUnit(buff_list, attack_info) {
+function consumeBuffUnit(buff_list, attack_info, skill_info) {
     let consume_kind = [];
-    // バフ追加
+    let consume_count = 2
+    if (checkBuffExist(buff_list, BUFF_EX_DOUBLE)) {
+        consume_count = 4;
+    }
+    // バフ消費
     for (let i = buff_list.length - 1; i >= 0; i--) {
         buff_info = buff_list[i];
         const countWithFilter = consume_kind.filter(buff_kind => buff_kind === buff_info.buff_kind).length;
-        // 同一バフは2個まで
-        if (countWithFilter < 2) {
+        // 同一バフは制限
+        if (countWithFilter < consume_count) {
             switch (buff_info.buff_kind) {
                 case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
                     if (attack_info.attack_element != buff_info.buff_element) {
@@ -1921,6 +1929,13 @@ function consumeBuffUnit(buff_list, attack_info) {
                         continue;
                     }
                     // 通常攻撃でも消費
+                    buff_list.splice(i, 1);
+                    break;
+                case BUFF_EX_DOUBLE:	// EXスキル連続使用
+                    // EXスキルでのみ消費
+                    if (skill_info.kb_skill != 1 && skill_info.kb_skill != 2) {
+                        continue;
+                    }
                     buff_list.splice(i, 1);
                     break;
                 default:

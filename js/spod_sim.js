@@ -69,6 +69,7 @@ const RANGE_SELF_OTHER = 8; // 自分以外
 const RANGE_SELF_AND_UNIT = 9; // 自分と味方単体
 
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL_SMALL, BUFF_FUNNEL_LARGE, BUFF_ABILITY_FUNNEL_SMALL, BUFF_ABILITY_FUNNEL_LARGE];
+const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
 
 class turn_data {
     constructor() {
@@ -1811,11 +1812,10 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                     use_unit_data.buff_list.splice(index, 1);
                 }
             }
-            let single_buff_list = [BUFF_CHARGE, BUFF_RECOIL, BUFF_GIVEATTACKBUFFUP, BUFF_GIVEDEBUFFUP, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 // 単一バフ
-                if (single_buff_list.includes(buff_info.buff_kind)) {
+                if (SINGLE_BUFF_LIST.includes(buff_info.buff_kind)) {
                     if (checkBuffExist(unit_data.buff_list, buff_info.buff_kind)) {
                         return true;
                     }

@@ -70,6 +70,8 @@ const RANGE_SELF_AND_UNIT = 9; // 自分と味方単体
 
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL_SMALL, BUFF_FUNNEL_LARGE, BUFF_ABILITY_FUNNEL_SMALL, BUFF_ABILITY_FUNNEL_LARGE];
 const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
+// 貫通クリティカル
+const PENETRATION_ATTACK_LIST = [84, 135, 137, 156];
 
 class turn_data {
     constructor() {
@@ -404,7 +406,7 @@ class unit_data {
         for (let i = this.buff_list.length - 1; i >= 0; i--) {
             let buff_info = this.buff_list[i];
             // 星屑の航路/星屑の航路+/バウンシー・ブルーミー
-            if (buff_info.skill_id == 67 || buff_info.skill_id == 490 || buff_info.skill_id == 522) {
+            if (buff_info.skill_id == 67 || buff_info.skill_id == 491 || buff_info.skill_id == 523) {
                 if (buff_info.rest_turn == 1) {
                     this.buff_list.splice(i, 1);
                 } else {
@@ -745,8 +747,8 @@ function selectUnitSkill(select) {
             case 427: // ファンタズム
                 effect_type = 4;
                 break;
-            case 495: // レッドラウンドイリュージョン
-            case 497: // 浮き浮きサニー・ボマー
+            case 496: // レッドラウンドイリュージョン
+            case 498: // 浮き浮きサニー・ボマー
                 effect_type = 5;
                 break;
             default:
@@ -779,10 +781,10 @@ function selectUnitSkill(select) {
 
         setOverDrive();
         let sp_cost = select.find('option:selected').data("sp_cost");
-        if (skill_id == 199 || skill_id == 517) {
+        if (skill_id == 199 || skill_id == 518) {
             // コーシュカ・アルマータ、疾きこと風の如し
             sp_cost = unit_data.sp;
-        } else if (skill_id == 495) {
+        } else if (skill_id == 496) {
             // レッドラウンドイリュージョン
             if (unit_data.buff_effect_select_type == 1) {
                 sp_cost /= 2;
@@ -1587,7 +1589,7 @@ function getOverDrive(turn_number, enemy_count) {
 function isResist(physical, element, attack_id) {
     let physical_rate = battle_enemy_info[`physical_${physical}`];
     let element_rate = battle_enemy_info[`element_${element}`];
-    if (attack_id == 135 || attack_id == 137) {
+    if (PENETRATION_ATTACK_LIST.includes(attack_id)) {
         physical_rate = 400;
         element_rate = 100;
     }
@@ -1602,9 +1604,9 @@ function origin(turn_data, skill_info, unit_data) {
         case 387: // 流星+
         case 422: // 必滅！ヴェインキック+
         case 450: // 醒めたる思い
-        case 505: // ブラッディ・ダンス+
-        case 507: // そよ風に吹かれて
-        case 508: // リフレッシング・チアーズ！
+        case 506: // ブラッディ・ダンス+
+        case 508: // そよ風に吹かれて
+        case 509: // リフレッシング・チアーズ！
             unit_data.first_use.push(skill_info.skill_id);
             break;
         case 177: // エリミネイト・ポッシブル
@@ -1646,7 +1648,7 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
     switch (skill_info.skill_id) {
         case 327: // 姫君の寵愛
         case 359: // とどけ！ 誓いのしるし
-        case 487: // 花舞う、可憐のフレア
+        case 488: // 花舞う、可憐のフレア
             // 挑発
             if (checkBuffExist(unit_data.buff_list, BUFF_TARGET)) {
                 return true;
@@ -1669,23 +1671,23 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
             }
             break;
         case 422: // 必滅！ヴェインキック+
-        case 505: // ブラッディ・ダンス+
-        case 507: // そよ風に吹かれて
-        case 508: // リフレッシング・チアーズ！
+        case 506: // ブラッディ・ダンス+
+        case 508: // そよ風に吹かれて
+        case 509: // リフレッシング・チアーズ！
             // 初回
             if (!unit_data.first_use.includes(skill_info.skill_id)) {
                 return true;
             }
             break;
-        case 472: // ロリータフルバースト
-        case 493: // 蒼焔ノ螺旋
-        case 515: // 放課後の淡いスリル
+        case 473: // ロリータフルバースト
+        case 494: // 蒼焔ノ螺旋
+        case 516: // 放課後の淡いスリル
             // 追加ターン
             if (unit_data.additional_turn) {
                 return true;
             }
             break;
-        case 476: // ヌラルジャ
+        case 477: // ヌラルジャ
             // オーバードライブ中
             if (turn_data.over_drive_max_turn > 0) {
                 return true;
@@ -1891,7 +1893,7 @@ function createBuffData(buff_info) {
     }
 
     // 星屑とバウンシー・ブルーミーのみ特殊仕様
-    if (buff_info.skill_id == 67 || buff_info.skill_id == 490 || buff_info.skill_id == 522) {
+    if (buff_info.skill_id == 67 || buff_info.skill_id == 491 || buff_info.skill_id == 523) {
         buff.rest_turn = 3;
     }
     return buff;
@@ -1938,7 +1940,7 @@ function consumeBuffUnit(buff_list, attack_info, skill_info) {
                 case BUFF_ABILITY_FUNNEL_SMALL: // アビリティ連撃(小)
                 case BUFF_ABILITY_FUNNEL_LARGE: // アビリティ連撃(大)
                     // 星屑の航路は消費しない。
-                    if (buff_info.skill_id == 67 || buff_info.skill_id == 490) {
+                    if (buff_info.skill_id == 67 || buff_info.skill_id == 491) {
                         continue;
                     }
                     // 通常攻撃でも消費

@@ -2066,7 +2066,7 @@ function getCriticalBuff() {
     critical_buff += getSumEffectSize("critical_buff");
     critical_buff += getSumAbilityEffectSize(4);
     // 星空の航路+
-    critical_buff += $("option.skill_id-490:selected").length * 30;
+    critical_buff += $("option.skill_id-491:selected").length * 30;
     // 制圧戦
     critical_buff += getBikePartsEffectSize("critical_buff");
     return 1 + critical_buff / 100;

@@ -1695,12 +1695,6 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
                 return true;
             }
             break;
-        // case 495: // レッドラウンドイリュージョン
-        //     // 影分身
-        //     if (unit_data.buff_effect_select_type == 1) {
-        //         return true;
-        //     }
-        //     break;
     }
     return false;
 }
@@ -1808,11 +1802,14 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_BABIED: // オギャり
             // バフ追加
             target_list = getTargetList(turn_data, buff_info, place_no, use_unit_data.buff_target_chara_id);
-            if (buff_info.buff_kind == 0 || buff_info.buff_kind == 1) {
-                // バフ強化を消費する。
-                use_unit_data.buff_list = use_unit_data.buff_list.filter(function (buff_info) {
-                    return buff_info.buff_kind != BUFF_GIVEATTACKBUFFUP;
+            if (buff_info.buff_kind == BUFF_ATTACKUP || buff_info.buff_kind == BUFF_ELEMENT_ATTACKUP) {
+                // 先頭のバフ強化を消費する。
+                let index = use_unit_data.buff_list.findIndex(function (buff_info) {
+                    return buff_info.buff_kind == BUFF_GIVEATTACKBUFFUP;
                 });
+                if (index !== -1) {
+                    use_unit_data.buff_list.splice(index, 1);
+                }
             }
             let single_buff_list = [BUFF_CHARGE, BUFF_RECOIL, BUFF_GIVEATTACKBUFFUP, BUFF_GIVEDEBUFFUP, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
             $.each(target_list, function (index, target_no) {
@@ -1836,13 +1833,16 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
             // デバフ追加
             let add_count = 1;
-            if (buff_info.range_area == 2) {
+            if (buff_info.range_area == RANGE_ENEMY_ALL) {
                 add_count = turn_data.enemy_count;
             }
             // デバフ強化を消費する。
-            use_unit_data.buff_list = use_unit_data.buff_list.filter(function (buff_info) {
-                return buff_info.buff_kind != BUFF_GIVEDEBUFFUP || buff_info.buff_kind != BUFF_ARROWCHERRYBLOSSOMS;
+            let index = use_unit_data.buff_list.findIndex(function (buff_info) {
+                return buff_info.buff_kind == BUFF_GIVEDEBUFFUP || buff_info.buff_kind == BUFF_ARROWCHERRYBLOSSOMS;
             });
+            if (index !== -1) {
+                use_unit_data.buff_list.splice(index, 1);
+            }
             for (let i = 0; i < add_count; i++) {
                 let debuff = createBuffData(buff_info);
                 turn_data.enemy_debuff_list.push(debuff);

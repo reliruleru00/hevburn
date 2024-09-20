@@ -1698,6 +1698,11 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
                 return true;
             }
             break;
+        case 531: // 魔炎閃獄門+(31E3人以上)
+            if (checkMember(turn_data.unit_list, "31E") >= 3) {
+                return true;
+            }
+            break;
     }
     return false;
 }

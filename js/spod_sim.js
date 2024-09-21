@@ -1846,7 +1846,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                         return true;
                     }
                 }
-                let buff = createBuffData(buff_info);
+                let buff = createBuffData(buff_info, use_unit_data);
                 unit_data.buff_list.push(buff);
             });
             break;
@@ -1870,7 +1870,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 use_unit_data.buff_list.splice(index, 1);
             }
             for (let i = 0; i < add_count; i++) {
-                let debuff = createBuffData(buff_info);
+                let debuff = createBuffData(buff_info, use_unit_data);
                 turn_data.enemy_debuff_list.push(debuff);
             }
             break;
@@ -1893,7 +1893,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
     }
 }
 
-function createBuffData(buff_info) {
+function createBuffData(buff_info, use_unit_data) {
     let buff = new buff_data();
     buff.buff_kind = buff_info.buff_kind;
     buff.buff_element = buff_info.buff_element;
@@ -1907,8 +1907,12 @@ function createBuffData(buff_info) {
         case BUFF_DEFENSEDP: // DP防御力ダウン 
         case BUFF_RECOIL: // 行動不能
             buff.rest_turn = buff_info.effect_count;
+            // ダブルリフト
+            if (checkAbilityExist(use_unit_data.ability_other, 1516)) {
+                buff.rest_turn++;
+            }
             break;
-        case BUFF_COVER: // 行動不能
+        case BUFF_COVER: // 全体挑発
             buff.rest_turn = buff_info.max_power;
             break;
         default:

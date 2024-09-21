@@ -148,7 +148,7 @@ class turn_data {
         this.turn_number++;
         this.fg_action = false;
         this.abilityAction(KB_ABILIRY_SELF_START);
-        if (this.turn_number % this.step_turn == 0) {
+        if (this.turn_number % this.step_turn == 0 && this.over_drive_gauge > 0) {
             this.over_drive_gauge += this.step_over_drive_down;
             if (this.over_drive_gauge < 0) {
                 this.over_drive_gauge = 0;
@@ -1298,7 +1298,16 @@ function setOverDrive() {
         over_drive_gauge += add_over_drive_gauge;
         over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
     }
-    $(`.turn${last_turn} .od_text`).html(`${(turn_data.over_drive_gauge).toFixed(2)}%<br>⇒${over_drive_gauge.toFixed(2)}%`);
+    let span_before = $("<span>").text(`${(turn_data.over_drive_gauge).toFixed(2)}%`);
+    if (turn_data.over_drive_gauge < 0) {
+        span_before.addClass("od_minus");
+    }
+    let span_after = $("<span>").text(`${over_drive_gauge.toFixed(2)}%`);
+    if (over_drive_gauge < 0) {
+        span_after.addClass("od_minus");
+    }
+    $(`.turn${last_turn} .od_text`).html("");
+    $(`.turn${last_turn} .od_text`).append(span_before).append('<br>⇒').append(span_after);
 }
 
 // ユニットイベント
@@ -1594,6 +1603,16 @@ function isResist(physical, element, attack_id) {
         element_rate = 100;
     }
     return physical_rate / 100 * element_rate / 100 >= 1;
+}
+
+// 弱点判定
+function isWeak(physical, element, attack_id) {
+    if (PENETRATION_ATTACK_LIST.includes(attack_id)) {
+        return true;
+    }
+    let physical_rate = battle_enemy_info[`physical_${physical}`];
+    let element_rate = battle_enemy_info[`element_${element}`];
+    return physical_rate / 100 * element_rate / 100 > 1;
 }
 
 // 独自仕様
@@ -1930,6 +1949,12 @@ function consumeBuffUnit(buff_list, attack_info, skill_info) {
                     // スキルでのみ消費
                     if (attack_info.attack_id == 0) {
                         continue;
+                    }
+                    if (buff_info.buff_kind == BUFF_MINDEYE) {
+                        // 弱点のみ消費
+                        if (!isWeak(attack_info.physical, attack_info.attack_element, attack_info.attack_id)) {
+                            continue;
+                        }
                     }
                     buff_list.splice(i, 1);
                     break;

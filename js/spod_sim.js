@@ -54,6 +54,7 @@ const BUFF_ARROWCHERRYBLOSSOMS = 30; // 桜花の矢
 const BUFF_ETERNAL_OARH = 31; // 永遠なる誓い
 const BUFF_EX_DOUBLE = 32; // EXスキル連続発動
 const BUFF_BABIED = 33; // オギャり
+const BUFF_MORALE = 34; // 士気
 const BUFF_ABILITY_FUNNEL_SMALL = 116; // アビリティ連撃(小)
 const BUFF_ABILITY_FUNNEL_LARGE = 117; // アビリティ連撃(大)
 
@@ -266,7 +267,6 @@ class turn_data {
                             if (unit_data.sp < 20) {
                                 switch (ability.ability_id) {
                                     case 1109: // 吉報
-                                    case 1111: // みなぎる士気
                                     case 1119: // 旺盛
                                         unit_data.add_sp += ability.effect_size;
                                         break;
@@ -279,6 +279,16 @@ class turn_data {
                                         // チャージ存在チェック
                                         if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
                                             unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    case 1111: // みなぎる士気
+                                        let exist_list = unit_data.buff_list.filter(function (buff_info) {
+                                            return buff_info.buff_kind == BUFF_MORALE;
+                                        });
+                                        if (exist_list.length > 0) {
+                                            if (exist_list[0].lv >= 6) {
+                                                unit_data.sp += ability.effect_size;
+                                            }    
                                         }
                                         break;
                                     case 1204: // エンゲージリンク
@@ -373,10 +383,17 @@ class unit_data {
         this.ability_additional_turn = [];
         this.ability_over_drive = [];
         this.ability_other = [];
+        this.next_turn_min_sp = -1;
     }
 
     unitTurnProceed(turn_data) {
         this.buffSort();
+        if (this.next_turn_min_sp > 0) {
+            if (this.next_turn_min_sp > this.sp) {
+                this.sp = this.next_turn_min_sp;
+                this.next_turn_min_sp = -1
+            }
+        }
         if (this.sp < 20) {
             this.sp += 2;
             if (this.place_no < 3) {
@@ -490,6 +507,7 @@ class buff_data {
         this.buff_kind = 0;
         this.skill_id = -1;
         this.buff_name = null;
+        this.lv = 0;
     }
 }
 
@@ -1261,7 +1279,8 @@ function getBuffIconImg(buff_info) {
         case BUFF_BABIED: // オギャり
             src += "IconBabied";
             break;
-        default:
+        case BUFF_MORALE: // 士気
+            src += "IconMorale";
             break;
     }
     if (buff_info.buff_element != 0) {
@@ -1393,7 +1412,14 @@ function addUnitEvent() {
             let label = $("<label>");
             let buff_kind_name = getBuffKindName(buff_info);
             let turn = buff_info.rest_turn < 0 ? "∞" : buff_info.rest_turn;
-            label.html(`${buff_kind_name}<br>${buff_info.buff_name}(残りターン${turn})`);
+            switch (buff_info.buff_kind) {
+                case BUFF_MORALE: // 士気
+                    label.html(`${buff_kind_name}<br>${buff_info.buff_name}(Lv${buff_info.lv})`);
+                    break;
+                default:
+                    label.html(`${buff_kind_name}<br>${buff_info.buff_name}(残りターン${turn})`);
+                    break;
+            }
             buff_detail.append(div.append(label));
         });
         MicroModal.show('modal_buff_detail_list');
@@ -1479,7 +1505,7 @@ function setBackOptions(select) {
 function startAction(turn_data, turn_number) {
     let seq = sortActionSeq(turn_number);
     // 攻撃後に付与されるバフ種
-    const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP, 
+    const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,
         BUFF_ELEMENT_CRITICALDAMAGEUP, BUFF_CHARGE, BUFF_DAMAGERATEUP];
     $.each(seq, function (index, skill_data) {
         let skill_info = skill_data.skill_info;
@@ -1644,10 +1670,8 @@ function origin(turn_data, skill_info, unit_data) {
             unit_data.first_use.push(skill_info.skill_id);
             break;
         case 177: // エリミネイト・ポッシブル
-            // let target_unit_data = getUnitData(turn_data, unit_data.buff_target_chara_id)
-            // if (target_unit_data.sp < 3) {
-            //     target_unit_data.sp = 3;
-            // }
+            let target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === unit_data.buff_target_chara_id);
+            target_unit_data[0].next_turn_min_sp = 3;
             break;
     }
     return;
@@ -1863,6 +1887,26 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 }
                 let buff = createBuffData(buff_info, use_unit_data);
                 unit_data.buff_list.push(buff);
+            });
+            break;
+        case BUFF_MORALE: // 士気
+            // バフ追加
+            target_list = getTargetList(turn_data, buff_info, place_no, use_unit_data.buff_target_chara_id);
+            $.each(target_list, function (index, target_no) {
+                let unit_data = getUnitData(turn_data, target_no);
+                let exist_list = unit_data.buff_list.filter(function (buff_info) {
+                    return buff_info.buff_kind == BUFF_MORALE;
+                });
+                let buff;
+                if (exist_list.length > 0) {
+                    buff = exist_list[0];
+                } else {
+                    buff = createBuffData(buff_info, use_unit_data);
+                    unit_data.buff_list.push(buff);
+                }
+                if (buff.lv < 10) {
+                    buff.lv += buff_info.effect_count;
+                }
             });
             break;
         case BUFF_DEFENSEDOWN: // 防御力ダウン
@@ -2097,6 +2141,9 @@ function getBuffKindName(buff_info) {
             break;
         case BUFF_BABIED: // オギャり
             buff_kind_name += "オギャり";
+            break;
+        case BUFF_MORALE: // 士気
+            buff_kind_name += "士気";
             break;
         default:
             break;

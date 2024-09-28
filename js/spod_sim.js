@@ -45,9 +45,9 @@ const BUFF_ETERNAL_DEFENSEDOWN = 21; // 永続防御力ダウン
 const BUFF_ELEMENT_ETERNAL_DEFENSEDOWN = 22; // 永続属性防御ダウン
 const BUFF_HEALSP = 23; // SP増加
 const BUFF_RECOIL = 24; // 行動不能
-const BUFF_TARGET = 25; // 挑発
+const BUFF_PROVOKE = 25; // 挑発
 const BUFF_ADDITIONALTURN = 26 // 追加ターン
-const BUFF_COVER = 27; // 全体挑発
+const BUFF_COVER = 27; // 注目
 const BUFF_GIVEATTACKBUFFUP = 28; // バフ強化
 const BUFF_GIVEDEBUFFUP = 29; // デバフ強化
 const BUFF_ARROWCHERRYBLOSSOMS = 30; // 桜花の矢
@@ -288,7 +288,7 @@ class turn_data {
                                         if (exist_list.length > 0) {
                                             if (exist_list[0].lv >= 6) {
                                                 unit_data.sp += ability.effect_size;
-                                            }    
+                                            }
                                         }
                                         break;
                                     case 1204: // エンゲージリンク
@@ -1255,10 +1255,10 @@ function getBuffIconImg(buff_info) {
         case BUFF_RECOIL: // 行動不能
             src += "IconRecoil";
             break;
-        case BUFF_TARGET: // 挑発
+        case BUFF_PROVOKE: // 挑発
             src += "IconTarget";
             break;
-        case BUFF_COVER: // 全体挑発
+        case BUFF_COVER: // 注目
             src += "IconCover";
             break;
         case BUFF_GIVEATTACKBUFFUP: // バフ強化
@@ -1708,11 +1708,11 @@ function harfSpSkill(turn_data, skill_info, unit_data) {
         case 359: // とどけ！ 誓いのしるし
         case 488: // 花舞う、可憐のフレア
             // 挑発
-            if (checkBuffExist(unit_data.buff_list, BUFF_TARGET)) {
+            if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_PROVOKE)) {
                 return true;
             }
-            // 全体挑発
-            if (checkBuffExist(unit_data.buff_list, BUFF_COVER)) {
+            // 注目
+            if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_COVER)) {
                 return true;
             }
             break;
@@ -1858,8 +1858,6 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_FUNNEL_SMALL: // 連撃(小)
         case BUFF_FUNNEL_LARGE: // 連撃(大)
         case BUFF_RECOIL: // 行動不能
-        case BUFF_TARGET: // 挑発
-        case BUFF_COVER: // 全体挑発
         case BUFF_GIVEATTACKBUFFUP: // バフ強化
         case BUFF_GIVEDEBUFFUP: // デバフ強化
         case BUFF_ARROWCHERRYBLOSSOMS: // 桜花の矢
@@ -1916,6 +1914,8 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_RESISTDOWN: // 耐性ダウン
         case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
         case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+        case BUFF_PROVOKE: // 挑発
+        case BUFF_COVER: // 注目
             // デバフ追加
             let add_count = 1;
             if (buff_info.range_area == RANGE_ENEMY_ALL) {
@@ -1971,7 +1971,8 @@ function createBuffData(buff_info, use_unit_data) {
                 buff.rest_turn++;
             }
             break;
-        case BUFF_COVER: // 全体挑発
+        case BUFF_PROVOKE: // 挑発
+        case BUFF_COVER: // 注目
             buff.rest_turn = buff_info.max_power;
             break;
         default:
@@ -2118,11 +2119,11 @@ function getBuffKindName(buff_info) {
         case BUFF_RECOIL: // 行動不能
             buff_kind_name += "行動不能";
             break;
-        case BUFF_TARGET: // 挑発
+        case BUFF_PROVOKE: // 挑発
             buff_kind_name += "挑発";
             break;
-        case BUFF_COVER: // 全体挑発
-            buff_kind_name += "全体挑発";
+        case BUFF_COVER: // 注目
+            buff_kind_name += "注目";
             break;
         case BUFF_GIVEATTACKBUFFUP: // バフ強化
             buff_kind_name += "バフ強化";

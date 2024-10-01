@@ -123,6 +123,13 @@ img.select_style {
     padding: 5px;
 
 }
+#enemy_class {
+    max-width: 120px;
+}
+
+#enemy_list {
+    max-width: 225px;
+}
 
 .enemy_weak {
     font-weight: bold;
@@ -174,11 +181,34 @@ img.select_style {
 }
 
 .turn_button {
-    width: 80px;
-    font-size: 16px;
+    width: 60px;
+    font-size: 14px;
     border: none;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.1s ease;
+}
+
+.trigger_over_drive {
+    display: flex!important;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+    appearance: none;
+    background-color: #e2e2e2;
+    border-radius: 100vh;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+.trigger_over_drive:checked {
+    background-color: #149f14;
+    color: white;
+    transform: scale(1.05);
+}
+
+.trigger_over_drive:before {
+    content: 'OD発動';
 }
 
 .turn {

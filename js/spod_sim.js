@@ -841,7 +841,7 @@ function selectUnitSkill(select) {
 
     function updateSp(target, sp_cost) {
         unit_data.sp_cost = sp_cost;
-        let unit_sp = unit_data.sp - sp_cost;
+        let unit_sp = unit_data.sp + unit_data.over_drive_sp - unit_data.sp_cost;
         $(target).text(unit_data.getDispSp());
         $(target).toggleClass("minus", unit_sp < 0);
     }

@@ -603,8 +603,6 @@ function setEventTrigger() {
     });
     // 行動選択変更
     $(document).on("change", "select.action_select", function (event) {
-        $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", false);
-        $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", false);
         setOverDrive();
     });
     // 敵カウント変更
@@ -641,6 +639,7 @@ function setEventTrigger() {
         } else {
             now_turn.removeOverDrive();
         }
+        updateAction(now_turn)
         updateTurn($(`.turn${last_turn}`), now_turn);
     });
 
@@ -846,7 +845,7 @@ function updateAction(turn_data) {
     if (turn_data.over_drive_max_turn > 0) {
         is_over_drive = false;
     };
-    toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='2']`), is_over_drive);
+    toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='${KB_NEXT_ACTION_OD}']`), is_over_drive);
 }
 
 // 敵リスト作成

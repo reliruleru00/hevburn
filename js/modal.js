@@ -25,8 +25,7 @@ function createStyleList() {
     $.each(style_list, function (index, value) {
         let source = "icon/" + value.image_url;
         let chara_data = getCharaData(value.chara_id);
-        let input = $('<input>')
-            .attr("type", "image")
+        let input = $('<img>')
             .attr("src", source)
             .attr("title", "[" + value.style_name + "]" + chara_data.chara_name)
             .attr('loading', 'lazy')

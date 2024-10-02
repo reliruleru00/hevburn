@@ -272,6 +272,10 @@ img.select_style {
     .remaek_text {
         height: 25px;
     }
+
+    .turn_button {
+        width: 80px;
+    }
 }
 
 .header_area {
@@ -423,6 +427,13 @@ input[type='image'].select_target {
 
 .scroll-content {
     display: flex;
+}
+
+
+@media screen and (max-width: 768px) {
+    .action_select {
+        width: 145px;
+    }
 }
 
 

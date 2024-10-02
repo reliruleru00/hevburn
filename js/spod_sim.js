@@ -449,7 +449,7 @@ class unit_data {
         });
     }
     payCost() {
-        if (this.sp_cost = 99) {
+        if (this.sp_cost == 99) {
             this.sp = 0;
         } else {
             this.sp -= this.sp_cost;
@@ -459,7 +459,7 @@ class unit_data {
     
     getDispSp() {
         let unit_sp;
-        if (this.sp_cost = 99) {
+        if (this.sp_cost == 99) {
             unit_sp = 0;
         } else {
             unit_sp = this.sp + this.over_drive_sp- this.sp_cost;

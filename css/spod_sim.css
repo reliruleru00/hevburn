@@ -97,7 +97,11 @@ img.select_style {
         max-width: 400px;
         min-width: 375px;
     }
-
+    img.select_style {
+        width: 48px;
+        height: 48px;
+        margin-left: 4px;
+    }
     .limit,
     .earring,
     .bracelet,
@@ -123,6 +127,11 @@ img.select_style {
     padding: 5px;
 
 }
+
+#enemy_select {
+    margin-left: 1rem;
+}
+
 #enemy_class {
     max-width: 120px;
 }
@@ -158,6 +167,21 @@ img.select_style {
 
 .enemy_input {
     border: #000 solid 1px;
+}
+
+
+@media screen and (max-width: 482px) {
+    #enemy_class {
+        max-width: 100px;
+    }
+    
+    #enemy_list {
+        max-width: 200px;
+    }
+
+    #enemy_select {
+        margin-left: 0px;
+    }
 }
 
 /* 補助入力 */

@@ -115,11 +115,11 @@ class turn_data {
                     // オーバードライブ終了
                     this.over_drive_max_turn = 0;
                     this.over_drive_turn = 0;
+                    if (this.fg_action) {
+                        this.nextTurn();
+                    }
                 }
             } else {
-                this.fg_action = true;
-            }
-            if (this.fg_action) {
                 this.nextTurn();
             }
         } else {

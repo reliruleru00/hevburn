@@ -270,8 +270,12 @@ img.select_style {
 }
 
 .enemy_icon {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
+}
+
+.enemy_count {
+    width: 50px;
 }
 
 .inc_od_icon {

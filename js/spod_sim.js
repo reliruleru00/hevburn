@@ -1004,9 +1004,9 @@ function proceedTurn(turn_data, kb_next) {
     let enemy = $('<div>').addClass("left flex").append(
         $('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon"),
         $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
-            ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`×${i + 1}体`))
+            ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`${i + 1}体`))
         ).val(turn_data.enemy_count).addClass("enemy_count"),
-        createBuffIconList(turn_data.enemy_debuff_list, 5, 7).addClass("enemy_icon_list")
+        createBuffIconList(turn_data.enemy_debuff_list, 4, 7).addClass("enemy_icon_list")
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
 

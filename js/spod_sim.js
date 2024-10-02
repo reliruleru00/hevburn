@@ -624,6 +624,7 @@ function setEventTrigger() {
         $(`.turn${last_turn} .enemy_icon_list`).off("click");
         $(`.turn${last_turn} select.unit_skill`).prop("disabled", true);
         $(`.turn${last_turn} select.action_select`).prop("disabled", true);
+        $(`.turn${last_turn} .trigger_over_drive`).prop("disabled", true);
         $(".unit_selected").removeClass("unit_selected");
         let kb_next = $(`.turn${last_turn} select.action_select`).val()
         let turn_data = deepClone(now_turn);
@@ -667,6 +668,7 @@ function setEventTrigger() {
 
         $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
         $(`.turn${last_turn} select.action_select`).prop("disabled", false);
+        $(`.turn${last_turn} .trigger_over_drive`).prop("disabled", false);
         addUnitEvent();
         setTurnButton();
     });
@@ -1151,9 +1153,6 @@ function updateTurn(selector, turn_data) {
 
 // ターンボタン表示設定
 function setTurnButton() {
-    // 最後の要素のみ活性
-    $('.trigger_over_drive:last').prop("disabled", false);
-    $('.trigger_over_drive:not(:last)').prop("disabled", true);
     // 最後の要素のみ表示
     $('.next_turn:last').show();
     $('.next_turn:not(:last)').hide();

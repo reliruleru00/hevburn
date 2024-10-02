@@ -451,6 +451,7 @@ class unit_data {
     payCost() {
         if (this.sp_cost == 99) {
             this.sp = 0;
+            this.over_drive_sp = 0;
         } else {
             this.sp -= this.sp_cost;
         }
@@ -464,7 +465,6 @@ class unit_data {
         } else {
             unit_sp = this.sp + this.over_drive_sp- this.sp_cost;
         }
-        unit_sp = this.sp + this.over_drive_sp- this.sp_cost;
         return unit_sp + (this.add_sp > 0 ? ("+" + this.add_sp) : "");;
     }
 
@@ -835,6 +835,9 @@ function selectUnitSkill(select) {
 
     function updateSp(target) {
         let unit_sp = unit_data.sp + unit_data.over_drive_sp - unit_data.sp_cost;
+        if (unit_data.sp_cost == 99) {
+            unit_sp = 0;
+        }
         $(target).text(unit_data.getDispSp());
         $(target).toggleClass("minus", unit_sp < 0);
     }
@@ -1403,7 +1406,7 @@ function addUnitEvent() {
                 unit_data.sp_cost = 0;
                 let second_sp = second_click.find(".unit_sp");
                 second_sp.text(unit_data.getDispSp());
-                if (unit_data.sp > 0) {
+                if (unit_data.sp >= 0) {
                     second_sp.removeClass("minus");
                 }
             }
@@ -1414,7 +1417,7 @@ function addUnitEvent() {
                 first_click_unit_data.sp_cost = 0;
                 let first_sp = first_click.find(".unit_sp");
                 first_sp.text(first_click_unit_data.getDispSp());
-                if (first_click_unit_data.sp > 0) {
+                if (first_click_unit_data.sp >= 0) {
                     first_sp.removeClass("minus");
                 }
             }

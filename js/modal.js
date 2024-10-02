@@ -29,6 +29,7 @@ function createStyleList() {
             .attr("type", "image")
             .attr("src", source)
             .attr("title", "[" + value.style_name + "]" + chara_data.chara_name)
+            .attr('loading', 'lazy')
             .data("style_id", value.style_id)
             .addClass("select_style_list")
             .addClass("physical_" + chara_data.physical)

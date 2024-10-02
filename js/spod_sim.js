@@ -8,7 +8,6 @@ let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
 let next_display;
 
-const KB_NEXT_OD = 0;
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
 
@@ -604,17 +603,9 @@ function setEventTrigger() {
     });
     // 行動選択変更
     $(document).on("change", "select.action_select", function (event) {
-        if ($(this).val() == "0") {
-            $(`.turn${last_turn} .front_area select.unit_skill`).prop("selectedIndex", 0);
-            $(`.turn${last_turn} .back_area select.unit_skill`).prop("selectedIndex", 0);
-            $(`.turn${last_turn} select.unit_skill`).trigger("change");
-            $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", true);
-            $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", true);
-        } else {
-            $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", false);
-            $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", false);
-            setOverDrive();
-        }
+        $(`.turn${last_turn} .front_area select.unit_skill`).prop("disabled", false);
+        $(`.turn${last_turn} .back_area select.unit_skill`).prop("disabled", false);
+        setOverDrive();
     });
     // 敵カウント変更
     $(document).on("change", "select.enemy_count", function (event) {
@@ -638,9 +629,7 @@ function setEventTrigger() {
         $(".unit_selected").removeClass("unit_selected");
         let kb_next = $(`.turn${last_turn} select.action_select`).val()
         let turn_data = deepClone(now_turn);
-        if (kb_next != KB_NEXT_OD) {
-            startAction(turn_data, last_turn);
-        }
+        startAction(turn_data, last_turn);
         // 次ターンを追加
         proceedTurn(turn_data, kb_next);
     });
@@ -677,9 +666,7 @@ function setEventTrigger() {
         removeTurnsAfter(last_turn);
         now_turn = turn_list[turn_list.length - 1];
 
-        if ($(`.turn${last_turn} select.action_select`).val() != KB_NEXT_OD) {
-            $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
-        }
+        $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
         $(`.turn${last_turn} select.action_select`).prop("disabled", false);
         addUnitEvent();
         setTurnButton();
@@ -851,7 +838,14 @@ function selectUnitSkill(select) {
 
 // 行動制限
 function updateAction(turn_data) {
-    let is_over_drive = (turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) >= 100;
+    let is_over_drive = true;
+    // 行動後ODゲージ100以上かつ、OD中以外
+    if ((turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) < 100) {
+        is_over_drive = false;
+    };
+    if (turn_data.over_drive_max_turn > 0) {
+        is_over_drive = false;
+    };
     toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='2']`), is_over_drive);
 }
 
@@ -987,7 +981,7 @@ function proceedTurn(turn_data, kb_next) {
         turn_data.abilityAction(KB_ABILIRY_ADDITIONALTURN);
     } else {
         turn_data.turnProceed(kb_next);
-        if (kb_next == KB_NEXT_OD || kb_next == KB_NEXT_ACTION_OD) {
+        if (kb_next == KB_NEXT_ACTION_OD) {
             turn_data.abilityAction(KB_ABILIRY_OD_START);
         } else {
             turn_data.abilityAction(KB_ABILIRY_ACTION_START);
@@ -1341,15 +1335,13 @@ function createOverDriveGauge(over_drive_gauge) {
 function setOverDrive() {
     let turn_data = now_turn;
     let over_drive_gauge = turn_data.over_drive_gauge;
-    if ($(`.turn${last_turn} select.action_select`).val() == "0") {
-        over_drive_gauge = 0;
-    } else {
-        let enemy_count = Number($(`#enemy_count_turn${last_turn}`).val());
-        let add_over_drive_gauge = getOverDrive(last_turn, enemy_count);
-        turn_data.add_over_drive_gauge = add_over_drive_gauge;
-        over_drive_gauge += add_over_drive_gauge;
-        over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
-    }
+
+    let enemy_count = Number($(`#enemy_count_turn${last_turn}`).val());
+    let add_over_drive_gauge = getOverDrive(last_turn, enemy_count);
+    turn_data.add_over_drive_gauge = add_over_drive_gauge;
+    over_drive_gauge += add_over_drive_gauge;
+    over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
+
     let span_before = $("<span>").text(`${(turn_data.over_drive_gauge).toFixed(2)}%`);
     if (turn_data.over_drive_gauge < 0) {
         span_before.addClass("od_minus");

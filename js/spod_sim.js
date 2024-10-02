@@ -449,12 +449,22 @@ class unit_data {
         });
     }
     payCost() {
-        this.sp -= this.sp_cost;
+        if (this.sp_cost = 99) {
+            this.sp = 0;
+        } else {
+            this.sp -= this.sp_cost;
+        }
         this.sp_cost = 0;
     }
     
     getDispSp() {
-        let unit_sp = this.sp + this.over_drive_sp- this.sp_cost;
+        let unit_sp;
+        if (this.sp_cost = 99) {
+            unit_sp = 0;
+        } else {
+            unit_sp = this.sp + this.over_drive_sp- this.sp_cost;
+        }
+        unit_sp = this.sp + this.over_drive_sp- this.sp_cost;
         return unit_sp + (this.add_sp > 0 ? ("+" + this.add_sp) : "");;
     }
 
@@ -812,22 +822,18 @@ function selectUnitSkill(select) {
 
         setOverDrive();
         let sp_cost = select.find('option:selected').data("sp_cost");
-        if (skill_id == 199 || skill_id == 518) {
-            // コーシュカ・アルマータ、疾きこと風の如し
-            sp_cost = unit_data.sp;
-        } else if (skill_id == 496) {
+        if (skill_id == 496) {
             // レッドラウンドイリュージョン
             if (unit_data.buff_effect_select_type == 1) {
                 sp_cost /= 2;
             }
         }
-
-        updateSp(select.parent().find(".unit_sp"), sp_cost);
+        unit_data.sp_cost = sp_cost;
+        updateSp(select.parent().find(".unit_sp"));
         updateAction(now_turn)
     }
 
-    function updateSp(target, sp_cost) {
-        unit_data.sp_cost = sp_cost;
+    function updateSp(target) {
         let unit_sp = unit_data.sp + unit_data.over_drive_sp - unit_data.sp_cost;
         $(target).text(unit_data.getDispSp());
         $(target).toggleClass("minus", unit_sp < 0);

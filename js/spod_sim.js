@@ -374,7 +374,6 @@ class unit_data {
         this.sp_cost = 0;
         this.buff_list = [];
         this.additional_turn = false;
-        this.unit = null;
         this.normal_attack_element = 0;
         this.earring_effect_size = 0;
         this.skill_list = [];
@@ -1549,7 +1548,7 @@ function startAction(turn_data, turn_number) {
         }
 
         if (attack_info) {
-            consumeBuffUnit(unit_data.buff_list, attack_info, skill_info);
+            consumeBuffUnit(unit_data, attack_info, skill_info);
         }
 
         // 攻撃後にバフを付与
@@ -2011,7 +2010,8 @@ function createBuffData(buff_info, use_unit_data) {
 }
 
 // 攻撃時にバフ消費
-function consumeBuffUnit(buff_list, attack_info, skill_info) {
+function consumeBuffUnit(unit_data, attack_info, skill_info) {
+    let buff_list = unit_data.buff_list;
     let consume_kind = [];
     let consume_count = 2
     if (checkBuffExist(buff_list, BUFF_EX_DOUBLE)) {
@@ -2039,7 +2039,8 @@ function consumeBuffUnit(buff_list, attack_info, skill_info) {
                     }
                     if (buff_info.buff_kind == BUFF_MINDEYE) {
                         // 弱点のみ消費
-                        if (!isWeak(attack_info.physical, attack_info.attack_element, attack_info.attack_id)) {
+                        let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
+                        if (!isWeak(physical, attack_info.attack_element, attack_info.attack_id)) {
                             continue;
                         }
                     }

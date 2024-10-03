@@ -105,7 +105,7 @@ function addModalEvent() {
     });
 
     // スタイルを選択
-    $('input.select_style_list').on('click', function () {
+    $('img.select_style_list').on('click', function () {
         setMember(chara_no, $(this).data("style_id"), true)
         closeModel();
     });

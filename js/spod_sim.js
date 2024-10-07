@@ -571,15 +571,23 @@ function setEventTrigger() {
     $('.select_style').on('drop', function (e) {
         e.preventDefault();
         if (dragged_element !== this) {
+            function swapValues(index1, index2, attributes) {
+                attributes.forEach(attr => {
+                    let temp = $(`#${attr}_${index1}`).val();
+                    $(`#${attr}_${index1}`).val($(`#${attr}_${index2}`).val());
+                    $(`#${attr}_${index2}`).val(temp);
+                });
+            }
+            
             let before_chara_no = $(dragged_element).data("chara_no");
             let after_chara_no = $(this).data("chara_no");
             let tmp_style = select_style_list[before_chara_no];
             let tmp_src = $(`#select_chara_${before_chara_no}`).attr("src");
-            let tmp_limit = $(`#limit_${before_chara_no}`).val();
-            let tmp_earring = $(`#earring_${before_chara_no}`).val();
-            let tmp_bracelet = $(`#bracelet_${before_chara_no}`).val();
-            let tmp_chain = $(`#chain_${before_chara_no}`).val();
-            let tmp_init_sp = $(`#init_sp_${before_chara_no}`).val();
+            
+            // ドラッグされた要素の属性情報を一時的に保存
+            let attributes = ['limit', 'earring', 'bracelet', 'chain', 'init_sp'];
+            let tmp_values = attributes.map(attr => $(`#${attr}_${before_chara_no}`).val());
+            
             // 進む方向を決定（前に進むなら -1, 後ろに進むなら +1）
             let direction = before_chara_no < after_chara_no ? 1 : -1;
             
@@ -587,21 +595,13 @@ function setEventTrigger() {
             for (let i = before_chara_no; i !== after_chara_no; i += direction) {
                 select_style_list[i] = select_style_list[i + direction];
                 $(`#select_chara_${i}`).attr("src", $(`#select_chara_${i + direction}`).attr("src"));
-                $(`#limit_${i}`).val($(`#limit_${i + direction}`).val());
-                $(`#earring_${i}`).val($(`#earring_${i + direction}`).val());
-                $(`#bracelet_${i}`).val($(`#bracelet_${i + direction}`).val());
-                $(`#chain_${i}`).val($(`#chain_${i + direction}`).val());
-                $(`#init_sp_${i}`).val($(`#init_sp_${i + direction}`).val());
+                swapValues(i, i + direction, attributes);
             }
             
             // 最後に、ドラッグされた要素をドラッグ先に挿入
             select_style_list[after_chara_no] = tmp_style;
             $(`#select_chara_${after_chara_no}`).attr("src", tmp_src);
-            $(`#limit_${after_chara_no}`).val(tmp_limit);
-            $(`#earring_${after_chara_no}`).val(tmp_earring);
-            $(`#bracelet_${after_chara_no}`).val(tmp_bracelet);
-            $(`#chain_${after_chara_no}`).val(tmp_chain);
-            $(`#init_sp_${after_chara_no}`).val(tmp_init_sp);
+            attributes.forEach((attr, index) => $(`#${attr}_${after_chara_no}`).val(tmp_values[index]));
         }
     });
     // リセットボタン

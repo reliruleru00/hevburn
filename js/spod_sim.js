@@ -539,7 +539,7 @@ function setEventTrigger() {
     let dragged_element = null;
 
     // ドラッグ開始時に実行
-    $('.select_style').on('dragstart', function (e) {
+    $('.select_style').on('dragstart touchstart', function (e) {
         dragged_element = this; // ドラッグ中の要素を保持
         e.originalEvent.dataTransfer.setData('text/plain', ''); // 必須のため空文字列を設定
 
@@ -558,17 +558,17 @@ function setEventTrigger() {
     });
 
     // ドラッグ終了時にクラスを解除
-    $('.select_style').on('dragend', function () {
+    $('.select_style').on('dragend touchend', function () {
         $(this).removeClass('dragging');
     });
 
     // ドラッグ要素が他の要素の上に入ったとき
-    $('.select_style').on('dragover', function (e) {
+    $('.select_style').on('dragover touchmove', function (e) {
         e.preventDefault(); // デフォルト動作を防ぎ、ドロップを許可
     });
 
     // ドロップ時に要素を入れ替える
-    $('.select_style').on('drop', function (e) {
+    $('.select_style').on('drop touchend', function (e) {
         e.preventDefault();
         if (dragged_element !== this) {
             function swapValues(index1, index2, attributes) {

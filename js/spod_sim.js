@@ -583,6 +583,10 @@ function setEventTrigger() {
         $(this).addClass('dragging');
 
         // ドラッグ中の画像を表示するための準備
+        if (drag_image) {
+            $(drag_image).remove();
+            drag_image = null;
+        }
         drag_image = new Image();
         drag_image.src = this.src;
 
@@ -609,7 +613,7 @@ function setEventTrigger() {
                 top: touch.pageY + 1
             });
         }
-    }); // パッシブを無効にする
+    });
     // タッチ終了時の処理 (dragendの代替)
     $(document).on('touchend', function (e) {
         if (dragged_element) {

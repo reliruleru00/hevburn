@@ -593,8 +593,8 @@ function setEventTrigger() {
 
             $(drag_image).css({
                 position: 'absolute',
-                left: e.originalEvent.touches[0].pageX + 10,
-                top: e.originalEvent.touches[0].pageY + 10,
+                left: e.originalEvent.touches[0].pageX + 1,
+                top: e.originalEvent.touches[0].pageY + 1,
                 opacity: 0.7 // 半透明
             }).appendTo('body');
         };
@@ -605,15 +605,15 @@ function setEventTrigger() {
         if (drag_image) {
             const touch = e.originalEvent.touches[0];
             $(drag_image).css({
-                left: touch.pageX + 10,
-                top: touch.pageY + 10
+                left: touch.pageX + 1,
+                top: touch.pageY + 1
             });
         }
     }); // パッシブを無効にする
     // タッチ終了時の処理 (dragendの代替)
     $(document).on('touchend', function (e) {
-        e.preventDefault();
         if (dragged_element) {
+            e.preventDefault();
             // タッチ終了時の座標を取得
             const touch = e.originalEvent.changedTouches[0];
             const touchX = touch.pageX;

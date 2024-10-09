@@ -576,7 +576,6 @@ function setEventTrigger() {
     });
     // タッチ開始時の処理 (dragstartの代替)
     $('.select_style').on('touchstart', function (e) {
-        e.preventDefault();
         dragged_element = this; // ドラッグ中の要素を保持
 
         // 半透明化
@@ -587,37 +586,39 @@ function setEventTrigger() {
             $(drag_image).remove();
             drag_image = null;
         }
-        drag_image = new Image();
-        drag_image.src = this.src;
-
-        // 画像のロード完了後にサイズを設定
-        drag_image.onload = () => {
-            drag_image.width = this.width;
-            drag_image.height = this.height;
-
-            $(drag_image).css({
-                position: 'absolute',
-                left: e.originalEvent.touches[0].pageX + 1,
-                top: e.originalEvent.touches[0].pageY + 1,
-                opacity: 0.7 // 半透明
-            }).appendTo('body');
-        };
     });
     // タッチ移動時の処理
     $(document).on('touchmove', function (e) {
-        e.preventDefault();
-        if (drag_image) {
-            const touch = e.originalEvent.touches[0];
-            $(drag_image).css({
-                left: touch.pageX + 1,
-                top: touch.pageY + 1
-            });
+        if (dragged_element) {
+            e.preventDefault();
+            if (drag_image) {
+                const touch = e.originalEvent.touches[0];
+                $(drag_image).css({
+                    left: touch.pageX + 1,
+                    top: touch.pageY + 1
+                });
+            } else {
+                drag_image = new Image();
+                drag_image.src = dragged_element.src;
+
+                // 画像のロード完了後にサイズを設定
+                drag_image.onload = () => {
+                    drag_image.width = dragged_element.width;
+                    drag_image.height = dragged_element.height;
+
+                    $(drag_image).css({
+                        position: 'absolute',
+                        left: e.originalEvent.touches[0].pageX + 1,
+                        top: e.originalEvent.touches[0].pageY + 1,
+                        opacity: 0.7 // 半透明
+                    }).appendTo('body');
+                };
+            }
         }
     });
     // タッチ終了時の処理 (dragendの代替)
     $(document).on('touchend', function (e) {
         if (dragged_element) {
-            e.preventDefault();
             // タッチ終了時の座標を取得
             const touch = e.originalEvent.changedTouches[0];
             const touchX = touch.pageX;

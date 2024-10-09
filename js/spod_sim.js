@@ -591,8 +591,8 @@ function setEventTrigger() {
     $(document).on('touchmove', function (e) {
         if (dragged_element) {
             e.preventDefault();
+            const touch = e.originalEvent.touches[0];
             if (drag_image) {
-                const touch = e.originalEvent.touches[0];
                 $(drag_image).css({
                     left: touch.pageX + 1,
                     top: touch.pageY + 1
@@ -608,8 +608,8 @@ function setEventTrigger() {
 
                     $(drag_image).css({
                         position: 'absolute',
-                        left: e.originalEvent.touches[0].pageX + 1,
-                        top: e.originalEvent.touches[0].pageY + 1,
+                        left: touch.pageX + 1,
+                        top: touch.pageY + 1,
                         opacity: 0.7 // 半透明
                     }).appendTo('body');
                 };

@@ -642,6 +642,7 @@ function setEventTrigger() {
             }
         }
     });
+    // キャラ入れ替え
     function swapCharaData(before_chara_no, after_chara_no) {
         let tmp_style = select_style_list[before_chara_no];
         let tmp_src = $(`#select_chara_${before_chara_no}`).attr("src");
@@ -653,17 +654,25 @@ function setEventTrigger() {
         // 進む方向を決定（前に進むなら -1, 後ろに進むなら +1）
         let direction = before_chara_no < after_chara_no ? 1 : -1;
 
+        let troops_no = $(".troops_btn.selected_troops").val();
         // 移動処理
         for (let i = before_chara_no; i !== after_chara_no; i += direction) {
             select_style_list[i] = select_style_list[i + direction];
             $(`#select_chara_${i}`).attr("src", $(`#select_chara_${i + direction}`).attr("src"));
             swapValues(i, i + direction, attributes);
+            let style_id = localStorage.getItem(`troops_${troops_no}_${i + direction}`);
+            if (style_id) {
+                localStorage.setItem(`troops_${troops_no}_${i}`, style_id);
+            } else {
+                localStorage.removeItem(`troops_${troops_no}_${i}`);
+            }
         }
 
         // 最後に、ドラッグされた要素をドラッグ先に挿入
         select_style_list[after_chara_no] = tmp_style;
         $(`#select_chara_${after_chara_no}`).attr("src", tmp_src);
         attributes.forEach((attr, index) => $(`#${attr}_${after_chara_no}`).val(tmp_values[index]));
+        localStorage.setItem(`troops_${troops_no}_${after_chara_no}`, tmp_style.style_info.style_id);
     }
     function swapValues(index1, index2, attributes) {
         attributes.forEach(attr => {

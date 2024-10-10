@@ -710,6 +710,8 @@ function calcDamage() {
     let fightingspirit = $("#fightingspirit").prop("checked") ? 20 : 0;
     // 厄
     let misfortune = $("#misfortune").prop("checked") ? 20 : 0;
+    // ハッキング
+    let hacking = $("#misfortune").prop("checked") ? 100 : 0;
     // 士気
     let morale = Number($("#morale_count").val()) * 5;
     // 夢の泪
@@ -1637,6 +1639,7 @@ function addAbility(member_info) {
         let div = $('<div>').append(input).append(label)
             .addClass(element_type + "-" + ability_info.ability_element)
             .addClass(physical_type + "-" + ability_info.ability_physical)
+            .addClass(ability_info.ability_target_element == 0 ? "" : `buff_target_element-${ability_info.ability_target_element}`)
             .addClass(target)
             .addClass(chara_id_class)
             .css("display", display);

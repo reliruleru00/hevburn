@@ -162,6 +162,23 @@ function setMember(select_chara_no, style_id, isTrigger) {
         $("#jewel_" + select_chara_no).val(items[8]);
         member_info.limit_count = Number(items[7]);
         member_info.jewel_lv = Number(items[8]);
+    } else {
+        // 初期設定
+        $.each(status_kbn, function (index, value) {
+            let status = 400;
+            localStorage.setItem(value + "_" + style_info.chara_id, status);
+            $("#" + value + "_" + select_chara_no).val(status);
+            member_info[value] = Number(status);
+        });
+        let jewel = 5;
+        localStorage.setItem("jewel_" + style_info.chara_id, jewel);
+        $("#jewel_" + select_chara_no).val(jewel);
+        member_info.jewel_lv = Number(jewel);
+
+        let limit_count = 2;
+        localStorage.setItem("limit_" + style_info.chara_id, limit_count);
+        $("#limit_" + select_chara_no).val(limit_count);
+        member_info.limit_count = Number(limit_count);
     }
     select_style_list[select_chara_no] = member_info;
     changeRarity(select_chara_no, style_info.rarity);

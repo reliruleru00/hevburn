@@ -975,20 +975,20 @@ function selectUnitSkill(select) {
             }
         }
         unit_data.sp_cost = sp_cost;
-        updateSp(select.parent().find(".unit_sp"));
+        updateSp(unit_data, select.parent().find(".unit_sp"));
         updateAction(now_turn)
     }
-
-    function updateSp(target) {
-        let unit_sp = unit_data.sp + unit_data.over_drive_sp - unit_data.sp_cost;
-        if (unit_data.sp_cost == 99) {
-            unit_sp = 0;
-        }
-        $(target).text(unit_data.getDispSp());
-        $(target).toggleClass("minus", unit_sp < 0);
-    }
-
     processSkillChange();
+}
+
+// SP更新
+function updateSp(unit_data, target) {
+    let unit_sp = unit_data.sp + unit_data.over_drive_sp - unit_data.sp_cost;
+    if (unit_data.sp_cost == 99) {
+        unit_sp = 0;
+    }
+    $(target).text(unit_data.getDispSp());
+    $(target).toggleClass("minus", unit_sp < 0);
 }
 
 // 行動制限
@@ -1320,7 +1320,7 @@ function updateTurn(selector, turn_data) {
         }
         // SP更新
         let target_sp = selector.find(".unit_sp")[unit.place_no];
-        $(target_sp).text(unit.getDispSp());
+        updateSp(unit, target_sp)
     });
 }
 

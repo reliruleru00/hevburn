@@ -55,10 +55,15 @@ const CONDITIONS_TARGET_COVER = 1; // 集中・挑発状態
 const CONDITIONS_SKILL_INIT = 2; // 初回
 const CONDITIONS_ADDITIONAL_TURN = 3; // 追加ターン
 const CONDITIONS_OVER_DRIVE = 4; // オーバードライブ中
+const CONDITIONS_DESTRUCTION_OVER_200 = 5; // 破壊率200%以上
 const CONDITIONS_DEFFENCE_DOWN = 11; // 防御ダウン中
 const CONDITIONS_FRAGILE = 11; // 脆弱中
+const CONDITIONS_HAS_CHARGE = 21; // チャージ中
 const CONDITIONS_31A_OVER_3 = 31; // 31A3人以上
 const CONDITIONS_31E_OVER_3 = 35; // 31E3人以上
+const CONDITIONS_ENEMY_COUNT_1 = 51; // 敵1体
+const CONDITIONS_ENEMY_COUNT_2 = 52; // 敵2体
+const CONDITIONS_ENEMY_COUNT_3 = 53; // 敵3体
 
 /** 敵リスト*/
 const ENEMY_CLASS_HARD_LAYER = 1; // 異時層

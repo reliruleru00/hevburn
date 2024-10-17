@@ -1200,7 +1200,6 @@ function proceedTurn(turn_data, kb_next) {
     }
 
     addUnitEvent();
-    turn_data.additional_turn = false;
     turn_list.push(turn_data);
     now_turn = turn_data;
 
@@ -1651,6 +1650,7 @@ function setBackOptions(select) {
 
 // 行動開始
 function startAction(turn_data, turn_number) {
+    turn_data.additional_turn = false;
     let seq = sortActionSeq(turn_number);
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,
@@ -1854,51 +1854,40 @@ function getSpCost(turn_data, skill_info, unit) {
 function harfSpSkill(turn_data, skill_info, unit_data) {
     // SP半減
     if (skill_info.skill_attribute == ATTRIBUTE_SP_HALF) {
-        switch (skill_info.attribute_conditions) {
-            case CONDITIONS_TARGET_COVER: // 集中・挑発状態
-                if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_PROVOKE)) {
-                    return true;
-                }
-                if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_COVER)) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_DEFFENCE_DOWN: // 防御ダウン
-                if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_DEFENSEDOWN)) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_FRAGILE: // 脆弱
-                if (checkBuffExist(turn_data.enemy_debuff_list, BUFF_FRAGILE)) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_SKILL_INIT: // 初回
-                if (!unit_data.first_use.includes(skill_info.skill_id)) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_ADDITIONAL_TURN: // 追加ターン
-                if (unit_data.additional_turn) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_OVER_DRIVE: // オーバードライブ中
-                if (turn_data.over_drive_max_turn > 0) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_31A_OVER_3: // 31A3人以上
-                if (checkMember(turn_data.unit_list, "31A") >= 3) {
-                    return true;
-                }
-                break;
-            case CONDITIONS_31E_OVER_3: // 31E3人以上
-                if (checkMember(turn_data.unit_list, "31E") >= 3) {
-                    return true;
-                }
-                break;
+        if (judgmentCondition(skill_info.attribute_conditions, turn_data, unit_data, skill_info.skill_id)) {
+            return true;
         }
+    }
+    return false;
+}
+
+// 条件判定
+function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
+    switch (conditions) {
+        case CONDITIONS_FIRST_TURN: // 1ターン目
+            return turn_data.turn_number == 1;
+        case CONDITIONS_SKILL_INIT: // 初回
+            return !unit_data.first_use.includes(skill_id)
+        case CONDITIONS_ADDITIONAL_TURN: // 追加ターン
+            return turn_data.additional_turn;
+        case CONDITIONS_OVER_DRIVE: // オーバードライブ中
+            return turn_data.over_drive_max_turn > 0;
+        case CONDITIONS_DEFFENCE_DOWN: // 防御ダウン
+            return checkBuffExist(turn_data.enemy_debuff_list, BUFF_DEFENSEDOWN);
+        case CONDITIONS_FRAGILE: // 脆弱
+            return checkBuffExist(turn_data.enemy_debuff_list, BUFF_FRAGILE);
+        case CONDITIONS_TARGET_COVER: // 集中・挑発状態
+            return checkBuffExist(turn_data.enemy_debuff_list, BUFF_PROVOKE) || checkBuffExist(turn_data.enemy_debuff_list, BUFF_COVER);
+        case CONDITIONS_ENEMY_COUNT_1: // 敵1体
+            return turn_data.enemy_count == 1;
+        case CONDITIONS_ENEMY_COUNT_2: // 敵2体
+            return turn_data.enemy_count == 2;
+        case CONDITIONS_ENEMY_COUNT_3: // 敵3体
+            return turn_data.enemy_count == 3;
+        case CONDITIONS_31A_OVER_3: // 31A3人以上
+            return checkMember(turn_data.unit_list, "31A") >= 3;
+        case CONDITIONS_31E_OVER_3: // 31E3人以上
+            return checkMember(turn_data.unit_list, "31E") >= 3;
     }
     return false;
 }
@@ -1910,39 +1899,13 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         return;
     }
 
-    // 条件付きバフ
-    switch (buff_info.conditions) {
-        case CONDITIONS_SKILL_INIT: // 初回
-            if (use_unit_data.first_use.includes(buff_info.skill_id)) {
-                return;
-            }
-            break;
-        case CONDITIONS_ADDITIONAL_TURN: // 追加ターン
-            if (!use_unit_data.additional_turn) {
-                return;
-            }
-            break;
-        case CONDITIONS_OVER_DRIVE: // オーバードライブ中
-            if (turn_data.over_drive_max_turn == 0) {
-                return;
-            }
-            break;
-        case CONDITIONS_ENEMY_COUNT_1: // 敵1体
-            if (turn_data.enemy_count != 1) {
-                return;
-            }
-            break;
-        case CONDITIONS_ENEMY_COUNT_2: // 敵2体
-            if (turn_data.enemy_count != 2) {
-                return;
-            }
-            break;
-        case CONDITIONS_ENEMY_COUNT_3: // 敵3体
-            if (turn_data.enemy_count != 3) {
-                return;
-            }
-            break;
+    // 条件判定
+    if (buff_info.conditions != null) {
+        if (!judgmentCondition(buff_info.conditions, turn_data, use_unit_data, buff_info.skill_id)) {
+            return;
+        }
     }
+
     // 個別判定
     switch (buff_info.buff_id) {
         // 選択されなかった
@@ -1965,12 +1928,6 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case 3313: // 春雷(SP回復)
         case 3314: // ファンタズム(SP回復)
             if (use_unit_data.buff_effect_select_type == 0) {
-                return;
-            }
-            break;
-        // 1ターン目のみ
-        case 3315: // スイーツチャージ！
-            if (turn_data.turn_number != 1) {
                 return;
             }
             break;

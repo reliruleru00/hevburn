@@ -1558,15 +1558,18 @@ function addUnitEvent() {
             div.append(img);
             let label = $("<label>");
             let buff_kind_name = getBuffKindName(buff_info);
-            let turn = buff_info.rest_turn < 0 ? "∞" : buff_info.rest_turn;
+            let buff_text = `${buff_kind_name}<br>${buff_info.buff_name}`;
             switch (buff_info.buff_kind) {
                 case BUFF_MORALE: // 士気
-                    label.html(`${buff_kind_name}<br>${buff_info.buff_name}(Lv${buff_info.lv})`);
+                    buff_text += `(Lv${buff_info.lv})`;
                     break;
                 default:
-                    label.html(`${buff_kind_name}<br>${buff_info.buff_name}(残りターン${turn})`);
+                    if (buff_info.rest_turn > 0) {
+                        buff_text += `(残りターン${buff_info.rest_turn})`;
+                    }
                     break;
             }
+            label.html(buff_text);
             buff_detail.append(div.append(label));
         });
         MicroModal.show('modal_buff_detail_list');
@@ -1667,7 +1670,7 @@ function startAction(turn_data, turn_number) {
                 addBuffUnit(turn_data, buff_info, skill_data.place_no, unit_data);
             }
         }
-        if (skill_info.skill_name == "通常攻撃") {
+        if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
         } else if (skill_info.attack_id) {
             attack_info = getAttackInfo(skill_info.attack_id);
@@ -1741,7 +1744,7 @@ function getOverDrive(turn_number, enemy_count) {
         let funnel_list = unit_data.getfunnelList();
         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
 
-        if (skill_info.skill_name == "通常攻撃") {
+        if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             if (isResist(physical, unit_data.normal_attack_element, skill_info.attack_id)) {
                 correction = 1 + badies / 100;
                 let hit_od = Math.floor(2.5 * correction * 100) / 100;
@@ -2312,7 +2315,7 @@ function sortActionSeq(turn_number) {
             skill_info: skill_info,
             place_no: index
         };
-        if (skill_info.attack_id || skill_info.skill_name == "通常攻撃") {
+        if (skill_info.attack_id || skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             attack_seq.push(skill_data);
         } else {
             buff_seq.push(skill_data);

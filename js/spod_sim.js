@@ -77,7 +77,7 @@ class turn_data {
         } else if (kb_next == KB_NEXT_ADDITIONALTURN) {
             // 追加ターン
             this.unitLoop(function (unit) {
-                unit.unitAdditinalTurnProceed();
+                unit.unitAdditionalTurnProceed();
             });
         } else {
             // 行動開始＋OD発動
@@ -389,7 +389,7 @@ class unit_data {
         this.over_drive_sp = 0;
     }
 
-    unitAdditinalTurnProceed() {
+    unitAdditionalTurnProceed() {
         // ターン消費
         this.specialRestTurn();
     }
@@ -1097,7 +1097,7 @@ function procBattleStart() {
     turn_init.unit_list = unit_list;
 
     // 戦闘開始アビリティ
-    turn_init.abilityAction(0);
+    turn_init.abilityAction(KB_ABILIRY_BATTLE_START);
 
     // 領域表示
     $("#battle_area").css("visibility", "visible");
@@ -1246,6 +1246,11 @@ const appendSkillOptions = (skill_select, turn_data, unit) => {
 };
 const createSkillOption = (value, turn_data, unit) => {
     let sp_cost = 0;
+    // 夜醒
+    if (turn_data.additional_turn && value.skill_id == 495) {
+        // 追加ターン中の追加は不可
+        return;
+    }
     const createOptionText = (value) => {
         let text = value.skill_name;
         if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK) {
@@ -1517,8 +1522,12 @@ function addUnitEvent() {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
+        if (now_turn.additional_turn && index > 2) {
+            // 追加ターンの後衛は設定対象外
+            return;
+        }
         let unit_data = getUnitData(now_turn, index);
-        if (!unit_data || unit_data.blank || now_turn.additional_turn) {
+        if (!unit_data || unit_data.blank) {
             return;
         }
         // 最初にクリックされた要素かどうかを確認

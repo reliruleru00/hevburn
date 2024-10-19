@@ -10,6 +10,7 @@ let next_display;
 
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
+const KB_NEXT_ADDITIONALTURN = 3;
 
 const KB_ABILIRY_BATTLE_START = 0;
 const KB_ABILIRY_SELF_START = 1;
@@ -73,6 +74,11 @@ class turn_data {
             } else {
                 this.nextTurn();
             }
+        } else if (kb_next == KB_NEXT_ADDITIONALTURN) {
+            // 追加ターン
+            this.unitLoop(function (unit) {
+                unit.unitAdditinalTurnProceed();
+            });
         } else {
             // 行動開始＋OD発動
             this.startOverDrive();
@@ -376,6 +382,20 @@ class unit_data {
     }
     unitOverDriveTurnProceed() {
         this.buffSort();
+        // ターン消費
+        this.specialRestTurn();
+        // OverDriveゲージをSPに加算
+        this.sp += this.over_drive_sp;
+        this.over_drive_sp = 0;
+    }
+
+    unitAdditinalTurnProceed() {
+        // ターン消費
+        this.specialRestTurn();
+    }
+
+    specialRestTurn() {
+        // 追加ターンODのみのターン消費
         for (let i = this.buff_list.length - 1; i >= 0; i--) {
             let buff_info = this.buff_list[i];
             // 星屑の航路/星屑の航路+/バウンシー・ブルーミー
@@ -386,11 +406,17 @@ class unit_data {
                     buff_info.rest_turn -= 1;
                 }
             }
+            // 行動不能
+            if (buff_info.buff_kind == BUFF_RECOIL) {
+                if (buff_info.rest_turn == 1) {
+                    this.buff_list.splice(i, 1);
+                } else {
+                    buff_info.rest_turn -= 1;
+                }
+            }
         }
-        // OverDriveゲージをSPに加算
-        this.sp += this.over_drive_sp;
-        this.over_drive_sp = 0;
     }
+
     buffSort() {
         this.buff_list.sort((a, b) => {
             if (a.buff_kind === b.buff_kind) {
@@ -1085,6 +1111,7 @@ function proceedTurn(turn_data, kb_next) {
     last_turn++;
     turn_data.unitSort();
     if (turn_data.additional_turn) {
+        turn_data.turnProceed(KB_NEXT_ADDITIONALTURN);
         turn_data.abilityAction(KB_ABILIRY_ADDITIONALTURN);
     } else {
         turn_data.turnProceed(kb_next);
@@ -1179,7 +1206,7 @@ function proceedTurn(turn_data, kb_next) {
             $('<option>').val(KB_NEXT_ACTION_OD).text("行動開始+OD")
         ),
         $('<div>').addClass('flex').css('justify-content', 'flex-end').append(
-            turn_data.over_drive_gauge >= 100 && turn_data.over_drive_max_turn == 0 ? $('<input>').attr({ type: 'checkbox' }).addClass('trigger_over_drive') : null
+            turn_data.over_drive_gauge >= 100 && turn_data.over_drive_max_turn == 0 && !turn_data.additional_turn ? $('<input>').attr({ type: 'checkbox' }).addClass('trigger_over_drive') : null
         ).append(
             $('<input>').attr({ type: 'button', value: '次ターン' }).addClass('turn_button next_turn')
         ).append(
@@ -1583,7 +1610,7 @@ function addUnitEvent() {
     $(`.turn${last_turn} .icon_list`).on("click", function (event) {
         let index = $(this).parent().parent().index();
         let unit_data = getUnitData(now_turn, index);
-        if (!unit_data || unit_data.blank || now_turn.additional_turn) {
+        if (!unit_data || unit_data.blank) {
             return;
         }
         showBuffList(event, unit_data.buff_list);

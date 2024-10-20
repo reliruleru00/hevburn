@@ -1166,7 +1166,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const handleRecoil = () => {
             const recoil = unit.buff_list.filter((obj) => obj.buff_kind == 24);
-            if (recoil.length > 0 || !unit.style || (turn_data.additional_turn && !unit.additional_turn)) {
+            if (recoil.length > 0 || !unit.style || (turn_data.additional_turn && !unit.additional_turn && index <= 2)) {
                 skill_select.css("visibility", "hidden");
             }
         };

@@ -390,8 +390,10 @@ class unit_data {
     }
 
     unitAdditionalTurnProceed() {
-        // ターン消費
-        this.specialRestTurn();
+        if (this.additional_turn) {
+            // ターン消費
+            this.specialRestTurn();
+        }
     }
 
     specialRestTurn() {

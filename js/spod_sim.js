@@ -1198,8 +1198,6 @@ function proceedTurn(turn_data, kb_next) {
         handleRecoil();
         chara_div.prepend(skill_select);
         appendToArea();
-
-        unit.additional_turn = false;
     });
 
     const $div = $('<div>').append(
@@ -1524,14 +1522,22 @@ function addUnitEvent() {
         // クリックされた要素を取得
         let clicked_element = $(this);
         let index = $(this).parent().index() * 3 + $(this).index();
-        if (now_turn.additional_turn && index > 2) {
-            // 追加ターンの後衛は設定対象外
-            return;
-        }
         let unit_data = getUnitData(now_turn, index);
         if (!unit_data || unit_data.blank) {
             return;
         }
+        // 追加ターンの制約
+        if (now_turn.additional_turn) {
+            // 後衛
+            if (index > 2) {
+                return;
+            }
+            // 追加ターンなし
+            if (!unit_data.additional_turn) {
+                return;
+            }
+        }
+
         // 最初にクリックされた要素かどうかを確認
         if (first_click === null) {
             // 最初にクリックされた要素を記録
@@ -1691,7 +1697,13 @@ function setBackOptions(select) {
 
 // 行動開始
 function startAction(turn_data, turn_number) {
-    turn_data.additional_turn = false;
+    // 追加ターンフラグ削除
+    if (turn_data.additional_turn) {
+        turn_data.additional_turn = false;
+        turn_data.unitLoop(function (unit) {
+            unit.additional_turn = false;
+        });
+    }
     let seq = sortActionSeq(turn_number);
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,

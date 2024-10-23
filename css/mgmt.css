@@ -23,7 +23,6 @@ td, th {
   font-size: 13px;
 }
 
-
 @media screen and (max-width:1024px) {
   .htMiddle {
     font-size: 10px;
@@ -32,6 +31,10 @@ td, th {
 .handsontable th {
   background-color: #afff60!important;
   border-color: #149f14;
+}
+
+.handsontable thead th .relative:has(img) {
+  padding: 0px 1px!important;
 }
 
 td.limit_0 {
@@ -69,4 +72,32 @@ td {
 input[type="button"].default {
   font-size: 16px;
   height: 26px;
+}
+
+td.achievement1 {
+  background-color: #dbffdb;
+}
+
+td.achievement2 {
+  background-color: #8effc6;
+}
+
+td.achievement3 {
+  background-color: #99ffcc;
+}
+
+td.achievement4 {
+  background-color: #9eceff;
+}
+
+td.achievement5 {
+  background-color: #FFEB66;
+}
+
+td.achievement6 {
+  background-color: #ffce9e;
+}
+
+td.achievement7 {
+  background-color: #ffa3a3;
 }

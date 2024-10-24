@@ -880,6 +880,14 @@ function calculateDamage(basePower, attack_info, buff, debuff, fixed, id, destru
         procDamage(basePower * value / 100, destruction_size * value / 100);
     });
 
+    const billion = 1000000000;
+    if (damage > billion) {
+        damage = billion * (2 - Math.exp(0.7 - 0.7 * (damage / billion)));
+    }
+    if (damage > billion * 2) {
+        damage = billion * 2;
+    }
+
     // 0以下補正
     rest_dp = rest_dp.map(dp => Math.max(0, dp));
     //    rest_hp = Math.max(0, rest_hp);
@@ -1394,7 +1402,7 @@ function addBuffList(member_info, member_kind) {
     let chara_id = member_info.style_info.chara_id;
     let buff_list = skill_buff.filter(obj =>
         (obj.chara_id === chara_id || obj.chara_id === 0) &&
-        (obj.style_id === member_info.style_info.style_id || obj.style_id === 0)
+        (obj.style_id === member_info.style_info.style_id || obj.skill_kind != 1)
     );
 
     buff_list.forEach(value => {
@@ -1404,14 +1412,14 @@ function addBuffList(member_info, member_kind) {
         if (member_kind == 1) {
             // サブメンバーは一部のみ許可
             switch (value.buff_kind) {
-                case 3: // 防御ダウン
-                case 4: // 属性防御ダウン
-                case 5: // 脆弱
-                case 11: // 属性フィールド
-                case 19: // DP防御ダウン
-                case 20: // 耐性ダウン
-                case 21: // 永続防御ダウン
-                case 22: // 永続属性防御ダウン
+                case BUFF_DEFENSEDOWN: // 防御ダウン
+                case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御ダウン
+                case BUFF_FRAGILE: // 脆弱
+                case BUFF_FIELD: // 属性フィールド
+                case BUFF_DEFENSEDP: // DP防御ダウン
+                case BUFF_RESISTDOWN: // 耐性ダウン
+                case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+                case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
                     break;
                 default:
                     return;
@@ -1424,41 +1432,41 @@ function addBuffList(member_info, member_kind) {
             }
         }
         switch (value.buff_kind) {
-            case 11: // 属性フィールド
+            case BUFF_FIELD: // 属性フィールド
                 addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, value.skill_id, false);
                 return;
-            case 0: // 攻撃アップ
+            case BUFF_ATTACKUP: // 攻撃アップ
             case 12: // 破壊率アップ
                 only_one = "only_one";
                 break;
-            case 1: // 属性攻撃アップ
+            case BUFF_ELEMENT_ATTACKUP: // 属性攻撃アップ
                 let attack_info = getAttackInfo(value.skill_attack1);
                 if (value.buff_element == attack_info.attack_element) {
                     only_one = "only_one";
                 }
-            case 4: // 属性防御ダウン
-            case 20: // 耐性ダウン
-            case 22: // 永続属性防御ダウン
+            case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御ダウン
+            case BUFF_RESISTDOWN: // 耐性ダウン
+            case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
                 buff_element = value.buff_element;
                 break;
-            case 8: // 属性クリティカル率アップ
-            case 9: // 属性クリティカルダメージアップ
+            case BUFF_ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
+            case BUFF_ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
                 buff_element = value.buff_element;
-            case 2: // 心眼
-            case 6: // クリ率
-            case 7: // クリダメ
-            case 16: // 連撃(小)
-            case 17: // 連撃(大)
+            case BUFF_MINDEYE: // 心眼
+            case BUFF_CRITICALRATEUP: // クリ率
+            case BUFF_CRITICALDAMAGEUP: // クリダメ
+            case BUFF_FUNNEL_SMALL: // 連撃(小)
+            case BUFF_FUNNEL_LARGE: // 連撃(大)
                 only_one = "only_one";
                 break;
-            case 3: // 防御ダウン
-            case 4: // 属性防御ダウン
-            case 5: // 脆弱
-            case 10: // チャージ
-            case 19: // DP防御ダウン
-            case 20: // 耐性ダウン
-            case 21: // 永続防御ダウン
-            case 22: // 永続属性防御ダウン
+            case BUFF_DEFENSEDOWN: // 防御ダウン
+            case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御ダウン
+            case BUFF_FRAGILE: // 脆弱
+            case BUFF_CHARGE: // チャージ
+            case BUFF_DEFENSEDP: // DP防御ダウン
+            case BUFF_RESISTDOWN: // 耐性ダウン
+            case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+            case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
                 break;
             default:
                 // 上記以外は適応外
@@ -1686,30 +1694,30 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
 function getEffectSize(buff_kind, buff_id, member_info, skill_lv) {
     let effect_size = 0;
     switch (buff_kind) {
-        case 0: // 攻撃力アップ
-        case 1: // 属性攻撃力アップ
-        case 2: // 心眼
-        case 7:	// クリティカルダメージアップ
-        case 9:	// 属性クリティカルダメージアップ
-        case 10: // チャージ
-        case 12: // 破壊率アップ
+        case BUFF_ATTACKUP: // 攻撃力アップ
+        case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
+        case BUFF_MINDEYE: // 心眼
+        case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+        case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+        case BUFF_CHARGE: // チャージ
+        case BUFF_DAMAGERATEUP: // 破壊率アップ
             effect_size = getBuffEffectSize(buff_id, member_info, skill_lv, "3");
             break;
-        case 6:	// クリティカル率アップ
-        case 8:	// 属性クリティカル率アップ
+        case BUFF_CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
             effect_size = getBuffEffectSize(buff_id, member_info, skill_lv, "5");
             break;
-        case 3: // 防御力ダウン
-        case 4: // 属性防御力ダウン
-        case 5: // 脆弱
-        case 19: // DP防御力ダウン
-        case 20: // 耐性ダウン
-        case 21: // 永続防御ダウン
-        case 22: // 永続属性防御ダウン
+        case BUFF_DEFENSEDOWN: // 防御力ダウン
+        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+        case BUFF_FRAGILE: // 脆弱
+        case BUFF_DEFENSEDP: // DP防御力ダウン
+        case BUFF_RESISTDOWN: // 耐性ダウン
+        case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+        case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
             effect_size = getDebuffEffectSize(buff_id, member_info, skill_lv);
             break;
-        case 16: // 連撃(小)
-        case 17: // 連撃(大)
+        case BUFF_FUNNEL_SMALL: // 連撃(小)
+        case BUFF_FUNNEL_LARGE: // 連撃(大)
             effect_size = getFunnelEffectSize(buff_id, member_info, skill_lv);
             break;
         default:

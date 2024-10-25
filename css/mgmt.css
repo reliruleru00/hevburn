@@ -6,6 +6,10 @@ select {
   border: solid 1px #000;
 }
 
+.select_info {
+  margin-left: 10px;
+}
+
 .top_flex {
   display: flex;
 }
@@ -28,13 +32,22 @@ td, th {
     font-size: 10px;
   }
 }
-.handsontable th {
+.handsontable th,
+.handsontable th:last-child {
   background-color: #afff60!important;
   border-color: #149f14;
 }
 
+.ht_master:not(.innerBorderTop)~.handsontable thead tr:last-child th {
+  border-bottom-width: 1px;
+}
+
 .handsontable thead th .relative:has(img) {
   padding: 0px 1px!important;
+}
+
+img {
+  margin-bottom: -5px;
 }
 
 td.limit_0 {

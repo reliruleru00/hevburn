@@ -81,7 +81,7 @@ function createGrid() {
         if (hot1) {
             hot1.loadData(data);
         } else {
-            hot1 = new Handsontable(grid1, getColumnOptions(data, width, columns));
+            hot1 = new Handsontable(grid1, getGridOptions(data, width, columns));
         }
         if (hot2) {
             hot2.destroy();
@@ -96,12 +96,12 @@ function createGrid() {
         if (hot1) {
             hot1.loadData(data1);
         } else {
-            hot1 = new Handsontable(grid1, getColumnOptions(data1, width, columns));
+            hot1 = new Handsontable(grid1, getGridOptions(data1, width, columns));
         }
         if (hot2) {
             hot2.loadData(data2);
         } else {
-            hot2 = new Handsontable(grid2, getColumnOptions(data2, width, columns));
+            hot2 = new Handsontable(grid2, getGridOptions(data2, width, columns));
         }
         $("#grid_area").addClass("grid-cols-2")
         $("#grid_area").removeClass("grid-cols-1")
@@ -257,7 +257,7 @@ function readFileAsString(callback) {
  * 以下handson設定
  */
 // 行オプション
-function getColumnOptions(data, width, columns) {
+function getGridOptions(data, width, columns) {
     return {
         data: data,
         colHeaders: true,
@@ -547,7 +547,7 @@ function getExp(rowData) {
                 { threshold: 130, exp: 200 },
                 { threshold: 140, exp: 300 },
                 { threshold: 150, exp: 500 },
-                { threshold: 160, exp: 100 },
+                { threshold: 160, exp: 1000 },
             ]
         },
         {
@@ -584,8 +584,9 @@ function getExp(rowData) {
             value: rowData["score_attack"],
             increments: [
                 { threshold: 100000, exp: 50 },
-                { threshold: 200000, exp: 100 },
-                { threshold: 400000, exp: 250 },
+                { threshold: 200000, exp: 50 },
+                { threshold: 400000, exp: 100 },
+                { threshold: 600000, exp: 200 },
                 { threshold: 800000, exp: 500 },
                 { threshold: 1000000, exp: 1000 }
             ]
@@ -593,7 +594,7 @@ function getExp(rowData) {
         {
             value: rowData["battle_count"],
             increments: [
-                { threshold: 10, exp: 100 },
+                { threshold: 10, exp: 50 },
                 { threshold: 100, exp: 100 },
                 { threshold: 1000, exp: 500 },
                 { threshold: 5000, exp: 1000 },

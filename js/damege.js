@@ -1,6 +1,3 @@
-// 貫通クリティカル
-let penetration_attack_list = [84, 135, 137, 156];
-
 function setEventTrigger() {
     // リセットボタン
     $("#style_reset_btn").on("click", function (event) {
@@ -771,7 +768,7 @@ function calcDamage() {
     let critical_rate = getCriticalRate(member_info);
     let critical_buff = getCriticalBuff();
     // 貫通クリティカル
-    if (penetration_attack_list.includes(attack_info.attack_id)) {
+    if (PENETRATION_ATTACK_LIST.includes(attack_info.attack_id)) {
         critical_rate = 100;
     }
 
@@ -1151,22 +1148,19 @@ function updateEnemyResist() {
     $("#enemy_element_" + element).val(Math.floor(element_resist));
     setEnemyElement("#enemy_element_" + element, Math.floor(element_resist));
     // 貫通クリティカル
-    if (penetration_attack_list.includes(attack_info.attack_id)) {
+    if (PENETRATION_ATTACK_LIST.includes(attack_info.attack_id)) {
         $("#enemy_element_0").val(100);
         setEnemyElement("#enemy_element_0", 100);
         let physical = attack_info.attack_physical;
         let week_value = 100;
         switch (attack_info.attack_id) {
-            case 135:
-                // 華麗なるファントム・シーフ
+            case 135: // 華麗なるファントム・シーフ
                 week_value += 400;
                 break;
-            case 84:
-            case 137:
-            case 156:
-                // 唯雅粛正(チャージ)
-                // トゥルーペネトレーター+
-                // バブルデストロイヤー
+            case 84: // 唯雅粛正(チャージ)
+            case 137: // トゥルーペネトレーター+
+            case 156: // バブルデストロイヤー
+            case 163: // ロココ・デストラクション
                 week_value += 300;
                 break;
             default:

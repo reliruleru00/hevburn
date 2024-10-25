@@ -455,6 +455,10 @@ function setEventTrigger() {
     // スコアアタック敵強さ変更
     $("#score_lv").on("change", function (event) {
         updateEnemyScoreAttack();
+        // バフ効果量を更新
+        $(".variable_effect_size").each(function (index, value) {
+            updateBuffEffectSize($(value));
+        });
     });
     // 強ブレイクチェック
     $("#strong_break").on("change", function (event) {
@@ -1402,7 +1406,7 @@ function addBuffList(member_info, member_kind) {
     let chara_id = member_info.style_info.chara_id;
     let buff_list = skill_buff.filter(obj =>
         (obj.chara_id === chara_id || obj.chara_id === 0) &&
-        (obj.style_id === member_info.style_info.style_id || obj.skill_kind != 1)
+        (obj.style_id === member_info.style_info.style_id || obj.style_id === 0)
     );
 
     buff_list.forEach(value => {

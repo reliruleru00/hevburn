@@ -216,6 +216,7 @@ class turn_data {
                     case 6: // 連撃数アップ
                         buff = new buff_data();
                         buff.buff_kind = ability.effect_size == 40 ? BUFF_ABILITY_FUNNEL_LARGE : BUFF_ABILITY_FUNNEL_SMALL;
+                        buff.buff_name = ability.ability_name;
                         buff.buff_element = 0;
                         buff.effect_size = ability.effect_size == 40 ? 3 : 5;
                         buff.rest_turn = -1;
@@ -275,7 +276,7 @@ class turn_data {
                         buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
                         buff.buff_element = 0;
                         buff.rest_turn = -1;
-                        buff.buff_name = ability.ability_name
+                        buff.buff_name = ability.ability_name;
                         unit.buff_list.push(buff);
                         break;
                     case 8: // チャージ
@@ -283,7 +284,7 @@ class turn_data {
                         buff.buff_kind = BUFF_CHARGE;
                         buff.buff_element = 0;
                         buff.rest_turn = -1;
-                        buff.buff_name = ability.ability_name
+                        buff.buff_name = ability.ability_name;
                         unit.buff_list.push(buff);
                         break;
                 }

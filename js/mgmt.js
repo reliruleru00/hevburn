@@ -10,16 +10,19 @@ function setEventTrigger() {
     });
     //　表示設定変更
     $(".select_info").change(function () {
+        let isBadge = $("#badge").prop("checked");
         let columns = baseColumns;
-        if ($("#badge").prop("checked")) {
+        if (isBadge) {
             columns = getTitleColumns();
         }
         let width = getWidth(columns);
         if ($("#display_columns").val() == 1) {
             hot1.updateSettings({ columns: columns, width: width });
+            hot1.loadData(getData(isBadge));
         } else {
             hot1.updateSettings({ columns: columns, width: width });
             hot2.updateSettings({ columns: columns, width: width });
+            hot1.loadData(getData1(isBadge));
         }
         updateWidthSetting(width);
         saveInitDispaly();
@@ -36,15 +39,14 @@ function setEventTrigger() {
         readFileAsString(function (content) {
             let decompress = decompressString(content)
             let jsondata = JSON.parse(decompress);
+            let isBadge = $("#badge").prop("checked");
+
             data = replaceCharaData(jsondata)
             if ($("#display_columns").val() == 1) {
-                hot1.updateSettings({ data: data });
-                hot1.render();
+                hot1.loadData(getData(isBadge));
             } else {
-                hot1.updateSettings({ data: getData1() });
-                hot1.render();
-                hot2.updateSettings({ data: getData2() });
-                hot2.render();
+                hot1.loadData(getData1(isBadge));
+                hot2.loadData(getData2());
             }
             saveStorage();
         });
@@ -66,22 +68,24 @@ function updateHeight() {
 }
 
 function getWidth(columns) {
-    return columns.reduce((acc, column) => acc + column.width, 0) + 25;
+    return columns.reduce((acc, column) => acc + column.width, 0) + 5;
 }
 
 function createGrid() {
     let grid1 = document.getElementById('grid1');
     let grid2 = document.getElementById('grid2');
     let columns = baseColumns;
-    if ($("#badge").prop("checked")) {
+    let isBadge = $("#badge").prop("checked");
+    if (isBadge) {
         columns = getTitleColumns();
     }
     let width = getWidth(columns);
     if ($("#display_columns").val() == 1) {
+        let dataAll = getData(isBadge);
         if (hot1) {
-            hot1.loadData(data);
+            hot1.loadData(dataAll);
         } else {
-            hot1 = new Handsontable(grid1, getGridOptions(data, width, columns));
+            hot1 = new Handsontable(grid1, getGridOptions(dataAll, width, columns));
         }
         if (hot2) {
             hot2.destroy();
@@ -91,7 +95,7 @@ function createGrid() {
         $("#grid_area").addClass("grid-cols-1")
         $("#grid_area").removeClass("grid-cols-2");
     } else {
-        let data1 = getData1();
+        let data1 = getData1(isBadge);
         let data2 = getData2();
         if (hot1) {
             hot1.loadData(data1);
@@ -117,9 +121,14 @@ function updateWidthSetting(width) {
 }
 
 // データ取得
-function getData1() {
+function getData(isBadge) {
     return data.filter(function (item) {
-        return item["chara_id"] <= 24 || 48 < item["chara_id"];
+        return (item["chara_id"] <= 48 || !isBadge);
+    });
+}
+function getData1(isBadge) {
+    return data.filter(function (item) {
+        return item["chara_id"] <= 24 || (!isBadge && 48 < item["chara_id"]);
     });
 }
 function getData2() {

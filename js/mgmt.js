@@ -384,16 +384,20 @@ let baseColumns = [
         type: "numeric",
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
-            if (value <= 120) {
-                $(td).addClass("limit_0");
-            } else if (value <= 130) {
-                $(td).addClass("limit_1");
-            } else if (value <= 140) {
-                $(td).addClass("limit_2");
-            } else if (value <= 150) {
-                $(td).addClass("limit_3");
-            } else if (value <= 170) {
-                $(td).addClass("limit_4");
+            if (value >= 160) {
+                $(td).addClass("achievement7");
+            } else if (value >= 150) {
+                $(td).addClass("achievement6");
+            } else if (value >= 140) {
+                $(td).addClass("achievement5");
+            } else if (value >= 130) {
+                $(td).addClass("achievement4");
+            } else if (value >= 120) {
+                $(td).addClass("achievement3");
+            } else if (value >= 110) {
+                $(td).addClass("achievement2");
+            } else if (value >= 100) {
+                $(td).addClass("achievement1");
             }
         },
         width: 35,
@@ -404,16 +408,16 @@ let baseColumns = [
         type: "numeric",
         renderer: function (instance, td, row, column, prop, value, cellProperties) {
             Handsontable.renderers.TextRenderer.apply(this, arguments);
-            if (value == 0) {
-                $(td).addClass("limit_0");
-            } else if (value < 5) {
-                $(td).addClass("limit_1");
-            } else if (value < 10) {
-                $(td).addClass("limit_2");
-            } else if (value < 20) {
-                $(td).addClass("limit_3");
-            } else if (value == 20) {
-                $(td).addClass("limit_4");
+            if (value >= 20) {
+                $(td).addClass("achievement7");
+            } else if (value >= 15) {
+                $(td).addClass("achievement6");
+            } else if (value >= 10) {
+                $(td).addClass("achievement5");
+            } else if (value >= 5) {
+                $(td).addClass("achievement4");
+            } else if (value >= 1) {
+                $(td).addClass("achievement2");
             }
         },
         width: 35,
@@ -719,13 +723,17 @@ function getTitleColumns() {
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
                 let rowData = instance.getSourceData()[row];
                 let exp = getExp(rowData);
-                let result = rankUp(exp);
-                let rank = result["rank"];
-                // value = `${result["rank"]}(+${result["remainingExp"]})`;
-                if (rank < 10) {
-                    rowData["next_rank"] = rank * 500 - result["remainingExp"];
-                } else {
-                    rowData["next_rank"] = 0;
+                let rank = rowData["rank"];
+                if (rowData['exp'] != exp) {
+                    let result = rankUp(exp);
+                    rank = result["rank"];
+                    if (rank < 10) {
+                        rowData["next_rank"] = rank * 500 - result["remainingExp"];
+                    } else {
+                        rowData["next_rank"] = 0;
+                    }
+                    rowData["rank"] = rank;
+                    rowData["exp"] = exp;
                 }
                 value = rank;
                 Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -903,12 +911,22 @@ function getTitleColumns() {
         },
     ];
     const HARD_LAYER = ["deathSlag", "rotaryMoll", "redCrimson", "filler", "flatHand3rd", "ultimateFiller", "flatHand4th", "dessertDendron", "skullFeather"];
-    $.each(HARD_LAYER, function (index, value) {
+    $.each(HARD_LAYER, function (index, enemy_name) {
         let column = {
             className: "htCenter",
             editor: "select",
             selectOptions: { "0": "", "1": "○", },
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
+                if (enemy_name == "redCrimson") {
+                    let rowData = instance.getSourceData()[row];
+                    let chara_id = Number(rowData["chara_id"]);
+                    if (chara_id == 7) {
+                        value = "×";
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        cellProperties.readOnly = true;
+                        return;
+                    }
+                } 
                 if (value == "1") {
                     $(td).addClass("achievement7");
                     value = "○";
@@ -919,7 +937,7 @@ function getTitleColumns() {
             },
             width: 30,
         }
-        column["data"] = value;
+        column["data"] = enemy_name;
         titleColumns.push(column);
     });
     titleColumns[titleColumns.length - 1]["className"] = "htCenter rightLine";

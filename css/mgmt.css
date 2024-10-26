@@ -53,22 +53,6 @@ img {
   margin-bottom: -5px;
 }
 
-td.limit_0 {
-  background-color: #fff;
-}
-td.limit_1 {
-  background-color: #9eff9e;
-}
-td.limit_2 {
-  background-color: #9eceff;
-}
-td.limit_3 {
-  background-color: #ffce9e;
-}
-td.limit_4 {
-  background-color: #ffa3a3;
-}
-
 tr:has(.underLine) > td {
   border-bottom: double #000;
 }

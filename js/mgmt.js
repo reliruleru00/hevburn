@@ -273,6 +273,7 @@ function getGridOptions(data, width, columns) {
         height: 800,
         width: width,
         columns: columns,
+        columnHeaderHeight: 50,
         afterChange: afterChange,
         afterGetColHeader: afterGetColHeader,
         // 行追加禁止

@@ -41,6 +41,10 @@ td, th {
   border-bottom-width: 1px;
 }
 
+.handsontable .handsontable.ht_clone_top .wtHider {
+  padding: 0px;
+}
+
 .handsontable thead th .relative:has(img) {
   padding: 0px 1px!important;
 }

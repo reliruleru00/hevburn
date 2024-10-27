@@ -2073,6 +2073,10 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             $.each(target_list, function (index, target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 unit_data.sp += buff_info.min_power;
+                let limit_sp = buff_info.max_power;
+                if (unit_data.sp > limit_sp) {
+                    unit_data.sp = limit_sp;
+                }
             });
             break;
         case BUFF_ADDITIONALTURN: // 追加ターン

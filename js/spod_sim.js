@@ -345,6 +345,7 @@ class unit_data {
         this.ability_over_drive = [];
         this.ability_other = [];
         this.next_turn_min_sp = -1;
+        this.select_skill_id = 0;
     }
 
     unitTurnProceed(turn_data) {
@@ -813,6 +814,7 @@ function selectUnitSkill(select) {
     const skill_id = Number(select.find('option:selected').val());
     const index = select.index(`.turn${last_turn} select.unit_skill`);
     const unit_data = getUnitData(now_turn, index);
+    unit_data.skill_id = skill_id;
 
     function setupModalIcons() {
         $(`.turn${last_turn} img.unit_style`).each((index, value) => {

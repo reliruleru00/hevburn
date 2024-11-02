@@ -69,6 +69,7 @@ function setEventTrigger() {
         toggleItemVisibility(`.only_${chara_id_class}.buff_element-0.skill_attack-999`, true);
         toggleItemVisibility(`.only_${chara_id_class}.buff_element-0.skill_attack-${attack_info.attack_id}`, true);
         $(".ability_self").hide();
+        $(".passive").hide();
         if (attack_info.attack_element !== 0) {
             $("#elememt_ring").prop("disabled", false);
             toggleItemVisibility(`.self_element-${attack_info.attack_element}.${chara_id_class}`, true);
@@ -84,6 +85,7 @@ function setEventTrigger() {
         toggleItemVisibility(`.attack_${attack_id_class}`, true);
         toggleItemVisibility(`.attack_${style_id_class}`, true);
         toggleItemVisibility(`.attack_${chara_id_class}`, true);
+        toggleItemVisibility(`.passive_${chara_id_class}`, true);
         // スタイル属性専用を非表示
         for (let i = 1; i <= 5; i++) {
             if (attack_info.style_element != i && attack_info.style_element2 != i) {
@@ -1431,7 +1433,7 @@ function addBuffList(member_info, member_kind) {
         }
         switch (value.buff_kind) {
             case BUFF_FIELD: // 属性フィールド
-                addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, value.skill_id, false);
+                addElementField(member_info, value.buff_name, value.min_power, value.buff_element, value.buff_id, value.skill_id);
                 return;
             case BUFF_ATTACKUP: // 攻撃アップ
             case 12: // 破壊率アップ
@@ -1515,7 +1517,7 @@ function addBuffList(member_info, member_kind) {
 }
 
 // フィールド追加
-function addElementField(member_info, field_name, effect_size, field_element, buff_id, skill_id, limit_border) {
+function addElementField(member_info, field_name, effect_size, field_element, buff_id, skill_id) {
     let chara_id = member_info.style_info.chara_id;
     let chara_name = getCharaData(chara_id).chara_short_name;
     let option_text = `${chara_name}: ${field_name} ${effect_size}%`;
@@ -1523,7 +1525,6 @@ function addElementField(member_info, field_name, effect_size, field_element, bu
         .text(option_text)
         .data("effect_size", effect_size)
         .data("chara_no", member_info.chara_no)
-        .data("limit_border", limit_border)
         .data("chara_id", chara_id)
         .data("skill_id", skill_id)
         .val(buff_id)
@@ -1544,7 +1545,7 @@ function addAbility(member_info) {
     let is_select = member_info.is_select;
 
     for (let index = 0; index < ability_list.length; index++) {
-        ability_id = ability_list[index];
+        let ability_id = ability_list[index];
         if (ability_id == null || ability_id > 1000) {
             // 1000番以降は不要
             continue;
@@ -1569,7 +1570,7 @@ function addAbility(member_info) {
 
         switch (ability_info.ability_target) {
             case 6: // フィールド
-                addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.ability_element, 0, 0, true);
+                addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.ability_element, 0, 0);
                 continue;
             case 1: // 自分
                 if (select_attack_skill && select_attack_skill.chara_id !== chara_id) {
@@ -1686,6 +1687,73 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
             break;
     }
     $(input).prop("checked", checked).attr("disabled", disabled);
+}
+
+// パッシブ追加
+function addPassive(member_info) {
+    let chara_id = member_info.style_info.chara_id;
+
+    const TARGET_KIND = [
+        7, // フィールド
+        25 // 能力上昇
+    ]
+    let passive_list = skill_list.filter(obj =>
+        obj.chara_id === chara_id &&
+        obj.skill_active == 1
+    );
+
+    $.each(passive_list, function (index, value) {
+        let skill_id = value.skill_id;
+        let passive_info = getPassiveInfo(skill_id);
+        if (!passive_info || !TARGET_KIND.includes(passive_info.passive_kind)) {
+            return true;
+        }
+        let target;
+        let effect_size = passive_info.effect_size;
+        let target_chara_id_class = "";
+        let member_list;
+        switch (passive_info.passive_target) {
+            case RANGE_FILED: // フィールド
+                addElementField(member_info, passive_info.passive_name, effect_size, 0, 0, skill_id);
+                return true;
+            case RANGE_SELF: // 自分
+                target = "ability_self";
+                member_list = [chara_id];
+                break;
+            case RANGE_31E_MEMBER: // 31Eメンバー
+                target = "ability_all";
+                member_list = CHARA_ID_31E;
+                break;
+            case RANGE_MARUYAMA_MEMBER: // 丸山部隊
+                target = "ability_all";
+                member_list = CHARA_ID_MARUYAMA;
+                break;
+            default:
+                break;
+        }
+
+        $.each(member_list, function (index, value) {
+            target_chara_id_class += " passive_chara_id-" + value;
+        });
+
+        let chara_id_class =  "chara_id-" + chara_id;
+        let name = getCharaData(chara_id).chara_short_name;
+        let id = target + chara_id + skill_id;
+        let input = $('<input>').attr("type", "checkbox").attr("id", id)
+            .data("effect_size", effect_size)
+            .data("skill_id", skill_id)
+            .data("chara_no", member_info.chara_no)
+            .addClass(chara_id_class);
+        let label = $('<label>')
+            .attr("for", id)
+            .text(`${name}: ${passive_info.passive_name} (${passive_info.passive_short_explan})`)
+            .addClass("checkbox01");
+        let div = $('<div>').append(input).append(label)
+            .addClass("passive")
+            .addClass(target_chara_id_class)
+            .addClass(chara_id_class);
+        $("#" + target).append(div);
+    });
 }
 
 // 効果量取得
@@ -1874,7 +1942,7 @@ function setAbilityDisplay(limit_count, chara_id) {
     // フィールドを更新
     $("#element_field option").each(function (index, value) {
         if (index === 0) return true;
-        if ($(value).val() == 0) {
+        if ($(value).data("skill_id") == 0) {
             if ($(value).hasClass(chara_id)) {
                 if (limit_count >= 3) {
                     $(value).data("limit_border", true);
@@ -2147,6 +2215,13 @@ function getAbilityInfo(ability_id) {
     const filtered_ability = ability_list.filter((obj) => obj.ability_id == ability_id);
     return filtered_ability.length > 0 ? filtered_ability[0] : undefined;
 }
+
+// パッシブ情報取得
+function getPassiveInfo(skill_id) {
+    const filtered_passive = skill_passive.filter((obj) => obj.skill_id == skill_id);
+    return filtered_passive.length > 0 ? filtered_passive[0] : undefined;
+}
+
 
 // 敵リスト作成
 function createEnemyList(enemy_class) {

@@ -187,6 +187,7 @@ function setMember(select_chara_no, style_id, isTrigger) {
         addAttackList(member_info);
         addBuffList(member_info, 0);
         addAbility(member_info);
+        addPassive(member_info);
         $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
     }
 

@@ -298,9 +298,7 @@ function setSubMember(sub_chara_no, style_id) {
     addBuffList(member_info, 1);
     // フィールドのみ追加
     addAbility(member_info);
-    if (member_info.style_info.chara_id != 4) {
-        $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
-    }
+    addPassive(member_info);
 }
 
 // メンバーを外す

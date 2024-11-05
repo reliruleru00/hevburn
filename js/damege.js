@@ -1710,6 +1710,11 @@ function addPassive(member_info) {
         26, // 能力%上昇
         27, // フィールド強化
     ]
+    const SUB_TARGET_KIND = [
+        25, // 能力固定上昇
+        26, // 能力%上昇
+        27, // フィールド強化
+    ]
     let passive_list = skill_list.filter(obj =>
         obj.chara_id === chara_id &&
         obj.skill_active == 1
@@ -1721,7 +1726,7 @@ function addPassive(member_info) {
         if (!passive_info || !TARGET_KIND.includes(passive_info.effect_type)) {
             return true;
         }
-        if (!is_select && passive_info.effect_type != 27) {
+        if (!is_select && !SUB_TARGET_KIND.includes(passive_info.effect_type)) {
             // 他部隊のアビリティはフィールドのみ許可
             return true;
         }

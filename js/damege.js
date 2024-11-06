@@ -368,7 +368,7 @@ function setEventTrigger() {
         });
     });
     // 能力上昇バフ
-    $(document).on("change", ".strengthen_passive", function (event) {
+    $(document).on("change", ".strengthen_status", function (event) {
         let chara_id_class = $(this).parent().attr('class').split(' ').find(className => className.startsWith('chara_id-'));
         // バフ効果量を更新
         $(".variable_effect_size." + chara_id_class).each(function (index, value) {
@@ -707,6 +707,9 @@ function calcDamage() {
     getSpCost();
     // グレード
     let grade_sum = getGradeSum();
+    // メンバー
+    let chara_no = $("#attack_list option:selected").data("chara_no");
+    let member_info = select_style_list[chara_no];
 
     // 闘志
     let fightingspirit = $("#fightingspirit").prop("checked") ? 20 : 0;
@@ -727,10 +730,7 @@ function calcDamage() {
         all_status_up = Number($("#all_status_up").val());
     }
     // パッシブ(能力固定上昇)
-    let passive_status_up = getSumAbilityEffectSize(25);
-    // メンバー
-    let chara_no = $("#attack_list option:selected").data("chara_no");
-    let member_info = select_style_list[chara_no];
+    let passive_status_up = getSumAbilityEffectSize(25, true, member_info.style_info.chara_id);
     // 闘志or士気
     let stat_up = (morale > fightingspirit ? morale : fightingspirit) + tears_of_dreams + all_status_up + passive_status_up;
     // 厄orハッキング
@@ -1620,7 +1620,7 @@ function addAbility(member_info) {
             var option2 = $('<option>').text("×2").val(2);
             append = $('<select>').append(option1).append(option2).addClass("ability_select");
         }
-        let name = getCharaData(chara_id).chara_short_name;
+        let name = (is_select ? "" : "(他部隊)") + getCharaData(chara_id).chara_short_name;
         let fg_update = false;
         let id = target + chara_id + index;
         let chara_id_class = "chara_id-" + chara_id;
@@ -1711,6 +1711,7 @@ function addPassive(member_info) {
         27, // フィールド強化
     ]
     const SUB_TARGET_KIND = [
+        7, // フィールド
         25, // 能力固定上昇
         26, // 能力%上昇
         27, // フィールド強化
@@ -1735,6 +1736,7 @@ function addPassive(member_info) {
         let target_chara_id_class = "";
         let member_list = [];
         let add_check_class = "";
+        let add_div_class = "";
         switch (passive_info.passive_target) {
             case RANGE_FILED: // フィールド
                 addElementField(member_info, passive_info.passive_name, effect_size, 0, 0, skill_id);
@@ -1751,21 +1753,23 @@ function addPassive(member_info) {
             default:
                 break;
         }
+        $.each(member_list, function (index, value) {
+            target_chara_id_class += (is_select ? " passive_chara_id-" : " passive_sub_chara_id-") + value;
+        });
         switch (passive_info.effect_type) {
             case 25: // 能力固定上昇
-                add_check_class = "strengthen_passive";
+            case 26: // 能力%上昇
+                add_div_class = "passive_all";
+                add_check_class = "strengthen_status";
                 break;
             case 27: // フィールド強化
-                target_chara_id_class = "passive_all";
+                add_div_class = "passive_all";
                 add_check_class = "strengthen_field";
                 break;
         }
-        $.each(member_list, function (index, value) {
-            target_chara_id_class += " passive_chara_id-" + value;
-        });
 
         let chara_id_class = "chara_id-" + chara_id;
-        let name = getCharaData(chara_id).chara_short_name;
+        let name = (is_select ? "" : "(他部隊)") + getCharaData(chara_id).chara_short_name;
         let id = target + chara_id + skill_id;
         let input = $('<input>').attr("type", "checkbox").attr("id", id)
             .data("effect_size", effect_size)
@@ -1781,6 +1785,7 @@ function addPassive(member_info) {
         let div = $('<div>').append(input).append(label)
             .addClass("passive_div")
             .addClass(target_chara_id_class)
+            .addClass(add_div_class)
             .addClass(chara_id_class);
         $("#" + target).append(div);
     });
@@ -2199,7 +2204,7 @@ function getCriticalBuff() {
 }
 
 // アビリティ効果量合計取得
-function getSumAbilityEffectSize(effect_type) {
+function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     let ability_effect_size = 0;
     $("input[type=checkbox].ability:checked").each(function (index, value) {
         if ($(value).parent().css("display") === "none") {
@@ -2224,8 +2229,14 @@ function getSumAbilityEffectSize(effect_type) {
         ability_effect_size += effect_size;
     });
     $("input[type=checkbox].passive:checked").each(function (index, value) {
-        if ($(value).parent().css("display") === "none") {
+        let select = $(value).parent();
+        if (select.css("display") === "none") {
             return true;
+        }
+        if (chara_id) {
+            if (!select.hasClass((is_select ? "passive_chara_id-" : "passive_sub_chara_id-") + chara_id)) {
+                return true;
+            }
         }
         let skill_id = Number($(value).data("skill_id"));
         let passive_info = getPassiveInfo(skill_id);
@@ -2822,7 +2833,7 @@ function getStatUp(member_info) {
         all_status_up = Number($("#all_status_up").val());
     }
     // パッシブ(能力固定上昇)
-    let passive_status_up = getSumAbilityEffectSize(25);
+    let passive_status_up = getSumAbilityEffectSize(25, member_info.is_select, member_info.style_info.chara_id);
     return morale + tears_of_dreams + all_status_up + passive_status_up;
 }
 

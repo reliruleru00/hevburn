@@ -12,13 +12,42 @@ const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
 const KB_NEXT_ADDITIONALTURN = 3;
 
-const KB_ABILIRY_BATTLE_START = 0;
-const KB_ABILIRY_SELF_START = 1;
-const KB_ABILIRY_ACTION_START = 2;
-const KB_ABILIRY_ENEMY_START = 3;
-const KB_ABILIRY_ADDITIONALTURN = 4;
-const KB_ABILIRY_OD_START = 5;
-const KB_ABILIRY_OTHER = 9;
+const ABILIRY_BATTLE_START = 0;
+const ABILIRY_SELF_START = 1;
+const ABILIRY_ACTION_START = 2;
+const ABILIRY_ENEMY_START = 3;
+const ABILIRY_ADDITIONALTURN = 4;
+const ABILIRY_OD_START = 5;
+const ABILIRY_BREAK = 6;
+const ABILIRY_RECEIVE_DAMAGE = 7;
+const ABILIRY_EX_SKILL_USE = 8;
+const ABILIRY_OTHER = 99;
+
+const EFFECT_ATTACKUP = 1; // 攻撃力アップ
+const EFFECT_DEFFENCEDOWN = 2; // 防御力ダウン
+const EFFECT_CRITICAL_UP = 3; // クリティカル率アップ
+const EFFECT_CRITICAL_DAMAGE_UP = 4; // クリティカルダメージアップ
+const EFFECT_DAMAGERATEUP = 5; // 破壊率上昇量アップ
+const EFFECT_FUNNEL = 6; // 連撃数アップ
+const EFFECT_FIELD = 7; // フィールド展開
+const EFFECT_CHARGE = 8; // チャージ
+const EFFECT_DEFFENCEUP = 11; // 防御力アップ
+const EFFECT_HEALSP = 12; // SP回復
+const EFFECT_HEALDP = 13; // DP回復
+const EFFECT_OVERDRIVEPOINTUP = 14; // ODアップ
+const EFFECT_COST_SP_DOWN = 15; // 消費SPダウン
+const EFFECT_MORALE = 16; // 士気
+const EFFECT_BREAK_GUARD = 20; // ブレイクガード
+const EFFECT_STUN = 21; // スタン
+const EFFECT_MISFORTUNE = 22; // 厄
+const EFFECT_ARROWCHERRYBLOSSOMS = 23; // 桜花の矢
+const EFFECT_SHADOW_CLONE = 24; // 影分身
+const EFFECT_STATUSUP_VALUE = 25; // 能力上昇(固定)
+const EFFECT_STATUSUP_RATE = 26; // 能力上昇(%)
+const EFFECT_FIELD_ = 27; // フィールド強化
+const EFFECT_TOKEN_UP = 30; // トークンアップ
+const EFFECT_TOKEN_ATTACKUP = 31; // トークン1つにつき攻撃力アップ
+const EFFECT_TOKEN_DEFFENCEUP = 32; // トークン1つにつき 防御力アップ
 
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL_SMALL, BUFF_FUNNEL_LARGE, BUFF_ABILITY_FUNNEL_SMALL, BUFF_ABILITY_FUNNEL_LARGE];
 const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
@@ -96,7 +125,7 @@ class turn_data {
 
         this.turn_number++;
         this.fg_action = false;
-        this.abilityAction(KB_ABILIRY_SELF_START);
+        this.abilityAction(ABILIRY_SELF_START);
         if (this.turn_number % this.step_turn == 0 && this.over_drive_gauge > 0) {
             this.over_drive_gauge += this.step_over_drive_down;
             if (this.over_drive_gauge < 0) {
@@ -165,25 +194,28 @@ class turn_data {
         this.unitLoop(function (unit) {
             let action_list = [];
             switch (action_kbn) {
-                case KB_ABILIRY_BATTLE_START: // 戦闘開始時
+                case ABILIRY_BATTLE_START: // 戦闘開始時
                     action_list = unit.ability_battle_start;
                     break;
-                case KB_ABILIRY_SELF_START: // 自分のターン開始時
+                case ABILIRY_SELF_START: // 自分のターン開始時
                     action_list = unit.ability_self_start;
                     break;
-                case KB_ABILIRY_ACTION_START: // 行動開始時
+                case ABILIRY_ACTION_START: // 行動開始時
                     action_list = unit.ability_action_start;
                     break;
-                case KB_ABILIRY_ENEMY_START: // 敵のターン開始時
+                case ABILIRY_ENEMY_START: // 敵のターン開始時
                     action_list = unit.ability_enemy_start;
                     break;
-                case KB_ABILIRY_ADDITIONALTURN: // 追加ターン
+                case ABILIRY_ADDITIONALTURN: // 追加ターン
                     action_list = unit.ability_additional_turn;
                     break;
-                case KB_ABILIRY_OD_START: // オーバードライブ開始時
+                case ABILIRY_OD_START: // オーバードライブ開始時
                     action_list = unit.ability_over_drive;
                     break;
-                case KB_ABILIRY_OTHER: // その他
+                case ABILIRY_EX_SKILL_USE: // EXスキル使用
+                    action_list = unit.ability_ex_skill_use;
+                    break;
+                case ABILIRY_OTHER: // その他
                     action_list = unit.ability_other;
                     break;
             }
@@ -343,6 +375,7 @@ class unit_data {
         this.ability_enemy_start = [];
         this.ability_additional_turn = [];
         this.ability_over_drive = [];
+        this.ability_ex_skill_use = [];
         this.ability_other = [];
         this.next_turn_min_sp = -1;
         this.select_skill_id = 0;
@@ -501,6 +534,74 @@ class unit_data {
             }
         });
         return result_list;
+    }
+
+    abilityAction(turn_data, action_kbn) {
+        let self = this;
+        let action_list = [];
+        switch (action_kbn) {
+            case ABILIRY_EX_SKILL_USE: // EXスキル使用
+                action_list = this.ability_ex_skill_use;
+                break;
+        }
+        $.each(action_list, function (index, ability) {
+            // 前衛
+            if (ability.activation_place == 1 && unit.place_no >= 3) {
+                return true;
+            }
+            // 後衛
+            if (ability.activation_place == 2 && unit.place_no < 3) {
+                return true;
+            }
+            let target_list = [];
+            switch (ability.ability_target) {
+                case 1: // 自分
+                    target_list = [self.place_no];
+                    break;
+                case 2: // 味方前衛
+                    target_list = [0, 1, 2];
+                    break;
+                case 3: // 味方後衛
+                    target_list = [3, 4, 5];
+                    break;
+                case 4: // 味方全員
+                    target_list = [0, 1, 2, 3, 4, 5];
+                    break;
+            }
+            switch (ability.effect_type) {
+                case EFFECT_MORALE: // 士気
+                    $.each(target_list, function (index, target_no) {
+                        let unit_data = getUnitData(turn_data, target_no);
+                        if (!unit_data.style) {
+                            return true;
+                        }
+                        if (ability.ability_target_element != 0) {
+                            if (ability.ability_target_element != unit_data.style.style_info.element && ability.ability_target_element != unit_data.style.style_info.element) {
+                                return true;
+                            }
+                        }
+                        
+                        let exist_list = unit_data.buff_list.filter(function (buff_info) {
+                            return buff_info.buff_kind == BUFF_MORALE;
+                        });
+                        let buff;
+                        if (exist_list.length > 0) {
+                            buff = exist_list[0];
+                        } else {
+                            buff = new buff_data();
+                            buff.buff_kind = BUFF_MORALE;
+                            buff.buff_element = 0;
+                            buff.rest_turn = -1;
+                            buff.buff_name = ability.ability_name;
+                            unit_data.buff_list.push(buff);
+                        }
+                        if (buff.lv < 10) {
+                            buff.lv += ability.effect_count;
+                        }
+                    });
+                    break;
+            }
+        });
     }
 }
 class buff_data {
@@ -1057,28 +1158,30 @@ function procBattleStart() {
                 if (value.style_info[`ability${num}`] && num <= limit) {
                     let ability_info = getAbilityInfo(value.style_info[`ability${num}`]);
                     switch (ability_info.activation_timing) {
-                        case KB_ABILIRY_BATTLE_START: // 戦闘開始時
+                        case ABILIRY_BATTLE_START: // 戦闘開始時
                             unit.ability_battle_start.push(ability_info);
                             break;
-                        case KB_ABILIRY_SELF_START: // 自分のターン開始時
+                        case ABILIRY_SELF_START: // 自分のターン開始時
                             unit.ability_self_start.push(ability_info);
                             break;
-                        case KB_ABILIRY_ACTION_START: // 行動開始時
+                        case ABILIRY_ACTION_START: // 行動開始時
                             unit.ability_action_start.push(ability_info);
                             break;
-                        case KB_ABILIRY_ENEMY_START: // 敵ターン開始時
+                        case ABILIRY_ENEMY_START: // 敵ターン開始時
                             unit.ability_enemy_start.push(ability_info);
                             break;
-                        case KB_ABILIRY_ADDITIONALTURN: // 追加ターン
+                        case ABILIRY_ADDITIONALTURN: // 追加ターン
                             unit.ability_additional_turn.push(ability_info);
                             break;
-                        case KB_ABILIRY_OD_START: // オーバードライブ開始時
+                        case ABILIRY_OD_START: // オーバードライブ開始時
                             unit.ability_over_drive.push(ability_info);
                             break;
-                        case KB_ABILIRY_OTHER: // その他
+                        case ABILIRY_EX_SKILL_USE: // EXスキル使用時    
+                            unit.ability_ex_skill_use.push(ability_info);
+                            break;
+                        case ABILIRY_OTHER: // その他
                             unit.ability_other.push(ability_info);
                             break;
-
                     }
                 }
             });
@@ -1100,7 +1203,7 @@ function procBattleStart() {
     turn_init.unit_list = unit_list;
 
     // 戦闘開始アビリティ
-    turn_init.abilityAction(KB_ABILIRY_BATTLE_START);
+    turn_init.abilityAction(ABILIRY_BATTLE_START);
 
     // 領域表示
     $("#battle_area").css("visibility", "visible");
@@ -1115,13 +1218,13 @@ function proceedTurn(turn_data, kb_next) {
     turn_data.unitSort();
     if (turn_data.additional_turn) {
         turn_data.turnProceed(KB_NEXT_ADDITIONALTURN);
-        turn_data.abilityAction(KB_ABILIRY_ADDITIONALTURN);
+        turn_data.abilityAction(ABILIRY_ADDITIONALTURN);
     } else {
         turn_data.turnProceed(kb_next);
         if (kb_next == KB_NEXT_ACTION_OD) {
-            turn_data.abilityAction(KB_ABILIRY_OD_START);
+            turn_data.abilityAction(ABILIRY_OD_START);
         } else {
-            turn_data.abilityAction(KB_ABILIRY_ACTION_START);
+            turn_data.abilityAction(ABILIRY_ACTION_START);
         }
     }
 
@@ -1729,6 +1832,11 @@ function startAction(turn_data, turn_number) {
 
         if (attack_info) {
             consumeBuffUnit(unit_data, attack_info, skill_info);
+        }
+
+        // EXスキル使用後アビリティ
+        if (skill_info.skill_kind == 1 || skill_info.skill_kind == 2) {
+            unit_data.abilityAction(turn_data, ABILIRY_EX_SKILL_USE);
         }
 
         // 攻撃後にバフを付与

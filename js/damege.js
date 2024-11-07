@@ -1553,6 +1553,10 @@ function addAbility(member_info) {
     let ability_list = [member_info.style_info.ability0, member_info.style_info.ability00, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
     let is_select = member_info.is_select;
 
+    // ロールアビリティ
+    if (member_info.style_info.role == ROLE_ADMIRAL) {
+        ability_list.push(299);
+    }
     for (let index = 0; index < ability_list.length; index++) {
         let ability_id = ability_list[index];
         if (ability_id == null || ability_id > 1000) {

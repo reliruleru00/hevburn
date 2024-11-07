@@ -1,3 +1,13 @@
+/** ロール */
+const ROLE_ATTACKER = 1;
+const ROLE_BREAKER = 2;
+const ROLE_BLASTER = 3;
+const ROLE_HEALER = 4;
+const ROLE_BUFFER = 5;
+const ROLE_DEBUFFER = 6;
+const ROLE_DEFENDER = 7;
+const ROLE_ADMIRAL = 8;
+
 /** バフ種別 */
 const BUFF_ATTACKUP = 0; // 攻撃力アップ
 const BUFF_ELEMENT_ATTACKUP = 1; // 属性アップ

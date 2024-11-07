@@ -1705,6 +1705,7 @@ function addPassive(member_info) {
 
     const TARGET_KIND = [
         1, // 攻撃力アップ
+        3, // クリティカル率アップ
         7, // フィールド
         25, // 能力固定上昇
         26, // 能力%上昇
@@ -1741,6 +1742,9 @@ function addPassive(member_info) {
             case RANGE_FILED: // フィールド
                 addElementField(member_info, passive_info.passive_name, effect_size, 0, 0, skill_id);
                 return true;
+            case RANGE_ALLY_ALL: // 全員
+                add_div_class = "passive_all";
+                break;
             case RANGE_SELF: // 自分
                 member_list = [chara_id];
                 break;

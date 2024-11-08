@@ -68,6 +68,7 @@ const CHARA_ID_MARUYAMA = [15, 16, 28, 32, 40, 47];
 /** スキル属性 */
 const ATTRIBUTE_NORMAL_ATTACK = 1; // 通常攻撃
 const ATTRIBUTE_PURSUIT = 2; // 追撃
+const ATTRIBUTE_COMMAND_ACTION = 3; // 指揮行動
 const ATTRIBUTE_SP_HALF = 11; // SP半減
 /** 条件 */
 const CONDITIONS_FIRST_TURN = 1; // 1ターン目

@@ -70,6 +70,7 @@ class turn_data {
         this.step_turn = 0;
         this.step_over_drive_down = 0;
         this.step_sp_down = 0;
+        this.sp_cost_down = 0;
     }
 
     unitLoop(func) {
@@ -580,7 +581,7 @@ class unit_data {
                                 return true;
                             }
                         }
-                        
+
                         let exist_list = unit_data.buff_list.filter(function (buff_info) {
                             return buff_info.buff_kind == BUFF_MORALE;
                         });
@@ -1053,7 +1054,7 @@ function selectUnitSkill(select) {
         if (skill_id == 496) {
             // レッドラウンドイリュージョン
             if (unit_data.buff_effect_select_type == 1) {
-                sp_cost /= 2;
+                sp_cost = Math.floor(sp_cost / 2);
             }
         }
         unit_data.sp_cost = sp_cost;
@@ -1180,6 +1181,10 @@ function procBattleStart() {
                             unit.ability_ex_skill_use.push(ability_info);
                             break;
                         case ABILIRY_OTHER: // その他
+                            if (ability_info.ability_id == 1520) {
+                                // 蒼天
+                                turn_init.sp_cost_down = ability_info.effect_size;
+                            }
                             unit.ability_other.push(ability_info);
                             break;
                     }
@@ -1269,7 +1274,7 @@ function proceedTurn(turn_data, kb_next) {
         };
 
         const handleRecoil = () => {
-            const recoil = unit.buff_list.filter((obj) => obj.buff_kind == 24);
+            const recoil = unit.buff_list.filter((obj) => obj.buff_kind == BUFF_RECOIL);
             if (recoil.length > 0 || !unit.style || (turn_data.additional_turn && !unit.additional_turn && index <= 2)) {
                 skill_select.css("visibility", "hidden");
             }
@@ -1355,11 +1360,21 @@ const createSkillOption = (value, turn_data, unit) => {
         // 追加ターン中の追加は不可
         return;
     }
+    // 通常攻撃はADMIRAL以外
+    if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK && unit.style.style_info.role == ROLE_ADMIRAL) {
+        return;
+    }
+    // 陣頭指揮はADMIRALのみ
+    if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION && unit.style.style_info.role != ROLE_ADMIRAL) {
+        return;
+    }
     const createOptionText = (value) => {
         let text = value.skill_name;
         if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK) {
             sp_cost = 0;
             text += `(${physical_name[value.attack_physical]}・${element_name[unit.normal_attack_element]})`;
+        } else if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION) {
+            sp_cost = 0;
         } else if (value.skill_attribute === ATTRIBUTE_PURSUIT) {
             sp_cost = 0;
             text += `(${physical_name[value.attack_physical]})`;
@@ -1985,6 +2000,7 @@ function origin(turn_data, skill_info, unit_data) {
 // 消費SP取得
 function getSpCost(turn_data, skill_info, unit) {
     let sp_cost = skill_info.sp_cost;
+    let sp_cost_down = turn_data.sp_cost_down
     if (harfSpSkill(turn_data, skill_info, unit)) {
         sp_cost = Math.ceil(sp_cost / 2)
     }
@@ -1992,17 +2008,18 @@ function getSpCost(turn_data, skill_info, unit) {
     if (turn_data.additional_turn) {
         // クイックリキャスト
         if (checkAbilityExist(unit.ability_other, 1506)) {
-            sp_cost -= 2;
+            sp_cost_down = 2;
         }
         // 優美なる剣舞
         if (checkAbilityExist(unit.ability_other, 1512)) {
-            sp_cost -= 2;
+            sp_cost_down = 2;
         }
         // 疾駆
         if (checkAbilityExist(unit.ability_other, 1515)) {
-            sp_cost -= 2;
+            sp_cost_down = 2;
         }
     }
+    sp_cost -= sp_cost_down;
     return sp_cost < 0 ? 0 : sp_cost;
 }
 
@@ -2285,6 +2302,8 @@ function consumeBuffUnit(unit_data, attack_info, skill_info) {
                     }
                 case BUFF_CRITICALRATEUP:	// クリティカル率アップ
                 case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
+                    // 通常攻撃でも消費
+                    buff_list.splice(i, 1);
                 case BUFF_FUNNEL_SMALL: // 連撃(小)
                 case BUFF_FUNNEL_LARGE: // 連撃(大)
                 case BUFF_ABILITY_FUNNEL_SMALL: // アビリティ連撃(小)
@@ -2293,8 +2312,6 @@ function consumeBuffUnit(unit_data, attack_info, skill_info) {
                     if (buff_info.skill_id == 67 || buff_info.skill_id == 491) {
                         continue;
                     }
-                    // 通常攻撃でも消費
-                    buff_list.splice(i, 1);
                     break;
                 case BUFF_EX_DOUBLE:	// EXスキル連続使用
                     // EXスキルでのみ消費

@@ -597,7 +597,7 @@ class unit_data {
                             unit_data.buff_list.push(buff);
                         }
                         if (buff.lv < 10) {
-                            buff.lv += ability.effect_count;
+                            buff.lv += ability.effect_size;
                         }
                     });
                     break;

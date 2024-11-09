@@ -1922,6 +1922,7 @@ function getOverDrive(turn_number, enemy_count) {
             if (isResist(physical, unit_data.normal_attack_element, skill_info.attack_id)) {
                 correction = 1 + badies / 100;
                 let hit_od = Math.floor(2.5 * correction * 100) / 100;
+                unit_od_plus += hit_od * 3;
             }
         } else if (skill_info.attack_id) {
             if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {

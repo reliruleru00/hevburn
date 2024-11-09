@@ -339,9 +339,7 @@ table td.row_element-4,
 table td.row_element-5 {
     display: none;
 }
-label input {
-    display: none;
-}
+
 label.strengthen span {
     color: #333;
     font-size: 14px;

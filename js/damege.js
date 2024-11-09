@@ -471,6 +471,10 @@ function setEventTrigger() {
             updateBuffEffectSize($(value));
         });
     });
+    // セラフ遭遇戦敵強さ変更
+    $("input[name=card]").on("change", function (event) {
+        updateSeraphEncounter();
+    });
     // 強ブレイクチェック
     $("#strong_break").on("change", function (event) {
         let enemy_info = getEnemyInfo();
@@ -2340,6 +2344,11 @@ function createEnemyList(enemy_class) {
         removeSupportMember(0);
         $(".bike_buff").css("display", "none");
     }
+    if (enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
+        $(".randam_card").show();
+    } else {
+        $(".randam_card").hide();
+    }
     if (enemy_class == ENEMY_CLASS_FREE_INPUT) {
         // 自由入力の場合、入力を解除する
         $("#enemy_save").show();
@@ -2463,6 +2472,9 @@ function setEnemyStatus() {
     if (enemy_info.score_attack_no) {
         updateEnemyScoreAttack();
     }
+    if (enemy_info.enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
+        updateSeraphEncounter();
+    }
     updateEnemyResist();
     // バフ効果量を更新
     $(".variable_effect_size").each(function (index, value) {
@@ -2502,6 +2514,38 @@ function updateEnemyScoreAttack() {
     $("#socre_enemy_unit").val(score_attack.enemy_count);
     $("#enemy_hp").val((enemy_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
 }
+
+// セラフ遭遇戦敵ステータス設定
+function updateSeraphEncounter() {
+    let enemy_info = getEnemyInfo();
+    let checked = $('input[name=card]:checked');
+    let hp_rate = 1;
+    let dp_rate = 1;
+    let status_up = 0;
+    let value = Number(checked.val());
+    switch (checked.data("kind")) {
+        case "status":
+            status_up = value;
+            break;
+        case "dp_rate":
+            dp_rate += value / 100;
+            break;
+        case "hp_rate":
+            hp_rate += value / 100;
+            break;
+    }
+
+    let enemy_stat = Number(enemy_info.enemy_stat);
+    let enemy_hp = Number(enemy_info.max_hp);
+    let max_dp_list = enemy_info.max_dp.split(",");
+    for (let i = 0; i < max_dp_list.length; i++) {
+        let enemy_dp = Number(max_dp_list[i]);
+        $("#enemy_dp_" + i).val((enemy_dp * dp_rate).toLocaleString());
+    }
+    $("#enemy_stat").val((enemy_stat + status_up));
+    $("#enemy_hp").val((enemy_hp * hp_rate).toLocaleString());
+}
+
 
 // スコアアタック表示
 function displayScoreAttack(enemy_info) {

@@ -634,6 +634,9 @@ input[type="button"].durability_reflection {
     margin-right: 10px;
 }
 
+.card_regist {
+    width: 56px;
+}
 /* バフ一括設定 */
 .container_multi_buff {
     background-color: #fff;

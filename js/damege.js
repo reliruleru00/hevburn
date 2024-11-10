@@ -1620,8 +1620,8 @@ function addAbility(member_info) {
             default:
                 break;
         }
-        // 狂乱の型/五月雨/浄化の喝采/破砕の喝采
-        const APPEND_SELECT_LIST = [6, 7, 407, 408];
+        // 浄化の喝采/破砕の喝采
+        const APPEND_SELECT_LIST = [407, 408];
         if (APPEND_SELECT_LIST.includes(ability_info.ability_id)) {
             // 追加
             var option1 = $('<option>').text("×1").val(1);
@@ -2093,7 +2093,6 @@ function getSumFunnelEffectList() {
         if (ability_info.effect_type == 6) {
             let size = ability_info.effect_size;
             let loop = ability_info.effect_count;
-            loop *= Number($(value).parent().find("select").val());
             for (let i = 0; i < loop; i++) {
                 funnel_list.push(size);
             }

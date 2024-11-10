@@ -491,7 +491,7 @@ label[class*="block_chara_id-"] {
 .damage {
     font-weight: bold;
     font-size: 30px;
-    width: 180px;
+    width: 200px;
     height: 30px;
 }
 .min_damage {
@@ -625,6 +625,17 @@ input[type="button"].durability_reflection {
     height: 100%;
     background-color: rgba(128, 0, 0, 0.5); /* 黒色の半透明レイヤー */
     pointer-events: none; /* マウスイベントを透過させる */
+}
+
+/* 遭遇戦 */
+.card_blank {
+    width: 20px;
+}
+
+.card_label {
+    text-align: right;
+    width: 72px;
+    margin-right: 10px;
 }
 
 /* バフ一括設定 */

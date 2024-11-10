@@ -2522,30 +2522,40 @@ function updateSeraphEncounter() {
     let hp_rate = 1;
     let dp_rate = 1;
     let status_up = 0;
-    let value = Number(checked.val());
-    switch (checked.data("kind")) {
-        case "status":
-            status_up = value;
-            break;
-        case "dp_rate":
-            dp_rate += value / 100;
-            break;
-        case "hp_rate":
-            hp_rate += value / 100;
-            break;
-    }
+    let resist = [0, 0, 0, 0, 0, 0];
 
-    let enemy_stat = Number(enemy_info.enemy_stat);
+    let kind = checked.data("kind");
+    if (kind) {
+        let value = Number(checked.val());
+        switch (kind) {
+            case "status":
+                status_up = value;
+                break;
+            case "dp_rate":
+                dp_rate += value / 100;
+                break;
+            case "hp_rate":
+                hp_rate += value / 100;
+                break;
+        }
+        if (kind.includes("resist")) {
+            let index = Number(kind.split("_")[1]);
+            resist[index] = value;
+        }
+    }
     let enemy_hp = Number(enemy_info.max_hp);
     let max_dp_list = enemy_info.max_dp.split(",");
     for (let i = 0; i < max_dp_list.length; i++) {
         let enemy_dp = Number(max_dp_list[i]);
         $("#enemy_dp_" + i).val((enemy_dp * dp_rate).toLocaleString());
     }
+    let enemy_stat = Number(enemy_info.enemy_stat);
     $("#enemy_stat").val((enemy_stat + status_up));
     $("#enemy_hp").val((enemy_hp * hp_rate).toLocaleString());
+    for (let i = 0; i <= 5; i++) {
+        setEnemyElement(`#enemy_element_${i}`, enemy_info[`element_${i}`] - resist[i]);
+    }
 }
-
 
 // スコアアタック表示
 function displayScoreAttack(enemy_info) {

@@ -628,13 +628,9 @@ input[type="button"].durability_reflection {
 }
 
 /* 遭遇戦 */
-.card_blank {
-    width: 20px;
-}
-
 .card_label {
     text-align: right;
-    width: 72px;
+    width: 90px;
     margin-right: 10px;
 }
 

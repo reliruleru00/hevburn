@@ -17,6 +17,7 @@ class Member {
         this.luk = 0;
         this.jewel_lv = 0;
         this.limit_count = 0;
+        this.passive_skill_list = [];
     }
 }
 

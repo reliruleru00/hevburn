@@ -126,6 +126,7 @@ class turn_data {
 
         this.turn_number++;
         this.fg_action = false;
+        this.abilityAction(ABILIRY_RECEIVE_DAMAGE);
         this.abilityAction(ABILIRY_SELF_START);
         if (this.turn_number % this.step_turn == 0 && this.over_drive_gauge > 0) {
             this.over_drive_gauge += this.step_over_drive_down;
@@ -216,6 +217,12 @@ class turn_data {
                 case ABILIRY_EX_SKILL_USE: // EXスキル使用
                     action_list = unit.ability_ex_skill_use;
                     break;
+                case ABILIRY_RECEIVE_DAMAGE: // 被ダメージ時
+                    // 前衛のみ
+                    if (unit.place_no < 3) {
+                        action_list = unit.ability_receive_damage;
+                    }
+                    break;
                 case ABILIRY_OTHER: // その他
                     action_list = unit.ability_other;
                     break;
@@ -229,7 +236,7 @@ class turn_data {
                 if (ability.activation_place == 2 && unit.place_no < 3) {
                     return true;
                 }
-                let target_list = getTargetList(null, ability.renge_area, ability.target_element, unit.place_no, null);
+                let target_list = getTargetList(self, ability.range_area, ability.target_element, unit.place_no, null);
                 let buff;
                 switch (ability.effect_type) {
                     case 6: // 連撃数アップ
@@ -245,41 +252,53 @@ class turn_data {
                         $.each(target_list, function (index, target_no) {
                             let unit_data = getUnitData(self, target_no);
                             if (unit_data.sp < 20) {
-                                switch (ability.ability_id) {
-                                    case 1109: // 吉報
-                                    case 1119: // 旺盛
-                                        unit_data.add_sp += ability.effect_size;
-                                        break;
-                                    case 1112: // 好機
-                                        if (unit_data.sp <= 3) {
-                                            unit_data.sp += ability.effect_size;
-                                        }
-                                        break;
-                                    case 1118: // 充填
-                                        // チャージ存在チェック
-                                        if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
-                                            unit_data.sp += ability.effect_size;
-                                        }
-                                        break;
-                                    case 1111: // みなぎる士気
-                                        let exist_list = unit_data.buff_list.filter(function (buff_info) {
-                                            return buff_info.buff_kind == BUFF_MORALE;
-                                        });
-                                        if (exist_list.length > 0) {
-                                            if (exist_list[0].lv >= 6) {
+                                if (ability.ability_id) {
+                                    switch (ability.ability_id) {
+                                        case 1109: // 吉報
+                                        case 1119: // 旺盛
+                                            unit_data.add_sp += ability.effect_size;
+                                            break;
+                                        case 1112: // 好機
+                                            if (unit_data.sp <= 3) {
                                                 unit_data.sp += ability.effect_size;
                                             }
-                                        }
-                                        break;
-                                    case 1204: // エンゲージリンク
-                                        // 永遠なる誓いチェック
-                                        if (checkBuffExist(unit_data.buff_list, BUFF_ETERNAL_OARH)) {
+                                            break;
+                                        case 1118: // 充填
+                                            // チャージ存在チェック
+                                            if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
+                                                unit_data.sp += ability.effect_size;
+                                            }
+                                            break;
+                                        case 1111: // みなぎる士気
+                                            let exist_list = unit_data.buff_list.filter(function (buff_info) {
+                                                return buff_info.buff_kind == BUFF_MORALE;
+                                            });
+                                            if (exist_list.length > 0) {
+                                                if (exist_list[0].lv >= 6) {
+                                                    unit_data.sp += ability.effect_size;
+                                                }
+                                            }
+                                            break;
+                                        case 1204: // エンゲージリンク
+                                            // 永遠なる誓いチェック
+                                            if (checkBuffExist(unit_data.buff_list, BUFF_ETERNAL_OARH)) {
+                                                unit_data.sp += ability.effect_size;
+                                            }
+                                            break;
+                                        default:
                                             unit_data.sp += ability.effect_size;
-                                        }
-                                        break;
-                                    default:
-                                        unit_data.sp += ability.effect_size;
-                                        break;
+                                            break;
+                                    }
+                                }
+                                if (ability.skill_id) {
+                                    switch (ability.skill_id) {
+                                        case 524: // 痛気持ちいぃ～！
+                                            unit_data.add_sp += ability.effect_size;
+                                            break;
+                                        default:
+                                            unit_data.sp += ability.effect_size;
+                                            break;
+                                    }
                                 }
                                 if (unit_data.sp > 20) {
                                     unit_data.sp = 20
@@ -363,6 +382,7 @@ class unit_data {
         this.ability_additional_turn = [];
         this.ability_over_drive = [];
         this.ability_ex_skill_use = [];
+        this.ability_receive_damage = [];
         this.ability_other = [];
         this.next_turn_min_sp = -1;
         this.select_skill_id = 0;
@@ -540,7 +560,7 @@ class unit_data {
             if (ability.activation_place == 2 && unit.place_no < 3) {
                 return true;
             }
-            let target_list = getTargetList(null, ability.renge_area, ability.target_element, unit.place_no, null);
+            let target_list = getTargetList(now_turn, ability.range_area, ability.target_element, self.place_no, null);
             switch (ability.effect_type) {
                 case EFFECT_MORALE: // 士気
                     $.each(target_list, function (index, target_no) {
@@ -1201,6 +1221,9 @@ function procBattleStart() {
                         case ABILIRY_EX_SKILL_USE: // EXスキル使用時    
                             unit.ability_ex_skill_use.push(ability_info);
                             break;
+                        case ABILIRY_RECEIVE_DAMAGE: // 被ダメージ時
+                            unit.ability_receive_damage.push(ability_info);
+                            break;
                         case ABILIRY_OTHER: // その他
                             if (ability_info.ability_id == 1520) {
                                 // 蒼天
@@ -1213,7 +1236,7 @@ function procBattleStart() {
             });
             unit.style.passive_skill_list.forEach(skill_id => {
                 let passive_info = getPassiveInfo(skill_id);
-                switch (passive_info.passive_timing) {
+                switch (passive_info.activation_timing) {
                     case ABILIRY_BATTLE_START: // 戦闘開始時
                         unit.ability_battle_start.push(passive_info);
                         break;
@@ -1234,6 +1257,9 @@ function procBattleStart() {
                         break;
                     case ABILIRY_EX_SKILL_USE: // EXスキル使用時    
                         unit.ability_ex_skill_use.push(passive_info);
+                        break;
+                    case ABILIRY_RECEIVE_DAMAGE: // 被ダメージ時
+                        unit.ability_receive_damage.push(passive_info);
                         break;
                     case ABILIRY_OTHER: // その他
                         unit.ability_other.push(passive_info);
@@ -2524,6 +2550,15 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             target_list.push(place_no);
             target_list.push(target_unit_data[0].place_no);
             break;
+        case RANGE_31C_MEMBER: // 31Cメンバー
+            target_list = getTargetPlaceList(turn_data.unit_list, CHARA_ID_31C);
+            break;
+        case RANGE_31E_MEMBER: // 31Eメンバー
+            target_list = getTargetPlaceList(turn_data.unit_list, CHARA_ID_31E);
+            break;
+        case CHARA_ID_MARUYAMA: // 丸山部隊メンバー
+            target_list = getTargetPlaceList(turn_data.unit_list, CHARA_ID_MARUYAMA);
+            break;
         default:
             break;
     }
@@ -2536,6 +2571,26 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
         }
     }
     return target_list;
+}
+
+// メンバーリスト作成
+function getTargetPlaceList(unit_list, member_id_list) {
+    return member_id_list.reduce((acc, member_id) => {
+        const place_no = charaIdToPlaceNo(unit_list, member_id);
+        if (place_no !== null) { // nullを除外
+            acc.push(place_no);
+        }
+        return acc;
+    }, []);
+}
+// キャラIDから場所番号を取得
+function charaIdToPlaceNo(unit_list, member_id) {
+    for (let unit of unit_list) {
+        if (unit.style?.style_info?.chara_id == member_id) {
+            return unit.place_no;
+        }
+    }
+    return null;
 }
 
 // 行動順を取得

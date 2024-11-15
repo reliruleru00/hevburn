@@ -1075,7 +1075,7 @@ function updateBuffEffectSize(option, skill_lv) {
 function getStrengthen(member_info, skill_buff) {
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
-    let attack_up = [0, 1];
+    let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
     if (attack_up.includes(skill_buff.buff_kind)) {
         let ability_list = [member_info.style_info.ability0, member_info.style_info.ability00, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
         // 機転
@@ -1092,7 +1092,8 @@ function getStrengthen(member_info, skill_buff) {
         }
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
-    let defense_down = [3, 4, 19, 20, 21, 22];
+    let defense_down = [BUFF_DEFENSEDOWN, BUFF_ELEMENT_DEFENSEDOWN,
+        BUFF_DEFENSEDP, BUFF_RESISTDOWN, BUFF_ETERNAL_DEFENSEDOWN, BUFF_ELEMENT_ETERNAL_DEFENSEDOWN];
     if (defense_down.includes(skill_buff.buff_kind)) {
         let ability_list = [member_info.style_info.ability0, member_info.style_info.ability00, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
         // 侵食
@@ -1585,7 +1586,7 @@ function addAbility(member_info) {
         let append = undefined;
         let effect_size = ability_info.effect_size;
 
-        switch (ability_info.target) {
+        switch (ability_info.range_area) {
             case RANGE_FILED: // フィールド
                 addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.element, 0, 0);
                 continue;
@@ -1673,7 +1674,8 @@ function addAbility(member_info) {
 function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_id) {
     let disabled = !ability_info.conditions;
     let checked = true;
-    switch (ability_info.target) {
+    let oldChecked = $(input).prop("checked");
+    switch (ability_info.range_area) {
         case RANGE_SELF:	// 自分
             disabled = limit_count < limit_border || ($(input).hasClass(chara_id) && disabled);
             checked = limit_count >= limit_border && $(input).hasClass(chara_id);
@@ -1704,6 +1706,9 @@ function setAbilityCheck(input, ability_info, limit_border, limit_count, chara_i
             break;
     }
     $(input).prop("checked", checked).attr("disabled", disabled);
+    if (checked != oldChecked) {
+        $(input).trigger("change");
+    }
 }
 
 // パッシブ追加
@@ -1746,7 +1751,7 @@ function addPassive(member_info) {
         let member_list = [];
         let add_check_class = "";
         let add_div_class = "";
-        switch (passive_info.target) {
+        switch (passive_info.range_area) {
             case RANGE_FILED: // フィールド
                 addElementField(member_info, passive_info.passive_name, effect_size, 0, 0, skill_id);
                 return true;

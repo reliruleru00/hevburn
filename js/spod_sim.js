@@ -916,6 +916,11 @@ function setEventTrigger() {
     });
 }
 
+// メンバー読み込み時の固有処理
+function loadMember(member_info) {
+    loadPassiveSkill(member_info)
+}
+
 // パッシブリスト生成
 function createPassiveList(chara_no) {
     let style_info = select_style_list[chara_no].style_info;
@@ -1178,27 +1183,34 @@ function procBattleStart() {
 
     let init_sp_add = Number($("#init_sp_add").val());
     // スタイル情報を作成
-    $.each(select_style_list, function (index, value) {
+    $.each(select_style_list, function (index, member_info) {
         if (index >= 6) {
             return false;
         }
         let unit = new unit_data();
         unit.place_no = index;
-        if (value) {
-            unit.sp = Number($("#init_sp_" + index).val());
-            unit.sp += Number($("#chain_" + index).val()) + init_sp_add;
-            unit.normal_attack_element = $("#bracelet_" + index).val();
-            unit.earring_effect_size = Number($(`#earring_${index} option:selected`).val());
-            unit.style = value;
+        if (member_info) {
+            member_info.limit_count = Number($(`#limit_${index}`).val());
+            member_info.earring = Number($(`#earring_${index}`).val());
+            member_info.bracelet = Number($(`#bracelet_${index}`).val());
+            member_info.chain = Number($(`#chain_${index}`).val());
+            member_info.init_sp = Number($(`#init_sp_${index}`).val());
+            saveStyle(member_info);
+            savePassiveSkill(member_info);
+
+            unit.style = member_info;
+            unit.sp = member_info.init_sp;
+            unit.sp += member_info.chain + init_sp_add;
+            unit.normal_attack_element = member_info.bracelet;
+            unit.earring_effect_size = member_info.earring;
             unit.skill_list = skill_list.filter(obj =>
-                (obj.chara_id === value.style_info.chara_id || obj.chara_id === 0) &&
-                (obj.style_id === value.style_info.style_id || obj.style_id === 0) &&
+                (obj.chara_id === member_info.style_info.chara_id || obj.chara_id === 0) &&
+                (obj.style_id === member_info.style_info.style_id || obj.style_id === 0) &&
                 obj.skill_active == 0
             );
-            let limit = Number($("#limit_" + index).val());
             ["0", "00", "1", "3", "5", "10"].forEach(num => {
-                if (value.style_info[`ability${num}`] && num <= limit) {
-                    let ability_info = getAbilityInfo(value.style_info[`ability${num}`]);
+                if (member_info.style_info[`ability${num}`] && num <= member_info.limit_count) {
+                    let ability_info = getAbilityInfo(member_info.style_info[`ability${num}`]);
                     switch (ability_info.activation_timing) {
                         case ABILIRY_BATTLE_START: // 戦闘開始時
                             unit.ability_battle_start.push(ability_info);

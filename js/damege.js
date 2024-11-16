@@ -496,23 +496,10 @@ function setEventTrigger() {
     });
     // ステータス保存
     $(".save").on("change", function (event) {
-        if (navigator.cookieEnabled) {
-            let id_split = $(this).prop("id").split("_");
-            if (id_split.length > 1) {
-                let chara_no = Number(id_split[1]);
-                if (select_style_list[chara_no] === undefined) {
-                    return
-                }
-                let member_info = select_style_list[chara_no];
-                let style_id = member_info.style_info.style_id;
-                // 新設定
-                let save_item = [member_info.style_info.rarity,
-                member_info.str, member_info.dex,
-                member_info.con, member_info.mnd,
-                member_info.int, member_info.luk,
-                member_info.limit_count, member_info.jewel_lv].join(",");
-                localStorage.setItem("style_" + style_id, save_item);
-            }
+        let id_split = $(this).prop("id").split("_");
+        if (id_split.length > 1) {
+            let chara_no = Number(id_split[1]);
+            saveStyle(select_style_list[chara_no]);
         }
     });
     // 部隊変更ボタンクリック
@@ -630,6 +617,20 @@ function setEventTrigger() {
     $(document).on("change", "input, select", function (event) {
         calcDamage();
     });
+}
+
+// メンバー読み込み時の固有処理
+function loadMember(member_info, isTrigger) {
+    // ダメージ計算ツール
+    addAttackList(member_info);
+    addBuffList(member_info, 0);
+    addAbility(member_info);
+    addPassive(member_info);
+    $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
+
+    if (isTrigger) {
+        $("#attack_list").trigger("change");
+    }
 }
 
 class RestGauge {

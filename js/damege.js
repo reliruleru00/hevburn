@@ -1107,7 +1107,7 @@ function getStrengthen(member_info, skill_buff) {
         if (ability_list.includes(504)) {
             strengthen += 10;
         }
-        // モロイウオ(あいな専用)
+        // モロイウオ
         if (ability_list.includes(506) && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
             strengthen += 30;
         }
@@ -1647,6 +1647,11 @@ function addAbility(member_info) {
             input.addClass("strengthen_ability");
             fg_update = true;
         }
+        // フィールド強化アビリティ
+        if (ability_id == 603) {
+            input.addClass("strengthen_field");
+            fg_update = true;
+        }
         let label = $('<label>')
             .attr("for", id)
             .text(`${name}: ${ability_info.ability_name} (${ability_info.ability_short_explan})`)
@@ -1724,12 +1729,14 @@ function addPassive(member_info) {
         25, // 能力固定上昇
         26, // 能力%上昇
         27, // フィールド強化
+        28, // バフ強化
     ]
     const SUB_TARGET_KIND = [
         7, // フィールド
         25, // 能力固定上昇
         26, // 能力%上昇
         27, // フィールド強化
+        28, // バフ強化
     ]
     let passive_list = skill_list.filter(obj =>
         obj.chara_id === chara_id &&
@@ -1743,7 +1750,7 @@ function addPassive(member_info) {
             return true;
         }
         if (!is_select && !SUB_TARGET_KIND.includes(passive_info.effect_type)) {
-            // 他部隊のアビリティはフィールドのみ許可
+            // 他部隊のアビリティは一部のみ許可
             return true;
         }
         let target = "skill_passive";

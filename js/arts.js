@@ -3,7 +3,7 @@ const showTroopsList = {
     "0": troop_list,
     "2": ["31A", "31B", "31C", "31E"],
     "3": ["31A", "31B", "31C", "31F"],
-    "4": ["31A", "31C", "31D", "31F"],
+    "4": ["31A", "31D", "31E", "31F"],
 } 
 const MAX_TROOPS_ARTS_COUNT = 24;
 const TROOPS_ARTS_COUNT = {

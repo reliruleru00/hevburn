@@ -129,7 +129,7 @@
       let enemy_class = localStorage.getItem("enemy_class");
       enemy_class = enemy_class ? enemy_class : "1";
       $("#enemy_class").val(enemy_class);
-      createEnemyList(enemy_class);
+      createEnemyList(Number(enemy_class));
       let enemy_list = localStorage.getItem("enemy_list");
       enemy_list = enemy_list ? enemy_list : "1";
       $("#enemy_list").val(enemy_list);
@@ -331,6 +331,7 @@
                 <option value="10">時の修練場</option>
                 <option value="11">制圧戦</option>
                 <option value="12">セラフ遭遇戦</option>
+                <option value="13">イベントプリズム</option>
                 <option value="99">自由入力</option>
               </select>
               <select id="enemy_list">

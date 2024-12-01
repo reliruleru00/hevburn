@@ -47,6 +47,16 @@ const BUFF_MORALE = 34; // 士気
 const BUFF_ABILITY_FUNNEL_SMALL = 116; // アビリティ連撃(小)
 const BUFF_ABILITY_FUNNEL_LARGE = 117; // アビリティ連撃(大)
 
+/** フィールド */
+const FIELD_NORMAL = 0; // 通常
+const FIELD_FIRE = 1; // 火
+const FIELD_ICE = 2; // 氷
+const FIELD_THUNDER = 3; // 雷
+const FIELD_LIGHT = 4; // 光
+const FIELD_DARK = 5; // 闇
+const FIELD_RICE = 6; // 稲穂
+const FIELD_SANDSTORM = 7; // 砂嵐
+
 /** 対象 */
 const RANGE_FILED = 0; // 場
 const RANGE_ENEMY_UNIT = 1; // 敵単体

@@ -1,5 +1,5 @@
 // 使用不可スタイル
-const NOT_USE_STYLE = [141];
+const NOT_USE_STYLE = [];
 
 const styleSheet = document.createElement('style');
 document.head.appendChild(styleSheet);
@@ -54,7 +54,16 @@ const EFFECT_TOKEN_DEFFENCEUP = 32; // トークン1つにつき 防御力アッ
 
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL_SMALL, BUFF_FUNNEL_LARGE, BUFF_ABILITY_FUNNEL_SMALL, BUFF_ABILITY_FUNNEL_LARGE];
 const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
-
+const FIELD_LIST = {
+    [FIELD_NORMAL]: "無し",
+    [FIELD_FIRE]: "火",
+    [FIELD_ICE]: "氷",
+    [FIELD_THUNDER]: "雷",
+    [FIELD_LIGHT]: "光",
+    [FIELD_DARK]: "闇",
+    [FIELD_RICE]: "稲穂",
+    [FIELD_SANDSTORM]: "砂嵐"
+}
 class turn_data {
     constructor() {
         this.turn_number = 0;
@@ -74,6 +83,8 @@ class turn_data {
         this.step_over_drive_down = 0;
         this.step_sp_down = 0;
         this.sp_cost_down = 0;
+        this.field = 0;
+        this.field_turn = 0;
     }
 
     unitLoop(func) {
@@ -1300,6 +1311,10 @@ function procBattleStart() {
     });
 
     // 初期設定を読み込み
+    turn_init.field = Number($("#init_field").val());
+    if (turn_init.field > 0) {
+        turn_init.field_turn = -1;
+    }
     turn_init.over_drive_gauge = Number($("#init_over_drive").val());
     turn_init.front_sp_add = Number($("#front_sp_add").val());
     turn_init.back_sp_add = Number($("#back_sp_add").val());
@@ -1342,10 +1357,15 @@ function proceedTurn(turn_data, kb_next) {
     let turn_number = $('<div>').text(turn_data.getTurnNumber()).addClass("turn_number");
     let enemy = $('<div>').addClass("left flex").append(
         $('<img>').attr("src", "icon/BtnEventBattleActive.webp").addClass("enemy_icon"),
-        $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
-            ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`${i + 1}体`))
-        ).val(turn_data.enemy_count).addClass("enemy_count"),
-        createBuffIconList(turn_data.enemy_debuff_list, 4, 7).addClass("enemy_icon_list")
+        $("<div>").append(
+            $("<select>").attr("id", `enemy_count_turn${last_turn}`).append(
+                ...Array.from({ length: 3 }, (_, i) => $("<option>").val(i + 1).text(`${i + 1}体`))
+            ).val(turn_data.enemy_count).addClass("enemy_count"),
+            $("<label>").text("場").addClass("ml-2"),
+            $("<select>").attr("id", `field_turn${last_turn}`).append(
+                Object.keys(FIELD_LIST).map(field => $("<option>").val(field).text(FIELD_LIST[field]))
+            ).val(turn_data.field).addClass("enemy_count"),
+            createBuffIconList(turn_data.enemy_debuff_list, 6, 1, 7).addClass("enemy_icon_list"))
     );
     let over_drive = createOverDriveGauge(turn_data.over_drive_gauge);
 
@@ -1385,7 +1405,7 @@ function proceedTurn(turn_data, kb_next) {
 
         const appendBuffList = () => {
             if (unit.buff_list.length > 0) {
-                unit_div.append(createBuffIconList(unit.buff_list, 3, index).addClass("icon_list"));
+                unit_div.append(createBuffIconList(unit.buff_list, 3, 2, index).addClass("icon_list"));
             }
         };
 
@@ -1532,21 +1552,23 @@ function updateTurn(selector, turn_data) {
 // ターンボタン表示設定
 function setTurnButton() {
     // 最後の要素のみ表示
-    $('.next_turn:last').show();
-    $('.next_turn:not(:last)').hide();
     if (next_display == "1") {
         // 最初の要素を非表示、以降の要素を表示
+        $('.next_turn:first').show();
+        $('.next_turn:not(:first)').hide();
         $('.return_turn:first').hide();
-        $('.return_turn:gt(0)').show();
+        $('.return_turn:not(:first)').show();
     } else {
         // 最後の要素を非表示、以前の要素を表示
+        $('.next_turn:last').show();
+        $('.next_turn:not(:last)').hide();
         $('.return_turn:last').hide();
         $('.return_turn:not(:last)').show();
     }
 }
 
 // バフアイコンリスト
-function createBuffIconList(buff_list, loop_limit, chara_index) {
+function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
     let div = $("<div>").addClass("scroll-container");
     let inner = $("<div>").addClass("scroll-content");
     $.each(buff_list, function (index, buff_info) {
@@ -1556,7 +1578,7 @@ function createBuffIconList(buff_list, loop_limit, chara_index) {
     });
 
     let unit_buffs = inner.find(".unit_buff");
-    if (unit_buffs.length > loop_limit * 2) {
+    if (unit_buffs.length > loop_limit * loop_step) {
         inner.addClass('scroll');
 
         // アイコンの数によってアニメーションの速度を調整
@@ -1932,6 +1954,15 @@ function startAction(turn_data, turn_number) {
             unit.additional_turn = false;
         });
     }
+    // フィールド判定
+    let old_field = turn_data.field;
+    let select_field = $(`#field_turn${turn_number}`).val();
+    turn_data.field = select_field;
+    if (old_field != select_field) {
+        // 変更があった場合はフィールドターンをリセット
+        turn_data.field_turn = 0;
+    }
+
     let seq = sortActionSeq(turn_number);
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,
@@ -1977,6 +2008,12 @@ function startAction(turn_data, turn_number) {
     turn_data.over_drive_gauge += turn_data.add_over_drive_gauge;
     if (turn_data.over_drive_gauge > 300) {
         turn_data.over_drive_gauge = 300;
+    }
+    // 残りフィールドターン
+    if (turn_data.field_turn > 1 && !turn_data.additional_turn) {
+        turn_data.field_turn--;
+    } else if (turn_data.field_turn == 1) {
+        turn_data.field = 0;
     }
 }
 
@@ -2183,11 +2220,6 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
 
 // バフを追加
 function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
-    // 対象：場
-    if (buff_info.range_area == 0) {
-        return;
-    }
-
     // 条件判定
     if (buff_info.conditions != null) {
         if (!judgmentCondition(buff_info.conditions, turn_data, use_unit_data, buff_info.skill_id)) {
@@ -2334,6 +2366,10 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 unit_data.additional_turn = true;
             });
             turn_data.additional_turn = true;
+        case BUFF_FIELD: // フィールド
+            turn_data.field = buff_info.buff_element;
+            turn_data.field_turn = buff_info.effect_count;
+            break;
         default:
             break;
     }

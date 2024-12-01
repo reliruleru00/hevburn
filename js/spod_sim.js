@@ -252,6 +252,13 @@ class turn_data {
                 }
                 let target_list = getTargetList(self, ability.range_area, ability.target_element, unit.place_no, null);
                 let buff;
+                switch (ability.conditions) {
+                    case "火属性フィールド":
+                        if (self.field != FIELD_FIRE) {
+                            return;
+                        }
+                        break;
+                }
                 switch (ability.effect_type) {
                     case 6: // 連撃数アップ
                         buff = new buff_data();
@@ -322,6 +329,9 @@ class turn_data {
                         break;
                     case 14: // ODアップ
                         self.over_drive_gauge += ability.effect_size;
+                        if (self.over_drive_gauge > 300) {
+                            self.over_drive_gauge = 300;
+                        }
                         break;
                     case 23: // 桜花の矢
                         buff = new buff_data();
@@ -349,6 +359,14 @@ class turn_data {
 function checkAbilityExist(ability_list, ability_id) {
     let exist_list = ability_list.filter(function (ability_info) {
         return ability_info.ability_id == ability_id;
+    });
+    return exist_list.length > 0;
+}
+
+// パッシブ存在チェック
+function checkPassiveExist(passive_list, skill_id) {
+    let exist_list = passive_list.filter(function (value) {
+        return value == skill_id;
     });
     return exist_list.length > 0;
 }
@@ -2218,6 +2236,14 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
     return false;
 }
 
+function getFieldElement(turn_data) {
+    let field_element = Number(turn_data.field);
+    if (field_element == FIELD_RICE || field_element == FIELD_SANDSTORM) {
+        field_element = 0;
+    }
+    return field_element;
+}
+
 // バフを追加
 function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
     // 条件判定
@@ -2253,6 +2279,15 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             }
             break;
     }
+    switch (buff_info.skill_id) {
+        case 557: // 極彩色
+            let field_element = getFieldElement(turn_data);
+            if (buff_info.buff_element != field_element) {
+                return;
+            }
+            break;
+    }
+
     let target_list;
     // 対象策定
     switch (buff_info.buff_kind) {
@@ -2368,7 +2403,18 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             turn_data.additional_turn = true;
         case BUFF_FIELD: // フィールド
             turn_data.field = buff_info.buff_element;
-            turn_data.field_turn = buff_info.effect_count;
+            let field_turn = buff_info.effect_count;
+            if (field_turn > 0) {
+                // 天長地久
+                if (checkAbilityExist(use_unit_data.ability_other, 603)) {
+                    field_turn = 0;
+                }
+                // メディテーション
+                if (checkPassiveExist(use_unit_data.style.passive_skill_list, 501)) {
+                    field_turn = 0;
+                }
+            }
+            turn_data.field_turn = field_turn;
             break;
         default:
             break;

@@ -349,6 +349,14 @@ class turn_data {
                         buff.buff_name = ability.ability_name;
                         unit.buff_list.push(buff);
                         break;
+                    case 7: // フィールド
+                        if (ability.element) {
+                            self.field = ability.element;
+                        } else if (ability.skill_id == 525) {
+                            // いつの日かここで
+                            self.field = FIELD_RICE;
+                        }
+                        break;
                 }
             });
         });

@@ -26,32 +26,6 @@ const ABILIRY_RECEIVE_DAMAGE = 7;
 const ABILIRY_EX_SKILL_USE = 8;
 const ABILIRY_OTHER = 99;
 
-const EFFECT_ATTACKUP = 1; // 攻撃力アップ
-const EFFECT_DEFFENCEDOWN = 2; // 防御力ダウン
-const EFFECT_CRITICAL_UP = 3; // クリティカル率アップ
-const EFFECT_CRITICAL_DAMAGE_UP = 4; // クリティカルダメージアップ
-const EFFECT_DAMAGERATEUP = 5; // 破壊率上昇量アップ
-const EFFECT_FUNNEL = 6; // 連撃数アップ
-const EFFECT_FIELD = 7; // フィールド展開
-const EFFECT_CHARGE = 8; // チャージ
-const EFFECT_DEFFENCEUP = 11; // 防御力アップ
-const EFFECT_HEALSP = 12; // SP回復
-const EFFECT_HEALDP = 13; // DP回復
-const EFFECT_OVERDRIVEPOINTUP = 14; // ODアップ
-const EFFECT_COST_SP_DOWN = 15; // 消費SPダウン
-const EFFECT_MORALE = 16; // 士気
-const EFFECT_BREAK_GUARD = 20; // ブレイクガード
-const EFFECT_STUN = 21; // スタン
-const EFFECT_MISFORTUNE = 22; // 厄
-const EFFECT_ARROWCHERRYBLOSSOMS = 23; // 桜花の矢
-const EFFECT_SHADOW_CLONE = 24; // 影分身
-const EFFECT_STATUSUP_VALUE = 25; // 能力上昇(固定)
-const EFFECT_STATUSUP_RATE = 26; // 能力上昇(%)
-const EFFECT_FIELD_ = 27; // フィールド強化
-const EFFECT_TOKEN_UP = 30; // トークンアップ
-const EFFECT_TOKEN_ATTACKUP = 31; // トークン1つにつき攻撃力アップ
-const EFFECT_TOKEN_DEFFENCEUP = 32; // トークン1つにつき 防御力アップ
-
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL_SMALL, BUFF_FUNNEL_LARGE, BUFF_ABILITY_FUNNEL_SMALL, BUFF_ABILITY_FUNNEL_LARGE];
 const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED];
 const FIELD_LIST = {
@@ -260,7 +234,7 @@ class turn_data {
                         break;
                 }
                 switch (ability.effect_type) {
-                    case 6: // 連撃数アップ
+                    case EFFECT_FUNNEL: // 連撃数アップ
                         buff = new buff_data();
                         buff.buff_kind = ability.effect_size == 40 ? BUFF_ABILITY_FUNNEL_LARGE : BUFF_ABILITY_FUNNEL_SMALL;
                         buff.buff_name = ability.ability_name;
@@ -269,7 +243,7 @@ class turn_data {
                         buff.rest_turn = -1;
                         unit.buff_list.push(buff);
                         break;
-                    case 12: // SP回復
+                    case EFFECT_HEALSP: // SP回復
                         $.each(target_list, function (index, target_no) {
                             let unit_data = getUnitData(self, target_no);
                             if (unit_data.sp < 20) {
@@ -327,13 +301,13 @@ class turn_data {
                             }
                         });
                         break;
-                    case 14: // ODアップ
+                    case EFFECT_OVERDRIVEPOINTUP: // ODアップ
                         self.over_drive_gauge += ability.effect_size;
                         if (self.over_drive_gauge > 300) {
                             self.over_drive_gauge = 300;
                         }
                         break;
-                    case 23: // 桜花の矢
+                    case EFFECT_ARROWCHERRYBLOSSOMS: // 桜花の矢
                         buff = new buff_data();
                         buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
                         buff.buff_element = 0;
@@ -341,7 +315,7 @@ class turn_data {
                         buff.buff_name = ability.ability_name;
                         unit.buff_list.push(buff);
                         break;
-                    case 8: // チャージ
+                    case EFFECT_CHARGE: // チャージ
                         buff = new buff_data();
                         buff.buff_kind = BUFF_CHARGE;
                         buff.buff_element = 0;
@@ -349,7 +323,7 @@ class turn_data {
                         buff.buff_name = ability.ability_name;
                         unit.buff_list.push(buff);
                         break;
-                    case 7: // フィールド
+                    case EFFECT_FIELD_DEPLOYMENT: // フィールド
                         if (ability.element) {
                             self.field = ability.element;
                         } else if (ability.skill_id == 525) {
@@ -2174,7 +2148,10 @@ function getSpCost(turn_data, skill_info, unit) {
     let sp_cost = skill_info.sp_cost;
     let sp_cost_down = turn_data.sp_cost_down
     if (harfSpSkill(turn_data, skill_info, unit)) {
-        sp_cost = Math.ceil(sp_cost / 2)
+        sp_cost = Math.ceil(sp_cost / 2);
+    }
+    if (ZeroSpSkill(turn_data, skill_info, unit)) {
+        sp_cost = 0;
     }
     // 追加ターン
     if (turn_data.additional_turn) {
@@ -2204,8 +2181,19 @@ function getSpCost(turn_data, skill_info, unit) {
 
 // 消費SP半減
 function harfSpSkill(turn_data, skill_info, unit_data) {
-    // SP半減
+    // SP消費半減
     if (skill_info.skill_attribute == ATTRIBUTE_SP_HALF) {
+        if (judgmentCondition(skill_info.attribute_conditions, turn_data, unit_data, skill_info.skill_id)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 消費SP0
+function ZeroSpSkill(turn_data, skill_info, unit_data) {
+    // SP消費0
+    if (skill_info.skill_attribute == ATTRIBUTE_SP_ZERO) {
         if (judgmentCondition(skill_info.attribute_conditions, turn_data, unit_data, skill_info.skill_id)) {
             return true;
         }
@@ -2240,6 +2228,8 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return checkMember(turn_data.unit_list, "31A") >= 3;
         case CONDITIONS_31E_OVER_3: // 31E3人以上
             return checkMember(turn_data.unit_list, "31E") >= 3;
+        case CONDITIONS_FIELD_NOT_FIRE: // 火属性フィールド以外
+            return turn_data.field != FIELD_FIRE && turn_data.field != FIELD_NORMAL;
     }
     return false;
 }
@@ -2409,6 +2399,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                 unit_data.additional_turn = true;
             });
             turn_data.additional_turn = true;
+            break;
         case BUFF_FIELD: // フィールド
             turn_data.field = buff_info.buff_element;
             let field_turn = buff_info.effect_count;

@@ -324,11 +324,14 @@ class turn_data {
                         unit.buff_list.push(buff);
                         break;
                     case EFFECT_FIELD_DEPLOYMENT: // フィールド
-                        if (ability.element) {
-                            self.field = ability.element;
-                        } else if (ability.skill_id == 525) {
-                            // いつの日かここで
-                            self.field = FIELD_RICE;
+                        // 稲穂フィールドはアビリティで上書き出来ない
+                        if (self.field != FIELD_RICE) {
+                            if (ability.element) {
+                                self.field = ability.element;
+                            } else if (ability.skill_id == 525) {
+                                // いつの日かここで
+                                self.field = FIELD_RICE;
+                            }
                         }
                         break;
                 }

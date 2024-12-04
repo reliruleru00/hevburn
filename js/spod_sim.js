@@ -1,6 +1,9 @@
 // 使用不可スタイル
 const NOT_USE_STYLE = [];
 
+// 謎の処理順序
+const ACTION_ORDER = [1, 0, 2, 3, 4, 5];
+
 const styleSheet = document.createElement('style');
 document.head.appendChild(styleSheet);
 let last_turn;
@@ -63,6 +66,16 @@ class turn_data {
 
     unitLoop(func) {
         $.each(this.unit_list, function (index, unit) {
+            if (!unit.blank) {
+                func(unit);
+            }
+        });
+    }
+
+    unitOrderLoop(func) {
+        const self = this;
+        ACTION_ORDER.forEach(function (index) {
+            let unit = self.unit_list[index];
             if (!unit.blank) {
                 func(unit);
             }
@@ -181,7 +194,7 @@ class turn_data {
     }
     abilityAction(action_kbn) {
         const self = this;
-        this.unitLoop(function (unit) {
+        this.unitOrderLoop(function (unit) {
             let action_list = [];
             switch (action_kbn) {
                 case ABILIRY_BATTLE_START: // 戦闘開始時
@@ -324,14 +337,11 @@ class turn_data {
                         unit.buff_list.push(buff);
                         break;
                     case EFFECT_FIELD_DEPLOYMENT: // フィールド
-                        // 稲穂フィールドはアビリティで上書き出来ない
-                        if (self.field != FIELD_RICE) {
-                            if (ability.element) {
-                                self.field = ability.element;
-                            } else if (ability.skill_id == 525) {
-                                // いつの日かここで
-                                self.field = FIELD_RICE;
-                            }
+                        if (ability.element) {
+                            self.field = ability.element;
+                        } else if (ability.skill_id == 525) {
+                            // いつの日かここで
+                            self.field = FIELD_RICE;
                         }
                         break;
                 }
@@ -2047,6 +2057,12 @@ function getOverDrive(turn_number, enemy_count) {
         buff_list.forEach(function (buff_info) {
             // OD増加
             if (buff_info.buff_kind == BUFF_OVERDRIVEPOINTUP) {
+                // 条件判定
+                if (buff_info.conditions != null) {
+                    if (!judgmentCondition(buff_info.conditions, temp_turn, unit_data, buff_info.skill_id)) {
+                        return true;
+                    }
+                }
                 // 哀のスノードロップBREAKなし
                 if (buff_info.buff_id == 123 && unit_data.buff_effect_select_type == 0) {
                     return true;

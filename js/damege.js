@@ -1478,8 +1478,7 @@ function addBuffList(member_info, member_kind) {
             case BUFF_MINDEYE: // 心眼
             case BUFF_CRITICALRATEUP: // クリ率
             case BUFF_CRITICALDAMAGEUP: // クリダメ
-            case BUFF_FUNNEL_SMALL: // 連撃(小)
-            case BUFF_FUNNEL_LARGE: // 連撃(大)
+            case BUFF_FUNNEL: // 連撃
                 only_one = "only_one";
                 break;
             case BUFF_DEFENSEDOWN: // 防御ダウン
@@ -1878,9 +1877,8 @@ function getEffectSize(buff_kind, buff_id, member_info, skill_lv) {
         case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
             effect_size = getDebuffEffectSize(buff_id, member_info, skill_lv);
             break;
-        case BUFF_FUNNEL_SMALL: // 連撃(小)
-        case BUFF_FUNNEL_LARGE: // 連撃(大)
-            effect_size = getFunnelEffectSize(buff_id, member_info, skill_lv);
+        case BUFF_FUNNEL: // 連撃
+            effect_size = getFunnelEffectSize(buff_id, member_info);
             break;
         default:
             break;
@@ -2125,10 +2123,7 @@ function getSumFunnelEffectList() {
         }
         let buff_info = getBuffIdToBuff(Number($(selected).val()));
         let loop = buff_info.max_power;
-        let size = 10;
-        if (buff_info.buff_kind == 17) {
-            size = 40;
-        }
+        let size = buff_info.effect_size;
         for (let i = 0; i < loop; i++) {
             funnel_list.push(size);
         }
@@ -2901,16 +2896,9 @@ function getDebuffEffectSize(buff_id, member_info, skill_lv) {
 }
 
 // 連撃効果量
-function getFunnelEffectSize(buff_id, member_info, skill_lv) {
+function getFunnelEffectSize(buff_id, member_info) {
     let buff_info = getBuffIdToBuff(buff_id)
-    let funnel_power;
-    if (buff_info.buff_kind == 16) {
-        // 連撃(小)
-        funnel_power = 10;
-    } else {
-        // 連撃(大)
-        funnel_power = 40;
-    }
+    let funnel_power = buff_info.effect_size;
     let effect_size;
     let min_power = buff_info.min_power;
     let max_power = buff_info.max_power;

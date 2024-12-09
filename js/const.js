@@ -149,3 +149,5 @@ const ENEMY_CLASS_FREE_INPUT = 99; // 自由入力
 
 /** 貫通クリティカル */ 
 const PENETRATION_ATTACK_LIST = [84, 135, 137, 156, 163];
+/** 単独発動バフ */
+const ALONE_ACTIVATION_BUFF_LIST = [4, 133, 134, 201, 202, 2606, 2607];

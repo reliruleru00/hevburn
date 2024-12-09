@@ -380,6 +380,15 @@ function checkBuffExist(buff_list, buff_kind) {
     return exist_list.length > 0;
 }
 
+
+// バフ存在チェック
+function checkBuffIdExist(buff_list, buff_id) {
+    let exist_list = buff_list.filter(function (buff_info) {
+        return buff_info.buff_id == buff_id;
+    });
+    return exist_list.length > 0;
+}
+
 // メンバー存在チェック
 function checkMember(unit_list, troops) {
     let member_list = unit_list.filter(function (unit_info) {
@@ -2359,6 +2368,18 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                         return true;
                     }
                 }
+                if (ALONE_ACTIVATION_BUFF_LIST.includes(buff_info.buff_id)) {
+                    if (checkBuffIdExist(unit_data.buff_list, buff_info.buff_id)) {
+                        if (buff_info.effect_count > 0) {
+                            // 残ターン更新
+                            let filter_list = unit_data.buff_list.filter(function (buff) {
+                                return buff.buff_id == buff_info.buff_id;
+                            })
+                            filter_list[0].rest_turn = buff_info.effect_count;
+                        }
+                        return true;
+                    }
+                }
                 let buff = createBuffData(buff_info, use_unit_data);
                 unit_data.buff_list.push(buff);
             });
@@ -2461,6 +2482,7 @@ function createBuffData(buff_info, use_unit_data) {
     buff.effect_count = buff_info.effect_count;
     buff.buff_name = buff_info.buff_name
     buff.skill_id = buff_info.skill_id;
+    buff.buff_id = buff_info.buff_id;
     buff.rest_turn = buff_info.effect_count == 0 ? -1 : buff_info.effect_count;
     switch (buff_info.buff_kind) {
         case BUFF_DEFENSEDOWN: // 防御力ダウン

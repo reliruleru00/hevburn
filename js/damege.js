@@ -149,10 +149,11 @@ function setEventTrigger() {
         let selected_index = $(this).prop("selectedIndex");
         let id = $(this).prop("id");
         $(".status_" + id).removeClass("status_" + id);
+        let option = $(this).find("option:selected");
+        setAloneActivation($(option));
         if (selected_index === 0) {
             resetSkillLv(id);
         } else {
-            let option = $(this).find("option:selected");
             if (isOnlyBuff(option)) {
                 if (!confirm(option.text() + "は\r\n通常、複数付与出来ませんが、設定してよろしいですか？")) {
                     $(this).prop("selectedIndex", 0);
@@ -161,12 +162,6 @@ function setEventTrigger() {
             }
             if (isOnlyUse(option)) {
                 if (!confirm(option.text() + "は\r\n通常、他スキルに設定出来ませんが、設定してよろしいですか？")) {
-                    $(this).prop("selectedIndex", 0);
-                    return;
-                }
-            }
-            if (isSameBuff($(option))) {
-                if (!confirm(option.text() + "は\r\n同一スキルが既に設定されています。設定してよろしいですか？")) {
                     $(this).prop("selectedIndex", 0);
                     return;
                 }
@@ -1395,15 +1390,12 @@ function setBuffList() {
                     $(option).prop("selected", false);
                     return true;
                 }
-                if (isSameBuff($(option))) {
-                    $(option).prop("selected", false);
-                    return true;
-                }
                 if (isOtherOnlyUse($(option))) {
                     $(option).prop("selected", false);
                     return true;
                 }
 
+                setAloneActivation($(option));
                 let select_lv = $(option).data("select_lv");
                 let max_lv = $(option).data("max_lv");
                 createSkillLvList(select_id + "_lv", max_lv, select_lv);
@@ -1902,6 +1894,9 @@ function select2ndSkill(select) {
         return;
     }
     select.prop("selectedIndex", 0);
+    if (select.prop("disabled")) {
+        return;
+    }
     $(".status_" + id).removeClass("status_" + id);
     for (let i = 1; i < select.find("option").length; i++) {
         let option = select.find("option")[i];
@@ -1921,10 +1916,6 @@ function select2ndSkill(select) {
                 $(option).prop("selected", false);
                 continue;
             }
-            if (isSameBuff($(option))) {
-                $(option).prop("selected", false);
-                continue;
-            }
             if (isOtherOnlyUse($(option))) {
                 $(option).prop("selected", false);
                 continue;
@@ -1933,6 +1924,7 @@ function select2ndSkill(select) {
                 // アビリティ
                 break;
             }
+            setAloneActivation($(option));
             let select_lv = $(option).data("select_lv");
             let max_lv = $(option).data("max_lv");
             createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
@@ -1998,17 +1990,20 @@ function isOtherOnlyUse(option) {
     return false;
 }
 
-// 複数設定出来ないバフで扱いは同一のもの
-function isSameBuff(option) {
-    let convert_skill_id = { "4": "133", "133": "4" };
-    if (option.hasClass("only_first")) {
-        let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
-        let buff_id = "buff_id-" + convert_skill_id[option.val()];
-        if ($("." + class_name + " option." + buff_id + ":selected").length > 0) {
-            return true;
-        }
+// 単独発動設定
+function setAloneActivation(option) {
+    let skill_id = Number(option.val());
+    let id = option.parent().attr("id");
+    let partner_id = id.endsWith('1') ? id.slice(0, -1) + '2' : id.slice(0, -1) + '1';
+    // 他スキルを使用不可にする。
+    if (ALONE_ACTIVATION_BUFF_LIST.includes(skill_id)) {
+        $(`#${partner_id}`).prop("disabled", true);
+        $(`#${partner_id}`).prop("selectedIndex", 0);
+        $(`#${partner_id}`).find("option").first().text("使用不可");
+    } else {
+        $(`#${partner_id}`).prop("disabled", false);
+        $(`#${partner_id}`).find("option").first().text("無し");
     }
-    return false;
 }
 
 // 選択バフのステータスを着色

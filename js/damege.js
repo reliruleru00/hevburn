@@ -2262,8 +2262,10 @@ function getCriticalBuff() {
 function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     let ability_effect_size = 0;
     let sum_none_effect_size = 0;
+    let sum_physical_effect_size = 0;
     let sum_element_effect_size = 0;
     let activation_none_effect_size = 0;
+    let activation_physical_effect_size = 0;
     let activation_element_effect_size = 0;
     $("input[type=checkbox].ability:checked").each(function (index, value) {
         if ($(value).parent().css("display") === "none") {
@@ -2286,20 +2288,25 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
             effect_size *= Number($(value).parent().find("select").val());
         }
         if (ALONE_ACTIVATION_ABILITY_LIST.includes(ability_id)) {
-            if (ability_info.element == 0) {
-                activation_none_effect_size = Math.max(activation_none_effect_size, effect_size);
-            } else {
+            if (ability_info.element != 0) {
                 activation_element_effect_size = Math.max(activation_element_effect_size, effect_size);
-            }           
-        } else {
-            if (ability_info.element == 0) {
-                sum_none_effect_size += effect_size;
+            } else if (ability_info.physical != 0) {
+                activation_physical_effect_size = Math.max(activation_physical_effect_size, effect_size);
             } else {
+                activation_none_effect_size = Math.max(activation_none_effect_size, effect_size);
+            }
+        } else {
+            if (ability_info.element != 0) {
                 sum_element_effect_size += effect_size;
+            } else if (ability_info.physical != 0) {
+                sum_physical_effect_size += effect_size;
+            } else {
+                sum_none_effect_size += effect_size;
             }
         }
     });
-    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size) + Math.max(activation_element_effect_size, sum_element_effect_size);
+    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size) 
+        + Math.max(activation_physical_effect_size, sum_physical_effect_size) + Math.max(activation_element_effect_size, sum_element_effect_size);
     $("input[type=checkbox].passive:checked").each(function (index, value) {
         let select = $(value).parent();
         if (select.css("display") === "none") {

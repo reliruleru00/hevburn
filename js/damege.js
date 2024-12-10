@@ -1377,7 +1377,12 @@ function setBuffList() {
                 // 最大数設定済み
                 let skill_id_class = "skill_id-" + $(option).data("skill_id");
                 let class_name = $(option).parent().attr("id").replace(/[0-9]/g, '');
-                if ($("." + class_name + " option." + skill_id_class + ":selected").length >= count) {
+                let buff_count = $("." + class_name + " option." + skill_id_class + ":selected").length;
+                if (buff_count >= count) {
+                    return true;
+                }
+                // 単独発動は1つまで
+                if (ALONE_ACTIVATION_BUFF_LIST.includes(buff_id) && buff_count > 0) {
                     return true;
                 }
 
@@ -1622,13 +1627,13 @@ function addAbility(member_info) {
                 break;
         }
         // 浄化の喝采/破砕の喝采
-        const APPEND_SELECT_LIST = [407, 408];
-        if (APPEND_SELECT_LIST.includes(ability_info.ability_id)) {
-            // 追加
-            var option1 = $('<option>').text("×1").val(1);
-            var option2 = $('<option>').text("×2").val(2);
-            append = $('<select>').append(option1).append(option2).addClass("ability_select");
-        }
+        // const APPEND_SELECT_LIST = [407, 408];
+        // if (APPEND_SELECT_LIST.includes(ability_info.ability_id)) {
+        //     // 追加
+        //     var option1 = $('<option>').text("×1").val(1);
+        //     var option2 = $('<option>').text("×2").val(2);
+        //     append = $('<select>').append(option1).append(option2).addClass("ability_select");
+        // }
         let name = (is_select ? "" : "(他部隊)") + getCharaData(chara_id).chara_short_name;
         let fg_update = false;
         let id = target + chara_id + index;
@@ -1663,9 +1668,9 @@ function addAbility(member_info) {
             .addClass(chara_id_class)
             .css("display", display);
         $("#" + target).append(div);
-        if (append !== undefined) {
-            $(div).append(append);
-        }
+        // if (append !== undefined) {
+        //     $(div).append(append);
+        // }
         if (fg_update) {
             // バフ効果量を更新
             $(".variable_effect_size." + chara_id_class).each(function (index, value) {
@@ -2072,7 +2077,7 @@ function getSumBuffEffectSize() {
     // スキルバフ合計
     let sum_buff = getSumEffectSize("buff");
     // 攻撃力アップアビリティ
-    sum_buff += getSumAbilityEffectSize(1);
+    sum_buff += getSumAbilityEffectSize(EFFECT_ATTACKUP);
     // 属性リング(0%-10%)
     if (select_attack_skill.attack_element != 0) {
         sum_buff += Number($("#elememt_ring option:selected").val());
@@ -2256,6 +2261,10 @@ function getCriticalBuff() {
 // アビリティ効果量合計取得
 function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     let ability_effect_size = 0;
+    let sum_none_effect_size = 0;
+    let sum_element_effect_size = 0;
+    let activation_none_effect_size = 0;
+    let activation_element_effect_size = 0;
     $("input[type=checkbox].ability:checked").each(function (index, value) {
         if ($(value).parent().css("display") === "none") {
             return true;
@@ -2276,8 +2285,21 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
         if ($(value).parent().find("select").length > 0) {
             effect_size *= Number($(value).parent().find("select").val());
         }
-        ability_effect_size += effect_size;
+        if (ALONE_ACTIVATION_ABILITY_LIST.includes(ability_id)) {
+            if (ability_info.element == 0) {
+                activation_none_effect_size = Math.max(activation_none_effect_size, effect_size);
+            } else {
+                activation_element_effect_size = Math.max(activation_element_effect_size, effect_size);
+            }           
+        } else {
+            if (ability_info.element == 0) {
+                sum_none_effect_size += effect_size;
+            } else {
+                sum_element_effect_size += effect_size;
+            }
+        }
     });
+    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size) + Math.max(activation_element_effect_size, sum_element_effect_size);
     $("input[type=checkbox].passive:checked").each(function (index, value) {
         let select = $(value).parent();
         if (select.css("display") === "none") {

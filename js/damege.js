@@ -2305,7 +2305,7 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
             }
         }
     });
-    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size) 
+    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size)
         + Math.max(activation_physical_effect_size, sum_physical_effect_size) + Math.max(activation_element_effect_size, sum_element_effect_size);
     $("input[type=checkbox].passive:checked").each(function (index, value) {
         let select = $(value).parent();
@@ -2361,8 +2361,10 @@ function createEnemyList(enemy_class) {
         if (value.enemy_class == enemy_class) {
             var option = $('<option>')
                 .val(value.enemy_class_no);
-            if (enemy_class == 6) {
-                option.text(`#${value.score_attack_no} ${value.enemy_name}`)
+            if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
+                option.text(`#${value.sub_no} ${value.enemy_name}`)
+            } else if(enemy_class == ENEMY_CLASS_CLOCK_TOWER_NORMAL || enemy_class == ENEMY_CLASS_CLOCK_TOWER_HARD){
+                option.text(`(${value.sub_no}F) ${value.enemy_name}`)
             } else {
                 option.text(value.enemy_name);
             }
@@ -2657,7 +2659,7 @@ function calcScore(detail, grade_magn) {
     let is_break = $("#no_break_bonus_check").prop("checked");
     let turn_count = $("#turn_count").val();
     let enemy_info = getEnemyInfo();
-    let score_attack = getScoreAttack(enemy_info.score_attack_no);
+    let score_attack = getScoreAttack(enemy_info.sub_no);
     let num = score_lv - 100;
     let no_break_value = is_break ? no_break_bonus[num] : 0;
     let damage_bonus_avg = getDamageBonus(detail.avg_damage, num, score_attack);

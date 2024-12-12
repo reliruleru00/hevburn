@@ -2383,7 +2383,8 @@ function createEnemyList(enemy_class) {
         // スコアタの場合、グレードを表示する。
         $(".score_attack").css("display", "block");
         $("#score_lv").show();
-        $("#prediction_score").show();
+        // $("#prediction_score").show();
+        $("#prediction_score").hide();
     } else {
         $(".score_attack").css("display", "none");
         $("#score_lv").hide();
@@ -2473,7 +2474,7 @@ function getGradeSum() {
     $("." + checked_id + ":checked").each(function (index, value) {
         let grade_no = Number($(value).data("grade_no"));
         let half = Number(checked_id.match(/\d+/g));
-        grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
+        grade_list.filter((obj) => obj.sub_no == enemy_info.sub_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
             grade_sum["grade_rate"] += value["grade_rate"];
             if (value.grade_none == 1) {
                 return true;
@@ -2537,7 +2538,7 @@ function setEnemyStatus() {
         setDpGarge(i, 0);
     }
     $(".row_dp").css("display", "none");
-    if (enemy_info.score_attack_no) {
+    if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
         updateEnemyScoreAttack();
     }
     if (enemy_info.enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
@@ -2568,7 +2569,7 @@ function updateEnemyStatus(enemy_class_no, enemy_info) {
 function updateEnemyScoreAttack() {
     let enemy_info = getEnemyInfo();
     let grade_sum = getGradeSum();
-    let score_attack = getScoreAttack(enemy_info.score_attack_no);
+    let score_attack = getScoreAttack(enemy_info.sub_no);
     let score_lv = Number($("#score_lv").val());
     let enemy_stat = score_stat[score_lv - 100];
     let enemy_hp = getScoreHp(score_lv, Number(enemy_info.max_hp), score_attack, enemy_info);
@@ -2627,7 +2628,7 @@ function updateSeraphEncounter() {
 // スコアアタック表示
 function displayScoreAttack(enemy_info) {
     for (let i = 1; i <= 3; i++) {
-        let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == i);
+        let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == i);
         if (grade_info.length == 0) {
             $("#label_half_tab_" + i).hide();
             continue;

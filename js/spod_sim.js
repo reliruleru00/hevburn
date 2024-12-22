@@ -1,3 +1,5 @@
+let select_troops = localStorage.getItem('select_troops');
+let select_style_list = Array(6).fill(undefined);
 // 使用不可スタイル
 const NOT_USE_STYLE = [];
 // 謎の処理順序
@@ -796,11 +798,6 @@ function setEventTrigger() {
             $(`#${attr}_${index2}`).val(temp);
         });
     }
-
-    // リセットボタン
-    $("#style_reset_btn").on("click", function (event) {
-        styleReset(true);
-    });
     // 敵リストイベント
     $("#enemy_class").on("change", function (event) {
         let enemy_class = $(this).val();
@@ -837,10 +834,10 @@ function setEventTrigger() {
         }
         $(".selected_troops").removeClass("selected_troops");
         $(this).addClass("selected_troops");
-        styleReset(false);
+        styleReset(select_style_list, false);
         select_troops = $(this).val();
         localStorage.setItem('select_troops', select_troops);
-        loadTroopsList(select_troops);
+        loadTroopsList(select_style_list, select_troops);
     });
     // ソート順
     $("#next_display").on("change", function (event) {
@@ -968,8 +965,25 @@ function setEventTrigger() {
 }
 
 // メンバー読み込み時の固有処理
-function loadMember(member_info) {
+function loadMember(select_chara_no, member_info) {
+    // 画像切り替え
+    $('#select_chara_' + select_chara_no).attr("src", "icon/" + member_info.style_info.image_url);
+    $(`#limit_${select_chara_no}`).val(member_info.limit_count);
+    $(`#jewel_${select_chara_no}`).val(member_info.jewel_lv);
+    $(`#earring_${select_chara_no}`).val(member_info.earring);
+    $(`#bracelet_${select_chara_no}`).val(member_info.bracelet);
+    $(`#chain_${select_chara_no}`).val(member_info.chain);
+    $(`#init_sp_${select_chara_no}`).val(member_info.init_sp);
     loadPassiveSkill(member_info)
+}
+
+// メンバーを外す
+function removeMember(select_list, select_chara_no) {
+    if (select_list[select_chara_no] === undefined) {
+        return;
+    }
+    // 画像初期化
+    $('#select_chara_' + select_chara_no).attr("src", "img/plus.png");
 }
 
 // パッシブリスト生成

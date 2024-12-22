@@ -75,7 +75,7 @@
       // スタイルリスト読み込み
       select_troops = select_troops ? select_troops : 0;
       $("#troops_btn_" + select_troops).addClass("selected_troops");
-      loadTroopsList(select_troops);
+      loadTroopsList(select_style_list, select_troops);
 
       // 敵情報設定
       let enemy_class = localStorage.getItem("enemy_class");

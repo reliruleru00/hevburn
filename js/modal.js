@@ -42,6 +42,9 @@ function createStyleList() {
 
 // モーダル系イベント
 function addModalEvent() {
+    // スタイルリスト作成
+    createStyleList();
+
     // モーダルを開く
     $('.showmodal').on('click', function () {
         chara_no = $(this).data("chara_no");

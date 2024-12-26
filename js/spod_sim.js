@@ -1,7 +1,7 @@
 let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
 // 使用不可スタイル
-const NOT_USE_STYLE = [];
+const NOT_USE_STYLE = [147];
 // 謎の処理順序
 const ACTION_ORDER = [1, 0, 2, 3, 4, 5];
 // 残ターン消費バフ
@@ -254,6 +254,12 @@ class turn_data {
                             return;
                         };
                         break;
+                    case "SP0以下":
+                        if (unit.sp > 0) {
+                            return;
+                        }
+                        break;
+
                 }
                 switch (ability.effect_type) {
                     case EFFECT_FUNNEL: // 連撃数アップ
@@ -1264,6 +1270,7 @@ function procBattleStart() {
             member_info.init_sp = Number($(`#init_sp_${index}`).val());
             saveStyle(member_info);
             savePassiveSkill(member_info);
+            let physical = getCharaData(member_info.style_info.chara_id).physical;
 
             unit.style = member_info;
             unit.sp = member_info.init_sp;
@@ -1274,7 +1281,12 @@ function procBattleStart() {
                 (obj.chara_id === member_info.style_info.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === member_info.style_info.style_id || obj.style_id === 0) &&
                 obj.skill_active == 0
-            );
+            ).map(obj => {
+                if (obj.chara_id === 0) {
+                    obj.attack_physical = physical;
+                }
+                return obj;
+            });
             ["0", "00", "1", "3", "5", "10"].forEach(num => {
                 if (member_info.style_info[`ability${num}`] && num <= member_info.limit_count) {
                     let ability_info = getAbilityInfo(member_info.style_info[`ability${num}`]);
@@ -1749,6 +1761,9 @@ function getBuffIconImg(buff_info) {
             break;
         case BUFF_DIVA_BLESS: // 歌姫の加護
             src += "IconDivaBress";
+            break;
+        case BUFF_SHREDDING: // 速弾き
+            src += "IconShredding";
             break;
     }
     if (buff_info.buff_element != 0) {
@@ -2369,6 +2384,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_EX_DOUBLE: // EXスキル連続使用
         case BUFF_BABIED: // オギャり
         case BUFF_DIVA_BLESS: // 歌姫の加護
+        case BUFF_SHREDDING: // 速弾き
             // バフ追加
             target_list = getTargetList(turn_data, buff_info.range_area, buff_info.target_element, place_no, use_unit_data.buff_target_chara_id);
             if (buff_info.buff_kind == BUFF_ATTACKUP || buff_info.buff_kind == BUFF_ELEMENT_ATTACKUP) {
@@ -2710,6 +2726,9 @@ function getBuffKindName(buff_info) {
             break;
         case BUFF_DIVA_BLESS: // 歌姫の加護
             buff_kind_name += "歌姫の加護";
+            break;
+        case BUFF_SHREDDING: // 速弾き
+            buff_kind_name += "速弾き";
             break;
         default:
             break;

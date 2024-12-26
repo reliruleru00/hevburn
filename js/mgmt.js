@@ -17,7 +17,7 @@ function setEventTrigger() {
         }
         let width = getWidth(columns);
         if ($("#display_columns").val() == 1) {
-            hot1.updateSettings({ columns: columns, width: width });
+            hot1.updateSettings({ columns: columns, width: width + 20 });
             hot1.loadData(getData());
         } else {
             hot1.updateSettings({ columns: columns, width: width });
@@ -85,7 +85,7 @@ function createGrid() {
         if (hot1) {
             hot1.loadData(dataAll);
         } else {
-            hot1 = new Handsontable(grid1, getGridOptions(dataAll, width, columns));
+            hot1 = new Handsontable(grid1, getGridOptions(dataAll, width + 20, columns));
         }
         if (hot2) {
             hot2.destroy();

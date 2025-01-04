@@ -1,7 +1,7 @@
 let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
 // 使用不可スタイル
-const NOT_USE_STYLE = [147];
+const NOT_USE_STYLE = [];
 // 謎の処理順序
 const ACTION_ORDER = [1, 0, 2, 3, 4, 5];
 // 残ターン消費バフ
@@ -1105,42 +1105,34 @@ function selectUnitSkill(select) {
         return true;
     }
 
-    async function handleEffectSelection(skill_id) {
+    async function handleEffectSelection(skill_id, buff_list) {
         let effect_type = 0;
+        const conditionsList = buff_list.map(buff => buff.conditions).filter(condition => condition !== null);
+
+        if (conditionsList.includes(CONDITIONS_DESTRUCTION_OVER_200)) {
+            effect_type = 2;
+        }
+        if (conditionsList.includes(CONDITIONS_BREAK)) {
+            effect_type = 3;
+        }
+        if (conditionsList.includes(CONDITIONS_PERCENTAGE_30)) {
+            effect_type = 4;
+        }
+        if (conditionsList.includes(CONDITIONS_HAS_SHADOW)) {
+            effect_type = 5;
+        }
+        
         switch (skill_id) {
             case 50: // トリック・カノン
                 effect_type = 1;
                 break;
-            case 357: // 次の主役はあなた
-                effect_type = 2;
-                break;
-            case 415: // 哀のスノードロップ
-            case 405: // 夢視るデザイア
-                effect_type = 3;
-                break;
-            case 22: // ブレスショット
-            case 33: // 闘気斬
-            case 113: // ヴィヴィットシュート
-            case 120: // リバースショット
-            case 132: // 砕華
-            case 190: // ゲインカノン
-            case 212: // 粛正
-            case 239: // キャンディ・バースト
-            case 259: // 不純なアリア
-            case 309: // フォーチュンスラッシュ
-            case 324: // トランスペイン
-            case 382: // エキゾーストノート
-            case 397: // 春雷
-            case 427: // ファンタズム
-                effect_type = 4;
-                break;
             case 496: // レッドラウンドイリュージョン
-            case 498: // 浮き浮きサニー・ボマー
                 effect_type = 5;
                 break;
             default:
                 break;
         }
+
         if (effect_type != 0) {
             for (let i = 1; i <= 5; i++) {
                 if (i == effect_type) {
@@ -1163,7 +1155,7 @@ function selectUnitSkill(select) {
         const buff_list = getBuffInfo(skill_id);
         const target_selected = await handleTargetSelection(buff_list);
         // if (!target_selected) return;
-        const effect_selected = await handleEffectSelection(skill_id);
+        const effect_selected = await handleEffectSelection(skill_id, buff_list);
         // if (!effect_selected) return;
 
         setOverDrive();
@@ -2109,10 +2101,7 @@ function getOverDrive(turn_number, enemy_count) {
                         return true;
                     }
                 }
-                // 哀のスノードロップBREAKなし
-                if (buff_info.buff_id == 123 && unit_data.buff_effect_select_type == 0) {
-                    return true;
-                }
+
                 // サービス・エースが可変
                 if (skill_info.attack_id) {
                     correction = 1 + (badies + earring) / 100;
@@ -2282,6 +2271,11 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return !unit_data.first_use.includes(skill_id)
         case CONDITIONS_ADDITIONAL_TURN: // 追加ターン
             return turn_data.additional_turn;
+        case CONDITIONS_DESTRUCTION_OVER_200: // 破壊率200%以上
+        case CONDITIONS_BREAK: // ブレイク時
+        case CONDITIONS_HAS_SHADOW: // 影分身
+        case CONDITIONS_PERCENTAGE_30: // 確率30%
+            return unit_data.buff_effect_select_type == 1;
         case CONDITIONS_OVER_DRIVE: // オーバードライブ中
             return turn_data.over_drive_max_turn > 0;
         case CONDITIONS_DEFFENCE_DOWN: // 防御ダウン
@@ -2333,23 +2327,6 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
     switch (buff_info.buff_id) {
         // 選択されなかった
         case 2: // トリック・カノン(攻撃力低下)
-        case 46: // 次の主役はあなた(破壊率200％未満)
-        case 141: // 夢視るデザイア(SP回復)
-        case 497: // 浮き浮きサニー・ボマー(クリティカル率アップ/クリティカルダメージアップ/心眼)
-        case 3301: // ブレスショット(SP回復)
-        case 3302: // 闘気斬(SP回復)
-        case 3303: // ヴィヴィットシュート(SP回復)
-        case 3304: // リバースショット(SP回復)
-        case 3305: // 砕華(SP回復)
-        case 3306: // ゲインカノン(SP回復)
-        case 3307: // 粛正(SP回復)
-        case 3308: // キャンディ・バースト(SP回復)
-        case 3309: // 不純なアリア(SP回復)
-        case 3310: // フォーチュンスラッシュ(SP回復)
-        case 3311: // トランスペイン(SP回復)
-        case 3312: // エキゾーストノート(SP回復)
-        case 3313: // 春雷(SP回復)
-        case 3314: // ファンタズム(SP回復)
             if (use_unit_data.buff_effect_select_type == 0) {
                 return;
             }

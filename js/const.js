@@ -121,6 +121,7 @@ const CONDITIONS_OVER_DRIVE = 4; // オーバードライブ中
 const CONDITIONS_DESTRUCTION_OVER_200 = 5; // 破壊率200%以上
 const CONDITIONS_BREAK = 6; // ブレイク時
 const CONDITIONS_PERCENTAGE_30 = 7; // 確率30%
+const CONDITIONS_DOWN_TURN = 8; // ダウンターン
 const CONDITIONS_DEFFENCE_DOWN = 11; // 防御ダウン中
 const CONDITIONS_FRAGILE = 12; // 脆弱中
 const CONDITIONS_TARGET_COVER = 13; // 集中・挑発状態

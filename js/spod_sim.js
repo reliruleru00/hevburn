@@ -120,6 +120,9 @@ class turn_data {
                 unit.unitOverDriveTurnProceed();
             });
         }
+        this.unitLoop(function (unit) {
+            unit.unitTurnInit();
+        });
     }
 
     nextTurn() {
@@ -424,7 +427,7 @@ class unit_data {
         this.earring_effect_size = 0;
         this.skill_list = [];
         this.blank = false;
-        this.first_use = [];
+        this.use_skill_list = [];
         this.buff_target_chara_id = null;
         this.buff_effect_select_type = 0;
         this.ability_battle_start = [];
@@ -440,6 +443,9 @@ class unit_data {
         this.select_skill_id = 0;
     }
 
+    unitTurnInit() {
+        this.buff_effect_select_type = 0;
+    }
     unitTurnProceed(turn_data) {
         this.buffSort();
         if (this.next_turn_min_sp > 0) {
@@ -1106,7 +1112,9 @@ function selectUnitSkill(select) {
     }
 
     async function handleEffectSelection(skill_id, buff_list) {
+        const MAX_EFFECT_NUMBER = 7;
         let effect_type = 0;
+        let skill_info = getSkillData(skill_id);
         const conditionsList = buff_list.map(buff => buff.conditions).filter(condition => condition !== null);
 
         if (conditionsList.includes(CONDITIONS_DESTRUCTION_OVER_200)) {
@@ -1118,23 +1126,23 @@ function selectUnitSkill(select) {
         if (conditionsList.includes(CONDITIONS_PERCENTAGE_30)) {
             effect_type = 4;
         }
-        if (conditionsList.includes(CONDITIONS_HAS_SHADOW)) {
+        if (conditionsList.includes(CONDITIONS_HAS_SHADOW) || skill_info.attribute_conditions == CONDITIONS_HAS_SHADOW) {
             effect_type = 5;
         }
-        
+        if (conditionsList.includes(CONDITIONS_DOWN_TURN) || skill_info.attribute_conditions == CONDITIONS_DOWN_TURN) {
+            effect_type = 6;
+        }
+
         switch (skill_id) {
             case 50: // トリック・カノン
                 effect_type = 1;
-                break;
-            case 496: // レッドラウンドイリュージョン
-                effect_type = 5;
                 break;
             default:
                 break;
         }
 
         if (effect_type != 0) {
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= MAX_EFFECT_NUMBER; i++) {
                 if (i == effect_type) {
                     $(`#effect_type${i}`).addClass("active");
                 } else {
@@ -1160,12 +1168,19 @@ function selectUnitSkill(select) {
 
         setOverDrive();
         let sp_cost = select.find('option:selected').data("sp_cost");
-        if (skill_id == 496) {
-            // レッドラウンドイリュージョン
+        let skill_info = getSkillData(skill_id);
+        const selectionConditions = [CONDITIONS_HAS_SHADOW, CONDITIONS_DOWN_TURN];
+        if (selectionConditions.includes(skill_info.attribute_conditions)) {
             if (unit_data.buff_effect_select_type == 1) {
-                sp_cost = Math.floor(sp_cost / 2);
+                if (skill_info.skill_attribute == ATTRIBUTE_SP_HALF) {
+                    sp_cost = Math.floor(sp_cost / 2);
+                }
+                if (skill_info.skill_attribute == ATTRIBUTE_SP_ZERO) {
+                    sp_cost = 0;
+                }
             }
         }
+
         unit_data.sp_cost = sp_cost;
         updateSp(unit_data, select.parent().find(".unit_sp"));
         updateAction(now_turn)
@@ -2185,9 +2200,7 @@ function isWeak(physical, element, attack_id) {
 // 独自仕様
 function origin(turn_data, skill_info, unit_data) {
     // 初回判定
-    if (!unit_data.first_use.includes(skill_info.skill_id)) {
-        unit_data.first_use.push(skill_info.skill_id);
-    }
+    unit_data.use_skill_list.push(skill_info.skill_id);
     switch (skill_info.skill_id) {
         case 177: // エリミネイト・ポッシブル
             let target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === unit_data.buff_target_chara_id);
@@ -2236,6 +2249,12 @@ function getSpCost(turn_data, skill_info, unit) {
             sp_cost_down = 2;
         }
     }
+    // カラスの鳴き声で
+    if (skill_info.skill_id == 578) {
+        const count = unit.use_skill_list.filter(value => value === 578).length;
+        sp_cost = 8 + 4 * count;
+        sp_cost = sp_cost > 20 ? 20 : sp_cost;
+    }
     sp_cost -= sp_cost_down;
     return sp_cost < 0 ? 0 : sp_cost;
 }
@@ -2268,13 +2287,14 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
         case CONDITIONS_FIRST_TURN: // 1ターン目
             return turn_data.turn_number == 1;
         case CONDITIONS_SKILL_INIT: // 初回
-            return !unit_data.first_use.includes(skill_id)
+            return !unit_data.use_skill_list.includes(skill_id)
         case CONDITIONS_ADDITIONAL_TURN: // 追加ターン
             return turn_data.additional_turn;
         case CONDITIONS_DESTRUCTION_OVER_200: // 破壊率200%以上
         case CONDITIONS_BREAK: // ブレイク時
         case CONDITIONS_HAS_SHADOW: // 影分身
         case CONDITIONS_PERCENTAGE_30: // 確率30%
+        case CONDITIONS_DOWN_TURN: // ダウンターン
             return unit_data.buff_effect_select_type == 1;
         case CONDITIONS_OVER_DRIVE: // オーバードライブ中
             return turn_data.over_drive_max_turn > 0;

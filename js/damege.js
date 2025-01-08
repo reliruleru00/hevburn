@@ -1,8 +1,9 @@
+let select_troops = localStorage.getItem('select_troops');
+let select_style_list = Array(6).fill(undefined);
+let sub_style_list = Array(6).fill(undefined);
+let support_style_list = Array(6).fill(undefined);
+
 function setEventTrigger() {
-    // リセットボタン
-    $("#style_reset_btn").on("click", function (event) {
-        styleReset(true);
-    });
     // 敵リストイベント
     $("#enemy_class").on("change", function (event) {
         let enemy_class = Number($(this).val());
@@ -512,10 +513,10 @@ function setEventTrigger() {
 
         $(".selected_troops").removeClass("selected_troops");
         $(this).addClass("selected_troops");
-        styleReset(false);
+        styleReset(select_style_list, false);
         select_troops = $(this).val();
         localStorage.setItem('select_troops', select_troops);
-        loadTroopsList(select_troops);
+        loadTroopsList(select_style_list, select_troops);
     });
     // サブパーティ変更
     $("#sub_troops").on("change", function (event) {
@@ -621,14 +622,52 @@ function setEventTrigger() {
 }
 
 // メンバー読み込み時の固有処理
-function loadMember(member_info, isTrigger) {
-    // ダメージ計算ツール
+function loadMember(select_chara_no, member_info, isTrigger) {
+    $.each(status_kbn, function (index, value) {
+        if (index == 0) return true;
+        $(`#${value}_${select_chara_no}`).val(member_info[value]);
+    });
+    $(`#limit_${select_chara_no}`).val(member_info.limit_count);
+    $(`#jewel_${select_chara_no}`).val(member_info.jewel_lv);
+
     addAttackList(member_info);
     addBuffList(member_info, 0);
     addAbility(member_info);
     addPassive(member_info);
     $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
+    // 画像切り替え
+    $('#select_chara_' + select_chara_no).attr("src", "icon/" + member_info.style_info.image_url);
 
+    if (isTrigger) {
+        $("#attack_list").trigger("change");
+    }
+}
+
+// メンバーを外す
+function removeMember(select_list, select_chara_no, isTrigger) {
+    if (select_list[select_chara_no] === undefined) {
+        return;
+    }
+    // 入れ替えスタイルのスキルを削除
+    let chara_id = select_list[select_chara_no].style_info.chara_id;
+    let chara_id_class = ".chara_id-" + chara_id;
+    let parent = $(".include_lv " + chara_id_class + ":selected").parent();
+    $.each(parent, function (index, value) {
+        // 暫定的にdisplay:none追加
+        $(value).find(chara_id_class).css("display", "none");
+        let select = $("#" + $(value).prop("id"));
+        select2ndSkill(select);
+        setAloneActivation(select.find("option:selected"));
+    });
+    // 該当メンバーのスキル削除
+    $(chara_id_class).remove();
+    $(".display_chara_id-" + chara_id).removeClass(`block_chara_id-${chara_id}`);
+    $(".display_chara_id-" + chara_id + " input").prop("checked", false);
+    $(".display_chara_id-" + chara_id + " input").trigger("change");
+    // 消費SP初期化
+    $('#sp_cost_' + select_chara_no).text(0);
+    // 画像初期化
+    $('#select_chara_' + select_chara_no).attr("src", "img/plus.png");
     if (isTrigger) {
         $("#attack_list").trigger("change");
     }
@@ -2305,8 +2344,9 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
             }
         }
     });
-    ability_effect_size += Math.max(activation_none_effect_size, sum_none_effect_size) 
-        + Math.max(activation_physical_effect_size, sum_physical_effect_size) + Math.max(activation_element_effect_size, sum_element_effect_size);
+    ability_effect_size += activation_none_effect_size + sum_none_effect_size
+        + activation_physical_effect_size + sum_physical_effect_size
+        + activation_element_effect_size + sum_element_effect_size;
     $("input[type=checkbox].passive:checked").each(function (index, value) {
         let select = $(value).parent();
         if (select.css("display") === "none") {
@@ -2361,8 +2401,10 @@ function createEnemyList(enemy_class) {
         if (value.enemy_class == enemy_class) {
             var option = $('<option>')
                 .val(value.enemy_class_no);
-            if (enemy_class == 6) {
-                option.text(`#${value.score_attack_no} ${value.enemy_name}`)
+            if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
+                option.text(`#${value.sub_no} ${value.enemy_name}`)
+            } else if(enemy_class == ENEMY_CLASS_CLOCK_TOWER_NORMAL || enemy_class == ENEMY_CLASS_CLOCK_TOWER_HARD){
+                option.text(`(${value.sub_no}F) ${value.enemy_name}`)
             } else {
                 option.text(value.enemy_name);
             }
@@ -2471,7 +2513,7 @@ function getGradeSum() {
     $("." + checked_id + ":checked").each(function (index, value) {
         let grade_no = Number($(value).data("grade_no"));
         let half = Number(checked_id.match(/\d+/g));
-        grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
+        grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
             grade_sum["grade_rate"] += value["grade_rate"];
             if (value.grade_none == 1) {
                 return true;
@@ -2535,7 +2577,7 @@ function setEnemyStatus() {
         setDpGarge(i, 0);
     }
     $(".row_dp").css("display", "none");
-    if (enemy_info.score_attack_no) {
+    if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
         updateEnemyScoreAttack();
     }
     if (enemy_info.enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
@@ -2566,7 +2608,7 @@ function updateEnemyStatus(enemy_class_no, enemy_info) {
 function updateEnemyScoreAttack() {
     let enemy_info = getEnemyInfo();
     let grade_sum = getGradeSum();
-    let score_attack = getScoreAttack(enemy_info.score_attack_no);
+    let score_attack = getScoreAttack(enemy_info.sub_no);
     let score_lv = Number($("#score_lv").val());
     let enemy_stat = score_stat[score_lv - 100];
     let enemy_hp = getScoreHp(score_lv, Number(enemy_info.max_hp), score_attack, enemy_info);
@@ -2625,7 +2667,7 @@ function updateSeraphEncounter() {
 // スコアアタック表示
 function displayScoreAttack(enemy_info) {
     for (let i = 1; i <= 3; i++) {
-        let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.score_attack_no && obj.half == i);
+        let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == i);
         if (grade_info.length == 0) {
             $("#label_half_tab_" + i).hide();
             continue;
@@ -2657,7 +2699,7 @@ function calcScore(detail, grade_magn) {
     let is_break = $("#no_break_bonus_check").prop("checked");
     let turn_count = $("#turn_count").val();
     let enemy_info = getEnemyInfo();
-    let score_attack = getScoreAttack(enemy_info.score_attack_no);
+    let score_attack = getScoreAttack(enemy_info.sub_no);
     let num = score_lv - 100;
     let no_break_value = is_break ? no_break_bonus[num] : 0;
     let damage_bonus_avg = getDamageBonus(detail.avg_damage, num, score_attack);

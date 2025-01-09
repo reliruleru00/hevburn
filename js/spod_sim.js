@@ -624,6 +624,14 @@ class unit_data {
                         turn_data.field = FIELD_RICE;
                     }
                     break;
+                case EFFECT_NEGATIVE: // ネガティブ
+                    buff = new buff_data();
+                    buff.buff_kind = BUFF_NAGATIVE;
+                    buff.buff_element = 0;
+                    buff.rest_turn = ability.effect_count + 1;
+                    buff.buff_name = ability.ability_name;
+                    self.buff_list.push(buff);
+                    break;
             }
         });
     }
@@ -1754,6 +1762,9 @@ function getBuffIconImg(buff_info) {
         case BUFF_SHREDDING: // 速弾き
             src += "IconShredding";
             break;
+        case BUFF_NAGATIVE: // ネガティブ
+            src += "IconNegativeMind";
+            break;
     }
     if (buff_info.buff_element != 0) {
         src += buff_info.buff_element;
@@ -2709,6 +2720,9 @@ function getBuffKindName(buff_info) {
             break;
         case BUFF_SHREDDING: // 速弾き
             buff_kind_name += "速弾き";
+            break;
+        case BUFF_NAGATIVE: // ネガティブ
+            buff_kind_name += "ネガティブ";
             break;
         default:
             break;

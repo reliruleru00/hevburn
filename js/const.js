@@ -46,6 +46,7 @@ const BUFF_MORALE = 34; // 士気
 const BUFF_HACKING = 35; // ハッキング
 const BUFF_DIVA_BLESS = 36; // 歌姫の加護
 const BUFF_SHREDDING = 37; // 速弾き
+const BUFF_NAGATIVE = 38; // ネガティブ
 const BUFF_ABILITY_FUNNEL = 116; // アビリティ連撃
 
 /** アビリティ/パッシブ効果 */
@@ -75,6 +76,7 @@ const EFFECT_BUFF_STRENGTHEN = 28; // バフ強化
 const EFFECT_TOKEN_UP = 30; // トークンアップ
 const EFFECT_TOKEN_ATTACKUP = 31; // トークン1つにつき攻撃力アップ
 const EFFECT_TOKEN_DEFFENCEUP = 32; // トークン1つにつき 防御力アップ
+const EFFECT_NEGATIVE = 51; // ネガティブ
 
 /** フィールド */
 const FIELD_NORMAL = 0; // 通常

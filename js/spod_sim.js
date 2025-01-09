@@ -202,169 +202,7 @@ class turn_data {
     abilityAction(action_kbn) {
         const self = this;
         this.unitOrderLoop(function (unit) {
-            let action_list = [];
-            switch (action_kbn) {
-                case ABILIRY_BATTLE_START: // 戦闘開始時
-                    action_list = unit.ability_battle_start;
-                    break;
-                case ABILIRY_SELF_START: // 自分のターン開始時
-                    action_list = unit.ability_self_start;
-                    break;
-                case ABILIRY_ACTION_START: // 行動開始時
-                    action_list = unit.ability_action_start;
-                    break;
-                case ABILIRY_ENEMY_START: // 敵のターン開始時
-                    action_list = unit.ability_enemy_start;
-                    break;
-                case ABILIRY_ADDITIONALTURN: // 追加ターン
-                    action_list = unit.ability_additional_turn;
-                    break;
-                case ABILIRY_OD_START: // オーバードライブ開始時
-                    action_list = unit.ability_over_drive;
-                    break;
-                case ABILIRY_EX_SKILL_USE: // EXスキル使用
-                    action_list = unit.ability_ex_skill_use;
-                    break;
-                case ABILIRY_RECEIVE_DAMAGE: // 被ダメージ時
-                    // 前衛のみ
-                    if (unit.place_no < 3) {
-                        action_list = unit.ability_receive_damage;
-                    }
-                    break;
-                case ABILIRY_OTHER: // その他
-                    action_list = unit.ability_other;
-                    break;
-            }
-            $.each(action_list, function (index, ability) {
-                // 前衛
-                if (ability.activation_place == 1 && unit.place_no >= 3) {
-                    return true;
-                }
-                // 後衛
-                if (ability.activation_place == 2 && unit.place_no < 3) {
-                    return true;
-                }
-                let target_list = getTargetList(self, ability.range_area, ability.target_element, unit.place_no, null);
-                let buff;
-                switch (ability.conditions) {
-                    case "火属性フィールド":
-                        if (self.field != FIELD_FIRE) {
-                            return;
-                        }
-                        break;
-                    case "歌姫の加護":
-                        if (!checkBuffExist(unit.buff_list, BUFF_DIVA_BLESS)) {
-                            return;
-                        };
-                        break;
-                    case "SP0以下":
-                        if (unit.sp > 0) {
-                            return;
-                        }
-                        break;
-
-                }
-                switch (ability.effect_type) {
-                    case EFFECT_FUNNEL: // 連撃数アップ
-                        buff = new buff_data();
-                        buff.buff_kind = BUFF_ABILITY_FUNNEL;
-                        buff.buff_name = ability.ability_name;
-                        buff.buff_element = 0;
-                        buff.effect_count = ability.effect_count;
-                        buff.effect_size = ability.effect_size;
-                        buff.rest_turn = -1;
-                        unit.buff_list.push(buff);
-                        break;
-                    case EFFECT_HEALSP: // SP回復
-                        $.each(target_list, function (index, target_no) {
-                            let unit_data = getUnitData(self, target_no);
-                            if (unit_data.sp < 20) {
-                                if (ability.ability_id) {
-                                    switch (ability.ability_id) {
-                                        case 1109: // 吉報
-                                        case 1119: // 旺盛
-                                            unit_data.add_sp += ability.effect_size;
-                                            break;
-                                        case 1112: // 好機
-                                            if (unit_data.sp <= 3) {
-                                                unit_data.sp += ability.effect_size;
-                                            }
-                                            break;
-                                        case 1118: // 充填
-                                            // チャージ存在チェック
-                                            if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
-                                                unit_data.sp += ability.effect_size;
-                                            }
-                                            break;
-                                        case 1111: // みなぎる士気
-                                            let exist_list = unit_data.buff_list.filter(function (buff_info) {
-                                                return buff_info.buff_kind == BUFF_MORALE;
-                                            });
-                                            if (exist_list.length > 0) {
-                                                if (exist_list[0].lv >= 6) {
-                                                    unit_data.sp += ability.effect_size;
-                                                }
-                                            }
-                                            break;
-                                        case 1204: // エンゲージリンク
-                                            // 永遠なる誓いチェック
-                                            if (checkBuffExist(unit_data.buff_list, BUFF_ETERNAL_OARH)) {
-                                                unit_data.sp += ability.effect_size;
-                                            }
-                                            break;
-                                        default:
-                                            unit_data.sp += ability.effect_size;
-                                            break;
-                                    }
-                                }
-                                if (ability.skill_id) {
-                                    switch (ability.skill_id) {
-                                        case 524: // 痛気持ちいぃ～！
-                                            unit_data.add_sp += ability.effect_size;
-                                            break;
-                                        default:
-                                            unit_data.sp += ability.effect_size;
-                                            break;
-                                    }
-                                }
-                                if (unit_data.sp > 20) {
-                                    unit_data.sp = 20
-                                }
-                            }
-                        });
-                        break;
-                    case EFFECT_OVERDRIVEPOINTUP: // ODアップ
-                        self.over_drive_gauge += ability.effect_size;
-                        if (self.over_drive_gauge > 300) {
-                            self.over_drive_gauge = 300;
-                        }
-                        break;
-                    case EFFECT_ARROWCHERRYBLOSSOMS: // 桜花の矢
-                        buff = new buff_data();
-                        buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
-                        buff.buff_element = 0;
-                        buff.rest_turn = -1;
-                        buff.buff_name = ability.ability_name;
-                        unit.buff_list.push(buff);
-                        break;
-                    case EFFECT_CHARGE: // チャージ
-                        buff = new buff_data();
-                        buff.buff_kind = BUFF_CHARGE;
-                        buff.buff_element = 0;
-                        buff.rest_turn = -1;
-                        buff.buff_name = ability.ability_name;
-                        unit.buff_list.push(buff);
-                        break;
-                    case EFFECT_FIELD_DEPLOYMENT: // フィールド
-                        if (ability.element) {
-                            self.field = ability.element;
-                        } else if (ability.skill_id == 525) {
-                            // いつの日かここで
-                            self.field = FIELD_RICE;
-                        }
-                        break;
-                }
-            });
+            unit.abilityAction(self, action_kbn)
         });
     }
 }
@@ -601,31 +439,140 @@ class unit_data {
         let self = this;
         let action_list = [];
         switch (action_kbn) {
+            case ABILIRY_BATTLE_START: // 戦闘開始時
+                action_list = self.ability_battle_start;
+                break;
+            case ABILIRY_SELF_START: // 自分のターン開始時
+                action_list = self.ability_self_start;
+                break;
+            case ABILIRY_ACTION_START: // 行動開始時
+                action_list = self.ability_action_start;
+                break;
+            case ABILIRY_ENEMY_START: // 敵のターン開始時
+                action_list = self.ability_enemy_start;
+                break;
+            case ABILIRY_ADDITIONALTURN: // 追加ターン
+                action_list = self.ability_additional_turn;
+                break;
+            case ABILIRY_OD_START: // オーバードライブ開始時
+                action_list = self.ability_over_drive;
+                break;
             case ABILIRY_EX_SKILL_USE: // EXスキル使用
-                action_list = this.ability_ex_skill_use;
+                action_list = self.ability_ex_skill_use;
+                break;
+            case ABILIRY_RECEIVE_DAMAGE: // 被ダメージ時
+                // 前衛のみ
+                if (self.place_no < 3) {
+                    action_list = self.ability_receive_damage;
+                }
+                break;
+            case ABILIRY_OTHER: // その他
+                action_list = self.ability_other;
                 break;
         }
         $.each(action_list, function (index, ability) {
             // 前衛
-            if (ability.activation_place == 1 && unit.place_no >= 3) {
+            if (ability.activation_place == 1 && self.place_no >= 3) {
                 return true;
             }
             // 後衛
-            if (ability.activation_place == 2 && unit.place_no < 3) {
+            if (ability.activation_place == 2 && self.place_no < 3) {
                 return true;
             }
-            let target_list = getTargetList(now_turn, ability.range_area, ability.target_element, self.place_no, null);
+            let target_list = getTargetList(turn_data, ability.range_area, ability.target_element, self.place_no, null);
+            let buff;
+            switch (ability.conditions) {
+                case "火属性フィールド":
+                    if (turn_data.field != FIELD_FIRE) {
+                        return;
+                    }
+                    break;
+                case "歌姫の加護":
+                    if (!checkBuffExist(self.buff_list, BUFF_DIVA_BLESS)) {
+                        return;
+                    };
+                    break;
+                case "SP0以下":
+                    if (this.sp > 0) {
+                        return;
+                    }
+                    break;
+
+            }
             switch (ability.effect_type) {
+                case EFFECT_FUNNEL: // 連撃数アップ
+                    buff = new buff_data();
+                    buff.buff_kind = BUFF_ABILITY_FUNNEL;
+                    buff.buff_name = ability.ability_name;
+                    buff.buff_element = 0;
+                    buff.effect_count = ability.effect_count;
+                    buff.effect_size = ability.effect_size;
+                    buff.rest_turn = -1;
+                    self.buff_list.push(buff);
+                    break;
+                case EFFECT_HEALSP: // SP回復
+                    $.each(target_list, function (index, target_no) {
+                        let unit_data = getUnitData(turn_data, target_no);
+                        if (unit_data.sp < 20) {
+                            if (ability.ability_id) {
+                                switch (ability.ability_id) {
+                                    case 1109: // 吉報
+                                    case 1119: // 旺盛
+                                        unit_data.add_sp += ability.effect_size;
+                                        break;
+                                    case 1112: // 好機
+                                        if (unit_data.sp <= 3) {
+                                            unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    case 1118: // 充填
+                                        // チャージ存在チェック
+                                        if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
+                                            unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    case 1111: // みなぎる士気
+                                        let exist_list = unit_data.buff_list.filter(function (buff_info) {
+                                            return buff_info.buff_kind == BUFF_MORALE;
+                                        });
+                                        if (exist_list.length > 0) {
+                                            if (exist_list[0].lv >= 6) {
+                                                unit_data.sp += ability.effect_size;
+                                            }
+                                        }
+                                        break;
+                                    case 1204: // エンゲージリンク
+                                        // 永遠なる誓いチェック
+                                        if (checkBuffExist(unit_data.buff_list, BUFF_ETERNAL_OARH)) {
+                                            unit_data.sp += ability.effect_size;
+                                        }
+                                        break;
+                                    default:
+                                        unit_data.sp += ability.effect_size;
+                                        break;
+                                }
+                            }
+                            if (ability.skill_id) {
+                                switch (ability.skill_id) {
+                                    case 524: // 痛気持ちいぃ～！
+                                        unit_data.add_sp += ability.effect_size;
+                                        break;
+                                    default:
+                                        unit_data.sp += ability.effect_size;
+                                        break;
+                                }
+                            }
+                            if (unit_data.sp > 20) {
+                                unit_data.sp = 20
+                            }
+                        }
+                    });
+                    break;
                 case EFFECT_MORALE: // 士気
                     $.each(target_list, function (index, target_no) {
                         let unit_data = getUnitData(turn_data, target_no);
                         if (!unit_data.style) {
                             return true;
-                        }
-                        if (ability.target_element != 0) {
-                            if (ability.target_element != unit_data.style.style_info.element && ability.target_element != unit_data.style.style_info.element) {
-                                return true;
-                            }
                         }
 
                         let exist_list = unit_data.buff_list.filter(function (buff_info) {
@@ -646,6 +593,36 @@ class unit_data {
                             buff.lv += ability.effect_size;
                         }
                     });
+                    break;
+                case EFFECT_OVERDRIVEPOINTUP: // ODアップ
+                    turn_data.over_drive_gauge += ability.effect_size;
+                    if (turn_data.over_drive_gauge > 300) {
+                        turn_data.over_drive_gauge = 300;
+                    }
+                    break;
+                case EFFECT_ARROWCHERRYBLOSSOMS: // 桜花の矢
+                    buff = new buff_data();
+                    buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
+                    buff.buff_element = 0;
+                    buff.rest_turn = -1;
+                    buff.buff_name = ability.ability_name;
+                    self.buff_list.push(buff);
+                    break;
+                case EFFECT_CHARGE: // チャージ
+                    buff = new buff_data();
+                    buff.buff_kind = BUFF_CHARGE;
+                    buff.buff_element = 0;
+                    buff.rest_turn = -1;
+                    buff.buff_name = ability.ability_name;
+                    self.buff_list.push(buff);
+                    break;
+                case EFFECT_FIELD_DEPLOYMENT: // フィールド
+                    if (ability.element) {
+                        turn_data.field = ability.element;
+                    } else if (ability.skill_id == 525) {
+                        // いつの日かここで
+                        turn_data.field = FIELD_RICE;
+                    }
                     break;
             }
         });
@@ -1132,6 +1109,10 @@ function selectUnitSkill(select) {
         if (conditionsList.includes(CONDITIONS_DOWN_TURN) || skill_info.attribute_conditions == CONDITIONS_DOWN_TURN) {
             effect_type = 6;
         }
+        if (conditionsList.includes(CONDITIONS_BUFF_DISPEL) || skill_info.attribute_conditions == CONDITIONS_BUFF_DISPEL) {
+            effect_type = 7;
+        }
+
 
         switch (skill_id) {
             case 50: // トリック・カノン
@@ -2295,6 +2276,7 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
         case CONDITIONS_HAS_SHADOW: // 影分身
         case CONDITIONS_PERCENTAGE_30: // 確率30%
         case CONDITIONS_DOWN_TURN: // ダウンターン
+        case CONDITIONS_BUFF_DISPEL: // バフ解除
             return unit_data.buff_effect_select_type == 1;
         case CONDITIONS_OVER_DRIVE: // オーバードライブ中
             return turn_data.over_drive_max_turn > 0;

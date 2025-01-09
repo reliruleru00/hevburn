@@ -505,7 +505,7 @@ class unit_data {
                     buff.buff_kind = BUFF_ABILITY_FUNNEL;
                     buff.buff_name = ability.ability_name;
                     buff.buff_element = 0;
-                    buff.effect_count = ability.effect_count;
+                    buff.max_power = ability.effect_count;
                     buff.effect_size = ability.effect_size;
                     buff.rest_turn = -1;
                     self.buff_list.push(buff);

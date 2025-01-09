@@ -401,35 +401,90 @@ class unit_data {
     }
     getFunnelList() {
         let ret = [];
-        let funnel_list = this.buff_list.filter(function (buff_info) {
-            return BUFF_FUNNEL_LIST.includes(buff_info.buff_kind);
+        let buff_funnel_ret = [];
+        let buff_unit_funnel_ret = [];
+        let ability_ret = [];
+        let buff_funnel_list = this.buff_list.filter(function (buff_info) {
+            return BUFF_FUNNEL == buff_info.buff_kind && !ALONE_ACTIVATION_BUFF_LIST.includes(buff_info.buff_id);
         });
+        let buff_unit_funnel_list = this.buff_list.filter(function (buff_info) {
+            return BUFF_FUNNEL == buff_info.buff_kind && ALONE_ACTIVATION_BUFF_LIST.includes(buff_info.buff_id);
+        });
+        let ability_list = this.buff_list.filter(function (buff_info) {
+            return BUFF_ABILITY_FUNNEL == buff_info.buff_kind;
+        });
+
         let ability_count = 0;
-        $.each(funnel_list, function (index, buff_info) {
+        $.each(buff_funnel_list, function (index, buff_info) {
             let effect_size = buff_info.effect_size;
             let effect_count = buff_info.max_power;
             let effect_sum = effect_size * effect_count;
-            ret.push({ "effect_count": effect_count, "effect_size": effect_size, "effect_sum": effect_sum });
+            buff_funnel_ret.push({ "effect_count": effect_count, "effect_size": effect_size, "effect_sum": effect_sum });
+        });
+        $.each(buff_unit_funnel_list, function (index, buff_info) {
+            let effect_size = buff_info.effect_size;
+            let effect_count = buff_info.max_power;
+            let effect_sum = effect_size * effect_count;
+            buff_unit_funnel_ret.push({ "effect_count": effect_count, "effect_size": effect_size, "effect_sum": effect_sum });
+        });
+        $.each(ability_list, function (index, buff_info) {
+            let effect_size = buff_info.effect_size;
+            let effect_count = buff_info.max_power;
+            let effect_sum = effect_size * effect_count;
+            ability_ret.push({ "effect_count": effect_count, "effect_size": effect_size, "effect_sum": effect_sum });
         });
         // effect_sumで降順にソート
-        ret.sort(function (a, b) {
+        buff_funnel_ret.sort(function (a, b) {
             return b.effect_sum - a.effect_sum;
         });
-
-        let consume = 2;
-        if (checkBuffExist(this.buff_list, BUFF_EX_DOUBLE)) {
-            consume = 4;
+        buff_unit_funnel_ret.sort(function (a, b) {
+            return b.effect_sum - a.effect_sum;
+        });
+        ability_ret.sort(function (a, b) {
+            return b.effect_sum - a.effect_sum;
+        });
+        // 単独発動の効果値判定
+        let buff_total = buff_funnel_ret.slice(0, 2).reduce(function (sum, element) {
+            return sum + element["effect_sum"];
+        }, 0);
+        let buff_unit_total = buff_unit_funnel_ret.slice(0, 1).reduce(function (sum, element) {
+            return sum + element["effect_sum"];
+        }, 0);
+        if (buff_total <= buff_unit_total) {
+            ret = buff_unit_funnel_ret.slice(0, 1)
+        } else {
+            ret = buff_funnel_ret.slice(0, 2)
+            buff_funnel_ret = buff_funnel_ret.slice(2)
         }
-        // 上位の要素を取得       
-        let top_two = ret.slice(0, consume + ability_count);
+        // アビリティを追加
+        if (ability_ret.length > 0) {
+            ret.push(ability_ret[0]);
+        }
+
+        // EX連続発動
+        if (checkBuffExist(this.buff_list, BUFF_EX_DOUBLE)) {
+            buff_total = buff_funnel_ret.slice(0, 2).reduce(function (sum, element) {
+                return sum + element["effect_sum"];
+            }, 0);
+            if (buff_total <= buff_unit_total) {
+                ret = ret.concat(buff_unit_funnel_ret.slice(0, 1));
+            } else {
+                ret = ret.concat(buff_funnel_ret.slice(0, 2));
+            }
+
+            // アビリティを追加
+            if (ability_ret.length > 0) {
+                ret.push(ability_ret[0]);
+            }
+        }
 
         // 新しいリストを作成
         let result_list = [];
 
         // 各要素のeffect_count分effect_unitを追加
-        top_two.forEach(function (item) {
+        ret.forEach(function (item) {
             for (let i = 0; i < item.effect_count; i++) {
-                result_list.push(item.effect_unit);
+                result_list.push(item.effect_sum);
             }
         });
         return result_list;
@@ -2597,7 +2652,10 @@ function consumeBuffUnit(unit_data, attack_info, skill_info) {
                     if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
                         continue;
                     }
-                    // 通常攻撃でも消費
+                    // 陰の5球打ちは消費しない
+                    if (buff_info.buff_name == "陰の5球打ち") {
+                        continue;
+                    }
                     buff_list.splice(i, 1);
                     break;
                 case BUFF_EX_DOUBLE:	// EXスキル連続使用

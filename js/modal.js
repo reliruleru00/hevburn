@@ -21,108 +21,18 @@ class Member {
     }
 }
 
-// スタイルリスト作成
-function createStyleList() {
-    $.each(style_list, function (index, value) {
-        let source = "icon/" + value.image_url;
-        let chara_data = getCharaData(value.chara_id);
-        let input = $('<img>')
-            .attr("src", source)
-            .attr("title", "[" + value.style_name + "]" + chara_data.chara_name)
-            .attr('loading', 'lazy')
-            .data("style_id", value.style_id)
-            .addClass("select_style_list")
-            .addClass("physical_" + chara_data.physical)
-            .addClass("element_" + value.element)
-            .addClass("element_" + value.element2)
-            .addClass("role_" + value.role);
-        $("#sytle_list_" + value.rarity + "_" + chara_data.troops.replace("!", "")).append(input);
-    });
-}
-
 // モーダル系イベント
 function addModalEvent() {
-    // スタイルリスト作成
-    createStyleList();
-
     // モーダルを開く
     $('.showmodal').on('click', function () {
         chara_no = $(this).data("chara_no");
         MicroModal.show('modal_style_section');
     });
 
-    let narrow = { "physical": "", "element": "", "role": "" };
-    // スタイル絞り込み
-    $(".narrow").on('click', function () {
-        let classification = "";
-        if ($(this).hasClass("physical")) {
-            classification = "physical";
-        } else if ($(this).hasClass("element")) {
-            classification = "element";
-        } else {
-            classification = "role";
-        }
-
-        let selecter = ".narrow" + "." + classification;
-        let select = $(this).data("select");
-
-        if (select == "1") {
-            $(selecter).css("opacity", "0.3");
-            $(selecter).data("select", "1");
-            $(this).css("opacity", "1");
-            $(this).data("select", "0");
-            narrow[classification] = "." + $(this).prop("id");
-        } else {
-            $(selecter).css("opacity", "1");
-            $(selecter).data("select", "1");
-            narrow[classification] = "";
-        }
-
-        $(".select_style_list").hide();
-        let show_class = ".select_style_list" + narrow.physical + narrow.element + narrow.role;
-        $(show_class).show();
-    });
-
-    // レアリティ変更
-    $(".rarity").on('click', function () {
-        $(this).css("opacity", "1");
-        $(this).data("select", "1");
-        if ($(this).prop("id") == "rarity_1") {
-            $("#rarity_2").css("opacity", "0.3").data("select", "0");
-            $("#rarity_3").css("opacity", "0.3").data("select", "0");
-            $("#rank_ss").show();
-            $("#rank_s").hide();
-            $("#rank_a").hide();
-        } else if ($(this).prop("id") == "rarity_2") {
-            $("#rarity_1").css("opacity", "0.3").data("select", "0");
-            $("#rarity_3").css("opacity", "0.3").data("select", "0");
-            $("#rank_ss").hide();
-            $("#rank_s").show();
-            $("#rank_a").hide();
-        } else {
-            $("#rarity_1").css("opacity", "0.3").data("select", "0");
-            $("#rarity_2").css("opacity", "0.3").data("select", "0");
-            $("#rank_ss").hide();
-            $("#rank_s").hide();
-            $("#rank_a").show();
-        }
-    });
-
     /** 部隊変更共通部 */
-    // スタイルを選択
-    $('img.select_style_list').on('click', function () {
-        setMember(select_style_list, chara_no, $(this).data("style_id"), true)
-        closeModel();
-    });
     // リセットボタン
     $("#style_reset_btn").on("click", function (event) {
         styleReset(select_style_list, true);
-    });
-    // メンバーを外す
-    $(document).on("click", ".remove_btn", function (event) {
-        localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
-        removeMember(select_style_list, chara_no, true);
-        closeModel();
     });
 }
 

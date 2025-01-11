@@ -1,5 +1,6 @@
 
 
+
 const StyleSelectComponent = () => {
     const [narrowStyle, setNarrowStyle] = React.useState({
         physical: null,
@@ -27,6 +28,11 @@ const StyleSelectComponent = () => {
                         href="javascript:void(0)"
                         id="calc"
                         type="button"
+                        onClick={() => {
+                            localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
+                            removeMember(select_style_list, chara_no, true);
+                            closeModel();
+                        }}
                     />
                 </div>
             </div>
@@ -100,7 +106,12 @@ const StyleSelectComponent = () => {
                         <input className="emblem" src={`img/${TROOP_LIST[key]}.webp`} type="image" />
                         <div className="flex flex-wrap">
                             {filterList.map((style) => {
-                                return (<img className="select_style_list" loading="lazy" id={`style_${style.id}`} src={`icon/${style.image_url}`} title={`[${style.style_name}]${chara_data.chara_name}`} key={style.id} />)
+                                return (<img className="select_style_list" loading="lazy" id={`style_${style.id}`} src={`icon/${style.image_url}`} title={`[${style.style_name}]${chara_data.chara_name}`} key={style.id} 
+                                    onClick={(e) => {
+                                        setMember(select_style_list, chara_no, style.style_id, true);
+                                        closeModel();
+                                    }}
+                                />)
                             })}
                         </div>
                     </div>)
@@ -109,8 +120,7 @@ const StyleSelectComponent = () => {
         </div>
     )
 };
-
-const rootElement = document.getElementById('modal_section');
-ReactDOM.createRoot(rootElement).render(<StyleSelectComponent />);
-// モーダル系イベント追加
-addModalEvent();
+$(function () {
+    const rootElement = document.getElementById('modal_section');
+    ReactDOM.createRoot(rootElement).render(<StyleSelectComponent />);
+});

@@ -46,9 +46,13 @@
   <script src="js/skill_passive.js"></script>
   <script src="js/enemy.js"></script>
   <script src="js/ability.js"></script>
+  <script type="text/babel" src="js/component/modal_style_section.js"></script>
   <script>
     let chara_no = -1;
     $(function () {
+      // モーダル系イベント追加
+      addModalEvent();
+
       for (let i = 0; i <= 4; i++) {
         $(".limit").append($('<option>').text(i).val(i));
       }
@@ -331,7 +335,6 @@
         </div>
       </div>
     </div>
-    <script type="text/babel" src="js/component/modal_style_section.js"></script>
     <div class="modal micromodal-slide" id="modal_select_target" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-micromodal-close>
         <div class="modal__container container_damage" role="dialog" aria-modal="true" aria-labelledby="select_target">

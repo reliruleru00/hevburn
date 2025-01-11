@@ -1542,6 +1542,8 @@ function proceedTurn(turn_data, kb_next) {
     setOverDrive();
     // 行動制限
     updateAction(now_turn);
+
+    updateTurnData();
 }
 
 // スキルセット作成

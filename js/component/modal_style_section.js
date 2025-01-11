@@ -25,7 +25,6 @@ const StyleSelectComponent = () => {
                     <input
                         className="remove_btn text-center mr-2"
                         defaultValue="外す"
-                        href="javascript:void(0)"
                         id="calc"
                         type="button"
                         onClick={() => {
@@ -41,7 +40,7 @@ const StyleSelectComponent = () => {
                 {Object.keys(PHYSICAL_LIST).map(key => {
                     let opacity = (narrowStyle.physical == null || key == narrowStyle.physical) ? "" : "translucent";
                     let className = `physical ${opacity}`
-                    return (<input className={className} id={`physical_${key}`} src={`img/${PHYSICAL_LIST[key]}.webp`} type="image" key={key}
+                    return (<input className={className} id={`physical_${key}`} src={`img/${PHYSICAL_LIST[key]}.webp`} type="image" key={`physical_${key}`}
                         onClick={(e) => {
                             let newPhysical = key;
                             if (narrowStyle.physical == key) {
@@ -55,7 +54,7 @@ const StyleSelectComponent = () => {
                 {Object.keys(ELEMENT_LIST).map(key => {
                     let opacity = (narrowStyle.element == null || key == narrowStyle.element) ? "" : "translucent";
                     let className = `element ${opacity}`
-                    return (<input className={className} id={`element_${key}`} src={`img/${ELEMENT_LIST[key]}.webp`} type="image" key={key}
+                    return (<input className={className} id={`element_${key}`} src={`img/${ELEMENT_LIST[key]}.webp`} type="image" key={`element_${key}`}
                         onClick={(e) => {
                             let newElement = key;
                             if (narrowStyle.element == key) {
@@ -70,7 +69,7 @@ const StyleSelectComponent = () => {
                 {Object.keys(ROLE_LIST).map(key => {
                     let opacity = (narrowStyle.role == null || key == narrowStyle.role) ? "" : "translucent";
                     let className = `role ${opacity}`
-                    return (<input className={className} id={`role_${key}`} defaultValue={ROLE_LIST[key]} type="button" key={key}
+                    return (<input className={className} id={`role_${key}`} defaultValue={ROLE_LIST[key]} type="button" key={`role_${key}`}
                         onClick={(e) => {
                             let newRole = key;
                             if (narrowStyle.role == key) {
@@ -85,7 +84,7 @@ const StyleSelectComponent = () => {
                 {Object.keys(RARITY_LIST).map(key => {
                     let opacity = key == narrowStyle.rarity ? "" : "translucent";
                     let className = `rarity ${opacity}`
-                    return (<input className={className} id={`rarity_${key}`} src={`img/${RARITY_LIST[key]}.webp`} type="image" key={key}
+                    return (<input className={className} id={`rarity_${key}`} src={`img/${RARITY_LIST[key]}.webp`} type="image" key={`rearity_${key}`}
                         onClick={(e) => {
                             setNarrowStyle({ ...narrowStyle, rarity: key });
                         }}
@@ -102,11 +101,12 @@ const StyleSelectComponent = () => {
                             && (narrowStyle.element == null || style.element == narrowStyle.element)
                             && (narrowStyle.role == null || style.role == narrowStyle.role);
                     })
-                    return (<div className="troops" key={key}>
+                    return (<div className="troops" key={`troops_${key}`}>
                         <input className="emblem" src={`img/${TROOP_LIST[key]}.webp`} type="image" />
                         <div className="flex flex-wrap">
                             {filterList.map((style) => {
-                                return (<img className="select_style_list" loading="lazy" id={`style_${style.id}`} src={`icon/${style.image_url}`} title={`[${style.style_name}]${chara_data.chara_name}`} key={style.id} 
+                                let chara_data = getCharaData(style.chara_id);
+                                return (<img className="select_style_list" loading="lazy" id={`style_${style.style_id}`} src={`icon/${style.image_url}`} title={`[${style.style_name}]${chara_data.chara_name}`} key={`style_${style.style_id}`}
                                     onClick={(e) => {
                                         setMember(select_style_list, chara_no, style.style_id, true);
                                         closeModel();

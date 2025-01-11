@@ -214,6 +214,11 @@ img.select_style {
     margin: 5px auto 20px auto;
 }
 
+#battle_area2 {
+    width: 1400px;
+    margin: 5px auto 20px auto;
+}
+
 .turn_button {
     width: 60px;
     font-size: 14px;

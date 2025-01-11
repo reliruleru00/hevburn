@@ -91,6 +91,10 @@ hr.line {
   grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 
+.translucent {
+  opacity: 0.3;
+}
+
 .select_style_list {
   cursor: pointer;
 }

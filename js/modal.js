@@ -119,7 +119,7 @@ function addModalEvent() {
         styleReset(select_style_list, true);
     });
     // メンバーを外す
-    $('.remove_btn').on('click', function () {
+    $(document).on("click", ".remove_btn", function (event) {
         localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
         removeMember(select_style_list, chara_no, true);
         closeModel();

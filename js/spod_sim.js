@@ -1543,7 +1543,7 @@ function proceedTurn(turn_data, kb_next) {
     // 行動制限
     updateAction(now_turn);
 
-    updateTurnData();
+    updateTurnList(turn_list);
 }
 
 // スキルセット作成

@@ -1,17 +1,20 @@
 
 
 
-const TurnDataComponent = () => {
-    const [turnData, setTurnData] = React.useState({
-        now_turn
-    });
+const TurnDataComponent = ({turn}) => {
+    const [turnData, setTurnData] = React.useState(turn);
 
-    let turnNo = turnData.turn_number
+    React.useEffect(() => {
+        setTurnData(turn);
+    }, [turn]);
+
+    turnData.getTurnNumber();
+
     return (
         <div className="turn">
             <div className="header_area">
                 <div>
-                    <div className="turn_number">ターン1</div>
+                    <div className="turn_number">{turnData.getTurnNumber()}</div>
                     <div className="left flex">
                         <img className="enemy_icon" src="icon/BtnEventBattleActive.webp" />
                         <div>
@@ -21,15 +24,8 @@ const TurnDataComponent = () => {
                                 <option value="3">3体</option>
                             </select>
                             <label className="ml-2">場</label>
-                            <select className="enemy_count" id="field_turn1">
-                                <option value="0">無し</option>
-                                <option value="1">火</option>
-                                <option value="2">氷</option>
-                                <option value="3">雷</option>
-                                <option value="4">光</option>
-                                <option value="5">闇</option>
-                                <option value="6">稲穂</option>
-                                <option value="7">砂嵐</option>
+                            <select className="enemy_count" id="field_turn1" value={turnData.field}>
+                                {Object.keys(FIELD_LIST).map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                             </select>
                             <div className="scroll-container enemy_icon_list">
                                 <div className="scroll-content flex-wrap" />
@@ -464,20 +460,19 @@ const TurnDataComponent = () => {
     )
 };
 
+
 const BattleAreaComponent = () => {
-    const [turnData, setTurnData] = React.useState({
-        turn_list
-    });
+    const [turnList, setTurnList] = React.useState([]);
 
     // 状態を外部で更新できるようにする
-    window.updateTurnData = () => {
-        setTurnData(turn_list);
+    window.updateTurnList = (newTurnList) => {
+        setTurnList([...newTurnList]);
     };
 
     return (
         <>
-            {turn_list.map((turn, index) => {
-                <TurnDataComponent turnData={turn} key={index} />
+            {turnList.map((turn, index) => {
+                return <TurnDataComponent turn={turn} key={index} />
             })}
         </>
     )

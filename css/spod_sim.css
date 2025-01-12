@@ -214,11 +214,6 @@ img.select_style {
     margin: 5px auto 20px auto;
 }
 
-#battle_area2 {
-    width: 1400px;
-    margin: 5px auto 20px auto;
-}
-
 .turn_button {
     width: 60px;
     font-size: 14px;
@@ -335,7 +330,6 @@ img.select_style {
 .od_number {
     width: 48px;
     height: 48px;
-    margin-top: -48px;
     margin-left: 11px;
 }
 
@@ -471,10 +465,6 @@ input[type='image'].select_target {
 }
 
 .select_effect {
-    display: none;
-}
-
-.select_effect.active {
     display: block;
     text-align: center;
 }
@@ -482,6 +472,7 @@ input[type='image'].select_target {
 .effect_button {
     width: 150px;
     font-size: 16px;
+    margin: 2px;
 }
 
 .icon_buff_detail {

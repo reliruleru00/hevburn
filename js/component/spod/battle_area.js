@@ -90,6 +90,15 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
         if (new_unit.blank) {
             return;
         }
+        // 追加ターンの制約
+        if (turn.additional_turn) {
+            if (2 < place_no) {
+                return;
+            }
+            if (!new_unit.additional_turn) {
+                return;
+            }
+        }
         let old_place_no = turnData.selected_place_no;
         let select_skill = turnData.select_skill;
         if (old_place_no != -1) {

@@ -45,7 +45,7 @@ const UnitSkillSelect = ({ turn, unit, place_no }) => {
     }
 
     const recoil = unit.buff_list.filter((obj) => obj.buff_kind == BUFF_RECOIL);
-    let not_action = (recoil.length > 0 || !unit.style || (turn.additional_turn && !unit.additional_turn && index <= 2))
+    let not_action = (recoil.length > 0 || !unit.style || (turn.additional_turn && !unit.additional_turn && place_no <= 2))
     let className = "unit_skill " + (not_action ? "invisible" : "");
     return (<select className={className} onChange={(e) => chengeSkill(Number(e.target.value), place_no)} value={unit.select_skill_id} >
         {skill_list.map(skill => {

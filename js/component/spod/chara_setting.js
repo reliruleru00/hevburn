@@ -30,13 +30,8 @@ const CharaSetting = () => {
         setSelectStyle([...select_style_list]);
     }
 
-    // メンバー追加
-    window.loadMember = function () {
-        setSelectStyle([...select_style_list]);
-    }
-
-    // メンバーを外す
-    window.removeMember = function () {
+    // メンバー更新
+    window.updateMember = function () {
         setSelectStyle([...select_style_list]);
     }
 
@@ -70,20 +65,13 @@ const CharaSetting = () => {
             </div>
             {select_style_list.map((value, index) => {
                 let style = value;
-                let rarity = 1;
-                let bracelet = 0;
-                let chain = 3;
-                let earring = 0;
-                let init_sp = 1;
-                let limit = 0;
-                if (style) {
-                    rarity = style.style_info.rarity;
-                    limit = style.limit_count;
-                    earring = style.earring;
-                    bracelet = style.bracelet;
-                    chain = style.chain;
-                    init_sp = style.init_sp;
-                }
+                let rarity = style ? style.style_info.rarity : 1;
+                let bracelet = style ? style.bracelet : 0;
+                let chain = style ? style.chain : 0;
+                let earring = style ? style.earring : 0;
+                let init_sp = style ? style.init_sp : 1;
+                let limit = style ? style.limit_count : 0;
+
                 return (
                     <div key={`chara_no${index}`} >
                         <StyleIcon place_no={index} />

@@ -18,11 +18,18 @@ const StyleSelectComponent = () => {
         "30G": "DioramaStamp30g", "AB!": "angelbeats"
     };
 
+    // 外すボタン
     const deleteMember = (select_style_list, chara_no) => {
         select_style_list[chara_no] = undefined;
-        if (typeof removeMember == "function") {
-            removeMember();
+        if (typeof updateMember == "function") {
+            updateMember();
         }
+    }
+
+    // モーダルを閉じる
+    function closeModel() {
+        chara_no = -1;
+        MicroModal.close('modal_style_section');
     }
 
     return (

@@ -494,30 +494,6 @@ function setEventTrigger() {
     $("input[name=rule_tab]").on("change", function (event) {
         updateGrade();
     });
-    // ステータス保存
-    $(".save").on("change", function (event) {
-        let id_split = $(this).prop("id").split("_");
-        if (id_split.length > 1) {
-            let chara_no = Number(id_split[1]);
-            saveStyle(select_style_list[chara_no]);
-        }
-    });
-    // 部隊変更ボタンクリック
-    $(".troops_btn").on("click", function (event) {
-        if ($(this).hasClass("selected_troops")) {
-            return;
-        }
-        // サブ部隊初期化
-        $("#sub_troops").val(-1);
-        loadSubTroopsList(-1);
-
-        $(".selected_troops").removeClass("selected_troops");
-        $(this).addClass("selected_troops");
-        styleReset(select_style_list, false);
-        select_troops = $(this).val();
-        localStorage.setItem('select_troops', select_troops);
-        loadTroopsList(select_style_list, select_troops);
-    });
     // サブパーティ変更
     $("#sub_troops").on("change", function (event) {
         loadSubTroopsList($(this).val());
@@ -623,20 +599,20 @@ function setEventTrigger() {
 
 // メンバー読み込み時の固有処理
 function loadMember(select_chara_no, member_info, isTrigger) {
-    $.each(status_kbn, function (index, value) {
-        if (index == 0) return true;
-        $(`#${value}_${select_chara_no}`).val(member_info[value]);
-    });
-    $(`#limit_${select_chara_no}`).val(member_info.limit_count);
-    $(`#jewel_${select_chara_no}`).val(member_info.jewel_lv);
+    // $.each(status_kbn, function (index, value) {
+    //     if (index == 0) return true;
+    //     $(`#${value}_${select_chara_no}`).val(member_info[value]);
+    // });
+    // $(`#limit_${select_chara_no}`).val(member_info.limit_count);
+    // $(`#jewel_${select_chara_no}`).val(member_info.jewel_lv);
 
     addAttackList(member_info);
     addBuffList(member_info, 0);
     addAbility(member_info);
     addPassive(member_info);
-    $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
-    // 画像切り替え
-    $('#select_chara_' + select_chara_no).attr("src", "icon/" + member_info.style_info.image_url);
+    // $(".display_chara_id-" + member_info.style_info.chara_id).addClass(`block_chara_id-${member_info.style_info.chara_id}`);
+    // // 画像切り替え
+    // $('#select_chara_' + select_chara_no).attr("src", "icon/" + member_info.style_info.image_url);
 
     if (isTrigger) {
         $("#attack_list").trigger("change");

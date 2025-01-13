@@ -21,27 +21,6 @@ class Member {
     }
 }
 
-// モーダル系イベント
-function addModalEvent() {
-    // モーダルを開く
-    $('.showmodal').on('click', function () {
-        chara_no = $(this).data("chara_no");
-        MicroModal.show('modal_style_section');
-    });
-
-    /** 部隊変更共通部 */
-    // リセットボタン
-    $("#style_reset_btn").on("click", function (event) {
-        styleReset(select_style_list, true);
-    });
-}
-
-// モーダルを閉じる
-function closeModel() {
-    chara_no = -1;
-    MicroModal.close('modal_style_section');
-}
-
 // メンバーを設定する。
 function setMember(select_list, select_chara_no, style_id, isTrigger) {
     let style_info = style_list.find((obj) => obj.style_id === style_id);
@@ -70,9 +49,12 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
     loadStyle(member_info);
     select_list[select_chara_no] = member_info;
 
-    changeRarity(select_chara_no, style_info.rarity);
     if (typeof loadMember == "function") {
         loadMember(select_chara_no, member_info, isTrigger);
+    }
+
+    if (typeof updateMember == "function") {
+        updateMember();
     }
 }
 
@@ -160,30 +142,6 @@ function styleReset(select_list, isLocalStorageReset) {
         }
     });
     $("#attack_list").trigger("change");
-}
-
-// レアリティ対応
-function changeRarity(select_chara_no, rarity) {
-    $("#limit_" + select_chara_no).prop("disabled", false);
-    if (rarity == 1) {
-        $("#jewel_" + select_chara_no).prop("disabled", false);
-        $('#limit_' + select_chara_no + ' option[value="10"]').css('display', 'none');
-        $('#limit_' + select_chara_no + ' option[value="20"]').css('display', 'none');
-    } else {
-        $("#limit_" + select_chara_no).prop("disabled", true);
-        if (rarity == 2) {
-            $("#jewel_" + select_chara_no).prop("disabled", false);
-            $('#limit_' + select_chara_no + ' option[value="10"]').css('display', 'block');
-            $('#limit_' + select_chara_no).val(10);
-            select_style_list[select_chara_no].limit_count = 10;
-        } else {
-            $("#jewel_" + select_chara_no).val(0);
-            $("#jewel_" + select_chara_no).prop("disabled", true);
-            $('#limit_' + select_chara_no + ' option[value="20"]').css('display', 'block');
-            $('#limit_' + select_chara_no).val(20);
-            select_style_list[select_chara_no].limit_count = 20;
-        }
-    }
 }
 
 /** ダメージ計算ツール */

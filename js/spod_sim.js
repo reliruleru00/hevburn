@@ -10,9 +10,7 @@ const REST_TURN_COST_BUFF = [67, 491, 523, 567, 568, 573, 575, 577];
 
 const styleSheet = document.createElement('style');
 document.head.appendChild(styleSheet);
-let last_turn;
 let turn_list = [];
-let now_turn;
 let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
@@ -50,6 +48,8 @@ class turn_data {
         this.turn_number = 0;
         this.over_drive_turn = 0;
         this.over_drive_max_turn = 0;
+        this.trigger_over_drive = false;
+        this.kb_action = KB_NEXT_ACTION;
         this.additional_turn = false;
         this.enemy_debuff_list = [];
         this.unit_list = [];
@@ -178,6 +178,7 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.over_drive_sp = sp_list[over_drive_level];
         });
+        this.trigger_over_drive = true;
     }
     removeOverDrive() {
         this.over_drive_turn = 0;
@@ -188,6 +189,8 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.over_drive_sp = 0;
         });
+        this.trigger_over_drive = false;
+
     }
     debuffConsumption() {
         for (let i = this.enemy_debuff_list.length - 1; i >= 0; i--) {
@@ -896,7 +899,6 @@ function setEventTrigger() {
             }
         }
         // 初期化
-        last_turn = 0;
         turn_list = [];
         battle_enemy_info = getEnemyInfo();
         for (let i = 1; i <= 3; i++) {
@@ -906,54 +908,6 @@ function setEventTrigger() {
             battle_enemy_info[`element_${i}`] = Number($(`#enemy_element_${i}`).val());
         }
         procBattleStart();
-    });
-
-    // 行動開始
-    $(document).on("click", ".next_turn", function (event) {
-        // 前ターンを不能
-        $(`.turn${last_turn} select.unit_skill`).off("click");
-        $(`.turn${last_turn} .unit_select`).off("click");
-        $(`.turn${last_turn} .icon_list`).off("click");
-        $(`.turn${last_turn} .enemy_icon_list`).off("click");
-        $(`.turn${last_turn} select.unit_skill`).prop("disabled", true);
-        $(`.turn${last_turn} select.action_select`).prop("disabled", true);
-        $(`.turn${last_turn} .trigger_over_drive`).prop("disabled", true);
-        $(".unit_selected").removeClass("unit_selected");
-        let kb_next = $(`.turn${last_turn} select.action_select`).val();
-        now_turn.enemy_count = Number($("#enemy_count").val());;
-        let turn_data = deepClone(now_turn);
-        startAction(turn_data, last_turn);
-        // 次ターンを追加
-        proceedTurn(turn_data, kb_next);
-    });
-
-    // ターンを戻す
-    $(document).on("click", ".return_turn", function (event) {
-        // 現ターンのイベント削除
-        $(`.turn${last_turn} select.unit_skill`).off("click");
-        $(`.turn${last_turn} .unit_select`).off("click");
-
-        // 前ターンを削除
-        function removeTurnsAfter(turn_number) {
-            // 選択したターン数より大きいターンの要素を取得し、削除
-            $(`#battle_area .turn`).filter(function () {
-                // クラス名からターン数を抽出
-                const turn_class = $(this).attr('class').match(/turn(\d+)/);
-                return turn_class && parseInt(turn_class[1]) > turn_number;
-            }).remove();
-
-            // 指定されたnumber以上の要素を削除
-            turn_list = turn_list.slice(0, turn_number);
-        }
-        last_turn = $(this).data("trun_number");
-        removeTurnsAfter(last_turn);
-        now_turn = turn_list[turn_list.length - 1];
-
-        $(`.turn${last_turn} select.unit_skill`).prop("disabled", false);
-        $(`.turn${last_turn} select.action_select`).prop("disabled", false);
-        $(`.turn${last_turn} .trigger_over_drive`).prop("disabled", false);
-        addUnitEvent();
-        // setTurnButton();
     });
 }
 
@@ -1013,19 +967,6 @@ function setPassiveList() {
     let chara_no = $("#passive_skill_list").data("chara_no");
     select_style_list[chara_no].passive_skill_list = skill_id_list;
     MicroModal.close('modal_passive_list');
-}
-
-// 行動制限
-function updateAction(turn_data) {
-    let is_over_drive = true;
-    // 行動後ODゲージ100以上かつ、OD中以外
-    if ((turn_data.over_drive_gauge + turn_data.add_over_drive_gauge) < 100) {
-        is_over_drive = false;
-    };
-    if (turn_data.over_drive_max_turn > 0) {
-        is_over_drive = false;
-    };
-    toggleItemVisibility($(`.turn${last_turn} select.action_select option[value='${KB_NEXT_ACTION_OD}']`), is_over_drive);
 }
 
 // 敵リスト作成
@@ -1208,21 +1149,21 @@ function procBattleStart() {
 
     // 戦闘開始アビリティ
     turn_init.abilityAction(ABILIRY_BATTLE_START);
+    turn_init.kb_action = KB_NEXT_ACTION;
 
     // ターンを進める
-    proceedTurn(turn_init, 1);
+    proceedTurn(turn_init);
 }
 
 // ターンを進める
-function proceedTurn(turn_data, kb_next) {
-    last_turn++;
+function proceedTurn(turn_data) {
     turn_data.unitSort();
     if (turn_data.additional_turn) {
         turn_data.turnProceed(KB_NEXT_ADDITIONALTURN);
         turn_data.abilityAction(ABILIRY_ADDITIONALTURN);
     } else {
-        turn_data.turnProceed(kb_next);
-        if (kb_next == KB_NEXT_ACTION_OD) {
+        turn_data.turnProceed(turn_data.kb_action);
+        if (turn_data.kb_next == KB_NEXT_ACTION_OD) {
             turn_data.abilityAction(ABILIRY_OD_START);
         } else {
             turn_data.abilityAction(ABILIRY_ACTION_START);
@@ -1230,10 +1171,18 @@ function proceedTurn(turn_data, kb_next) {
     }
 
     turn_list.push(turn_data);
-    now_turn = turn_data;
 
     // 画面反映
-    updateTurnList(last_turn, turn_list);
+    updateTurnList(turn_list);
+}
+
+// // ターンを戻す
+function returnTurn(turn_number) {
+    // 指定されたnumber以上の要素を削除
+    turn_list = turn_list.slice(0, turn_number);
+
+    // 画面反映
+    updateTurnList(turn_list);
 }
 
 // スキルセット作成
@@ -1284,58 +1233,58 @@ const createSkillOption = (value, turn_data, unit) => {
         .addClass(value.skill_name === "追撃" ? "back" : "front");
 };
 
-// バフアイコンリスト
-function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
-    let div = $("<div>").addClass("scroll-container");
-    let inner = $("<div>").addClass("scroll-content");
-    $.each(buff_list, function (index, buff_info) {
-        let img = getBuffIconImg(buff_info);
-        img.addClass("unit_buff");
-        inner.append(img)
-    });
+// // バフアイコンリスト
+// function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
+//     let div = $("<div>").addClass("scroll-container");
+//     let inner = $("<div>").addClass("scroll-content");
+//     $.each(buff_list, function (index, buff_info) {
+//         let img = getBuffIconImg(buff_info);
+//         img.addClass("unit_buff");
+//         inner.append(img)
+//     });
 
-    let unit_buffs = inner.find(".unit_buff");
-    if (unit_buffs.length > loop_limit * loop_step) {
-        inner.addClass('scroll');
+//     let unit_buffs = inner.find(".unit_buff");
+//     if (unit_buffs.length > loop_limit * loop_step) {
+//         inner.addClass('scroll');
 
-        // アイコンの数によってアニメーションの速度を調整
-        const duration = unit_buffs.length * 0.5; // 例: アイコン数に応じて2秒ごとに1アイコンがスクロール
+//         // アイコンの数によってアニメーションの速度を調整
+//         const duration = unit_buffs.length * 0.5; // 例: アイコン数に応じて2秒ごとに1アイコンがスクロール
 
-        // @keyframesを動的に生成
-        const animationName = `scroll-${last_turn}-${chara_index}`;
-        const translateXValue = unit_buffs.length * 24;
-        const keyframes = `
-      @keyframes ${animationName} {
-        0% {
-          transform: translateX(0);
-        }
-        100% {
-          transform: translateX(-${translateXValue}px);
-        }
-      }
-    `;
-        // 既存の同名アニメーションを削除
-        for (let i = 0; i < styleSheet.sheet.cssRules.length; i++) {
-            if (styleSheet.sheet.cssRules[i].name === animationName) {
-                styleSheet.sheet.deleteRule(i);
-                break;
-            }
-        }
-        // 新しいアニメーションを追加
-        inner[0].style.animation = `${animationName} ${duration}s linear infinite`;
-        styleSheet.sheet.insertRule(keyframes, styleSheet.sheet.cssRules.length);
-        // 既存のunit_buffクラスのアイコンを複製して追加
-        unit_buffs.each(function () {
-            let cloned_icon = $(this).clone();
-            inner.append(cloned_icon);
-        });
-    } else {
-        inner.removeClass('scroll').addClass("flex-wrap");
-    }
+//         // @keyframesを動的に生成
+//         const animationName = `scroll-${last_turn}-${chara_index}`;
+//         const translateXValue = unit_buffs.length * 24;
+//         const keyframes = `
+//       @keyframes ${animationName} {
+//         0% {
+//           transform: translateX(0);
+//         }
+//         100% {
+//           transform: translateX(-${translateXValue}px);
+//         }
+//       }
+//     `;
+//         // 既存の同名アニメーションを削除
+//         for (let i = 0; i < styleSheet.sheet.cssRules.length; i++) {
+//             if (styleSheet.sheet.cssRules[i].name === animationName) {
+//                 styleSheet.sheet.deleteRule(i);
+//                 break;
+//             }
+//         }
+//         // 新しいアニメーションを追加
+//         inner[0].style.animation = `${animationName} ${duration}s linear infinite`;
+//         styleSheet.sheet.insertRule(keyframes, styleSheet.sheet.cssRules.length);
+//         // 既存のunit_buffクラスのアイコンを複製して追加
+//         unit_buffs.each(function () {
+//             let cloned_icon = $(this).clone();
+//             inner.append(cloned_icon);
+//         });
+//     } else {
+//         inner.removeClass('scroll').addClass("flex-wrap");
+//     }
 
-    div.append(inner);
-    return div;
-}
+//     div.append(inner);
+//     return div;
+// }
 
 // バフアイコン取得
 function getBuffIconImg(buff_info) {

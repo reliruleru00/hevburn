@@ -1,22 +1,32 @@
-const TurnDataComponent = ({ turn }) => {
+const TurnDataComponent = ({ turn, last_turn, index }) => {
     const [turnData, setTurnData] = React.useState({
-        "filed": turn.field,
-        "enemy_count": turn.enemy_count,
-        "select_skill": [turn.unit_list[0].select_skill_id, turn.unit_list[1].select_skill_id, turn.unit_list[2].select_skill_id, 0, 0, 0],
-        "trigger_over_drive": false,
+        filed: turn.field,
+        enemy_count: turn.enemy_count,
+        select_skill: [turn.unit_list[0].select_skill_id, turn.unit_list[1].select_skill_id, turn.unit_list[2].select_skill_id, 0, 0, 0],
+        trigger_over_drive: turn.trigger_over_drive,
         selected_place_no: -1,
+        kb_action: turn.kb_action,
     });
 
+    // 敵の数変更
     const chengeEnemyCount = (e) => {
         turn.enemy_count = e.target.value;
         setTurnData({ ...turnData, "enemy_count": e.target.value });
     }
 
+    // フィールド変更
     const chengeField = (e) => {
         turn.field = e.target.value;
         setTurnData({ ...turnData, "field": e.target.value });
     }
 
+    // 行動選択変更
+    const chengeAction = (e) => {
+        turn.kb_action = e.target.value;
+        setTurnData({ ...turnData, "kb_action": e.target.value });
+    }
+
+    // スキル変更
     window.chengeSkill = function (skill_id, place_no) {
         let select_skill = turnData.select_skill;
         select_skill[place_no] = skill_id;
@@ -30,6 +40,7 @@ const TurnDataComponent = ({ turn }) => {
         processSkillChange(unit, skill_id, select_skill);
     }
 
+    // スキル変更時の追加処理
     async function processSkillChange(unit, skill_id, select_skill) {
         const buff_list = getBuffInfo(skill_id);
         if (!await handleTargetSelection(unit, turn, buff_list)) {
@@ -59,6 +70,7 @@ const TurnDataComponent = ({ turn }) => {
         setTurnData({ ...turnData, "select_skill": select_skill });
     }
 
+    // OD発動/解除
     function triggerOverDrive(checked) {
         if (checked) {
             turn.startOverDrive();
@@ -68,6 +80,7 @@ const TurnDataComponent = ({ turn }) => {
         setTurnData({ ...turnData, "trigger_over_drive": checked });
     }
 
+    // ユニット選択/入れ替え
     window.chengeSelectUnit = function (e, place_no) {
         if (e.target.tagName === 'SELECT') {
             e.stopPropagation();
@@ -107,8 +120,16 @@ const TurnDataComponent = ({ turn }) => {
             }
             place_no = -1;
         }
-        setTurnData({ ...turnData, "selected_place_no": place_no, "select_skill": select_skill});
+        setTurnData({ ...turnData, "selected_place_no": place_no, "select_skill": select_skill });
     }
+
+    // 次ターン
+    function nextTurn() {
+        let turn_data = deepClone(turn);
+        startAction(turn_data, last_turn);
+        // 次ターンを追加
+        proceedTurn(turn_data);
+    };
 
     return (
         <div className="turn">
@@ -135,18 +156,18 @@ const TurnDataComponent = ({ turn }) => {
             </div>
             <div className="party_member">
                 <div className="flex front_area">
-                    {[0, 1, 2].map(place_no => 
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no}/>
+                    {[0, 1, 2].map(place_no =>
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no}/>
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no} />
                     )}
                     <div>
-                        <select className="action_select">
-                            <option value="1">行動開始</option>
-                            {turn.over_drive_gauge >= 100 ? <option value="2">行動開始+OD</option> : null}
+                        <select className="action_select" value={turn.kb_action} onChange={(e) => chengeAction(e)}>
+                            <option value={KB_NEXT_ACTION}>行動開始</option>
+                            {turn.over_drive_gauge >= 100 ? <option value={KB_NEXT_ACTION_OD}>行動開始+OD</option> : null}
                         </select>
                         <div
                             className="flex"
@@ -154,12 +175,12 @@ const TurnDataComponent = ({ turn }) => {
                                 justifyContent: "flex-end",
                             }}>
                             {turn.start_over_drive_gauge >= 100 && !turn.additional_turn ?
-                                <input type="checkbox" class="trigger_over_drive" onChange={(e) => triggerOverDrive(e.target.checked)} />
+                                <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
-                            {last_turn === turn.turn_number ?
-                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" />
+                            {last_turn === index ?
+                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={nextTurn} />
                                 :
-                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" />
+                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(turn.turn_number)} />
                             }
                         </div>
                     </div>
@@ -175,14 +196,14 @@ const TurnDataComponent = ({ turn }) => {
 
 const BattleAreaComponent = () => {
     const [turnList, setTurnList] = React.useState({
-        "last_turn": last_turn,
-        "turn_list": turn_list
+        "last_turn": 0,
+        "turn_list": []
     });
 
     // 状態を外部で更新できるようにする
-    window.updateTurnList = (last_turn, turn_list) => {
+    window.updateTurnList = (turn_list) => {
         setTurnList({
-            "last_turn": last_turn,
+            "last_turn": turn_list.length - 1,
             "turn_list": turn_list
         });
     };
@@ -190,7 +211,7 @@ const BattleAreaComponent = () => {
     return (
         <>
             {turnList.turn_list.map((turn, index) => {
-                return <TurnDataComponent turn={turn} key={index} />
+                return <TurnDataComponent turn={turn} last_turn={turnList.last_turn} index={index} key={`turn${index}`} />
             })}
         </>
     )

@@ -3,7 +3,8 @@ const TurnDataComponent = ({ turn }) => {
         "filed": turn.field,
         "enemy_count": turn.enemy_count,
         "select_skill": [turn.unit_list[0].select_skill_id, turn.unit_list[1].select_skill_id, turn.unit_list[2].select_skill_id, 0, 0, 0],
-        "trigger_over_drive": false
+        "trigger_over_drive": false,
+        selected_place_no: -1,
     });
 
     const chengeEnemyCount = (e) => {
@@ -67,6 +68,48 @@ const TurnDataComponent = ({ turn }) => {
         setTurnData({ ...turnData, "trigger_over_drive": checked });
     }
 
+    window.chengeSelectUnit = function (e, place_no) {
+        if (e.target.tagName === 'SELECT') {
+            e.stopPropagation();
+            return;
+        }
+        let new_unit = getUnitData(turn, place_no);
+        if (new_unit.blank) {
+            return;
+        }
+        let old_place_no = turnData.selected_place_no;
+        let select_skill = turnData.select_skill;
+        if (old_place_no != -1) {
+            if (old_place_no != place_no) {
+                let old_unit = getUnitData(turn, old_place_no)
+                if (new_unit && old_unit) {
+                    new_unit.place_no = old_place_no;
+                    old_unit.place_no = place_no;
+                }
+                // 前衛と後衛の交換
+                if (place_no <= 2 && 3 <= old_place_no) {
+                    old_unit.select_skill_id = old_unit.init_skill_id;
+                    new_unit.select_skill_id = 0;
+                    new_unit.sp_cost = 0;
+                    new_unit.buff_effect_select_type = 0;
+                    new_unit.buff_target_chara_id = 0;
+                }
+                // 後衛と前衛の交換
+                if (3 <= place_no && old_place_no <= 2) {
+                    old_unit.select_skill_id = 0;
+                    old_unit.sp_cost = 0;
+                    old_unit.buff_effect_select_type = 0;
+                    old_unit.buff_target_chara_id = 0;
+                    new_unit.select_skill_id = new_unit.init_skill_id;
+                }
+                select_skill[place_no] = old_unit.select_skill_id;
+                select_skill[old_place_no] = new_unit.select_skill_id;
+            }
+            place_no = -1;
+        }
+        setTurnData({ ...turnData, "selected_place_no": place_no, "select_skill": select_skill});
+    }
+
     return (
         <div className="turn">
             <div className="header_area">
@@ -93,12 +136,12 @@ const TurnDataComponent = ({ turn }) => {
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(place_no => 
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no}/>
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no}/>
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no}/>
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no}/>
                     )}
                     <div>
                         <select className="action_select">

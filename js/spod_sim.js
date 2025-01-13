@@ -1232,11 +1232,8 @@ function proceedTurn(turn_data, kb_next) {
     turn_list.push(turn_data);
     now_turn = turn_data;
 
-    setTurnButton();
-    // ODゲージを設定
-    setOverDrive();
-    // 行動制限
-    updateAction(now_turn);
+    // 画面反映
+    updateTurnList(last_turn, turn_list);
 }
 
 // スキルセット作成
@@ -1286,56 +1283,6 @@ const createSkillOption = (value, turn_data, unit) => {
         .data("sp_cost", sp_cost)
         .addClass(value.skill_name === "追撃" ? "back" : "front");
 };
-
-// ターン表示更新
-function updateTurn(selector, turn_data) {
-    // ターン表示更新
-    selector.find(".turn_number").text(turn_data.getTurnNumber());
-    // ODゲージ更新
-    setOverDrive();
-    turn_data.unitLoop(function (unit) {
-        let target_skill = selector.find(".unit_skill")[unit.place_no];
-        // スキル更新
-        let select_index = $(target_skill).prop("selectedIndex");
-        let skill_id = Number($(target_skill).val());
-        $(target_skill).html("");
-        appendSkillOptions($(target_skill), turn_data, unit)
-        if (unit.place_no < 3) {
-            setFrontOptions($(target_skill));
-        } else {
-            setBackOptions($(target_skill));
-        }
-        $(target_skill).prop("selectedIndex", select_index);
-        let skill_info = getSkillData(skill_id);
-        if (skill_info) {
-            unit.sp_cost = getSpCost(turn_data, skill_info, unit);
-        } else {
-            unit.sp_cost = 0;
-        }
-
-        // SP更新
-        let target_sp = selector.find(".unit_sp")[unit.place_no];
-        updateSp(unit, target_sp)
-    });
-}
-
-// ターンボタン表示設定
-function setTurnButton() {
-    // 最後の要素のみ表示
-    if (next_display == "1") {
-        // 最初の要素を非表示、以降の要素を表示
-        $('.next_turn:first').show();
-        $('.next_turn:not(:first)').hide();
-        $('.return_turn:first').hide();
-        $('.return_turn:not(:first)').show();
-    } else {
-        // 最後の要素を非表示、以前の要素を表示
-        $('.next_turn:last').show();
-        $('.next_turn:not(:last)').hide();
-        $('.return_turn:last').hide();
-        $('.return_turn:not(:last)').show();
-    }
-}
 
 // バフアイコンリスト
 function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
@@ -1491,143 +1438,10 @@ function getBuffIconImg(buff_info) {
 
 // ユニットイベント
 function addUnitEvent() {
-    let first_click = null;
-    let first_click_index = -1;
-
-    // ユニット交換イベントの伝播を止める
-    $(`.turn${last_turn} select.unit_skill`).on("click", function (event) {
-        event.stopPropagation();
-    });
-
-    $(`.turn${last_turn} .unit_select`).on("click", function (event) {
-        // クリックされた要素を取得
-        let clicked_element = $(this);
-        let index = $(this).parent().index() * 3 + $(this).index();
-        let unit_data = getUnitData(now_turn, index);
-        if (!unit_data || unit_data.blank) {
-            return;
-        }
-        // 追加ターンの制約
-        if (now_turn.additional_turn) {
-            // 後衛
-            if (index > 2) {
-                return;
-            }
-            // 追加ターンなし
-            if (!unit_data.additional_turn) {
-                return;
-            }
-        }
-
-        // 最初にクリックされた要素かどうかを確認
-        if (first_click === null) {
-            // 最初にクリックされた要素を記録
-            first_click = clicked_element;
-            first_click_index = index;
-            clicked_element.addClass("unit_selected");
-        } else {
-            first_click.removeClass("unit_selected");
-            // 同じ要素が2回クリックされた場合は処理しない
-            if (first_click.is(clicked_element)) {
-                // 最初にクリックした要素をリセット
-                first_click = null;
-                return;
-            }
-            // 2回目にクリックされた要素を取得
-            let second_click = clicked_element;
-
-            let first_click_unit_data = getUnitData(now_turn, first_click_index);
-            first_click_unit_data.place_no = index;
-            unit_data.place_no = first_click_index;
-
-            // 前衛と後衛が入れ替わった場合
-            if (index >= 0 && index <= 2 && first_click_index >= 3 && first_click_index <= 5) {
-                setFrontOptions(first_click.find("select"));
-                setBackOptions(second_click.find("select"));
-                unit_data.sp_cost = 0;
-                let second_sp = second_click.find(".unit_sp");
-                second_sp.text(unit_data.getDispSp());
-                if (unit_data.sp >= 0) {
-                    second_sp.removeClass("minus");
-                }
-            }
-            // 後衛と前衛が入れ替わった場合
-            if (index >= 3 && index <= 5 && first_click_index >= 0 && first_click_index <= 2) {
-                setFrontOptions(second_click.find("select"));
-                setBackOptions(first_click.find("select"));
-                first_click_unit_data.sp_cost = 0;
-                let first_sp = first_click.find(".unit_sp");
-                first_sp.text(first_click_unit_data.getDispSp());
-                if (first_click_unit_data.sp >= 0) {
-                    first_sp.removeClass("minus");
-                }
-            }
-            // 要素を交換
-            swapElements(first_click, second_click)
-
-            // 最初にクリックした要素をリセット
-            first_click = null;
-            first_click_index = -1;
-            // OD再表示
-            // setOverDrive();
-        }
-    });
-
-    // バフ詳細表示
-    function showBuffList(event, buff_list) {
-        let buff_detail = $("#buff_detail");
-        buff_detail.html("");
-        $.each(buff_list, function (index, buff_info) {
-            let div = $("<div>").addClass("flex detail_line_height");
-            let img = getBuffIconImg(buff_info).addClass("icon_buff_detail");;
-            div.append(img);
-            let label = $("<label>");
-            let buff_kind_name = getBuffKindName(buff_info);
-            let buff_text = `${buff_kind_name}<br>${buff_info.buff_name}`;
-            switch (buff_info.buff_kind) {
-                case BUFF_MORALE: // 士気
-                    buff_text += `(Lv${buff_info.lv})`;
-                    break;
-                default:
-                    if (buff_info.rest_turn > 0) {
-                        buff_text += `(残りターン${buff_info.rest_turn})`;
-                    }
-                    break;
-            }
-            label.html(buff_text);
-            buff_detail.append(div.append(label));
-        });
-        MicroModal.show('modal_buff_detail_list');
-        event.stopPropagation();
-    }
     // デバフリストの表示    
     $(`.turn${last_turn} .enemy_icon_list`).on("click", function (event) {
         showBuffList(event, now_turn.enemy_debuff_list);
     });
-    // バフリストの表示    
-    $(`.turn${last_turn} .icon_list`).on("click", function (event) {
-        let index = $(this).parent().parent().index();
-        let unit_data = getUnitData(now_turn, index);
-        if (!unit_data || unit_data.blank) {
-            return;
-        }
-        showBuffList(event, unit_data.buff_list);
-    });
-}
-
-// 要素を交換する関数
-function swapElements(first_element, second_element) {
-    const first_select_val = first_element.find("select").val();
-    const second_select_val = second_element.find("select").val();
-
-    const first_clone = first_element.clone(true);
-    const second_clone = second_element.clone(true);
-
-    first_clone.find("select").val(first_select_val);
-    second_clone.find("select").val(second_select_val);
-
-    first_element.replaceWith(second_clone);
-    second_element.replaceWith(first_clone);
 }
 
 // 敵情報取得
@@ -1668,18 +1482,6 @@ function getAbilityInfo(ability_id) {
 function getPassiveInfo(skill_id) {
     const filtered_passive = skill_passive.filter((obj) => obj.skill_id == skill_id);
     return filtered_passive.length > 0 ? filtered_passive[0] : undefined;
-}
-
-// スキル設定
-function setFrontOptions(select) {
-    toggleItemVisibility(select.find("option.front"), true);
-    toggleItemVisibility(select.find("option.back"), false);
-    select.find("option.front:first").prop('selected', true);
-}
-function setBackOptions(select) {
-    toggleItemVisibility(select.find("option.front"), false);
-    toggleItemVisibility(select.find("option.back"), true);
-    select.find("option:not(.front):first").prop('selected', true);
 }
 
 // 行動開始

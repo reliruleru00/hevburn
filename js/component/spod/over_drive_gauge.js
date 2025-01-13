@@ -6,13 +6,14 @@ const OverDriveGauge = ({ turn }) => {
         // 前衛のスキルを取得
         turn.unit_list.forEach((unit, index) => {
             let skill_id = unit.select_skill_id;
-            if (skill_id == 0) {
+            let place_no = unit.place_no;
+            if (skill_id == 0 || 3 <= place_no) {
                 return true;
             }
             let skill_info = getSkillData(skill_id);
             let skill_data = {
                 skill_info: skill_info,
-                place_no: index
+                place_no: place_no
             };
             if (skill_info.attack_id || skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
                 attack_seq.push(skill_data);
@@ -112,8 +113,8 @@ const OverDriveGauge = ({ turn }) => {
             if (skill_id == 0) {
                 return true;
             }
-            // 追撃(仮)
-            if (skill_id == 8) {
+            // 追撃
+            if (skill_id == 3) {
                 let chara_data = getCharaData(unit_data.style.style_info.chara_id);
                 od_plus += chara_data.pursuit * 2.5;
             }

@@ -17,6 +17,14 @@ const StyleSelectComponent = () => {
         "31D": "DioramaStamp31d", "31E": "DioramaStamp31e", "31F": "DioramaStamp31f", "31X": "DioramaStamp31x",
         "30G": "DioramaStamp30g", "AB!": "angelbeats"
     };
+
+    const deleteMember = (select_style_list, chara_no) => {
+        select_style_list[chara_no] = undefined;
+        if (typeof removeMember == "function") {
+            removeMember();
+        }
+    }
+
     return (
         <div className="modal_inner">
             <div className="modal_inner_headline">
@@ -29,7 +37,7 @@ const StyleSelectComponent = () => {
                         type="button"
                         onClick={() => {
                             localStorage.removeItem(`troops_${select_troops}_${chara_no}`);
-                            removeMember(select_style_list, chara_no, true);
+                            deleteMember(select_style_list, chara_no, true);
                             closeModel();
                         }}
                     />

@@ -47,6 +47,8 @@
   <script src="js/enemy.js"></script>
   <script src="js/ability.js"></script>
   <script type="text/babel" src="js/component/modal_style_section.js"></script>
+  <script type="text/babel" src="js/component/style_list.js"></script>
+  <script type="text/babel" src="js/component/spod/chara_setting.js"></script>
   <script type="text/babel" src="js/component/spod/battle_area.js"></script>
   <script type="text/babel" src="js/component/spod/over_drive_gauge.js"></script>
   <script type="text/babel" src="js/component/spod/target_selection.js"></script>
@@ -56,33 +58,8 @@
   <script>
     let chara_no = -1;
     $(function () {
-      // モーダル系イベント追加
-      addModalEvent();
-
-      for (let i = 0; i <= 4; i++) {
-        $(".limit").append($('<option>').text(i).val(i));
-      }
-      $(".limit").prop("selectedIndex", 2);
-      $(".limit").append($('<option>').text(10).val(10).css("display", "none"));
-      $(".limit").append($('<option>').text(20).val(20).css("display", "none"));
-      $(".earring").append($('<option>').text("無し").val(0));
-      [10, 12, 15].forEach(effect_size => {
-        $(".earring").append($('<option>').text(`${effect_size}%`).val(effect_size));
-      });
-      $(".earring").val(0);
-      for (let i = 0; i <= 3; i++) {
-        let option = $('<option>').text("SP+" + i).val(i);
-        $(".chain").append(option);
-      }
-      $(".chain").val(3);
-      ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"].forEach((element, index) => {
-        $(".bracelet").append($('<option>').text(element).val(index));
-      });
-      $(".bracelet").val(1);
-
       // スタイルリスト読み込み
       select_troops = select_troops ? select_troops : 0;
-      $("#troops_btn_" + select_troops).addClass("selected_troops");
       loadTroopsList(select_style_list, select_troops);
 
       // 敵情報設定
@@ -122,88 +99,7 @@
     <div class="frame w-screen pt-3 overflow-y-scroll border-b">
       <div class="display_area mx-auto">
         <input type="button" data-micromodal-trigger="modal_explanation" role="button" value="注意事項" class="w-20">
-        <div id="char_list" class="grid grid-cols-7 text-center gap-y-px gap-x-0">
-          <label class="mt-3 mb-3 small_font">部隊選択</label>
-          <div class="col-span-6 flex">
-            <input type="button" id="troops_btn_0" class="troops_btn" value="0">
-            <input type="button" id="troops_btn_1" class="troops_btn" value="1">
-            <input type="button" id="troops_btn_2" class="troops_btn" value="2">
-            <input type="button" id="troops_btn_3" class="troops_btn" value="3">
-            <input type="button" id="troops_btn_4" class="troops_btn" value="4">
-            <input type="button" id="troops_btn_5" class="troops_btn" value="5">
-            <input type="button" id="troops_btn_6" class="troops_btn" value="6">
-            <input type="button" id="troops_btn_7" class="troops_btn" value="7">
-            <input type="button" id="troops_btn_8" class="troops_btn" value="8">
-          </div>
-          <div class="mt-2">
-            <div>
-              <label class="small_font">スタイル</label>
-              <input type="button" id="style_reset_btn" value="リセット">
-            </div>
-          </div>
-          <img class="showmodal select_style" id="select_chara_0" src="img/plus.png" data-chara_no="0">
-          <img class="showmodal select_style" id="select_chara_1" src="img/plus.png" data-chara_no="1">
-          <img class="showmodal select_style" id="select_chara_2" src="img/plus.png" data-chara_no="2">
-          <img class="showmodal select_style" id="select_chara_3" src="img/plus.png" data-chara_no="3">
-          <img class="showmodal select_style" id="select_chara_4" src="img/plus.png" data-chara_no="4">
-          <img class="showmodal select_style" id="select_chara_5" src="img/plus.png" data-chara_no="5">
-          <div>
-            <label class="label_status">限界突破</label>
-            <label class="label_status text-xs leading-6 whitespace-nowrap">ドライブピアス</label>
-            <label class="label_status text-xs leading-5 whitespace-nowrap">ブレスレット</label>
-            <label class="label_status">チェーン</label>
-            <label class="label_status">初期SP</label>
-            <label class="label_status">パッシブ</label>
-          </div>
-          <div>
-            <select id="limit_0" class="limit save"></select>
-            <select id="earring_0" class="earring save"></select>
-            <select id="bracelet_0" class="bracelet save"></select>
-            <select id="chain_0" class="chain save"></select>
-            <input type="number" id="init_sp_0" class="init_sp save" value="1">
-            <input type="button" id="passive_0" class="passive save" value="設定" data-chara_no="0">
-          </div>
-          <div>
-            <select id="limit_1" class="limit save"></select>
-            <select id="earring_1" class="earring save"></select>
-            <select id="bracelet_1" class="bracelet save"></select>
-            <select id="chain_1" class="chain save"></select>
-            <input type="number" id="init_sp_1" class="init_sp save" value="1">
-            <input type="button" id="passive_1" class="passive save" value="設定" data-chara_no="1">
-          </div>
-          <div>
-            <select id="limit_2" class="limit save"></select>
-            <select id="earring_2" class="earring save"></select>
-            <select id="bracelet_2" class="bracelet save"></select>
-            <select id="chain_2" class="chain save"></select>
-            <input type="number" id="init_sp_2" class="init_sp save" value="1">
-            <input type="button" id="passive_2" class="passive save" value="設定" data-chara_no="2">
-          </div>
-          <div>
-            <select id="limit_3" class="limit save"></select>
-            <select id="earring_3" class="earring save"></select>
-            <select id="bracelet_3" class="bracelet save"></select>
-            <select id="chain_3" class="chain save"></select>
-            <input type="number" id="init_sp_3" class="init_sp save" value="1">
-            <input type="button" id="passive_3" class="passive save" value="設定" data-chara_no="3">
-          </div>
-          <div>
-            <select id="limit_4" class="limit save"></select>
-            <select id="earring_4" class="earring save"></select>
-            <select id="bracelet_4" class="bracelet save"></select>
-            <select id="chain_4" class="chain save"></select>
-            <input type="number" id="init_sp_4" class="init_sp save" value="1">
-            <input type="button" id="passive_4" class="passive save" value="設定" data-chara_no="4">
-          </div>
-          <div>
-            <select id="limit_5" class="limit save"></select>
-            <select id="earring_5" class="earring save"></select>
-            <select id="bracelet_5" class="bracelet save"></select>
-            <select id="chain_5" class="chain save"></select>
-            <input type="number" id="init_sp_5" class="init_sp save" value="1">
-            <input type="button" id="passive_5" class="passive save" value="設定" data-chara_no="5">
-          </div>
-        </div>
+        <div id="chara_setting" class="grid grid-cols-7 text-center gap-y-px gap-x-0"></div>
       </div>
       <div class="surround_area mx-auto mt-2 adjust_width">
         <div>

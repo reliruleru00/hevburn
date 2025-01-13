@@ -856,18 +856,6 @@ function setEventTrigger() {
             $(this).val('0');
         }
     });
-    // 部隊変更ボタンクリック
-    $(".troops_btn").on("click", function (event) {
-        if ($(this).hasClass("selected_troops")) {
-            return;
-        }
-        $(".selected_troops").removeClass("selected_troops");
-        $(this).addClass("selected_troops");
-        styleReset(select_style_list, false);
-        select_troops = $(this).val();
-        localStorage.setItem('select_troops', select_troops);
-        loadTroopsList(select_style_list, select_troops);
-    });
     // 上書き確認
     $("#is_overwrite").on("change", function (event) {
         localStorage.setItem("is_overwrite", $(this).prop("checked"));
@@ -912,28 +900,6 @@ function setEventTrigger() {
         }
         procBattleStart();
     });
-}
-
-// メンバー読み込み時の固有処理
-function loadMember(select_chara_no, member_info) {
-    // 画像切り替え
-    $('#select_chara_' + select_chara_no).attr("src", "icon/" + member_info.style_info.image_url);
-    $(`#limit_${select_chara_no}`).val(member_info.limit_count);
-    $(`#jewel_${select_chara_no}`).val(member_info.jewel_lv);
-    $(`#earring_${select_chara_no}`).val(member_info.earring);
-    $(`#bracelet_${select_chara_no}`).val(member_info.bracelet);
-    $(`#chain_${select_chara_no}`).val(member_info.chain);
-    $(`#init_sp_${select_chara_no}`).val(member_info.init_sp);
-    loadPassiveSkill(member_info)
-}
-
-// メンバーを外す
-function removeMember(select_list, select_chara_no) {
-    if (select_list[select_chara_no] === undefined) {
-        return;
-    }
-    // 画像初期化
-    $('#select_chara_' + select_chara_no).attr("src", "img/plus.png");
 }
 
 // パッシブリスト生成
@@ -1029,11 +995,6 @@ function procBattleStart() {
         let unit = new unit_data();
         unit.place_no = index;
         if (member_info) {
-            member_info.limit_count = Number($(`#limit_${index}`).val());
-            member_info.earring = Number($(`#earring_${index}`).val());
-            member_info.bracelet = Number($(`#bracelet_${index}`).val());
-            member_info.chain = Number($(`#chain_${index}`).val());
-            member_info.init_sp = Number($(`#init_sp_${index}`).val());
             saveStyle(member_info);
             savePassiveSkill(member_info);
             let physical = getCharaData(member_info.style_info.chara_id).physical;

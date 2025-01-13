@@ -57,7 +57,7 @@ input.troops_btn.selected_troops {
 img.select_style {
     width: 64px;
     height: 64px;
-    margin-left: 4px;
+    margin-left: 2px;
 }
 
 .dragging {

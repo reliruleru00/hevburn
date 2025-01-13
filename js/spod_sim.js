@@ -123,6 +123,10 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.unitTurnInit();
         });
+        // ターンごとに初期化
+        this.kb_action = KB_NEXT_ACTION;
+        this.trigger_over_drive = false;
+        this.start_over_drive_gauge = this.over_drive_gauge;
     }
 
     nextTurn() {
@@ -142,7 +146,6 @@ class turn_data {
                 this.over_drive_gauge = 0;
             }
         }
-        this.start_over_drive_gauge = this.over_drive_gauge;
         // 敵のデバフ消費
         this.debuffConsumption();
     }
@@ -1443,15 +1446,14 @@ function startAction(turn_data, turn_number) {
         });
     }
     // フィールド判定
-    let old_field = turn_data.field;
-    let select_field = $(`#field_turn${turn_number}`).val();
-    turn_data.field = select_field;
+    let old_field = turn_data.old_field;
+    let select_field = turn_data.field;
     if (old_field != select_field) {
         // 変更があった場合はフィールドターンをリセット
         turn_data.field_turn = 0;
     }
 
-    let seq = sortActionSeq(turn_number);
+    let seq = sortActionSeq(turn_data);
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,
         BUFF_ELEMENT_CRITICALDAMAGEUP, BUFF_CHARGE, BUFF_DAMAGERATEUP];
@@ -1517,6 +1519,7 @@ function startAction(turn_data, turn_number) {
     } else if (turn_data.field_turn == 1) {
         turn_data.field = 0;
     }
+    turn_data.old_field = turn_data.field;
 }
 
 // 耐性判定
@@ -2149,23 +2152,21 @@ function charaIdToPlaceNo(unit_list, member_id) {
 }
 
 // 行動順を取得
-function sortActionSeq(turn_number) {
+const sortActionSeq = (turn_data) => {
     let buff_seq = [];
     let attack_seq = [];
 
     // 前衛のスキルを取得
-    $(`.turn${turn_number} .front_area select.unit_skill`).each(function (index, element) {
-        if ($(element).css("visibility") == "hidden") {
-            return true;
-        }
-        let skill_id = Number($(element).val());
-        if (skill_id == 0) {
+    turn_data.unit_list.forEach((unit, index) => {
+        let skill_id = unit.select_skill_id;
+        let place_no = unit.place_no;
+        if (skill_id == 0 || 3 <= place_no) {
             return true;
         }
         let skill_info = getSkillData(skill_id);
         let skill_data = {
             skill_info: skill_info,
-            place_no: index
+            place_no: place_no
         };
         if (skill_info.attack_id || skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             attack_seq.push(skill_data);

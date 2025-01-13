@@ -1,29 +1,4 @@
 const OverDriveGauge = ({ turn }) => {
-    const sortActionSeq = (turn) => {
-        let buff_seq = [];
-        let attack_seq = [];
-
-        // 前衛のスキルを取得
-        turn.unit_list.forEach((unit, index) => {
-            let skill_id = unit.select_skill_id;
-            let place_no = unit.place_no;
-            if (skill_id == 0 || 3 <= place_no) {
-                return true;
-            }
-            let skill_info = getSkillData(skill_id);
-            let skill_data = {
-                skill_info: skill_info,
-                place_no: place_no
-            };
-            if (skill_info.attack_id || skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
-                attack_seq.push(skill_data);
-            } else {
-                buff_seq.push(skill_data);
-            }
-        });
-        // バフとアタックの順序を結合
-        return buff_seq.concat(attack_seq);
-    }
     const getOverDrive = (turn) => {
         // OD上昇量取得
         let seq = sortActionSeq(turn);

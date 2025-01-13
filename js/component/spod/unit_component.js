@@ -114,6 +114,7 @@ const BuffIconComponent = ({ buff_list, loop_limit, loop_step, place_no, turn_nu
             // 新しいアニメーションを挿入
             styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
             scrollContent.style.animation = `${animationName} ${duration}s linear infinite`;
+            scrollContent.classList.remove("flex-wrap");
 
             // アイコンを複製
             unitBuffs.forEach((buff) => {
@@ -137,7 +138,7 @@ const BuffIconComponent = ({ buff_list, loop_limit, loop_step, place_no, turn_nu
 
     return (
         <div className="scroll-container icon_list" onClick={(e) => showBuffList(e, buff_list)}>
-            <div className="scroll-content flex-wrap" ref={scrollContentRef}>
+            <div className="scroll-content" ref={scrollContentRef}>
                 {buff_list.map((buffInfo, index) => (
                     <img
                         key={index}

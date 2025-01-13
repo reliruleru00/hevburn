@@ -1106,6 +1106,7 @@ function procBattleStart() {
             ).map(obj => {
                 const copiedObj = JSON.parse(JSON.stringify(obj));
                 if (copiedObj.chara_id === 0) {
+                    copiedObj.chara_id === member_info.style_info.chara_id;
                     copiedObj.attack_physical = physical;
                 }
                 return copiedObj;
@@ -1231,9 +1232,110 @@ function proceedTurn(turn_data, kb_next) {
     turn_list.push(turn_data);
     now_turn = turn_data;
 
-    updateTurnList(last_turn, turn_list);
+    setTurnButton();
+    // ODゲージを設定
+    setOverDrive();
+    // 行動制限
+    updateAction(now_turn);
 }
 
+// スキルセット作成
+const appendSkillOptions = (skill_select, turn_data, unit) => {
+    skill_select.append($('<option>').text("なし").val(0).addClass("back").data("sp_cost", 0));
+    $.each(unit.skill_list, function (index, value) {
+        skill_select.append(createSkillOption(value, turn_data, unit));
+    });
+};
+const createSkillOption = (value, turn_data, unit) => {
+    let sp_cost = 0;
+    // 夜醒
+    if (turn_data.additional_turn && value.skill_id == 495) {
+        // 追加ターン中の追加は不可
+        return;
+    }
+    // 通常攻撃はADMIRAL以外
+    if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK && unit.style.style_info.role == ROLE_ADMIRAL) {
+        return;
+    }
+    // 指揮行動はADMIRALのみ
+    if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION && unit.style.style_info.role != ROLE_ADMIRAL) {
+        return;
+    }
+    const createOptionText = (value) => {
+        let text = value.skill_name;
+        if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK) {
+            sp_cost = 0;
+            text += `(${physical_name[value.attack_physical]}・${element_name[unit.normal_attack_element]})`;
+        } else if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION) {
+            sp_cost = 0;
+        } else if (value.skill_attribute === ATTRIBUTE_PURSUIT) {
+            sp_cost = 0;
+            text += `(${physical_name[value.attack_physical]})`;
+        } else if (value.attack_id) {
+            sp_cost = getSpCost(turn_data, value, unit);
+            text += `(${physical_name[value.attack_physical]}・${element_name[value.attack_element]}/${sp_cost})`;
+        } else {
+            sp_cost = getSpCost(turn_data, value, unit);
+            text += `(${sp_cost})`;
+        }
+        return text;
+    };
+    return $('<option>')
+        .text(createOptionText(value))
+        .val(value.skill_id)
+        .data("sp_cost", sp_cost)
+        .addClass(value.skill_name === "追撃" ? "back" : "front");
+};
+
+// ターン表示更新
+function updateTurn(selector, turn_data) {
+    // ターン表示更新
+    selector.find(".turn_number").text(turn_data.getTurnNumber());
+    // ODゲージ更新
+    setOverDrive();
+    turn_data.unitLoop(function (unit) {
+        let target_skill = selector.find(".unit_skill")[unit.place_no];
+        // スキル更新
+        let select_index = $(target_skill).prop("selectedIndex");
+        let skill_id = Number($(target_skill).val());
+        $(target_skill).html("");
+        appendSkillOptions($(target_skill), turn_data, unit)
+        if (unit.place_no < 3) {
+            setFrontOptions($(target_skill));
+        } else {
+            setBackOptions($(target_skill));
+        }
+        $(target_skill).prop("selectedIndex", select_index);
+        let skill_info = getSkillData(skill_id);
+        if (skill_info) {
+            unit.sp_cost = getSpCost(turn_data, skill_info, unit);
+        } else {
+            unit.sp_cost = 0;
+        }
+
+        // SP更新
+        let target_sp = selector.find(".unit_sp")[unit.place_no];
+        updateSp(unit, target_sp)
+    });
+}
+
+// ターンボタン表示設定
+function setTurnButton() {
+    // 最後の要素のみ表示
+    if (next_display == "1") {
+        // 最初の要素を非表示、以降の要素を表示
+        $('.next_turn:first').show();
+        $('.next_turn:not(:first)').hide();
+        $('.return_turn:first').hide();
+        $('.return_turn:not(:first)').show();
+    } else {
+        // 最後の要素を非表示、以前の要素を表示
+        $('.next_turn:last').show();
+        $('.next_turn:not(:last)').hide();
+        $('.return_turn:last').hide();
+        $('.return_turn:not(:last)').show();
+    }
+}
 
 // バフアイコンリスト
 function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
@@ -1813,6 +1915,8 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return checkBuffExist(unit_data.buff_list, BUFF_DIVA_BLESS);
         case CONDITIONS_NOT_DIVA_BLESS: // 歌姫の加護以外
             return !checkBuffExist(unit_data.buff_list, BUFF_DIVA_BLESS);
+        case CONDITIONS_NOT_NEGATIVE: // ネガティブ以外
+            return !checkBuffExist(unit_data.buff_list, BUFF_NAGATIVE);
     }
     return true;
 }

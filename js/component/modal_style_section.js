@@ -113,7 +113,7 @@ const StyleSelectComponent = () => {
                         return chara_data.troops == key
                             && (narrowStyle.rarity == null || style.rarity == narrowStyle.rarity)
                             && (narrowStyle.physical == null || chara_data.physical == narrowStyle.physical)
-                            && (narrowStyle.element == null || style.element == narrowStyle.element)
+                            && (narrowStyle.element == null || style.element == narrowStyle.element || style.element2 == narrowStyle.element)
                             && (narrowStyle.role == null || style.role == narrowStyle.role);
                     })
                     return (<div className="troops" key={`troops_${key}`}>

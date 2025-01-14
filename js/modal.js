@@ -49,12 +49,12 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
     loadStyle(member_info);
     select_list[select_chara_no] = member_info;
 
-    if (typeof loadMember == "function") {
-        loadMember(select_chara_no, member_info, isTrigger);
-    }
-
     if (typeof updateMember == "function") {
         updateMember();
+    }
+
+    if (typeof loadMember == "function") {
+        loadMember(select_chara_no, member_info, isTrigger);
     }
 }
 

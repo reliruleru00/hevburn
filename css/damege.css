@@ -471,7 +471,8 @@ label[class*="block_chara_id-"] {
 .status_permanent_element_down2,
 .status_resist_down1,
 .status_resist_down2,
-.status_charge {
+.status_charge,
+.status_active {
     background-color: rgba(255, 0, 0, 0.3)
 }
 

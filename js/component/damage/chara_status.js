@@ -21,6 +21,8 @@ const CharaStatus = () => {
     // ステータス変更
     const changeStatus = (chara_no, item, value) => {
         let status = Number(value);
+        status = isNaN(status) ? 0 : status;
+        status = status > 1000 ? 999 : status;
         saveStatus(chara_no, item, status);
         updateStatus(chara_no);
     }

@@ -1,3 +1,4 @@
+const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
 const CharaStatus = () => {
     const [selectStyle, setSelectStyle] = React.useState([]);
@@ -33,6 +34,16 @@ const CharaStatus = () => {
         setSelectStyle([...select_style_list]);
     }
 
+    // メンバー入れ替え
+    const handleOnDragEnd = (result) => {
+        if (!result.destination) return;
+
+        const [removed] = select_style_list.splice(result.source.index, 1);
+        select_style_list.splice(result.destination.index, 0, removed);
+
+        setSelectStyle([...select_style_list]);
+    };
+
     return (
         <>
             <label className="mt-3 mb-3 small_font">部隊選択</label>
@@ -49,11 +60,54 @@ const CharaStatus = () => {
                     )
                 })}
             </div>
+            <div className="mt-2">
+                <label className="small_font">スタイル</label>
+                <input defaultValue="リセット" id="style_reset_btn" type="button" onClick={resetStyle} />
+            </div>
+            <div className="col-span-6 flex">
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Droppable droppableId="droppable" direction="horizontal">
+                        {(provided) => (
+                            <ul
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                className="col-span-6"
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    listStyleType: 'none',
+                                    padding: 0,
+                                }}
+                            >
+                                {select_style_list.map((value, index) => {
+                                    let id = `style_${index}`
+                                    return (
+                                        <Draggable key={id} draggableId={id} index={index}>
+                                            {(provided) => (
+                                                <li
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    style={{
+                                                        ...provided.draggableProps.style,
+                                                        cursor: 'grab',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                    }}
+                                                >
+                                                    <StyleIcon place_no={index} />
+                                                </li>
+                                            )}
+                                        </Draggable>)
+                                })}
+                                {provided.placeholder}
+                            </ul>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+            </div>
             <div>
-                <div className="h-[64px]">
-                    <label className="small_font">スタイル</label>
-                    <input defaultValue="リセット" id="style_reset_btn" type="button" onClick={resetStyle} />
-                </div>
                 <label className="label_status">限界突破</label>
                 <label className="label_status">力</label>
                 <label className="label_status">器用さ</label>
@@ -77,7 +131,6 @@ const CharaStatus = () => {
                 let jewel = style ? style.jewel_lv : 0;
                 return (
                     <div key={`chara_no${index}`} >
-                        <StyleIcon place_no={index} />
                         <select className="limit" value={limit} onChange={(e) => { saveStatus(index, "limit_count", e.target.value) }}>
                             {rarity == 1 ?
                                 Array.from({ length: 5 }, (_, i) => (

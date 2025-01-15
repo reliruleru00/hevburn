@@ -54,7 +54,7 @@ const StyleSelectComponent = () => {
             <div className="narrow_element flex mx-auto">
                 {Object.keys(PHYSICAL_LIST).map(key => {
                     let opacity = (narrowStyle.physical == null || key == narrowStyle.physical) ? "" : "translucent";
-                    let className = `physical ${opacity}`
+                    let className = `narrow physical ${opacity}`
                     return (<input className={className} id={`physical_${key}`} src={`img/${PHYSICAL_LIST[key]}.webp`} type="image" key={`physical_${key}`}
                         onClick={(e) => {
                             let newPhysical = key;
@@ -68,7 +68,7 @@ const StyleSelectComponent = () => {
                 <div className="w-12" />
                 {Object.keys(ELEMENT_LIST).map(key => {
                     let opacity = (narrowStyle.element == null || key == narrowStyle.element) ? "" : "translucent";
-                    let className = `element ${opacity}`
+                    let className = `narrow element ${opacity}`
                     return (<input className={className} id={`element_${key}`} src={`img/${ELEMENT_LIST[key]}.webp`} type="image" key={`element_${key}`}
                         onClick={(e) => {
                             let newElement = key;
@@ -95,7 +95,7 @@ const StyleSelectComponent = () => {
                     />)
                 })}
             </div>
-            <div className="flex flex-wrap w-[144px] mx-auto">
+            <div className="flex flex-wrap rearity_area mx-auto">
                 {Object.keys(RARITY_LIST).map(key => {
                     let opacity = key == narrowStyle.rarity ? "" : "translucent";
                     let className = `rarity ${opacity}`

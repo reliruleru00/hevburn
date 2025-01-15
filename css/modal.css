@@ -99,10 +99,18 @@ hr.line {
   cursor: pointer;
 }
 
+.rearity_area {
+  width: 144px;
+}
+
 @media screen and (max-width: 768px) {
   .select_style_list {
     width: 48px;
     height: 48px;
+  }
+
+  .rearity_area {
+    width: 96px;
   }
 
   .emblem {

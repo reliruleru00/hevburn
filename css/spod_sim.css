@@ -61,7 +61,8 @@ img.select_style {
 }
 
 .dragging {
-    opacity: 0.5; /* ドラッグ中は半透明に */
+    opacity: 0.5;
+    /* ドラッグ中は半透明に */
 }
 
 .label_status {
@@ -80,6 +81,7 @@ img.select_style {
     margin-left: 3px;
     text-align: center;
 }
+
 .init_sp {
     border: #000 1px solid;
 }
@@ -88,6 +90,7 @@ img.select_style {
     margin-top: 2px;
     height: 20px;
 }
+
 .limit:disabled {
     border: solid 1px black;
 }
@@ -106,11 +109,13 @@ img.select_style {
         max-width: 400px;
         min-width: 375px;
     }
+
     img.select_style {
         width: 48px;
         height: 48px;
         margin-left: 4px;
     }
+
     .limit,
     .earring,
     .bracelet,
@@ -184,7 +189,7 @@ img.select_style {
     #enemy_class {
         max-width: 100px;
     }
-    
+
     #enemy_list {
         max-width: 200px;
     }
@@ -223,7 +228,7 @@ img.select_style {
 }
 
 .trigger_over_drive {
-    display: flex!important;
+    display: flex !important;
     font-size: 14px;
     border: none;
     cursor: pointer;
@@ -278,7 +283,7 @@ img.select_style {
     .party_member {
         display: block;
     }
-    
+
     .remaek_text {
         height: 25px;
     }
@@ -450,8 +455,9 @@ input[type='image'].select_target {
         width: 145px;
     }
 }
-/* パッシブ画面 */
-.passive_container {
+
+/* スキル画面 */
+.skill_select_container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -462,6 +468,19 @@ input[type='image'].select_target {
 .modal_label {
     font-size: 20px;
     font-weight: bold;
+}
+
+/* 閉じるボタンのスタイル */
+.modal-close {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.2s, color 0.2s;
 }
 
 .select_effect {

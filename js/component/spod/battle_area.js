@@ -157,7 +157,8 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                             </select>
                             <div className="scroll-container enemy_icon_list">
                                 <div className="scroll-content flex-wrap" />
-                            </div>
+                                <BuffIconComponent buff_list={turn.enemy_debuff_list} loop_limit={6} loop_step={1} place_no={7} turn_number={turn.turn_number} />
+                           </div>
                         </div>
                     </div>
                 </div>

@@ -18,6 +18,7 @@ class Member {
         this.chain = 3;
         this.init_sp = 1;
         this.passive_skill_list = [];
+        this.exclusion_skill_list = [];
     }
 }
 
@@ -28,8 +29,10 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
     // 同一のキャラIDは不許可
     for (let i = 0; i < select_list.length; i++) {
         if (i !== select_chara_no && select_list[i]?.style_info.chara_id === style_info.chara_id) {
-            alert("同一キャラクターは複数選択できません");
-            return false;
+            // メンバーを入れ替える
+            select_list[i] = select_list[select_chara_no];
+            // alert("同一キャラクターは複数選択できません");
+            // return false;
         }
     }
     // メンバーの情報を削除
@@ -94,21 +97,6 @@ function loadStyle(member_info) {
             member_info.chain = Number(items[11]);
             member_info.init_sp = Number(items[12]);
         }
-    }
-}
-
-// パッシブスキルを保存
-function savePassiveSkill(member_info) {
-    let style_id = member_info.style_info.style_id;
-    localStorage.setItem(`passive_${style_id}`, member_info.passive_skill_list.join(","));
-}
-
-// パッシブスキルを読み込む
-function loadPassiveSkill(member_info) {
-    let style_id = member_info.style_info.style_id;
-    let passive_list = localStorage.getItem(`passive_${style_id}`);
-    if (passive_list) {
-        member_info.passive_skill_list = passive_list.split(",").map(Number);
     }
 }
 

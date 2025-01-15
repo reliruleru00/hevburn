@@ -682,151 +682,6 @@ class buff_data {
 }
 
 function setEventTrigger() {
-    let dragged_element = null;
-    let drag_image = null;
-
-    // ドラッグ開始時に実行
-    $('.select_style').on('dragstart', function (e) {
-        dragged_element = this; // ドラッグ中の要素を保持
-        e.originalEvent.dataTransfer.setData('text/plain', ''); // 必須のため空文字列を設定
-
-        // 半透明化
-        $(this).addClass('dragging');
-
-        // ドラッグ中の画像を表示
-        drag_image = new Image();
-        drag_image.src = this.src;
-        // 画像がロードされた後にサイズを設定
-        drag_image.onload = () => {
-            drag_image.width = this.width;
-            drag_image.height = this.height;
-            e.originalEvent.dataTransfer.setDragImage(drag_image, 10, 10);
-        };
-    });
-    // ドラッグ終了時にクラスを解除
-    $('.select_style').on('dragend', function () {
-        $(this).removeClass('dragging');
-    });
-    // ドラッグ要素が他の要素の上に入ったとき
-    $('.select_style').on('dragover', function (e) {
-        e.preventDefault(); // デフォルト動作を防ぎ、ドロップを許可
-    });
-    // ドロップ時に要素を入れ替える
-    $('.select_style').on('drop', function (e) {
-        e.preventDefault();
-        if (dragged_element !== this) {
-            let before_chara_no = $(dragged_element).data("chara_no");
-            let after_chara_no = $(this).data("chara_no");
-            swapCharaData(before_chara_no, after_chara_no);
-        }
-    });
-    // タッチ開始時の処理 (dragstartの代替)
-    $('.select_style').on('touchstart', function (e) {
-        dragged_element = this; // ドラッグ中の要素を保持
-
-        // 半透明化
-        $(this).addClass('dragging');
-
-        // ドラッグ中の画像を表示するための準備
-        if (drag_image) {
-            $(drag_image).remove();
-            drag_image = null;
-        }
-    });
-    // タッチ移動時の処理
-    $(document).on('touchmove', function (e) {
-        if (dragged_element) {
-            e.preventDefault();
-            const touch = e.originalEvent.touches[0];
-            if (drag_image) {
-                $(drag_image).css({
-                    left: touch.pageX + 1,
-                    top: touch.pageY + 1
-                });
-            } else {
-                drag_image = new Image();
-                drag_image.src = dragged_element.src;
-
-                // 画像のロード完了後にサイズを設定
-                drag_image.onload = () => {
-                    drag_image.width = dragged_element.width;
-                    drag_image.height = dragged_element.height;
-
-                    $(drag_image).css({
-                        position: 'absolute',
-                        left: touch.pageX + 1,
-                        top: touch.pageY + 1,
-                        opacity: 0.7 // 半透明
-                    }).appendTo('body');
-                };
-            }
-        }
-    });
-    // タッチ終了時の処理 (dragendの代替)
-    $(document).on('touchend', function (e) {
-        if (dragged_element) {
-            // タッチ終了時の座標を取得
-            const touch = e.originalEvent.changedTouches[0];
-            const touchX = touch.pageX;
-            const touchY = touch.pageY;
-
-            // 指定の位置にある要素が .select_style かどうかを判定
-            const touchedElement = document.elementFromPoint(touchX, touchY);
-            if ($(touchedElement).hasClass('select_style')) {
-                let before_chara_no = $(dragged_element).data("chara_no");
-                let after_chara_no = $(touchedElement).data("chara_no");
-                swapCharaData(before_chara_no, after_chara_no);
-            }
-
-            $(dragged_element).removeClass('dragging');
-            dragged_element = null;
-
-            // 表示されていた画像を削除
-            if (drag_image) {
-                $(drag_image).remove();
-                drag_image = null;
-            }
-        }
-    });
-    // キャラ入れ替え
-    function swapCharaData(before_chara_no, after_chara_no) {
-        let tmp_style = select_style_list[before_chara_no];
-        let tmp_src = $(`#select_chara_${before_chara_no}`).attr("src");
-
-        // ドラッグされた要素の属性情報を一時的に保存
-        let attributes = ['limit', 'earring', 'bracelet', 'chain', 'init_sp'];
-        let tmp_values = attributes.map(attr => $(`#${attr}_${before_chara_no}`).val());
-
-        // 進む方向を決定（前に進むなら -1, 後ろに進むなら +1）
-        let direction = before_chara_no < after_chara_no ? 1 : -1;
-
-        let troops_no = $(".troops_btn.selected_troops").val();
-        // 移動処理
-        for (let i = before_chara_no; i !== after_chara_no; i += direction) {
-            select_style_list[i] = select_style_list[i + direction];
-            $(`#select_chara_${i}`).attr("src", $(`#select_chara_${i + direction}`).attr("src"));
-            swapValues(i, i + direction, attributes);
-            let style_id = localStorage.getItem(`troops_${troops_no}_${i + direction}`);
-            if (style_id) {
-                localStorage.setItem(`troops_${troops_no}_${i}`, style_id);
-            } else {
-                localStorage.removeItem(`troops_${troops_no}_${i}`);
-            }
-        }
-
-        // 最後に、ドラッグされた要素をドラッグ先に挿入
-        select_style_list[after_chara_no] = tmp_style;
-        $(`#select_chara_${after_chara_no}`).attr("src", tmp_src);
-        attributes.forEach((attr, index) => $(`#${attr}_${after_chara_no}`).val(tmp_values[index]));
-        localStorage.setItem(`troops_${troops_no}_${after_chara_no}`, tmp_style.style_info.style_id);
-    }
-    function swapValues(index1, index2, attributes) {
-        attributes.forEach(attr => {
-            let temp = $(`#${attr}_${index1}`).val();
-            $(`#${attr}_${index1}`).val($(`#${attr}_${index2}`).val());
-            $(`#${attr}_${index2}`).val(temp);
-        });
-    }
     // 敵リストイベント
     $("#enemy_class").on("change", function (event) {
         let enemy_class = $(this).val();
@@ -860,19 +715,6 @@ function setEventTrigger() {
     $("#is_overwrite").on("change", function (event) {
         localStorage.setItem("is_overwrite", $(this).prop("checked"));
     });
-    // パッシブ設定
-    $(".passive").on("click", function (event) {
-        $("#passive_setting").html("");
-        let chara_no = Number($(this).data("chara_no"));
-        if (select_style_list[chara_no]) {
-            createPassiveList(chara_no);
-            MicroModal.show('modal_passive_list');
-        }
-    });
-    // バフ一括設定
-    $("#passive_setting").on("click", function (event) {
-        setPassiveList();
-    });
     // 戦闘開始ボタンクリック
     $(".battle_start").on("click", function (event) {
         for (let i = 0; i < select_style_list.length; i++) {
@@ -883,6 +725,17 @@ function setEventTrigger() {
                 return;
             }
         };
+        // 後衛が居る場合、前衛に空き不可
+        const hasBlankFront = select_style_list.some(function (style, index) {
+            return style === undefined && index <= 2
+        });
+        const hasBack = select_style_list.some(function (style, index) {
+            return style !== undefined && index >= 3
+        });
+        if (hasBlankFront && hasBack) {
+            alert("後衛がいるとき 前衛には3名必要です");
+            return;
+        }
 
         if ($("#is_overwrite").prop("checked")) {
             if ($("#battle_area").css("visibility") !== "hidden" && !confirm("現在の結果が消えますが、よろしいですか？")) {
@@ -900,42 +753,6 @@ function setEventTrigger() {
         }
         procBattleStart();
     });
-}
-
-// パッシブリスト生成
-function createPassiveList(chara_no) {
-    let style_info = select_style_list[chara_no].style_info;
-    let skill_filter_list = skill_list.filter(obj =>
-        (obj.chara_id === style_info.chara_id || obj.chara_id === 0) &&
-        (obj.style_id === style_info.style_id || obj.style_id === 0) &&
-        obj.skill_active == 1
-    );
-    let html = $("<div>");
-    let skill_id_list = select_style_list[chara_no].passive_skill_list
-    $.each(skill_filter_list, function (index, value) {
-        let id = `passive_${value.skill_id}`;
-        let input = $("<input>").attr("type", "checkbox").val(value.skill_id).attr("id", id).addClass("passive_skill");
-        let label = $("<label>").attr("for", id).text(value.skill_name).addClass("checkbox01");
-        if (skill_id_list.includes(value.skill_id)) {
-            input.prop("checked", true);
-        }
-        let div = $("<div>").append(input).append(label);
-        html.append(div);
-    });
-    $("#passive_skill_list").html(html);
-    $("#passive_skill_list").data("chara_no", chara_no);
-}
-
-// バフリスト設定
-function setPassiveList() {
-    let skill_id_list = [];
-    $(".passive_skill:checked").each(function (index, value) {
-        let skill_id = Number($(value).val());
-        skill_id_list.push(skill_id);
-    });
-    let chara_no = $("#passive_skill_list").data("chara_no");
-    select_style_list[chara_no].passive_skill_list = skill_id_list;
-    MicroModal.close('modal_passive_list');
 }
 
 // 敵リスト作成
@@ -996,7 +813,7 @@ function procBattleStart() {
         unit.place_no = index;
         if (member_info) {
             saveStyle(member_info);
-            savePassiveSkill(member_info);
+            saveExclusionSkill(member_info);
             let physical = getCharaData(member_info.style_info.chara_id).physical;
 
             unit.style = member_info;
@@ -1007,7 +824,8 @@ function procBattleStart() {
             unit.skill_list = skill_list.filter(obj =>
                 (obj.chara_id === member_info.style_info.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === member_info.style_info.style_id || obj.style_id === 0) &&
-                obj.skill_active == 0
+                obj.skill_active == 0 &&
+                !member_info.exclusion_skill_list.includes(obj.skill_id)
             ).map(obj => {
                 const copiedObj = JSON.parse(JSON.stringify(obj));
                 if (copiedObj.chara_id === 0) {
@@ -1016,6 +834,10 @@ function procBattleStart() {
                 }
                 return copiedObj;
             });
+            unit.passive_skill_list = skill_list.filter(obj =>
+                obj.skill_active == 1 &&
+                !member_info.exclusion_skill_list.includes(obj.skill_id)
+            )
             unit.init_skill_id = 1;
             ["0", "00", "1", "3", "5", "10"].forEach(num => {
                 if (member_info.style_info[`ability${num}`] && num <= member_info.limit_count) {
@@ -1119,6 +941,27 @@ function procBattleStart() {
     proceedTurn(turn_init);
 }
 
+
+// メンバー読み込み時の固有処理
+function loadMember(select_chara_no, member_info) {
+    loadExclusionSSkill(member_info)
+}
+
+// 除外スキルを保存
+function saveExclusionSkill(member_info) {
+    let style_id = member_info.style_info.style_id;
+    localStorage.setItem(`exclusion_${style_id}`, member_info.exclusion_skill_list.join(","));
+}
+
+// 除外スキルを読み込む
+function loadExclusionSSkill(member_info) {
+    let style_id = member_info.style_info.style_id;
+    let exclusion_skill_list = localStorage.getItem(`exclusion_${style_id}`);
+    if (exclusion_skill_list) {
+        member_info.exclusion_skill_list = exclusion_skill_list.split(",").map(Number);
+    }
+}
+
 // ターンを進める
 function proceedTurn(turn_data) {
     turn_data.unitSort();
@@ -1148,107 +991,6 @@ function returnTurn(turn_number) {
     // 画面反映
     updateTurnList(turn_list);
 }
-
-// スキルセット作成
-const appendSkillOptions = (skill_select, turn_data, unit) => {
-    skill_select.append($('<option>').text("なし").val(0).addClass("back").data("sp_cost", 0));
-    $.each(unit.skill_list, function (index, value) {
-        skill_select.append(createSkillOption(value, turn_data, unit));
-    });
-};
-const createSkillOption = (value, turn_data, unit) => {
-    let sp_cost = 0;
-    // 夜醒
-    if (turn_data.additional_turn && value.skill_id == 495) {
-        // 追加ターン中の追加は不可
-        return;
-    }
-    // 通常攻撃はADMIRAL以外
-    if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK && unit.style.style_info.role == ROLE_ADMIRAL) {
-        return;
-    }
-    // 指揮行動はADMIRALのみ
-    if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION && unit.style.style_info.role != ROLE_ADMIRAL) {
-        return;
-    }
-    const createOptionText = (value) => {
-        let text = value.skill_name;
-        if (value.skill_attribute === ATTRIBUTE_NORMAL_ATTACK) {
-            sp_cost = 0;
-            text += `(${physical_name[value.attack_physical]}・${element_name[unit.normal_attack_element]})`;
-        } else if (value.skill_attribute === ATTRIBUTE_COMMAND_ACTION) {
-            sp_cost = 0;
-        } else if (value.skill_attribute === ATTRIBUTE_PURSUIT) {
-            sp_cost = 0;
-            text += `(${physical_name[value.attack_physical]})`;
-        } else if (value.attack_id) {
-            sp_cost = getSpCost(turn_data, value, unit);
-            text += `(${physical_name[value.attack_physical]}・${element_name[value.attack_element]}/${sp_cost})`;
-        } else {
-            sp_cost = getSpCost(turn_data, value, unit);
-            text += `(${sp_cost})`;
-        }
-        return text;
-    };
-    return $('<option>')
-        .text(createOptionText(value))
-        .val(value.skill_id)
-        .data("sp_cost", sp_cost)
-        .addClass(value.skill_name === "追撃" ? "back" : "front");
-};
-
-// // バフアイコンリスト
-// function createBuffIconList(buff_list, loop_limit, loop_step, chara_index) {
-//     let div = $("<div>").addClass("scroll-container");
-//     let inner = $("<div>").addClass("scroll-content");
-//     $.each(buff_list, function (index, buff_info) {
-//         let img = getBuffIconImg(buff_info);
-//         img.addClass("unit_buff");
-//         inner.append(img)
-//     });
-
-//     let unit_buffs = inner.find(".unit_buff");
-//     if (unit_buffs.length > loop_limit * loop_step) {
-//         inner.addClass('scroll');
-
-//         // アイコンの数によってアニメーションの速度を調整
-//         const duration = unit_buffs.length * 0.5; // 例: アイコン数に応じて2秒ごとに1アイコンがスクロール
-
-//         // @keyframesを動的に生成
-//         const animationName = `scroll-${last_turn}-${chara_index}`;
-//         const translateXValue = unit_buffs.length * 24;
-//         const keyframes = `
-//       @keyframes ${animationName} {
-//         0% {
-//           transform: translateX(0);
-//         }
-//         100% {
-//           transform: translateX(-${translateXValue}px);
-//         }
-//       }
-//     `;
-//         // 既存の同名アニメーションを削除
-//         for (let i = 0; i < styleSheet.sheet.cssRules.length; i++) {
-//             if (styleSheet.sheet.cssRules[i].name === animationName) {
-//                 styleSheet.sheet.deleteRule(i);
-//                 break;
-//             }
-//         }
-//         // 新しいアニメーションを追加
-//         inner[0].style.animation = `${animationName} ${duration}s linear infinite`;
-//         styleSheet.sheet.insertRule(keyframes, styleSheet.sheet.cssRules.length);
-//         // 既存のunit_buffクラスのアイコンを複製して追加
-//         unit_buffs.each(function () {
-//             let cloned_icon = $(this).clone();
-//             inner.append(cloned_icon);
-//         });
-//     } else {
-//         inner.removeClass('scroll').addClass("flex-wrap");
-//     }
-
-//     div.append(inner);
-//     return div;
-// }
 
 // バフアイコン取得
 function getBuffIconImg(buff_info) {
@@ -1347,14 +1089,6 @@ function getBuffIconImg(buff_info) {
     }
     src += ".webp";
     return src;
-}
-
-// ユニットイベント
-function addUnitEvent() {
-    // デバフリストの表示    
-    $(`.turn${last_turn} .enemy_icon_list`).on("click", function (event) {
-        showBuffList(event, now_turn.enemy_debuff_list);
-    });
 }
 
 // 敵情報取得

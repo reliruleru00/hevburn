@@ -46,6 +46,24 @@ const CharaSetting = () => {
         setSelectStyle([...select_style_list]);
     };
 
+    // スキルリストの表示    
+    const showSkillList = (index) => {
+        if (select_style_list[index]) {
+            const style_info = select_style_list[index].style_info;
+            const skill_filter_list = skill_list.filter(obj =>
+                (obj.chara_id === style_info.chara_id || obj.chara_id === 0) &&
+                (obj.style_id === style_info.style_id || obj.style_id === 0) &&
+                obj.skill_attribute != ATTRIBUTE_NORMAL_ATTACK && 
+                obj.skill_attribute != ATTRIBUTE_PURSUIT && 
+                obj.skill_attribute != ATTRIBUTE_COMMAND_ACTION && 
+                obj.skill_attribute != ATTRIBUTE_NOT_ACTION
+            );
+            const exclusion_skill_list = select_style_list[index].exclusion_skill_list;
+            setSkillList(skill_filter_list, exclusion_skill_list, index);
+            MicroModal.show('modal_skill_select_list');
+        }
+    };
+
     return (
         <>
             <label className="mt-3 mb-3 small_font">部隊選択</label>
@@ -115,7 +133,7 @@ const CharaSetting = () => {
                 <label className="label_status text-xs leading-5 whitespace-nowrap">ブレスレット</label>
                 <label className="label_status">チェーン</label>
                 <label className="label_status">初期SP</label>
-                <label className="label_status">パッシブ</label>
+                <label className="label_status">スキル</label>
             </div>
             {select_style_list.map((value, index) => {
                 let style = value;
@@ -155,7 +173,7 @@ const CharaSetting = () => {
                             ))}
                         </select>
                         <input className="init_sp" value={init_sp} type="number" onChange={(e) => { setSetting(index, "init_sp", e.target.value) }} />
-                        <input className="passive" data-chara_no="0" defaultValue="設定" type="button" />
+                        <input className="passive" data-chara_no="0" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
                     </div>
                 )
             }

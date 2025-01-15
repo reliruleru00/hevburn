@@ -134,8 +134,8 @@ img.sub_style {
         display: block;
     }
     img.select_style {
-        width: 48px;
-        height: 48px;
+        width: 53px;
+        height: 5353px;
         margin-left: 4px;
     }
     .status,
@@ -440,38 +440,6 @@ label[class*="block_chara_id-"] {
 }
 
 /* ステータスの色　*/
-.status_attack_skill,
-.status_power_up1,
-.status_power_up2,
-.status_element_up1,
-.status_element_up2,
-.status_mindeye1,
-.status_mindeye2,
-.status_funnel1,
-.status_funnel2,
-.status_defense_down1,
-.status_defense_down2,
-.status_dp_defense_down1,
-.status_dp_defense_down2,
-.status_element_down1,
-.status_element_down2,
-.status_fragile1,
-.status_fragile2,
-.status_critical_up1,
-.status_critical_up2,
-.status_critical_damege1,
-.status_critical_damege2,
-.status_critical_element1,
-.status_critical_element2,
-.status_critical_damege_element1,
-.status_critical_damege_element2,
-.status_permanent_defense_down1,
-.status_permanent_defense_down2,
-.status_permanent_element_down1,
-.status_permanent_element_down2,
-.status_resist_down1,
-.status_resist_down2,
-.status_charge,
 .status_active {
     background-color: rgba(255, 0, 0, 0.3)
 }

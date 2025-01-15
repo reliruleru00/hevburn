@@ -51,7 +51,7 @@ const TargetSelectionComponent = () => {
                             src = "icon/" + unit.style.style_info.image_url;
                             value = unit.style.style_info.style_id
                         }
-                        return <input className="select_target" type="image" src={src} data_value={value} key={`select_target${index}`}
+                        return <img className="select_style" src={src} data_value={value} key={`select_target${index}`}
                             onClick={() => !unit.blank ? setSelectTarget(unit.style.style_info.chara_id) : undefined}
                         />
                     }

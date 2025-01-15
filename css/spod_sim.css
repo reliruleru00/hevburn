@@ -393,10 +393,6 @@ img.select_style {
     height: 72px;
 }
 
-.front_area .unit_sp {
-    /* margin-right: 60px; */
-}
-
 .back_area .unit_sp {
     margin-right: 8px;
 }
@@ -426,12 +422,6 @@ img.unit_buff {
 
 .enemy_icon_list {
     width: 150px;
-}
-
-input[type='image'].select_target {
-    width: 64px;
-    height: 64px;
-    margin-left: 1px;
 }
 
 .hidden-option {

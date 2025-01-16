@@ -49,7 +49,6 @@ class turn_data {
         this.over_drive_turn = 0;
         this.over_drive_max_turn = 0;
         this.trigger_over_drive = false;
-        this.kb_action = KB_NEXT_ACTION;
         this.additional_turn = false;
         this.enemy_debuff_list = [];
         this.unit_list = [];
@@ -66,6 +65,7 @@ class turn_data {
         this.sp_cost_down = 0;
         this.field = 0;
         this.field_turn = 0;
+        this.user_operation = {}
     }
 
     unitLoop(func) {
@@ -86,7 +86,7 @@ class turn_data {
         });
     }
 
-    // 0:先打ちOD,1:通常戦闘,2:後打ちOD,3:追加ターン
+    // 1:通常戦闘,2:後打ちOD,3:追加ターン
     turnProceed(kb_next) {
         this.enemy_debuff_list.sort((a, b) => a.buff_kind - b.buff_kind);
         if (kb_next == KB_NEXT_ACTION) {
@@ -124,9 +124,18 @@ class turn_data {
             unit.unitTurnInit();
         });
         // ターンごとに初期化
-        this.kb_action = KB_NEXT_ACTION;
         this.trigger_over_drive = false;
         this.start_over_drive_gauge = this.over_drive_gauge;
+        this.user_operation = {
+            field: this.field,
+            enemy_count: this.enemy_count,
+            select_skill: this.unit_list.map(function (unit) {
+                return unit.blank ? 0 : unit.select_skill_id;
+            }),
+            trigger_over_drive: false,
+            selected_place_no: -1,
+            kb_action: KB_NEXT_ACTION,
+        }
     }
 
     nextTurn() {
@@ -935,7 +944,10 @@ function procBattleStart() {
 
     // 戦闘開始アビリティ
     turn_init.abilityAction(ABILIRY_BATTLE_START);
-    turn_init.kb_action = KB_NEXT_ACTION;
+    turn_init.user_operation.kb_action = KB_NEXT_ACTION;
+
+    // バトルエリアリフレッシュ
+    startBattle();
 
     // ターンを進める
     proceedTurn(turn_init);
@@ -964,13 +976,15 @@ function loadExclusionSSkill(member_info) {
 
 // ターンを進める
 function proceedTurn(turn_data) {
+    // ターン起動処理
     turn_data.unitSort();
     if (turn_data.additional_turn) {
         turn_data.turnProceed(KB_NEXT_ADDITIONALTURN);
         turn_data.abilityAction(ABILIRY_ADDITIONALTURN);
     } else {
-        turn_data.turnProceed(turn_data.kb_action);
-        if (turn_data.kb_next == KB_NEXT_ACTION_OD) {
+        let kb_action = turn_data.user_operation.kb_action;
+        turn_data.turnProceed(kb_action);
+        if (kb_action == KB_NEXT_ACTION_OD) {
             turn_data.abilityAction(ABILIRY_OD_START);
         } else {
             turn_data.abilityAction(ABILIRY_ACTION_START);
@@ -983,7 +997,7 @@ function proceedTurn(turn_data) {
     updateTurnList(turn_list);
 }
 
-// // ターンを戻す
+// ターンを戻す
 function returnTurn(turn_number) {
     // 指定されたnumber以上の要素を削除
     turn_list = turn_list.slice(0, turn_number);
@@ -1132,7 +1146,7 @@ function getPassiveInfo(skill_id) {
 }
 
 // 行動開始
-function startAction(turn_data, turn_number) {
+function startAction(turn_data) {
     // 追加ターンフラグ削除
     if (turn_data.additional_turn) {
         turn_data.additional_turn = false;
@@ -1141,8 +1155,8 @@ function startAction(turn_data, turn_number) {
         });
     }
     // フィールド判定
-    let old_field = turn_data.old_field;
-    let select_field = turn_data.field;
+    let old_field = turn_data.field;
+    let select_field = turn_data.user_operation.field;
     if (old_field != select_field) {
         // 変更があった場合はフィールドターンをリセット
         turn_data.field_turn = 0;
@@ -1784,7 +1798,7 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
     let target_list = [];
     let target_unit_data;
     switch (range_area) {
-        case RANGE_FILED: // 場
+        case RANGE_FIELD: // 場
             break;
         case RANGE_ENEMY_UNIT: // 敵単体
             break;

@@ -28,11 +28,10 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
 
     // 同一のキャラIDは不許可
     for (let i = 0; i < select_list.length; i++) {
-        if (i !== select_chara_no && select_list[i]?.style_info.chara_id === style_info.chara_id) {
+        if (i !== select_chara_no && select_list[i]?.style_info.chara_id === style_info?.chara_id) {
             // メンバーを入れ替える
             select_list[i] = select_list[select_chara_no];
-            // alert("同一キャラクターは複数選択できません");
-            // return false;
+            localStorage.setItem(`troops_${select_troops}_${i}`, select_list[i] ? select_list[i].style_info.style_id : null);
         }
     }
     // メンバーの情報を削除
@@ -104,7 +103,7 @@ function loadStyle(member_info) {
 function loadTroopsList(select_list, troops_no) {
     for (let i = 0; i < 6; i++) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
-        if (style_id !== null) {
+        if (!isNaN(style_id)) {
             setMember(select_list, i, Number(style_id), false);
         }
     }

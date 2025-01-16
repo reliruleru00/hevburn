@@ -3,7 +3,11 @@ const BattleAreaComponent = () => {
         "last_turn": 0,
         "turn_list": []
     });
+    const [key, setKey] = React.useState(0);
 
+    window.startBattle = () => {
+        setKey(key + 1);
+    }
     window.updateTurnList = (turn_list) => {
         setTurnList({
             "last_turn": turn_list.length - 1,
@@ -14,7 +18,7 @@ const BattleAreaComponent = () => {
     return (
         <>
             {turnList.turn_list.map((turn, index) => {
-                return <TurnDataComponent turn={turn} last_turn={turnList.last_turn} index={index} key={`turn${index}`} />
+                return <TurnDataComponent turn={turn} last_turn={turnList.last_turn} index={index} key={`turn${index}-${key}`} />
             })}
         </>
     )

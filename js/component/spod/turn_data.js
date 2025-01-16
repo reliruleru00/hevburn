@@ -1,34 +1,33 @@
 const TurnDataComponent = ({ turn, last_turn, index }) => {
     const [turnData, setTurnData] = React.useState({
-        filed: turn.field,
-        enemy_count: turn.enemy_count,
-        select_skill: [turn.unit_list[0].select_skill_id, turn.unit_list[1].select_skill_id, turn.unit_list[2].select_skill_id, 0, 0, 0],
-        trigger_over_drive: turn.trigger_over_drive,
-        selected_place_no: -1,
-        kb_action: turn.kb_action,
+        user_operation: turn.user_operation
     });
 
     // 敵の数変更
     const chengeEnemyCount = (e) => {
-        turn.enemy_count = e.target.value;
-        setTurnData({ ...turnData, "enemy_count": e.target.value });
+        let user_operation = turnData.user_operation;
+        user_operation.enemy_count = e.target.value
+        setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // フィールド変更
     const chengeField = (e) => {
-        turn.field = e.target.value;
-        setTurnData({ ...turnData, "field": e.target.value });
+        let user_operation = turnData.user_operation;
+        user_operation.field = e.target.value;
+        setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // 行動選択変更
     const chengeAction = (e) => {
-        turn.kb_action = e.target.value;
-        setTurnData({ ...turnData, "kb_action": e.target.value });
+        let user_operation = turnData.user_operation;
+        user_operation.kb_action = e.target.value;
+        setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // スキル変更
     const chengeSkill = (skill_id, place_no) => {
-        let select_skill = turnData.select_skill;
+        let user_operation = turnData.user_operation;
+        let select_skill = user_operation.select_skill;
         select_skill[place_no] = skill_id;
         const unit = turn.unit_list.filter(unit => unit.place_no === place_no)[0];
         unit.select_skill_id = skill_id;
@@ -37,11 +36,11 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
         } else {
             unit.sp_cost = 0;
         }
-        processSkillChange(unit, skill_id, select_skill);
+        processSkillChange(unit, skill_id, user_operation);
     }
 
     // スキル変更時の追加処理
-    async function processSkillChange(unit, skill_id, select_skill) {
+    async function processSkillChange(unit, skill_id, user_operation) {
         const buff_list = getBuffInfo(skill_id);
         if (!await handleTargetSelection(unit, turn, buff_list)) {
             unit.select_skill_id = unit.init_skill_id;
@@ -66,18 +65,19 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             }
         }
         unit.sp_cost = sp_cost;
-
-        setTurnData({ ...turnData, "select_skill": select_skill });
+        setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // OD発動/解除
     function triggerOverDrive(checked) {
+        let user_operation = turnData.user_operation;
         if (checked) {
             turn.startOverDrive();
         } else {
             turn.removeOverDrive();
         }
-        setTurnData({ ...turnData, "trigger_over_drive": checked });
+        user_operation.trigger_over_drive = checked;
+        setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // ユニット選択/入れ替え
@@ -99,8 +99,9 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                 return;
             }
         }
-        let old_place_no = turnData.selected_place_no;
-        let select_skill = turnData.select_skill;
+        let user_operation = turnData.user_operation;
+        let old_place_no = user_operation.selected_place_no;
+        let select_skill = user_operation.select_skill;
         if (old_place_no != -1) {
             if (old_place_no != place_no) {
                 let old_unit = getUnitData(turn, old_place_no)
@@ -129,11 +130,15 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             }
             place_no = -1;
         }
-        setTurnData({ ...turnData, "selected_place_no": place_no, "select_skill": select_skill });
+        user_operation.selected_place_no = place_no;
+        setTurnData({ ...turnData, user_operation: user_operation });
     })
 
     // 次ターン
-    function nextTurn() {
+    function clickNextTurn() {
+        turn.user_operation = turnData.user_operation;
+        turn.enemy_count = turnData.user_operation.enemy_count;
+        turn.field = turnData.user_operation.field;
         let turn_data = deepClone(turn);
         startAction(turn_data, last_turn);
         // 次ターンを追加
@@ -141,14 +146,14 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
     };
 
     React.useEffect(() => {
-        if (last_turn !==  index) {
+        if (last_turn !== index) {
             console.log('次ターン以降を更新');
             let turn_data = deepClone(turn);
             startAction(turn_data, last_turn);
             // 次ターンを追加
             proceedTurn(turn_data);
         }
-      }, [turnData]); // 空の依存配列を指定
+    }, [turnData]); // 空の依存配列を指定
 
     return (
         <div className="turn">
@@ -158,36 +163,36 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     <div className="left flex">
                         <img className="enemy_icon" src="icon/BtnEventBattleActive.webp" />
                         <div>
-                            <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
+                            <select className="enemy_count" value={turnData.user_operation.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
                                 {[1, 2, 3].map(enemy_count => <option value={enemy_count} key={`enemy_count${enemy_count}`}>{`${enemy_count}体`}</option>)}
                             </select>
                             <label className="ml-2">場</label>
-                            <select className="enemy_count" value={turn.field} onChange={(e) => chengeField(e)}>
+                            <select className="enemy_count" value={turnData.user_operation.field} onChange={(e) => chengeField(e)}>
                                 {Object.keys(FIELD_LIST).map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                             </select>
                             <div className="scroll-container enemy_icon_list">
                                 <div className="scroll-content flex-wrap" />
                                 <BuffIconComponent buff_list={turn.enemy_debuff_list} loop_limit={6} loop_step={1} place_no={7} turn_number={turn.turn_number} />
-                           </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <OverDriveGauge turn={turn} select_skill={turnData.select_skill} />
+                <OverDriveGauge turn={turn} select_skill={turnData.user_operation.select_skill} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no}
-                        chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
+                            chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.selected_place_no} 
-                        chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
+                            chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                     <div>
-                        <select className="action_select" value={turn.kb_action} onChange={(e) => chengeAction(e)}>
+                        <select className="action_select" value={turnData.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
                             <option value={KB_NEXT_ACTION}>行動開始</option>
                             {turn.over_drive_gauge >= 100 ? <option value={KB_NEXT_ACTION_OD}>行動開始+OD</option> : null}
                         </select>
@@ -200,7 +205,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
                             {last_turn === index ?
-                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={nextTurn} />
+                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
                                 <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(turn.turn_number)} />
                             }

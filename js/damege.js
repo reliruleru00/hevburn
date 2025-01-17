@@ -1582,7 +1582,7 @@ function addAbility(member_info) {
             continue;
         }
         let ability_info = getAbilityInfo(ability_id);
-        if (!is_select && ability_info.range_area != RANGE_FILED) {
+        if (!is_select && ability_info.range_area != RANGE_FIELD) {
             // 他部隊のアビリティはフィールドのみ許可
             continue;
         }
@@ -1600,7 +1600,7 @@ function addAbility(member_info) {
         let effect_size = ability_info.effect_size;
 
         switch (ability_info.range_area) {
-            case RANGE_FILED: // フィールド
+            case RANGE_FIELD: // フィールド
                 addElementField(member_info, ability_info.ability_name, ability_info.effect_size, ability_info.element, 0, 0);
                 continue;
             case RANGE_SELF: // 自分
@@ -1796,7 +1796,7 @@ function addPassive(member_info) {
         let add_check_class = "";
         let add_div_class = "";
         switch (passive_info.range_area) {
-            case RANGE_FILED: // フィールド
+            case RANGE_FIELD: // フィールド
                 addElementField(member_info, passive_info.passive_name, effect_size, 0, 0, skill_id);
                 return true;
             case RANGE_ALLY_ALL: // 全員

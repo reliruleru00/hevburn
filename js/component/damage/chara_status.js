@@ -2,7 +2,6 @@ const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
 const CharaStatus = () => {
     const [selectStyle, setSelectStyle] = React.useState([]);
-    const [key, setKey] = React.useState(0);
 
     // 限界突破変更
     const changeLimitCount = (chara_no, value) => {
@@ -25,6 +24,7 @@ const CharaStatus = () => {
         status = status > 1000 ? 999 : status;
         saveStatus(chara_no, item, status);
         updateStatus(chara_no);
+        setSelectStyle([...select_style_list]);
     }
 
     // ステータス保存
@@ -48,12 +48,11 @@ const CharaStatus = () => {
         select_troops = e.target.value;
         localStorage.setItem('select_troops', select_troops);
         loadTroopsList(select_style_list, select_troops);
-        setKey(key + 1);
     }
 
     // メンバー追加
     window.updateMember = function () {
-        setKey(key + 1);
+        setSelectStyle([...select_style_list]);
     }
 
     // メンバー入れ替え
@@ -71,7 +70,6 @@ const CharaStatus = () => {
             localStorage.setItem(`troops_${select_troops}_${index}`, style_id);
         })
         setSelectStyle([...select_style_list]);
-        setKey(key + 1);
     };
 
     return (
@@ -180,7 +178,7 @@ const CharaStatus = () => {
                 let sp_cost = chara_sp_list[chara_id] ? chara_sp_list[chara_id] : 0;
                 return (
                     <div key={`chara_no${index}`} >
-                        <select className="limit" key={`limit_count_${key}`} defaultValue={limit} onChange={(e) => { changeLimitCount(index, e.target.value) }}>
+                        <select className="limit" value={limit} onChange={(e) => { changeLimitCount(index, e.target.value) }}>
                             {rarity == 1 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
@@ -190,13 +188,13 @@ const CharaStatus = () => {
                             {rarity == 2 ? <option value="10">10</option> : null}
                             {rarity == 3 ? <option value="20">20</option> : null}
                         </select>
-                        <input className={strClassName} key={`str_${key}`} defaultValue={str} id={`str_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "str", e.target.value) }} />
-                        <input className={dexClassName} key={`dex_${key}`} defaultValue={dex} id={`dex_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "dex", e.target.value) }}/>
-                        <input className={conClassName} key={`con_${key}`} defaultValue={con} id={`con_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "con", e.target.value) }}/>
-                        <input className={mndClassName} key={`mnd_${key}`} defaultValue={mnd} id={`mnd_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "mnd", e.target.value) }}/>
-                        <input className={intClassName} key={`int_${key}`} defaultValue={int} id={`int_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "int", e.target.value) }}/>
-                        <input className={lukClassName} key={`luk_${key}`} defaultValue={luk} id={`luk_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "luk", e.target.value) }}/>
-                        <select className="jewel" key={`jewel_lv_${key}`} defaultValue={jewel} onChange={(e) => { changeJewelLv(index, e.target.value) }}>
+                        <input className={strClassName} value={str} id={`str_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "str", e.target.value) }} />
+                        <input className={dexClassName} value={dex} id={`dex_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "dex", e.target.value) }}/>
+                        <input className={conClassName} value={con} id={`con_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "con", e.target.value) }}/>
+                        <input className={mndClassName} value={mnd} id={`mnd_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "mnd", e.target.value) }}/>
+                        <input className={intClassName} value={int} id={`int_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "int", e.target.value) }}/>
+                        <input className={lukClassName} value={luk} id={`luk_${chara_id}`} type="number" onChange={(e) => { changeStatus(index, "luk", e.target.value) }}/>
+                        <select className="jewel" value={jewel} onChange={(e) => { changeJewelLv(index, e.target.value) }}>
                             {Array.from({length: 6 }, (_, i) => (
                                 <option value={i} key={`jewel_${i}`}>{i}</option>
                             ))}

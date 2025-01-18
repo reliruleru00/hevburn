@@ -20,6 +20,10 @@ const StyleSelectComponent = () => {
 
     // 外すボタン
     const deleteMember = (select_style_list, chara_no) => {
+        // メンバーの情報を削除
+        if (typeof removeMember == "function") {
+            removeMember(select_style_list, chara_no, true);
+        }
         select_style_list[chara_no] = undefined;
         if (typeof updateMember == "function") {
             updateMember();

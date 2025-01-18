@@ -103,7 +103,7 @@ function loadStyle(member_info) {
 function loadTroopsList(select_list, troops_no) {
     for (let i = 0; i < 6; i++) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
-        if (!isNaN(style_id)) {
+        if (!isNaN(style_id) && Number(style_id) !== 0) {
             setMember(select_list, i, Number(style_id), false);
         }
     }

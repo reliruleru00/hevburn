@@ -8,11 +8,16 @@ const EnemyAreaComponent = ({ enemy_class, enemy_select }) => {
     });
 
     const setEnemyStatus = (enemy_class, enemy_select) => {
+        document.getElementById('change_element_before').value = 0;
+        document.getElementById('change_element_after').value = 0;
         setEnemy({enemy_class: enemy_class, enemy_select: enemy_select});
     }
     
-    const enemy_status = enemy_list.filter((obj) => 
+    let enemy_status = enemy_list.filter((obj) => 
         obj.enemy_class == enemy.enemy_class && obj.enemy_class_no == enemy.enemy_select)[0];
+    if (!enemy_status) {
+        enemy_status = enemy_list[0];
+    }
 
     return (
         <div>

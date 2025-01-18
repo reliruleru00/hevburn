@@ -18,7 +18,10 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange} ) => {
     };
 
     let class_List = enemy_list.filter((obj) => obj.enemy_class == enemy.enemy_class);
-    const enemy_status = enemy_list.filter((obj) => obj.enemy_class == enemy.enemy_class && obj.enemy_class_no == enemy.enemy_select)[0];
+    let enemy_status = enemy_list.filter((obj) => obj.enemy_class == enemy.enemy_class && obj.enemy_class_no == enemy.enemy_select)[0];
+    if (!enemy_status) {
+        enemy_status = enemy_list[0];
+    }
 
     return (
         <div>

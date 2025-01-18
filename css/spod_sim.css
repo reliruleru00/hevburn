@@ -8,11 +8,27 @@ div.frame {
     font-size: 0.875rem;
 }
 
+.top_area {
+    width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between; 
+}
+
 .adjust_width {
     width: 450px;
 }
 
-@media screen and (max-width: 768px) {}
+@media screen and (max-width: 768px) {
+    .top_area {
+        width: 100%;
+        display: block;
+    }
+    .display_area {
+        margin: auto;
+    }
+}
 
 select {
     border: solid 1px #000;

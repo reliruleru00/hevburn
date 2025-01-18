@@ -52,6 +52,7 @@
   <script type="text/babel" src="js/component/enemy_list.js"></script>
   <script type="text/babel" src="js/component/spod/chara_setting.js"></script>
   <script type="text/babel" src="js/component/spod/enemy_area.js"></script>
+  <script type="text/babel" src="js/component/spod/detail_setting.js"></script>
   <script type="text/babel" src="js/component/spod/battle_area.js"></script>
   <script type="text/babel" src="js/component/spod/turn_data.js"></script>
   <script type="text/babel" src="js/component/spod/over_drive_gauge.js"></script>
@@ -93,72 +94,15 @@
   <main>
     <div class="header"></div>
     <div class="frame w-screen pt-3 overflow-y-scroll border-b">
-      <div class="display_area mx-auto">
-        <input type="button" data-micromodal-trigger="modal_explanation" role="button" value="注意事項" class="w-20">
-        <div id="chara_setting" class="grid grid-cols-7 text-center gap-y-px gap-x-0"></div>
-      </div>
-      <div id="enemy_area" class="surround_area mx-auto mt-2 adjust_width">読み込み中</div>
-      <div class="setup_area mx-auto mt-2 w-[400px] text-sm">
-        <ui>
-          <li>
-            <label>バトル開始時</label>
-            <div class="ml-4">
-              フィールド<select id="init_field">
-                <option value="0" selected>無し</option>
-                <option value="1">火</option>
-                <option value="2">氷</option>
-                <option value="3">雷</option>
-                <option value="4">光</option>
-                <option value="5">闇</option>
-                <option value="6">稲穂</option>
-                <option value="7">砂嵐</option>
-              </select>
-              OverDriveGauge<input type="number" max="300" min="0" step="0.01" class="step_od_gauge w-[70px]" value="0"
-                id="init_over_drive">
-              SP＋<input type="number" max="20" min="0" step="1" class="step_sp" value="0" id="init_sp_add">
-            </div>
-          </li>
-          <li>
-            <label>毎ターン</label>
-            前衛のSP+
-            <select class="step_sp" id="front_sp_add">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-            後衛のSP+
-            <select class="step_sp" id="back_sp_add">
-              <option value="0" selected>0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </li>
-          <li>
-            <select class="h-[25px]" id="step_turn">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-            </select>
-            ターンごとに OverDriveGauge
-            <select class="step_od_gauge w-[60px]" id="step_over_drive_down">
-              <option value="0" selected>0%</option>
-              <option value="-5">-5%</option>
-              <option value="-10">-10%</option>
-              <option value="-15">-15%</option>
-            </select>
-            SP
-            <select class="step_sp" id="step_sp_down">
-              <option value="0" selected>0</option>
-              <option value="-1">-1</option>
-              <option value="-2">-2</option>
-              <option value="-3">-3</option>
-            </select>
-          </li>
-        </ui>
+      <div class="top_area">
+        <div class="display_area">
+          <input type="button" data-micromodal-trigger="modal_explanation" role="button" value="注意事項" class="w-20">
+          <div id="chara_setting" class="grid grid-cols-7 text-center gap-y-px gap-x-0"></div>
+        </div>
+        <div>
+          <div id="enemy_area" class="surround_area mx-auto mt-2 adjust_width">読み込み中</div>
+          <div id="detail_setting" class="surround_area mx-auto mt-2 adjust_width"></div>
+        </div>
       </div>
       <div class="mx-auto w-[240px] mt-2 text-sm">
         <input type="checkbox" id="is_overwrite"><label class="checkbox01 text-sm" for="is_overwrite">上書き確認</label>
@@ -175,14 +119,16 @@
     </div>
     <div class="modal micromodal-slide" id="modal_target_selection" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-        <div class="modal__container container_damage" role="dialog" aria-modal="true" aria-labelledby="target_selection">
+        <div class="modal__container container_damage" role="dialog" aria-modal="true"
+          aria-labelledby="target_selection">
           <div id="target_selection" aria-hidden="true" className="modal text-left min-w-[300px] mx-auto"></div>
         </div>
       </div>
     </div>
     <div class="modal micromodal-slide" id="modal_effect_selection" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-        <div class="modal__container container_damage" role="dialog" aria-modal="true" aria-labelledby="effect_selection">
+        <div class="modal__container container_damage" role="dialog" aria-modal="true"
+          aria-labelledby="effect_selection">
           <div id="effect_selection" aria-hidden="true" class="modal text-left min-w-[300px] mx-auto"></div>
         </div>
       </div>
@@ -259,7 +205,8 @@
     </div>
     <div class="modal micromodal-slide" id="modal_skill_select_list" aria-hidden="true">
       <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-        <div class="modal__container container_damage" role="dialog" aria-modal="true" aria-labelledby="skill_select_list">
+        <div class="modal__container container_damage" role="dialog" aria-modal="true"
+          aria-labelledby="skill_select_list">
           <div id="skill_select_list" aria-hidden="true" class="modal text-left min-w-[300px] mx-auto"></div>
         </div>
       </div>

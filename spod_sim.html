@@ -49,7 +49,9 @@
   <script src="js/ability.js"></script>
   <script type="text/babel" src="js/component/modal_style_section.js"></script>
   <script type="text/babel" src="js/component/style_list.js"></script>
+  <script type="text/babel" src="js/component/enemy_list.js"></script>
   <script type="text/babel" src="js/component/spod/chara_setting.js"></script>
+  <script type="text/babel" src="js/component/spod/enemy_area.js"></script>
   <script type="text/babel" src="js/component/spod/battle_area.js"></script>
   <script type="text/babel" src="js/component/spod/turn_data.js"></script>
   <script type="text/babel" src="js/component/spod/over_drive_gauge.js"></script>
@@ -65,16 +67,6 @@
       // スタイルリスト読み込み
       select_troops = select_troops ? select_troops : 0;
       loadTroopsList(select_style_list, select_troops);
-
-      // 敵情報設定
-      let enemy_class = localStorage.getItem("enemy_class");
-      enemy_class = enemy_class ? enemy_class : "1";
-      $("#enemy_class").val(enemy_class);
-      createEnemyList(enemy_class);
-      let enemy_list = localStorage.getItem("enemy_list");
-      enemy_list = enemy_list ? enemy_list : "1";
-      $("#enemy_list").val(enemy_list);
-      setEnemyStatus();
 
       // 上書き確認
       let is_overwrite = localStorage.getItem("is_overwrite");
@@ -105,56 +97,7 @@
         <input type="button" data-micromodal-trigger="modal_explanation" role="button" value="注意事項" class="w-20">
         <div id="chara_setting" class="grid grid-cols-7 text-center gap-y-px gap-x-0"></div>
       </div>
-      <div class="surround_area mx-auto mt-2 adjust_width">
-        <div>
-          <label class="area_title">敵情報</label>
-          <div id="enemy_select">
-            <select id="enemy_class">
-              <option value="1">異時層</option>
-              <option value="2">オーブボス</option>
-              <option value="3">時計塔(N)</option>
-              <option value="4">時計塔(H)</option>
-              <option value="5">宝珠の迷宮</option>
-              <option value="6">スコアアタック</option>
-              <option value="7">プリズムバトル</option>
-              <option value="8">恒星掃戦線</option>
-              <option value="9">イベント隠しボス</option>
-              <option value="10">時の修練場</option>
-              <option value="11">制圧戦</option>
-              <option value="12">セラフ遭遇戦</option>
-            </select>
-            <select id="enemy_list">
-            </select>
-            <select id="enemy_count">
-              <option value="1">1体</option>
-              <option value="2">2体</option>
-              <option value="3">3体</option>
-            </select>
-          </div>
-        </div>
-        <div class="resist_area mx-auto mt-2">
-          <div class="grid grid-cols-9">
-            <div class="slash"><input type="image" class="enemy_type_icon" src="img/slash.webp"><input type="text"
-                id="enemy_physical_1" class="enemy_type_value enemy_input"></div>
-            <div class="stab"><input type="image" class="enemy_type_icon" src="img/stab.webp"><input type="text"
-                id="enemy_physical_2" class="enemy_type_value enemy_input"></div>
-            <div class="strike"><input type="image" class="enemy_type_icon" src="img/strike.webp"><input type="text"
-                id="enemy_physical_3" class="enemy_type_value enemy_input"></div>
-            <div class="none"><input type="image" class="enemy_type_icon" src="img/none.webp"><input type="text"
-                id="enemy_element_0" class="enemy_type_value enemy_input"></div>
-            <div class="fire"><input type="image" class="enemy_type_icon" src="img/fire.webp"><input type="text"
-                id="enemy_element_1" class="enemy_type_value enemy_input"></div>
-            <div class="ice"><input type="image" class="enemy_type_icon" src="img/ice.webp"><input type="text"
-                id="enemy_element_2" class="enemy_type_value enemy_input"></div>
-            <div class="thunder"><input type="image" class="enemy_type_icon" src="img/thunder.webp"><input type="text"
-                id="enemy_element_3" class="enemy_type_value enemy_input"></div>
-            <div class="light"><input type="image" class="enemy_type_icon" src="img/light.webp"><input type="text"
-                id="enemy_element_4" class="enemy_type_value enemy_input"></div>
-            <div class="dark"><input type="image" class="enemy_type_icon" src="img/dark.webp"><input type="text"
-                id="enemy_element_5" class="enemy_type_value enemy_input"></div>
-          </div>
-        </div>
-      </div>
+      <div id="enemy_area" class="surround_area mx-auto mt-2 adjust_width">読み込み中</div>
       <div class="setup_area mx-auto mt-2 w-[400px] text-sm">
         <ui>
           <li>

@@ -145,6 +145,7 @@ img.select_style {
 
 #enemy_select {
     margin-left: 1rem;
+    font-size: 14px;
 }
 
 #enemy_class {
@@ -179,11 +180,6 @@ img.select_style {
     background-color: rgba(0, 0, 0, 0);
     margin-left: 5px;
 }
-
-.enemy_input {
-    border: #000 solid 1px;
-}
-
 
 @media screen and (max-width: 482px) {
     #enemy_class {

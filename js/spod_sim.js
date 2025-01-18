@@ -687,35 +687,6 @@ class buff_data {
 }
 
 function setEventTrigger() {
-    // 敵リストイベント
-    $("#enemy_class").on("change", function (event) {
-        let enemy_class = $(this).val();
-        localStorage.setItem("enemy_class", enemy_class);
-        localStorage.setItem("enemy_list", "1");
-        createEnemyList(enemy_class);
-    });
-    $("#enemy_list").on("change", function (event) {
-        localStorage.setItem("enemy_list", $(this).val());
-        setEnemyStatus();
-    });
-    $('.enemy_type_value').on('input', function () {
-        if (!isNaN(value)) {
-            let value = $(this).val().replace(/[^\d]/g, '');
-            let int_value = parseInt(value, 10);
-            if (int_value < 0) {
-                int_value = 0;
-            } else if (int_value > 999) {
-                int_value = 999;
-            }
-            $(this).val(int_value);
-        }
-    });
-    $('.enemy_type_value').on('blur', function () {
-        let value = parseInt($(this).val(), 10);
-        if (isNaN(value)) {
-            $(this).val('0');
-        }
-    });
     // 上書き確認
     $("#is_overwrite").on("change", function (event) {
         localStorage.setItem("is_overwrite", $(this).prop("checked"));
@@ -759,49 +730,6 @@ function setEventTrigger() {
         }
         procBattleStart();
     });
-}
-
-// 敵リスト作成
-function createEnemyList(enemy_class) {
-    $("#enemy_list").empty();
-    $.each(enemy_list, function (index, value) {
-        if (value.enemy_class == enemy_class) {
-            var option = $('<option>')
-                .val(value.enemy_class_no);
-            if (enemy_class == 6) {
-                option.text(`#${value.sub_no} ${value.enemy_name}`)
-            } else {
-                option.text(value.enemy_name);
-            }
-            $("#enemy_list").append(option);
-        }
-    });
-    setEnemyStatus();
-}
-// 敵ステータス設定
-function setEnemyStatus() {
-    let enemy_info = getEnemyInfo();
-    if (enemy_info === undefined) {
-        return;
-    }
-    for (let i = 1; i <= 3; i++) {
-        setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i]);
-    }
-    for (let i = 0; i <= 5; i++) {
-        setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i]);
-    }
-    $("#enemy_count").val(enemy_info.enemy_count);
-}
-// 敵耐性設定
-function setEnemyElement(id, val) {
-    $(id).val(val);
-    $(id).removeClass("enemy_resist");
-    $(id).removeClass("enemy_weak");
-    if (val < 100) {
-        $(id).addClass("enemy_resist");
-    } else if (val > 100) {
-        $(id).addClass("enemy_weak");
-    }
 }
 
 /* 戦闘開始処理 */

@@ -29,26 +29,34 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
     // スキル変更
     const chengeSkill = (skill_id, place_no) => {
         let user_operation = turnData.user_operation;
-        let select_skill = user_operation.select_skill;
-        select_skill[place_no] = skill_id;
+        let select_skill = user_operation.select_skill[place_no];
+        select_skill.skill_id = skill_id;
+        skillUpdate(turn, skill_id, place_no);
         const unit = turn.unit_list.filter(unit => unit.place_no === place_no)[0];
+        processSkillChange(unit, skill_id, user_operation, select_skill);
+    }
+
+    // スキルデータ更新
+    const skillUpdate = (turn_data, skill_id, place_no) => {
+        const unit = turn_data.unit_list.filter(unit => unit.place_no === place_no)[0];
         unit.select_skill_id = skill_id;
         if (skill_id !== 0) {
-            unit.sp_cost = getSpCost(turn, getSkillData(skill_id), unit);
+            unit.sp_cost = getSpCost(turn_data, getSkillData(skill_id), unit);
         } else {
             unit.sp_cost = 0;
         }
-        processSkillChange(unit, skill_id, user_operation);
     }
 
     // スキル変更時の追加処理
-    async function processSkillChange(unit, skill_id, user_operation) {
+    async function processSkillChange(unit, skill_id, user_operation, select_skill) {
         const buff_list = getBuffInfo(skill_id);
         if (!await handleTargetSelection(unit, turn, buff_list)) {
+            // 未選択時に初期値に戻す
             unit.select_skill_id = unit.init_skill_id;
             chengeSkill(unit.init_skill_id, unit.place_no);
         }
         if (!await handleEffectSelection(unit, skill_id, buff_list)) {
+            // 未選択時に初期値に戻す
             unit.select_skill_id = unit.init_skill_id;
             chengeSkill(unit.init_skill_id, unit.place_no);
         }
@@ -67,6 +75,8 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             }
         }
         unit.sp_cost = sp_cost;
+        select_skill.buff_target_chara_id = unit.buff_target_chara_id;
+        select_skill.buff_effect_select_type = unit.buff_effect_select_type;
         setTurnData({ ...turnData, user_operation: user_operation });
     }
 
@@ -104,6 +114,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
         let user_operation = turnData.user_operation;
         let old_place_no = user_operation.selected_place_no;
         let select_skill = user_operation.select_skill;
+        let place_style = user_operation.place_style;
         if (old_place_no != -1) {
             if (old_place_no != place_no) {
                 let old_unit = getUnitData(turn, old_place_no)
@@ -118,6 +129,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     new_unit.sp_cost = 0;
                     new_unit.buff_effect_select_type = 0;
                     new_unit.buff_target_chara_id = 0;
+                    select_skill[lace_no] = {skill_id: 0};
                 }
                 // 後衛と前衛の交換
                 if (3 <= place_no && old_place_no <= 2) {
@@ -125,10 +137,16 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     old_unit.sp_cost = 0;
                     old_unit.buff_effect_select_type = 0;
                     old_unit.buff_target_chara_id = 0;
+                    select_skill[old_place_no] = {skill_id: 0};
                     new_unit.select_skill_id = new_unit.init_skill_id;
                 }
-                select_skill[place_no] = old_unit.select_skill_id;
-                select_skill[old_place_no] = new_unit.select_skill_id;
+                const tmp_skill = select_skill[place_no];
+                select_skill[place_no] = select_skill[old_place_no]
+                select_skill[old_place_no] = tmp_skill;
+
+                const tmp_style = place_style[place_no];
+                place_style[place_no] = place_style[old_place_no]
+                place_style[old_place_no] = tmp_style;
             }
             place_no = -1;
         }
@@ -143,7 +161,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
         let turn_data = deepClone(turn);
         startAction(turn_data, last_turn);
         // 次ターンを追加
-        proceedTurn(turn_data);
+        proceedTurn(turn_data, true);
     };
 
     React.useEffect(() => {
@@ -151,13 +169,33 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             console.log('次ターン以降を更新');
             // 指定されたnumber以上の要素を削除
             turn_list = turn_list.slice(0, index + 1);
-            
+
             for (let i = index; i < last_turn; i++) {
-                let turn_data = deepClone(turn_list[i]);
+                let turn_data = turn_list[i];
                 turn_data.user_operation = user_operation_list[i];
+                // 配置変更
+                turn_data.unit_list.forEach((unit) => {
+                    if (unit.blank) return;
+                    unit.place_no = turn_data.user_operation.place_style.findIndex((item) =>
+                        item === unit.style.style_info.style_id);
+                })
+                // スキル設定
+                turn_data.unit_list.forEach((unit) => {
+                    if (unit.blank) return;
+                    // スキル設定
+                    const skill = turn_data.user_operation.select_skill[unit.place_no];
+                    unit.buff_target_chara_id = skill.buff_target_chara_id;
+                    unit.buff_effect_select_type = skill.buff_effect_select_type;
+                    skillUpdate(turn_data, turn_data.user_operation.select_skill[unit.place_no].skill_id, unit.place_no);
+                })
+                // OD再計算
+                turn_data.add_over_drive_gauge = getOverDrive(turn_data);
+
+                turn_data = deepClone(turn_list[i]);
                 startAction(turn_data, i);
-                proceedTurn(turn_data);
+                proceedTurn(turn_data, false);
             }
+            updateTurnList(turn_list);
         }
     }, [turnData]); // 空の依存配列を指定
 
@@ -183,7 +221,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                         </div>
                     </div>
                 </div>
-                <OverDriveGauge turn={turn} select_skill={turnData.user_operation.select_skill} />
+                <OverDriveGauge turn={turn} select_skill={turnData.user_operation.select_skill.skill_id} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">

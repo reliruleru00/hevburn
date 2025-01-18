@@ -6,21 +6,23 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
     // 敵の数変更
     const chengeEnemyCount = (e) => {
         let user_operation = turnData.user_operation;
-        user_operation.enemy_count = e.target.value
+        user_operation.enemy_count = Number(e.target.value);
+        turn.enemy_count = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // フィールド変更
     const chengeField = (e) => {
         let user_operation = turnData.user_operation;
-        user_operation.field = e.target.value;
+        user_operation.field = Number(e.target.value);
+        turn.field = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // 行動選択変更
     const chengeAction = (e) => {
         let user_operation = turnData.user_operation;
-        user_operation.kb_action = e.target.value;
+        user_operation.kb_action = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
     }
 
@@ -137,8 +139,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
     // 次ターン
     function clickNextTurn() {
         turn.user_operation = turnData.user_operation;
-        turn.enemy_count = turnData.user_operation.enemy_count;
-        turn.field = turnData.user_operation.field;
+        user_operation_list.push(turnData.user_operation);
         let turn_data = deepClone(turn);
         startAction(turn_data, last_turn);
         // 次ターンを追加
@@ -148,10 +149,15 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
     React.useEffect(() => {
         if (last_turn !== index) {
             console.log('次ターン以降を更新');
-            let turn_data = deepClone(turn);
-            startAction(turn_data, last_turn);
-            // 次ターンを追加
-            proceedTurn(turn_data);
+            // 指定されたnumber以上の要素を削除
+            turn_list = turn_list.slice(0, index + 1);
+            
+            for (let i = index; i < last_turn; i++) {
+                let turn_data = deepClone(turn_list[i]);
+                turn_data.user_operation = user_operation_list[i];
+                startAction(turn_data, i);
+                proceedTurn(turn_data);
+            }
         }
     }, [turnData]); // 空の依存配列を指定
 
@@ -163,11 +169,11 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     <div className="left flex">
                         <img className="enemy_icon" src="icon/BtnEventBattleActive.webp" />
                         <div>
-                            <select className="enemy_count" value={turnData.user_operation.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
+                            <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
                                 {[1, 2, 3].map(enemy_count => <option value={enemy_count} key={`enemy_count${enemy_count}`}>{`${enemy_count}体`}</option>)}
                             </select>
                             <label className="ml-2">場</label>
-                            <select className="enemy_count" value={turnData.user_operation.field} onChange={(e) => chengeField(e)}>
+                            <select className="enemy_count" value={turn.field} onChange={(e) => chengeField(e)}>
                                 {Object.keys(FIELD_LIST).map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                             </select>
                             <div className="scroll-container enemy_icon_list">

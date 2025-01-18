@@ -14,7 +14,7 @@ let turn_list = [];
 let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
-let next_display;
+let user_operation_list = [];
 
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
@@ -126,9 +126,10 @@ class turn_data {
         // ターンごとに初期化
         this.trigger_over_drive = false;
         this.start_over_drive_gauge = this.over_drive_gauge;
+        this.old_field = this.field;
         this.user_operation = {
-            field: this.field,
-            enemy_count: this.enemy_count,
+            field: null,
+            enemy_count: null,
             select_skill: this.unit_list.map(function (unit) {
                 return unit.blank ? 0 : unit.select_skill_id;
             }),
@@ -753,6 +754,7 @@ function setEventTrigger() {
         }
         // 初期化
         turn_list = [];
+        user_operation_list = [];
         battle_enemy_info = getEnemyInfo();
         for (let i = 1; i <= 3; i++) {
             battle_enemy_info[`physical_${i}`] = Number($(`#enemy_physical_${i}`).val());
@@ -976,7 +978,15 @@ function loadExclusionSSkill(member_info) {
 
 // ターンを進める
 function proceedTurn(turn_data) {
-    // ターン起動処理
+    initTurn(turn_data);
+
+    turn_list.push(turn_data);
+    // 画面反映
+    updateTurnList(turn_list);
+}
+
+// ターン初期処理
+function initTurn(turn_data) {
     turn_data.unitSort();
     if (turn_data.additional_turn) {
         turn_data.turnProceed(KB_NEXT_ADDITIONALTURN);
@@ -990,17 +1000,13 @@ function proceedTurn(turn_data) {
             turn_data.abilityAction(ABILIRY_ACTION_START);
         }
     }
-
-    turn_list.push(turn_data);
-
-    // 画面反映
-    updateTurnList(turn_list);
 }
 
 // ターンを戻す
 function returnTurn(turn_number) {
     // 指定されたnumber以上の要素を削除
     turn_list = turn_list.slice(0, turn_number);
+    user_operation_list = user_operation_list.slice(0, turn_number - 1);
 
     // 画面反映
     updateTurnList(turn_list);
@@ -1155,9 +1161,9 @@ function startAction(turn_data) {
         });
     }
     // フィールド判定
-    let old_field = turn_data.field;
+    let old_field = turn_data.old_field;
     let select_field = turn_data.user_operation.field;
-    if (old_field != select_field) {
+    if (old_field != select_field && select_field) {
         // 変更があった場合はフィールドターンをリセット
         turn_data.field_turn = 0;
     }
@@ -1228,7 +1234,6 @@ function startAction(turn_data) {
     } else if (turn_data.field_turn == 1) {
         turn_data.field = 0;
     }
-    turn_data.old_field = turn_data.field;
 }
 
 // 耐性判定

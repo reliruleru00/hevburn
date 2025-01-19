@@ -59,20 +59,20 @@ const SkillSelectListComponent = () => {
             <div id="exclusion_skill_list">
                 <label>■習得スキル</label>
                 {learn_skill_list.map((skill) =>
-                    <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
                 )}
                 {passive_skill_list.length > 0 ?
                     <>
                         <label>■パッシブスキル</label>
                         {passive_skill_list.map((skill) =>
-                            <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                            <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
                         )}
                     </>
                     : null
                 }
                 <label>■オーブスキル</label>
                 {orb_skill_list.map((skill) =>
-                    <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
                 )}
             </div>
         </>

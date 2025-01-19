@@ -276,7 +276,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                         </div>
                     </div>
                 </div>
-                <OverDriveGauge turn={turn} select_skill={turnData.user_operation.select_skill.skill_id} />
+                <OverDriveGauge turn={turn} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">

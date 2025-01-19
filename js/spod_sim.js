@@ -128,7 +128,7 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.unitTurnInit(self.additional_turn);
         });
-        // 新規ターンの場合は初期値を設定
+        // 初期値を設定
         this.user_operation = {
             field: null,
             enemy_count: null,
@@ -141,6 +141,7 @@ class turn_data {
             trigger_over_drive: false,
             selected_place_no: -1,
             kb_action: KB_NEXT_ACTION,
+            turn_number : this.turn_number,
         }
     }
 
@@ -866,7 +867,7 @@ function procBattleStart() {
     turn_init.step_over_drive_down = Number($("#step_over_drive_down").val());
     turn_init.step_sp_down = Number($("#step_sp_down").val());
 
-    turn_init.enemy_count = Number($("#enemy_count").val());;
+    turn_init.enemy_count = Number($("#enemy_select_count").val());;
     turn_init.unit_list = unit_list;
 
     // 戦闘開始アビリティ

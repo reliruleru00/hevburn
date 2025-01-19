@@ -1,19 +1,14 @@
 /* 全体 */
 div.frame {
     height: calc(100svh - 60px);
+    width: 1750px;
+    margin: auto;
+    overflow-y: hidden;
 }
 
 .display_area {
     width: 450px;
     font-size: 0.875rem;
-}
-
-.top_area {
-    width: 920px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    justify-content: space-between; 
 }
 
 .adjust_width {
@@ -110,6 +105,11 @@ img.select_style {
 .limit:disabled {
     border: solid 1px black;
 }
+
+#enemy_select_count {
+    border: none;
+}
+
 
 @media screen and (max-width: 482px) {
     .display_area {
@@ -227,8 +227,10 @@ img.select_style {
 
 /* バトルエリア */
 #battle_area {
-    width: 1400px;
+    width: 1280px;
     margin: 5px auto 20px auto;
+    height: 97%;
+    overflow-y: scroll;
 }
 
 .turn_button {
@@ -277,12 +279,12 @@ img.select_style {
 .remaek_text {
     margin: 5px 5px 0px 5px;
     border: solid 1px;
-    width: 360px;
+    width: 240px;
     height: 60px;
     resize: none;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1400px) {
     #battle_area {
         width: 400px;
         margin: auto;
@@ -301,6 +303,7 @@ img.select_style {
     }
 
     .turn_button {
+        width: 360px;
         width: 80px;
     }
 }

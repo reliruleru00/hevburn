@@ -129,7 +129,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     new_unit.sp_cost = 0;
                     new_unit.buff_effect_select_type = 0;
                     new_unit.buff_target_chara_id = 0;
-                    select_skill[lace_no] = {skill_id: 0};
+                    select_skill[place_no] = {skill_id: 0};
                 }
                 // 後衛と前衛の交換
                 if (3 <= place_no && old_place_no <= 2) {

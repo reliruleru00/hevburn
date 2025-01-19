@@ -1,4 +1,4 @@
-const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange} ) => {
+const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange }) => {
     const [enemy, setEnemy] = React.useState({
         enemy_class: enemy_class,
         enemy_select: enemy_select
@@ -7,13 +7,13 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange} ) => {
     const changeEnemyClass = (enemy_class) => {
         localStorage.setItem("enemy_class", enemy_class);
         localStorage.setItem("enemy_select", "1");
-        setEnemy({enemy_class: enemy_class, enemy_select: "1"});
+        setEnemy({ enemy_class: enemy_class, enemy_select: "1" });
         handleChange(enemy_class, "1");
     };
 
     const changeEnemySelect = (enemy_select) => {
         localStorage.setItem("enemy_select", enemy_select);
-        setEnemy({...enemy, enemy_select: enemy_select});
+        setEnemy({ ...enemy, enemy_select: enemy_select });
         handleChange(enemy.enemy_class, enemy_select);
     };
 
@@ -54,7 +54,11 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange} ) => {
                         )
                     })}
                 </select>
-                <input type="text" className="enemy_type_value text-base" value={`${enemy_status.enemy_count}体`} readOnly />
+                <select value={enemy_status.enemy_count} disabled id="enemy_select_count" >
+                    <option value="1">1体</option>
+                    <option value="2">2体</option>
+                    <option value="3">3体</option>
+                </select>
             </div>
         </div>
     )

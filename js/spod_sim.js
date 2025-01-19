@@ -50,6 +50,7 @@ class turn_data {
         this.over_drive_max_turn = 0;
         this.trigger_over_drive = false;
         this.additional_turn = false;
+        this.additional_count = 0;
         this.enemy_debuff_list = [];
         this.unit_list = [];
         this.start_over_drive_gauge = 0;
@@ -108,8 +109,10 @@ class turn_data {
             } else {
                 this.nextTurn();
             }
+            this.additional_count = 0;
         } else if (kb_next == KB_NEXT_ADDITIONALTURN) {
             // 追加ターン
+            this.additional_count++;
             this.unitLoop(function (unit) {
                 unit.unitAdditionalTurnProceed();
             });
@@ -142,6 +145,7 @@ class turn_data {
             selected_place_no: -1,
             kb_action: KB_NEXT_ACTION,
             turn_number : this.turn_number,
+            additional_count : this.additional_count,
         }
     }
 

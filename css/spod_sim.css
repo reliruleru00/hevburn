@@ -234,6 +234,15 @@ img.select_style {
     overflow-y: scroll;
 }
 
+#battle_display{
+    background-color: #fff;
+}
+
+#btnDownload {
+    font-size: 14px;
+    width: 120px;
+}
+
 .turn_button {
     width: 60px;
     font-size: 14px;

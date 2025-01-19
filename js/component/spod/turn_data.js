@@ -129,7 +129,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     new_unit.sp_cost = 0;
                     new_unit.buff_effect_select_type = 0;
                     new_unit.buff_target_chara_id = 0;
-                    select_skill[place_no] = {skill_id: 0};
+                    select_skill[place_no] = { skill_id: 0 };
                 }
                 // 後衛と前衛の交換
                 if (3 <= place_no && old_place_no <= 2) {
@@ -137,7 +137,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                     old_unit.sp_cost = 0;
                     old_unit.buff_effect_select_type = 0;
                     old_unit.buff_target_chara_id = 0;
-                    select_skill[old_place_no] = {skill_id: 0};
+                    select_skill[old_place_no] = { skill_id: 0 };
                     new_unit.select_skill_id = new_unit.init_skill_id;
                 }
                 const tmp_skill = select_skill[place_no];
@@ -164,15 +164,57 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
         proceedTurn(turn_data, true);
     };
 
+    const getUserOperation = (turn_data) => {
+        let filtered = user_operation_list.filter((item) =>
+            item.turn_number === turn_data.turn_number &&
+            item.additional_count === turn_data.additional_count
+        );
+        if (filtered.length === 0) {
+            filtered.push({
+                // 初期値
+                field: null,
+                enemy_count: null,
+                select_skill: turn_data.unit_list.map(function (unit) {
+                    return unit.blank ? {} : { skill_id: unit.init_skill_id };
+                }),
+                place_style: turn_data.unit_list.map(function (unit) {
+                    return unit.blank ? 0 : unit.style.style_info.style_id;
+                }),
+                trigger_over_drive: false,
+                selected_place_no: -1,
+                kb_action: KB_NEXT_ACTION,
+                turn_number: turn_data.turn_number,
+                additional_count: turn_data.additional_count,
+            });
+            user_operation_list.push(filtered[0]);
+        }
+        filtered[0].used = true;
+        return filtered[0];
+    }
+
     React.useEffect(() => {
         if (last_turn !== index) {
-            console.log('次ターン以降を更新');
+            // 最終ターンの情報
+            turn_list[last_turn - 1];
+            let last_turn_number = turn_list[last_turn - 1].turn_number;
+
             // 指定されたnumber以上の要素を削除
             turn_list = turn_list.slice(0, index + 1);
+            let turn_data = turn_list[index];
 
-            for (let i = index; i < last_turn; i++) {
-                let turn_data = turn_list[i];
-                turn_data.user_operation = user_operation_list[i];
+            // ユーザ操作リストのチェック
+            user_operation_list.forEach((item) => {
+                item.used = false;
+            })
+
+            // 現ターン処理
+            turn_data = deepClone(turn_data);
+            startAction(turn_data);
+            proceedTurn(turn_data, false);
+            let now_turn_number = turn_data.turn_number;
+
+            while (now_turn_number <= last_turn_number) {
+                turn_data.user_operation = getUserOperation(turn_data);
                 // 配置変更
                 turn_data.unit_list.forEach((unit) => {
                     if (unit.blank) return;
@@ -191,13 +233,14 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                 // OD再計算
                 turn_data.add_over_drive_gauge = getOverDrive(turn_data);
 
-                turn_data = deepClone(turn_list[i]);
-                startAction(turn_data, i);
+                turn_data = deepClone(turn_data);
+                startAction(turn_data);
                 proceedTurn(turn_data, false);
+                now_turn_number = turn_data.turn_number;
             }
             updateTurnList(turn_list);
         }
-    }, [turnData]); // 空の依存配列を指定
+    }, [turnData]);
 
     return (
         <div className="turn">

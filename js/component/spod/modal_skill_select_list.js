@@ -1,3 +1,14 @@
+const SkillCheckComponent = ({ skill, exclusion_skill_list, changeSkillList }) => {
+    const skill_id = skill.skill_id;
+    const checked = !exclusion_skill_list.includes(skill_id);
+    return (
+        <div key={skill_id}>
+            <input className="passive_skill" id={`skill_${skill_id}`} type="checkbox" checked={checked} onChange={e => changeSkillList(e, skill_id)} />
+            <label className="checkbox01" htmlFor={`skill_${skill_id}`}>{skill.skill_name}</label>
+        </div>
+    );
+}
+
 const SkillSelectListComponent = () => {
 
     const [skillSet, setSkillSet] = React.useState({
@@ -33,7 +44,9 @@ const SkillSelectListComponent = () => {
     const closeModal = () => {
         MicroModal.close('modal_skill_select_list');
     }
-
+    const learn_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0);
+    const passive_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 1);
+    const orb_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id > 9000);
     return (
         <>
             <div className="skill_select_container">
@@ -45,30 +58,22 @@ const SkillSelectListComponent = () => {
             </div>
             <div id="exclusion_skill_list">
                 <label>■習得スキル</label>
-                {skillSet.skill_list.map((skill) => {
-                    const skill_id = skill.skill_id;
-                    const checked = !skillSet.exclusion_skill_list.includes(skill_id);
-                    if (skill_id === 9001) {
-                        return (
-                            <>
-                                <label>■オーブスキル</label>
-                                <div key={skill_id}>
-                                    <input className="passive_skill" id={`skill_${skill_id}`} type="checkbox" checked={checked} onChange={e => changeSkillList(e, skill_id)} />
-                                    <label className="checkbox01" htmlFor={`skill_${skill_id}`}>{skill.skill_name}</label>
-                                </div>
-                            </>
-                        )
-                    } else {
-                        return (
-                            <div key={skill_id}>
-                                <input className="passive_skill" id={`skill_${skill_id}`} type="checkbox" checked={checked} onChange={e => changeSkillList(e, skill_id)} />
-                                <label className="checkbox01" htmlFor={`skill_${skill_id}`}>{skill.skill_name}</label>
-                            </div>
-                        )
-
-                    }
-                })
+                {learn_skill_list.map((skill) =>
+                    <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                )}
+                {passive_skill_list.length > 0 ?
+                    <>
+                        <label>■パッシブスキル</label>
+                        {passive_skill_list.map((skill) =>
+                            <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                        )}
+                    </>
+                    : null
                 }
+                <label>■オーブスキル</label>
+                {orb_skill_list.map((skill) =>
+                    <SkillCheckComponent skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                )}
             </div>
         </>
     )

@@ -5,7 +5,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
 
     // 敵の数変更
     const chengeEnemyCount = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = getUserOperation(turn);
         user_operation.enemy_count = Number(e.target.value);
         turn.enemy_count = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
@@ -13,7 +13,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
 
     // フィールド変更
     const chengeField = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = getUserOperation(turn);
         user_operation.field = Number(e.target.value);
         turn.field = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
@@ -21,14 +21,14 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
 
     // 行動選択変更
     const chengeAction = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = getUserOperation(turn);
         user_operation.kb_action = Number(e.target.value);
         setTurnData({ ...turnData, user_operation: user_operation });
     }
 
     // スキル変更
     const chengeSkill = (skill_id, place_no) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = getUserOperation(turn);
         let select_skill = user_operation.select_skill[place_no];
         select_skill.skill_id = skill_id;
         skillUpdate(turn, skill_id, place_no);
@@ -197,6 +197,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             // 最終ターンの情報
             turn_list[last_turn - 1];
             let last_turn_number = turn_list[last_turn - 1].turn_number;
+            let last_additional_count = turn_list[last_turn - 1].additional_count;
 
             // 指定されたnumber以上の要素を削除
             turn_list = turn_list.slice(0, index + 1);
@@ -204,6 +205,14 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
 
             // ユーザ操作リストのチェック
             user_operation_list.forEach((item) => {
+                if (item.turn_number < turn_data.turn_number) {
+                    item.used = true;
+                    return;
+                }
+                if (item.turn_number == turn_data.turn_number && item.additional_count <= turn_data.additional_count) {
+                    item.used = true;
+                    return;
+                }
                 item.used = false;
             })
 
@@ -238,6 +247,9 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                 proceedTurn(turn_data, false);
                 now_turn_number = turn_data.turn_number;
             }
+
+            // ユーザ操作リストの削除
+            user_operation_list = user_operation_list.filter((item) => item.used)
             updateTurnList(turn_list);
         }
     }, [turnData]);

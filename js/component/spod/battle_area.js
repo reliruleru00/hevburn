@@ -1,20 +1,14 @@
 const BattleAreaComponent = () => {
-    const [turnList, setTurnList] = React.useState({
-        "last_turn": 0,
-        "turn_list": []
-    });
     const [key, setKey] = React.useState(0);
+
+    const [updatedTurnIndexList, setUpdatedTurnIndexList] = React.useState([]);
 
     window.startBattle = () => {
         setKey(key + 1);
     }
-    window.updateTurnList = (turn_list) => {
-        setTurnList({
-            "last_turn": turn_list.length - 1,
-            "turn_list": turn_list
-        });
+    window.updateTurnList = (last_turn) => {
+        setUpdatedTurnIndexList(last_turn)
     };
-
 
     const clickDownload = () => {
         const element = document.getElementById("battle_display");
@@ -28,13 +22,13 @@ const BattleAreaComponent = () => {
             .catch(error => console.error("Error capturing image", error));
     }
 
-    if (turnList.turn_list.length != 0) {
+    if (turn_list.length != 0) {
         return (
             <div className="text-right">
                 <input type="button" id="btnDownload" value="画像として保存" onClick={clickDownload} />
                 <div id="battle_display" className="text-left">
-                    {turnList.turn_list.map((turn, index) => {
-                        return <TurnDataComponent turn={turn} last_turn={turnList.last_turn} index={index} key={`turn${index}-${key}`} />
+                    {turn_list.map((turn, index) => {
+                        return <TurnDataComponent turn={turn} index={index} key={`turn${index}-${key}`} is_last_turn={last_turn == index} />
                     })}
                 </div>
             </div>

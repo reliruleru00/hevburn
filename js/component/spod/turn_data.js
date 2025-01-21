@@ -1,9 +1,9 @@
-const TurnDataComponent = ({ turn, last_turn, index }) => {
+const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
     const [turnData, setTurnData] = React.useState({
         user_operation: turn.user_operation
     });
 
-    // 敵の数変更
+      // 敵の数変更
     const chengeEnemyCount = (e) => {
         let user_operation = getUserOperation(turn);
         user_operation.enemy_count = Number(e.target.value);
@@ -156,9 +156,10 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
 
     // 次ターン
     function clickNextTurn() {
-        turn.user_operation = turnData.user_operation;
-        user_operation_list.push(turnData.user_operation);
+        user_operation_list.push(turn.user_operation);
+        turn.is_last_turn = false;
         let turn_data = deepClone(turn);
+        turn_data.is_last_turn = true;
         startAction(turn_data, last_turn);
         // 次ターンを追加
         proceedTurn(turn_data, true);
@@ -252,8 +253,9 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             user_operation_list = user_operation_list.filter((item) => item.used)
             updateTurnList(turn_list);
         }
-    }, [turnData]);
+    }, [turnData, index]);
 
+    console.log("ターン再描画" + index);
     return (
         <div className="turn">
             <div className="header_area">
@@ -281,17 +283,17 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turn.user_operation.selected_place_no}
                             chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turn.user_operation.selected_place_no}
                             chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                     <div>
-                        <select className="action_select" value={turnData.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
+                        <select className="action_select" value={turn.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
                             <option value={KB_NEXT_ACTION}>行動開始</option>
                             {turn.over_drive_gauge >= 100 ? <option value={KB_NEXT_ACTION_OD}>行動開始+OD</option> : null}
                         </select>
@@ -303,7 +305,7 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
                             {turn.start_over_drive_gauge >= 100 && !turn.additional_turn ?
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
-                            {last_turn === index ?
+                            {is_last_turn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
                                 <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(turn.turn_number)} />
@@ -317,4 +319,4 @@ const TurnDataComponent = ({ turn, last_turn, index }) => {
             </div>
         </div>
     )
-};
+});

@@ -15,6 +15,7 @@ let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
 let user_operation_list = [];
+let last_turn = 0;
 
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
@@ -912,9 +913,10 @@ function proceedTurn(turn_data, isInitTurn) {
     initTurn(turn_data, isInitTurn);
 
     turn_list.push(turn_data);
+    last_turn = turn_list.length - 1;
     if (isInitTurn) {
         // 画面反映
-        updateTurnList(turn_list);
+        updateTurnList(last_turn);
     }
 }
 
@@ -939,10 +941,11 @@ function initTurn(turn_data) {
 function returnTurn(turn_number) {
     // 指定されたnumber以上の要素を削除
     turn_list = turn_list.slice(0, turn_number);
+    last_turn = turn_list.length - 1;
     user_operation_list = user_operation_list.slice(0, turn_number - 1);
 
     // 画面反映
-    updateTurnList(turn_list);
+    updateTurnList(last_turn);
 }
 
 // バフアイコン取得

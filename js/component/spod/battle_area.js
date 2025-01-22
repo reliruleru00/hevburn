@@ -28,7 +28,7 @@ const BattleAreaComponent = () => {
                 <input type="button" id="btnDownload" value="画像として保存" onClick={clickDownload} />
                 <div id="battle_display" className="text-left">
                     {turn_list.map((turn, index) => {
-                        return <TurnDataComponent turn={turn} index={index} key={`turn${index}-${key}`} is_last_turn={last_turn == index} />
+                        return <TurnDataComponent turn={turn} index={index} key={`turn${index}-${key}`} is_last_turn={seq_last_turn == index} />
                     })}
                 </div>
             </div>

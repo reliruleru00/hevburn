@@ -15,7 +15,7 @@ let battle_enemy_info;
 let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
 let user_operation_list = [];
-let last_turn = 0;
+let seq_last_turn = 0;
 
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
@@ -47,6 +47,7 @@ const FIELD_LIST = {
 class turn_data {
     constructor() {
         this.turn_number = 0;
+        this.seq_turn = -1;
         this.over_drive_turn = 0;
         this.over_drive_max_turn = 0;
         this.trigger_over_drive = false;
@@ -129,6 +130,7 @@ class turn_data {
         this.trigger_over_drive = false;
         this.start_over_drive_gauge = this.over_drive_gauge;
         this.old_field = this.field;
+        this.seq_turn++;
         this.unitLoop(function (unit) {
             unit.unitTurnInit(self.additional_turn);
         });
@@ -913,10 +915,10 @@ function proceedTurn(turn_data, isInitTurn) {
     initTurn(turn_data, isInitTurn);
 
     turn_list.push(turn_data);
-    last_turn = turn_list.length - 1;
+    seq_last_turn = turn_list.length - 1;
     if (isInitTurn) {
         // 画面反映
-        updateTurnList(last_turn);
+        updateTurnList(seq_last_turn);
     }
 }
 
@@ -938,14 +940,14 @@ function initTurn(turn_data) {
 }
 
 // ターンを戻す
-function returnTurn(turn_number) {
+function returnTurn(seq_turn) {
     // 指定されたnumber以上の要素を削除
-    turn_list = turn_list.slice(0, turn_number);
-    last_turn = turn_list.length - 1;
-    user_operation_list = user_operation_list.slice(0, turn_number - 1);
+    turn_list = turn_list.slice(0, seq_turn + 1);
+    seq_last_turn = turn_list.length - 1;
+    user_operation_list = user_operation_list.slice(0, seq_turn + 1);
 
     // 画面反映
-    updateTurnList(last_turn);
+    updateTurnList(seq_last_turn);
 }
 
 // バフアイコン取得

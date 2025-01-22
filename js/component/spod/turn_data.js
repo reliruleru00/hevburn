@@ -3,7 +3,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         user_operation: turn.user_operation
     });
 
-      // 敵の数変更
+    // 敵の数変更
     const chengeEnemyCount = (e) => {
         let user_operation = getUserOperation(turn);
         user_operation.enemy_count = Number(e.target.value);
@@ -160,7 +160,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         turn.is_last_turn = false;
         let turn_data = deepClone(turn);
         turn_data.is_last_turn = true;
-        startAction(turn_data, last_turn);
+        startAction(turn_data, seq_last_turn);
         // 次ターンを追加
         proceedTurn(turn_data, true);
     };
@@ -194,11 +194,10 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
     }
 
     React.useEffect(() => {
-        if (last_turn !== index) {
+        if (seq_last_turn !== index) {
             // 最終ターンの情報
-            turn_list[last_turn - 1];
-            let last_turn_number = turn_list[last_turn - 1].turn_number;
-            let last_additional_count = turn_list[last_turn - 1].additional_count;
+            let last_turn_number = turn_list[seq_last_turn].turn_number;
+            let last_additional_count = turn_list[seq_last_turn].additional_count;
 
             // 指定されたnumber以上の要素を削除
             turn_list = turn_list.slice(0, index + 1);
@@ -243,10 +242,14 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                 // OD再計算
                 turn_data.add_over_drive_gauge = getOverDrive(turn_data);
 
-                turn_data = deepClone(turn_data);
-                startAction(turn_data);
-                proceedTurn(turn_data, false);
-                now_turn_number = turn_data.turn_number;
+                if (now_turn_number != last_turn_number) {
+                    turn_data = deepClone(turn_data);
+                    startAction(turn_data);
+                    proceedTurn(turn_data, false);
+                    now_turn_number = turn_data.turn_number;
+                } else {
+                    break;
+                }
             }
 
             // ユーザ操作リストの削除
@@ -308,7 +311,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                             {is_last_turn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
-                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(turn.turn_number)} />
+                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(turn.seq_turn)} />
                             }
                         </div>
                     </div>

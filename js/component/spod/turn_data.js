@@ -1,29 +1,36 @@
 const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
+    const isNextInfluence = React.useRef(false);
     const [turnData, setTurnData] = React.useState({
         user_operation: turn.user_operation
     });
 
+    // 再描画
+    const reRender = (user_operation, is_next_influence) => {
+        isNextInfluence.current = is_next_influence;
+        setTurnData({ ...turnData, user_operation: user_operation });
+    }
+
     // 敵の数変更
     const chengeEnemyCount = (e) => {
-        let user_operation = getUserOperation(turn);
+        let user_operation = turnData.user_operation;
         user_operation.enemy_count = Number(e.target.value);
         turn.enemy_count = Number(e.target.value);
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, true);
     }
 
     // フィールド変更
     const chengeField = (e) => {
-        let user_operation = getUserOperation(turn);
+        let user_operation = turnData.user_operation;
         user_operation.field = Number(e.target.value);
         turn.field = Number(e.target.value);
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, true);
     }
 
     // 行動選択変更
     const chengeAction = (e) => {
-        let user_operation = getUserOperation(turn);
+        let user_operation = turnData.user_operation;
         user_operation.kb_action = Number(e.target.value);
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, true);
     }
 
     // スキル変更
@@ -77,7 +84,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         unit.sp_cost = sp_cost;
         select_skill.buff_target_chara_id = unit.buff_target_chara_id;
         select_skill.buff_effect_select_type = unit.buff_effect_select_type;
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, true);
     }
 
     // OD発動/解除
@@ -89,7 +96,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
             turn.removeOverDrive();
         }
         user_operation.trigger_over_drive = checked;
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, true);
     }
 
     // ユニット選択/入れ替え
@@ -115,6 +122,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         let old_place_no = user_operation.selected_place_no;
         let select_skill = user_operation.select_skill;
         let place_style = user_operation.place_style;
+        let is_next_influence = false;
         if (old_place_no != -1) {
             if (old_place_no != place_no) {
                 let old_unit = getUnitData(turn, old_place_no)
@@ -149,9 +157,10 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                 place_style[old_place_no] = tmp_style;
             }
             place_no = -1;
+            is_next_influence = true;
         }
         user_operation.selected_place_no = place_no;
-        setTurnData({ ...turnData, user_operation: user_operation });
+        reRender(user_operation, is_next_influence);
     })
 
     // 次ターン
@@ -194,7 +203,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
     }
 
     React.useEffect(() => {
-        if (seq_last_turn !== index) {
+        if (seq_last_turn !== index && isNextInfluence.current) {
             // 最終ターンの情報
             let last_turn_number = turn_list[seq_last_turn].turn_number;
             let last_additional_count = turn_list[seq_last_turn].additional_count;
@@ -286,17 +295,17 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turn.user_operation.selected_place_no}
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
                             chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turn.user_operation.selected_place_no}
+                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
                             chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} />
                     )}
                     <div>
-                        <select className="action_select" value={turn.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
+                        <select className="action_select" value={turnData.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
                             <option value={KB_NEXT_ACTION}>行動開始</option>
                             {turn.over_drive_gauge >= 100 ? <option value={KB_NEXT_ACTION_OD}>行動開始+OD</option> : null}
                         </select>

@@ -134,6 +134,10 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.unitTurnInit(self.additional_turn);
         });
+        this.setUserOperation();
+    }
+
+    setUserOperation() {
         // 初期値を設定
         this.user_operation = {
             field: null,
@@ -879,11 +883,11 @@ function procBattleStart() {
 
     // 戦闘開始アビリティ
     turn_init.abilityAction(ABILIRY_BATTLE_START);
-    turn_init.user_operation.kb_action = KB_NEXT_ACTION;
-
+    turn_init.setUserOperation();
     // バトルエリアリフレッシュ
     startBattle();
 
+    user_operation_list.push(turn_init.user_operation);
     // ターンを進める
     proceedTurn(turn_init, true);
 }
@@ -915,6 +919,7 @@ function proceedTurn(turn_data, isInitTurn) {
     initTurn(turn_data, isInitTurn);
 
     turn_list.push(turn_data);
+
     seq_last_turn = turn_list.length - 1;
     if (isInitTurn) {
         // 画面反映

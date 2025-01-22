@@ -70,7 +70,7 @@ const UnitSkillSelect = ({ turn, unit, place_no, chengeSkill }) => {
                 sp_cost = getSpCost(turn, skill, unit);
                 text += `(${sp_cost})`;
             }
-            return (<option value={skill.skill_id} key={`skill${skill.skill_id}`} data-sp_cost={sp_cost}>{text}</option>)
+            return (<option value={skill.skill_id} key={`skill${skill.skill_id}${skill.attack_id}`} data-sp_cost={sp_cost}>{text}</option>)
         }
         )}
     </select>

@@ -44,7 +44,10 @@ const SkillSelectListComponent = () => {
     const closeModal = () => {
         MicroModal.close('modal_skill_select_list');
     }
-    const learn_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0);
+    // 習得スキルは同一スキルを排除
+    const learn_skill_list = Array.from(
+        new Map(skillSet.skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0).map(item => [item.skill_id, item])).values()
+      );
     const passive_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 1);
     const orb_skill_list = skillSet.skill_list.filter((skill) => skill.skill_id > 9000);
     return (

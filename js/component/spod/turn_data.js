@@ -12,7 +12,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
 
     // 敵の数変更
     const chengeEnemyCount = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = turn.user_operation;
         user_operation.enemy_count = Number(e.target.value);
         turn.enemy_count = Number(e.target.value);
         reRender(user_operation, true);
@@ -20,7 +20,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
 
     // フィールド変更
     const chengeField = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = turn.user_operation;
         user_operation.field = Number(e.target.value);
         turn.field = Number(e.target.value);
         reRender(user_operation, true);
@@ -28,14 +28,14 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
 
     // 行動選択変更
     const chengeAction = (e) => {
-        let user_operation = turnData.user_operation;
+        let user_operation = turn.user_operation;
         user_operation.kb_action = Number(e.target.value);
         reRender(user_operation, true);
     }
 
     // スキル変更
     const chengeSkill = (skill_id, place_no) => {
-        let user_operation = getUserOperation(turn);
+        let user_operation = turn.user_operation;
         let select_skill = user_operation.select_skill[place_no];
         select_skill.skill_id = skill_id;
         skillUpdate(turn, skill_id, place_no);
@@ -135,16 +135,16 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                     old_unit.select_skill_id = old_unit.init_skill_id;
                     new_unit.select_skill_id = 0;
                     new_unit.sp_cost = 0;
-                    new_unit.buff_effect_select_type = 0;
-                    new_unit.buff_target_chara_id = 0;
+                    new_unit.buff_effect_select_type = null;
+                    new_unit.buff_target_chara_id = null;
                     select_skill[place_no] = { skill_id: 0 };
                 }
                 // 後衛と前衛の交換
                 if (3 <= place_no && old_place_no <= 2) {
                     old_unit.select_skill_id = 0;
                     old_unit.sp_cost = 0;
-                    old_unit.buff_effect_select_type = 0;
-                    old_unit.buff_target_chara_id = 0;
+                    old_unit.buff_effect_select_type = null;
+                    old_unit.buff_target_chara_id = null;
                     select_skill[old_place_no] = { skill_id: 0 };
                     new_unit.select_skill_id = new_unit.init_skill_id;
                 }
@@ -165,7 +165,6 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
 
     // 次ターン
     function clickNextTurn() {
-        user_operation_list.push(turn.user_operation);
         turn.is_last_turn = false;
         let turn_data = deepClone(turn);
         turn_data.is_last_turn = true;
@@ -174,32 +173,21 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         proceedTurn(turn_data, true);
     };
 
-    const getUserOperation = (turn_data) => {
+    const updateUserOperation = (turn_data) => {
         let filtered = user_operation_list.filter((item) =>
             item.turn_number === turn_data.turn_number &&
             item.additional_count === turn_data.additional_count
         );
+        let user_operation = turn_data.user_operation;
         if (filtered.length === 0) {
-            filtered.push({
-                // 初期値
-                field: null,
-                enemy_count: null,
-                select_skill: turn_data.unit_list.map(function (unit) {
-                    return unit.blank ? {} : { skill_id: unit.init_skill_id };
-                }),
-                place_style: turn_data.unit_list.map(function (unit) {
-                    return unit.blank ? 0 : unit.style.style_info.style_id;
-                }),
-                trigger_over_drive: false,
-                selected_place_no: -1,
-                kb_action: KB_NEXT_ACTION,
-                turn_number: turn_data.turn_number,
-                additional_count: turn_data.additional_count,
-            });
-            user_operation_list.push(filtered[0]);
+            user_operation_list.push(turn_data.user_operation);
+            // 表示確認用
+            user_operation_list.sort((a, b) => a.turn_number - b.turn_number || a.additional_count - b.additional_count);
+        } else {
+            user_operation = filtered[0];
+            turn_data.user_operation = user_operation;
         }
-        filtered[0].used = true;
-        return filtered[0];
+        user_operation.used = true;
     }
 
     React.useEffect(() => {
@@ -232,17 +220,17 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
             let now_turn_number = turn_data.turn_number;
 
             while (now_turn_number <= last_turn_number) {
-                turn_data.user_operation = getUserOperation(turn_data);
-                // 配置変更
+                updateUserOperation(turn_data);
+                // 追加ターンの配置
                 turn_data.unit_list.forEach((unit) => {
                     if (unit.blank) return;
+                    if (turn_data.additional_turn) return;
                     unit.place_no = turn_data.user_operation.place_style.findIndex((item) =>
                         item === unit.style.style_info.style_id);
                 })
                 // スキル設定
                 turn_data.unit_list.forEach((unit) => {
                     if (unit.blank) return;
-                    // スキル設定
                     const skill = turn_data.user_operation.select_skill[unit.place_no];
                     unit.buff_target_chara_id = skill.buff_target_chara_id;
                     unit.buff_effect_select_type = skill.buff_effect_select_type;

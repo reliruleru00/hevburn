@@ -887,7 +887,6 @@ function procBattleStart() {
     // バトルエリアリフレッシュ
     startBattle();
 
-    user_operation_list.push(turn_init.user_operation);
     // ターンを進める
     proceedTurn(turn_init, true);
 }
@@ -922,6 +921,7 @@ function proceedTurn(turn_data, isInitTurn) {
 
     seq_last_turn = turn_list.length - 1;
     if (isInitTurn) {
+        user_operation_list.push(turn_data.user_operation);
         // 画面反映
         updateTurnList(seq_last_turn);
     }

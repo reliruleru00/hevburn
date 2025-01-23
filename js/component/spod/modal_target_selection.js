@@ -26,7 +26,7 @@ const TargetSelectionComponent = () => {
             }
             unit.buff_target_chara_id = chara_id;
         } else {
-            unit.buff_target_chara_id = 0;
+            unit.buff_target_chara_id = null;
         }
         return true;
     }

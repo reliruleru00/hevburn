@@ -57,7 +57,7 @@ const EffectSelectionComponent = () => {
             }
             unit.buff_effect_select_type = effect_select_type;
         } else {
-            unit.buff_effect_select_type = 0;
+            unit.buff_effect_select_type = null;
         }
         return true;
     }

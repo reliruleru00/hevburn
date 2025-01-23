@@ -43,6 +43,14 @@ const CharaSetting = () => {
         const [removed] = select_style_list.splice(result.source.index, 1);
         select_style_list.splice(result.destination.index, 0, removed);
 
+        select_style_list.forEach((style, index) => {
+            let style_id = null;
+            if (style) {
+                style_id = style.style_info.style_id;
+            }
+            localStorage.setItem(`troops_${select_troops}_${index}`, style_id);
+        })
+
         setSelectStyle([...select_style_list]);
     };
 

@@ -12,7 +12,7 @@ const UnitSp = ({ unit }) => {
     return <div className={className}>{unit_sp + (unit.add_sp > 0 ? ("+" + unit.add_sp) : "")}</div>;
 }
 
-const UnitSkillSelect = ({ turn, unit, place_no, chengeSkill }) => {
+const UnitSkillSelect = React.memo(({ turn, unit, place_no, chengeSkill }) => {
     let skill_list = unit.skill_list
     if (place_no < 3) {
         skill_list = skill_list.filter(skill => {
@@ -43,7 +43,7 @@ const UnitSkillSelect = ({ turn, unit, place_no, chengeSkill }) => {
             return false;
         })
     }
-    
+
     const handleChangeSkill = (value, place_no) => {
         chengeSkill(value, place_no);
     };
@@ -75,7 +75,9 @@ const UnitSkillSelect = ({ turn, unit, place_no, chengeSkill }) => {
         )}
     </select>
     );
-}
+}, (prevProps, nextProps) => {
+    return prevProps.turn === nextProps.turn && prevProps.unit === nextProps.unit && prevProps.place_no === nextProps.place_no;
+});
 
 const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit }) => {
     const filterUnit = turn.unit_list.filter(unit => unit.place_no === place_no);
@@ -87,7 +89,7 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
     if (unit?.style?.style_info?.image_url) {
         icon = "icon/" + unit.style.style_info.image_url;
     }
-        
+
     const handleSelectUnit = (value, place_no) => {
         chengeSelectUnit(value, place_no);
     };

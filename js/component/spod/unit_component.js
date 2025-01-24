@@ -12,7 +12,7 @@ const UnitSp = ({ unit }) => {
     return <div className={className}>{unit_sp + (unit.add_sp > 0 ? ("+" + unit.add_sp) : "")}</div>;
 }
 
-const UnitSkillSelect = React.memo(({ turn, unit, place_no, chengeSkill }) => {
+const UnitSkillSelect = React.memo(({ turn, unit, place_no, select_skill_id, chengeSkill }) => {
     let skill_list = unit.skill_list
     if (place_no < 3) {
         skill_list = skill_list.filter(skill => {
@@ -76,7 +76,8 @@ const UnitSkillSelect = React.memo(({ turn, unit, place_no, chengeSkill }) => {
     </select>
     );
 }, (prevProps, nextProps) => {
-    return prevProps.turn === nextProps.turn && prevProps.unit === nextProps.unit && prevProps.place_no === nextProps.place_no;
+    return prevProps.turn === nextProps.turn && prevProps.unit === nextProps.unit 
+        && prevProps.place_no === nextProps.place_no && prevProps.select_skill_id === nextProps.select_skill_id ;
 });
 
 const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit }) => {
@@ -96,7 +97,7 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
 
     let className = "unit_select " + (place_no == selected_place_no ? "unit_selected" : "");
     return (<div className={className} onClick={(e) => { handleSelectUnit(e, place_no) }}>
-        <UnitSkillSelect turn={turn} unit={unit} place_no={place_no} chengeSkill={chengeSkill} />
+        <UnitSkillSelect turn={turn} unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} />
         <div className="flex">
             <div>
                 <img className="unit_style" src={icon} />

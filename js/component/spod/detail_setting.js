@@ -1,5 +1,6 @@
 const DetailSettingComponent = () => {
 
+    // 属性交換
     const changeElement = () => {
         const before = Number(document.getElementById('change_element_before').value);
         const after = Number(document.getElementById('change_element_after').value);
@@ -13,6 +14,22 @@ const DetailSettingComponent = () => {
             document.getElementById(`enemy_element_${before}`).className = element_after_className;
             document.getElementById(`enemy_element_${after}`).className = element_before_className;
         }
+    }
+
+    // 入力値チェック
+    const checkNumber = (e) => {
+        let value = e.target.value;
+        const max = Number(e.target.getAttribute('max'));
+        const min = Number(e.target.getAttribute('min'));
+        if (isNaN(value)) {
+            value = 0;
+        }
+        if (value < min) {
+            value = min;
+        } else if (value > max) {
+            value = max;
+        }
+        e.target.value = value;
     }
 
     return (
@@ -35,10 +52,10 @@ const DetailSettingComponent = () => {
                         </select>
                         OverDriveGauge
                         <input className="step_od_gauge w-[70px]" defaultValue="0"
-                            id="init_over_drive" max="300" min="0" step="0.01" type="number" />
+                            id="init_over_drive" max="300" min="0" step="0.01" type="number" onChange={(e) => {checkNumber(e)}} />
                         SP＋
                         <input className="step_sp" defaultValue="0"
-                            id="init_sp_add" max="20" min="0" step="1" type="number" />
+                            id="init_sp_add" max="20" min="0" step="1" type="number" onChange={(e) => {checkNumber(e)}} />
                     </div>
                 </li>
                 <li>

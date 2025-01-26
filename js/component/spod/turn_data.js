@@ -89,7 +89,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
 
     // OD発動/解除
     function triggerOverDrive(checked) {
-        let user_operation = turnData.user_operation;
+        let user_operation = turn.user_operation;;
         if (checked) {
             turn.startOverDrive();
         } else {
@@ -118,7 +118,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                 return;
             }
         }
-        let user_operation = turnData.user_operation;
+        let user_operation = turn.user_operation;
         let old_place_no = user_operation.selected_place_no;
         let select_skill = user_operation.select_skill;
         let place_style = user_operation.place_style;
@@ -155,9 +155,9 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                 const tmp_style = place_style[place_no];
                 place_style[place_no] = place_style[old_place_no]
                 place_style[old_place_no] = tmp_style;
+                is_next_influence = true;
             }
             place_no = -1;
-            is_next_influence = true;
         }
         user_operation.selected_place_no = place_no;
         reRender(user_operation, is_next_influence);
@@ -173,13 +173,16 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         proceedTurn(turn_data, true);
     };
 
+    // ユーザ操作の更新
     const updateUserOperation = (turn_data) => {
         let filtered = user_operation_list.filter((item) =>
             item.turn_number === turn_data.turn_number &&
+            item.over_drive_number === turn_data.over_drive_number &&
             item.additional_count === turn_data.additional_count
         );
         let user_operation = turn_data.user_operation;
         if (filtered.length === 0) {
+            turn_data.user_operation.kb_action = KB_NEXT_ACTION;
             user_operation_list.push(turn_data.user_operation);
             // 表示確認用
             user_operation_list.sort((a, b) => a.turn_number - b.turn_number || a.additional_count - b.additional_count);
@@ -190,11 +193,56 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
         user_operation.used = true;
     }
 
+    // ユーザ操作をターンに反映
+    const reflectUserOperation = (turn_data) => {
+        // 追加ターンの配置
+        turn_data.unit_list.forEach((unit) => {
+            if (unit.blank) return;
+            let operation_place_no = turn_data.user_operation.place_style.findIndex((item) =>
+                item === unit.style.style_info.style_id);
+            if (turn_data.additional_turn) {
+                if (operation_place_no != unit.place_no) {
+                    turn_data.user_operation.select_skill[unit.place_no].skill_id = unit.init_skill_id;
+                    turn_data.user_operation.place_style[unit.place_no] = unit.style.style_info.style_id;
+                }
+                return;
+            }
+            unit.place_no = operation_place_no;
+        })
+        // スキル設定
+        turn_data.unit_list.forEach((unit) => {
+            if (unit.blank) return;
+            const skill = turn_data.user_operation.select_skill[unit.place_no];
+            unit.buff_target_chara_id = skill.buff_target_chara_id;
+            unit.buff_effect_select_type = skill.buff_effect_select_type;
+            skillUpdate(turn_data, turn_data.user_operation.select_skill[unit.place_no].skill_id, unit.place_no);
+        })
+        // OD再計算
+        turn_data.add_over_drive_gauge = getOverDrive(turn_data);
+        // 行動反映
+        turn_data.kb_action = turn_data.user_operation.kb_action;
+        // OD発動反映
+        turn_data.trigger_over_drive = turn_data.user_operation.trigger_over_drive;
+    }
+
+    // ユーザ操作の比較
+    const compereUserOperation = (comp1, comp2) => {
+        if (comp1.turn_number !== comp2.turn_number) {
+            return comp1.turn_number - comp2.turn_number;
+        }
+        if (comp1.over_drive_number !== comp2.over_drive_number) {
+            return comp1.over_drive_number - comp2.over_drive_number;
+        }
+        if (comp1.additional_count !== comp2.additional_count) {
+            return comp1.additional_count - comp2.additional_count;
+        }
+        return 0;
+    }
+
     React.useEffect(() => {
         if (seq_last_turn !== index && isNextInfluence.current) {
             // 最終ターンの情報
-            let last_turn_number = turn_list[seq_last_turn].turn_number;
-            let last_additional_count = turn_list[seq_last_turn].additional_count;
+            const last_turn_operation = turn_list[seq_last_turn].user_operation;
 
             // 指定されたnumber以上の要素を削除
             turn_list = turn_list.slice(0, index + 1);
@@ -213,42 +261,16 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                 item.used = false;
             })
 
-            // 現ターン処理
-            turn_data = deepClone(turn_data);
-            startAction(turn_data);
-            proceedTurn(turn_data, false);
-            let now_turn_number = turn_data.turn_number;
-
-            while (now_turn_number <= last_turn_number) {
+            while (compereUserOperation(turn_data.user_operation, last_turn_operation) < 0) {
+                // 現ターン処理
+                turn_data = deepClone(turn_data);
+                startAction(turn_data);
+                proceedTurn(turn_data, false);
+                // ユーザ操作の更新
                 updateUserOperation(turn_data);
-                // 追加ターンの配置
-                turn_data.unit_list.forEach((unit) => {
-                    if (unit.blank) return;
-                    if (turn_data.additional_turn) return;
-                    unit.place_no = turn_data.user_operation.place_style.findIndex((item) =>
-                        item === unit.style.style_info.style_id);
-                })
-                // スキル設定
-                turn_data.unit_list.forEach((unit) => {
-                    if (unit.blank) return;
-                    const skill = turn_data.user_operation.select_skill[unit.place_no];
-                    unit.buff_target_chara_id = skill.buff_target_chara_id;
-                    unit.buff_effect_select_type = skill.buff_effect_select_type;
-                    skillUpdate(turn_data, turn_data.user_operation.select_skill[unit.place_no].skill_id, unit.place_no);
-                })
-                // OD再計算
-                turn_data.add_over_drive_gauge = getOverDrive(turn_data);
-
-                if (now_turn_number != last_turn_number) {
-                    turn_data = deepClone(turn_data);
-                    startAction(turn_data);
-                    proceedTurn(turn_data, false);
-                    now_turn_number = turn_data.turn_number;
-                } else {
-                    break;
-                }
+                // ユーザ操作をターンに反映
+                reflectUserOperation(turn_data);
             }
-            console.log(now_turn_number);
             // ユーザ操作リストの削除
             user_operation_list = user_operation_list.filter((item) => item.used)
             updateTurnList(turn_list);
@@ -302,7 +324,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                             style={{
                                 justifyContent: "flex-end",
                             }}>
-                            {turn.start_over_drive_gauge >= 100 && !turn.additional_turn ?
+                            {turn.start_over_drive_gauge >= 100 && !turn.additional_turn && (turn.over_drive_number == 0 || turn.trigger_over_drive ) ?
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
                             {is_last_turn ?

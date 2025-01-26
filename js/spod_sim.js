@@ -48,7 +48,7 @@ class turn_data {
     constructor() {
         this.turn_number = 0;
         this.seq_turn = -1;
-        this.over_drive_turn = 0;
+        this.over_drive_number = 0;
         this.over_drive_max_turn = 0;
         this.trigger_over_drive = false;
         this.additional_turn = false;
@@ -96,14 +96,14 @@ class turn_data {
         if (kb_next == KB_NEXT_ACTION) {
             // オーバードライブ
             if (this.over_drive_max_turn > 0) {
-                this.over_drive_turn++;
+                this.over_drive_number++;
                 this.unitLoop(function (unit) {
                     unit.unitOverDriveTurnProceed();
                 });
-                if (this.over_drive_max_turn < this.over_drive_turn) {
+                if (this.over_drive_max_turn < this.over_drive_number) {
                     // オーバードライブ終了
                     this.over_drive_max_turn = 0;
-                    this.over_drive_turn = 0;
+                    this.over_drive_number = 0;
                     if (this.fg_action) {
                         this.nextTurn();
                     }
@@ -153,6 +153,7 @@ class turn_data {
             kb_action: KB_NEXT_ACTION,
             turn_number : this.turn_number,
             additional_count : this.additional_count,
+            over_drive_number : this.over_drive_number,
         }
     }
 
@@ -186,8 +187,8 @@ class turn_data {
             return `${defalt_turn} 追加ターン`;
         }
         // オーバードライブ中
-        if (this.over_drive_turn > 0) {
-            return `${defalt_turn} OverDrive${this.over_drive_turn}/${this.over_drive_max_turn}`;
+        if (this.over_drive_number > 0) {
+            return `${defalt_turn} OverDrive${this.over_drive_number}/${this.over_drive_max_turn}`;
         }
         return defalt_turn;
     }
@@ -199,7 +200,7 @@ class turn_data {
     }
     startOverDrive() {
         let over_drive_level = Math.floor(this.over_drive_gauge / 100)
-        this.over_drive_turn = 1;
+        this.over_drive_number = 1;
         this.over_drive_max_turn = over_drive_level;
         this.over_drive_gauge = 0;
         this.add_over_drive_gauge = 0;
@@ -211,7 +212,7 @@ class turn_data {
         this.trigger_over_drive = true;
     }
     removeOverDrive() {
-        this.over_drive_turn = 0;
+        this.over_drive_number = 0;
         this.over_drive_max_turn = 0;
         this.over_drive_gauge = this.start_over_drive_gauge;
         this.add_over_drive_gauge = 0;

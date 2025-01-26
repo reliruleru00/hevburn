@@ -20,6 +20,7 @@ div.frame {
         width: 100%;
         display: block;
     }
+
     .display_area {
         margin: auto;
     }
@@ -69,6 +70,7 @@ img.select_style {
     width: 64px;
     height: 64px;
     margin-left: 2px;
+    cursor: pointer;
 }
 
 .dragging {
@@ -234,7 +236,7 @@ img.select_style {
     overflow-y: scroll;
 }
 
-#battle_display{
+#battle_display {
     background-color: #fff;
 }
 

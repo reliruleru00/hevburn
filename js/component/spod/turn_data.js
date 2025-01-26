@@ -248,7 +248,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                     break;
                 }
             }
-
+            console.log(now_turn_number);
             // ユーザ操作リストの削除
             user_operation_list = user_operation_list.filter((item) => item.used)
             updateTurnList(turn_list);

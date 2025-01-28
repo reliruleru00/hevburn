@@ -238,7 +238,7 @@ img.select_style {
 #battle_area {
     width: 1280px;
     height: 97%;
-    overflow-y: scroll;
+    overflow-y: auto;
     margin-left: 5px;
     margin-right: 5px;
 }
@@ -374,7 +374,7 @@ img.select_style {
 
 .od_text {
     padding-top: 11px;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .od_minus {

@@ -33,7 +33,7 @@ const DetailSettingComponent = () => {
     }
 
     return (
-        <>
+        <div className="surround_area mx-auto mt-2 adjust_width" id="detail_setting">
             <label className="area_title">詳細設定</label>
             <ul className="text-sm ml-4">
                 <li>
@@ -119,11 +119,6 @@ const DetailSettingComponent = () => {
                     </select>
                 </li>
             </ul>
-        </>
+        </div>
     )
 };
-
-$(function () {
-    const rootElement = document.getElementById('detail_setting');
-    ReactDOM.createRoot(rootElement).render(<DetailSettingComponent />);
-});

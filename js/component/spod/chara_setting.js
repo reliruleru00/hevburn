@@ -1,6 +1,6 @@
 
 const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
-const CharaSetting = () => {
+const CharaSettingComponent = () => {
     const BRACELET_LIST = ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"];
     const EARRING_LIST = [10, 12, 15];
 
@@ -73,7 +73,7 @@ const CharaSetting = () => {
     };
 
     return (
-        <>
+        <div className="grid grid-cols-7 text-center gap-y-px gap-x-0" id="chara_setting">
             <label className="mt-3 mb-3 small_font">部隊選択</label>
             <div className="col-span-6 flex">
                 {Array.from({ length: 9 }, (_, i) => {
@@ -186,12 +186,6 @@ const CharaSetting = () => {
                 )
             }
             )}
-        </>
+        </div>
     )
 };
-
-
-$(function () {
-    const rootElement = document.getElementById('chara_setting');
-    ReactDOM.createRoot(rootElement).render(<CharaSetting />);
-});

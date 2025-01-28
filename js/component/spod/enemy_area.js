@@ -20,7 +20,7 @@ const EnemyAreaComponent = ({ enemy_class, enemy_select }) => {
     }
 
     return (
-        <div>
+        <div className="surround_area mx-auto mt-2 adjust_width" id="enemy_area">
             <EnmeyListComponent enemy_class={enemy.enemy_class} enemy_select={enemy.enemy_select} handleChange={setEnemyStatus} />
             <div className="resist_area mx-auto mt-2">
                 <div className="grid grid-cols-9">
@@ -61,12 +61,3 @@ const EnemyAreaComponent = ({ enemy_class, enemy_select }) => {
         </div>
     )
 };
-
-$(function () {
-    let enemy_class = localStorage.getItem("enemy_class");
-    enemy_class = enemy_class ? enemy_class : "1";
-    let enemy_select = localStorage.getItem("enemy_select");
-    enemy_select = enemy_select ? enemy_select : "1";
-    const rootElement = document.getElementById('enemy_area');
-    ReactDOM.createRoot(rootElement).render(<EnemyAreaComponent enemy_class={enemy_class} enemy_select={enemy_select} />);
-});

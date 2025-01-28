@@ -289,7 +289,7 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn }) => {
                             <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
                                 {[1, 2, 3].map(enemy_count => <option value={enemy_count} key={`enemy_count${enemy_count}`}>{`${enemy_count}体`}</option>)}
                             </select>
-                            <label className="ml-2">場</label>
+                            <label className="ml-1">場</label>
                             <select className="enemy_count" value={turn.field} onChange={(e) => chengeField(e)}>
                                 {Object.keys(FIELD_LIST).map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                             </select>

@@ -700,49 +700,7 @@ class buff_data {
 }
 
 function setEventTrigger() {
-    // 上書き確認
-    $("#is_overwrite").on("change", function (event) {
-        localStorage.setItem("is_overwrite", $(this).prop("checked"));
-    });
-    // 戦闘開始ボタンクリック
-    $(".battle_start").on("click", function (event) {
-        for (let i = 0; i < select_style_list.length; i++) {
-            let style = select_style_list[i]?.style_info;
-            if (NOT_USE_STYLE.includes(style?.style_id)) {
-                let chara_data = getCharaData(style.chara_id);
-                alert(`[${style.style_name}]${chara_data.chara_name}は現在使用できません。`);
-                return;
-            }
-        };
-        // 後衛が居る場合、前衛に空き不可
-        const hasBlankFront = select_style_list.some(function (style, index) {
-            return style === undefined && index <= 2
-        });
-        const hasBack = select_style_list.some(function (style, index) {
-            return style !== undefined && index >= 3
-        });
-        if (hasBlankFront && hasBack) {
-            alert("後衛がいるとき 前衛には3名必要です");
-            return;
-        }
 
-        if ($("#is_overwrite").prop("checked")) {
-            if ($("#battle_area").css("visibility") !== "hidden" && !confirm("現在の結果が消えますが、よろしいですか？")) {
-                return;
-            }
-        }
-        // 初期化
-        turn_list = [];
-        user_operation_list = [];
-        battle_enemy_info = getEnemyInfo();
-        for (let i = 1; i <= 3; i++) {
-            battle_enemy_info[`physical_${i}`] = Number($(`#enemy_physical_${i}`).val());
-        }
-        for (let i = 0; i <= 5; i++) {
-            battle_enemy_info[`element_${i}`] = Number($(`#enemy_element_${i}`).val());
-        }
-        procBattleStart();
-    });
 }
 
 /* 戦闘開始処理 */

@@ -238,8 +238,8 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn, hideMode }) =
         if (comp1.finish_action !== comp2.finish_action) {
             return comp1.finish_action - comp2.finish_action;
         }
-        if (comp1.over_drive_trigger_count !== comp2.over_drive_trigger_count) {
-            return comp1.over_drive_trigger_count - comp2.over_drive_trigger_count;
+        if (comp1.end_drive_trigger_count !== comp2.end_drive_trigger_count) {
+            return comp1.end_drive_trigger_count - comp2.end_drive_trigger_count;
         }
         if (comp1.over_drive_number !== comp2.over_drive_number) {
             return comp1.over_drive_number - comp2.over_drive_number;

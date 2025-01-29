@@ -40,7 +40,7 @@ const BattleAreaComponent = () => {
             <div className={display_class}>
                 <div className="flex justify-between">
                     <div className="flex mode_button">
-                        <input type="checkbox" className="switch" id="mode_switch" onChange={(e) => changeHideMode(e)}/><label for="mode_switch">設定画面を隠す</label>
+                        <input type="checkbox" className="switch" id="mode_switch" onChange={(e) => changeHideMode(e)}/><label htmlFor="mode_switch">設定画面を隠す</label>
                     </div>
                     <input type="button" id="btnDownload" value="画像として保存" onClick={clickDownload} />
                 </div>

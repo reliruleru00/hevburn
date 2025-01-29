@@ -1272,7 +1272,9 @@ const getOverDrive = (turn) => {
         // 追撃
         if (skill_id == 3) {
             let chara_data = getCharaData(unit_data.style.style_info.chara_id);
-            od_plus += chara_data.pursuit * 2.5;
+            if (isResist(chara_data.physical, 0, 0)) {
+                od_plus += chara_data.pursuit * 2.5;
+            }
         }
     });
     return od_plus;

@@ -144,8 +144,7 @@ img.sub_style {
 
 @media screen and (max-width: 482px) {
     .status_area {
-        width: 100%;
-        min-width: 375px;
+        width: 400px;
     }
 
     .label_status {

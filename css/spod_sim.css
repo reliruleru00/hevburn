@@ -8,11 +8,6 @@ div.frame {
     overflow-y: hidden;
 }
 
-.display_area {
-    width: 450px;
-    font-size: 0.875rem;
-}
-
 .adjust_width {
     width: 450px;
 }
@@ -21,10 +16,6 @@ div.frame {
     div.frame {
         display: block;
         overflow-y: scroll;
-    }
-
-    .display_area {
-        margin: auto;
     }
 }
 
@@ -64,6 +55,11 @@ input.troops_btn.selected_troops {
 }
 
 /* ステータスエリア */
+.unit_setting_area {
+    width: 450px;
+    font-size: 0.875rem;
+}
+
 #char_list {
     width: 482px;
 }
@@ -122,7 +118,8 @@ img.select_style {
 }
 
 @media screen and (max-width: 482px) {
-    .display_area {
+    .unit_setting_area {
+        margin: auto;
         width: 400px;
     }
 
@@ -346,7 +343,7 @@ img.select_style {
 }
 
 .turn_header_area {
-    width: 305px;
+    width: 100%;
 }
 
 .turn_header_top {

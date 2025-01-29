@@ -55,7 +55,7 @@ const SettingAreaComponent = ({ }) => {
 
     return (
         <div className="top_area">
-            <div className="display_area">
+            <div className="unit_setting_area">
                 <input className="w-20" defaultValue="注意事項" role="button" type="button" 
                     onClick={() => {MicroModal.show('modal_explanation'); }} />
                 <CharaSettingComponent />

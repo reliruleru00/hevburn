@@ -35,10 +35,10 @@ const DetailSettingComponent = () => {
     return (
         <div className="surround_area mx-auto mt-2 adjust_width" id="detail_setting">
             <label className="area_title">詳細設定</label>
-            <ul className="text-sm ml-4">
+            <ul className="text-sm ml-2">
                 <li>
                     <label>バトル開始時</label>
-                    <div className="ml-4">
+                    <div className="ml-2">
                         フィールド
                         <select id="init_field" defaultValue="0">
                             <option value="0">無し</option>

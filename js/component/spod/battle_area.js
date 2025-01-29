@@ -3,6 +3,8 @@ const BattleAreaComponent = () => {
 
     const [updatedTurnIndexList, setUpdatedTurnIndexList] = React.useState([]);
 
+    const [hideMode, setHideMode] = React.useState(false);
+
     window.startBattle = () => {
         setKey(key + 1);
     }
@@ -22,13 +24,29 @@ const BattleAreaComponent = () => {
             .catch(error => console.error("Error capturing image", error));
     }
 
+    const changeHideMode = (e) => {
+        const hideMode = e.target.checked;
+        if (hideMode) {
+            $("#setting_area").addClass("hidden");
+        } else {
+            $("#setting_area").removeClass("hidden");
+        }
+        setHideMode(hideMode);
+    }
+
+    let display_class = hideMode ? "hide_mode" : "show_mode";
     if (turn_list.length != 0) {
         return (
-            <div className="text-right">
-                <input type="button" id="btnDownload" value="画像として保存" onClick={clickDownload} />
+            <div className={display_class}>
+                <div className="flex justify-between">
+                    <div className="flex mode_button">
+                        <input type="checkbox" class="switch" id="mode_switch" onChange={(e) => changeHideMode(e)}/><label for="mode_switch">設定画面を隠す</label>
+                    </div>
+                    <input type="button" id="btnDownload" value="画像として保存" onClick={clickDownload} />
+                </div>
                 <div id="battle_display" className="text-left">
                     {turn_list.map((turn, index) => {
-                        return <TurnDataComponent turn={turn} index={index} key={`turn${index}-${key}`} is_last_turn={seq_last_turn == index} />
+                        return <TurnDataComponent turn={turn} index={index} key={`turn${index}-${key}`} is_last_turn={seq_last_turn == index} hideMode={hideMode}/>
                     })}
                 </div>
             </div>

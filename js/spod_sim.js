@@ -49,6 +49,7 @@ class turn_data {
         this.turn_number = 0;
         this.seq_turn = -1;
         this.over_drive_number = 0;
+        this.over_drive_trigger_count = 0;
         this.over_drive_max_turn = 0;
         this.trigger_over_drive = false;
         this.additional_turn = false;
@@ -59,16 +60,18 @@ class turn_data {
         this.over_drive_gauge = 0;
         this.add_over_drive_gauge = 0;
         this.enemy_count = 1;
-        this.fg_action = false;
+        this.finish_action = false;
+        this.field = 0;
+        this.field_turn = 0;
+        this.user_operation = {}
+
+        // 特殊設定
         this.front_sp_add = 0;
         this.back_sp_add = 0;
         this.step_turn = 0;
         this.step_over_drive_down = 0;
         this.step_sp_down = 0;
         this.sp_cost_down = 0;
-        this.field = 0;
-        this.field_turn = 0;
-        this.user_operation = {}
     }
 
     unitLoop(func) {
@@ -104,7 +107,7 @@ class turn_data {
                     // オーバードライブ終了
                     this.over_drive_max_turn = 0;
                     this.over_drive_number = 0;
-                    if (this.fg_action) {
+                    if (this.finish_action) {
                         this.nextTurn();
                     }
                 }
@@ -121,7 +124,8 @@ class turn_data {
         } else {
             // 行動開始＋OD発動
             this.startOverDrive();
-            this.fg_action = true;
+            this.finish_action = true;
+            this.over_drive_trigger_count = 0;
             this.unitLoop(function (unit) {
                 unit.unitOverDriveTurnProceed();
             });
@@ -151,6 +155,8 @@ class turn_data {
             trigger_over_drive: false,
             selected_place_no: -1,
             kb_action: KB_NEXT_ACTION,
+            finish_action : this.finish_action,
+            over_drive_trigger_count : this.over_drive_trigger_count,
             turn_number : this.turn_number,
             additional_count : this.additional_count,
             over_drive_number : this.over_drive_number,
@@ -165,7 +171,8 @@ class turn_data {
         });
 
         this.turn_number++;
-        this.fg_action = false;
+        this.finish_action = false;
+        this.over_drive_trigger_count = 0;
         this.abilityAction(ABILIRY_RECEIVE_DAMAGE);
         this.abilityAction(ABILIRY_SELF_START);
         if (this.turn_number % this.step_turn == 0 && this.over_drive_gauge > 0) {
@@ -210,6 +217,7 @@ class turn_data {
             unit.over_drive_sp = sp_list[over_drive_level];
         });
         this.trigger_over_drive = true;
+        this.over_drive_trigger_count++;
     }
     removeOverDrive() {
         this.over_drive_number = 0;
@@ -221,7 +229,7 @@ class turn_data {
             unit.over_drive_sp = 0;
         });
         this.trigger_over_drive = false;
-
+        this.over_drive_trigger_count--;
     }
     debuffConsumption() {
         for (let i = this.enemy_debuff_list.length - 1; i >= 0; i--) {

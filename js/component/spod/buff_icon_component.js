@@ -53,8 +53,9 @@ const BuffIconComponent = ({ buff_list, loop_limit, loop_step, place_no, turn_nu
         }
     };
 
+    let className = "scroll-container " + (place_no == 7 ? "enemy_icon_list" : "icon_list");
     return (
-        <div className="scroll-container icon_list" onClick={(e) => showBuffList(e, buff_list)}>
+        <div className={className} onClick={(e) => showBuffList(e, buff_list)}>
             <div className="scroll-content" ref={scrollContentRef}>
                 {buff_list.map((buffInfo, index) => (
                     <img

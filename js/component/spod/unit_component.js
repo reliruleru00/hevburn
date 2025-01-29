@@ -76,11 +76,11 @@ const UnitSkillSelect = React.memo(({ turn, unit, place_no, select_skill_id, che
     </select>
     );
 }, (prevProps, nextProps) => {
-    return prevProps.turn === nextProps.turn && prevProps.unit === nextProps.unit 
-        && prevProps.place_no === nextProps.place_no && prevProps.select_skill_id === nextProps.select_skill_id ;
+    return prevProps.turn === nextProps.turn && prevProps.unit === nextProps.unit
+        && prevProps.place_no === nextProps.place_no && prevProps.select_skill_id === nextProps.select_skill_id;
 });
 
-const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit }) => {
+const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit, hideMode }) => {
     const filterUnit = turn.unit_list.filter(unit => unit.place_no === place_no);
     if (filterUnit.size === 0) {
         return null;
@@ -95,18 +95,28 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
         chengeSelectUnit(value, place_no);
     };
 
+    let loop_limit = 3;
+    let icon_width = 72;
+    if (hideMode) {
+        loop_limit = 4;
+        icon_width = 96;
+    }
     let className = "unit_select " + (place_no == selected_place_no ? "unit_selected" : "");
-    return (<div className={className} onClick={(e) => { handleSelectUnit(e, place_no) }}>
-        <UnitSkillSelect turn={turn} unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} />
-        <div className="flex">
-            <div>
-                <img className="unit_style" src={icon} />
-                {
-                    unit?.style?.style_info ? <UnitSp unit={unit} /> : null
+    return (
+        <div className={className} onClick={(e) => { handleSelectUnit(e, place_no) }}>
+            <UnitSkillSelect turn={turn} unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} />
+            <div className="flex">
+                <div>
+                    <img className="unit_style" src={icon} />
+                    {
+                        unit?.style?.style_info ? <UnitSp unit={unit} /> : null
+                    }
+                </div>
+                {place_no <= 2 || hideMode ?
+                    <BuffIconComponent buff_list={unit.buff_list} loop_limit={loop_limit} loop_step={2} place_no={place_no} turn_number={turn.turn_number} />
+                    : null
                 }
             </div>
-            <BuffIconComponent buff_list={unit.buff_list} loop_limit={3} loop_step={2} place_no={place_no} turn_number={turn.turn_number} />
         </div>
-    </div>
     )
 };

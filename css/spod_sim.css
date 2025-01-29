@@ -2,7 +2,8 @@
 div.frame {
     height: calc(100svh - 60px);
     display: flex;
-    justify-content: center; /* 水平方向中央 */
+    justify-content: center;
+    /* 水平方向中央 */
     margin: auto;
     overflow-y: hidden;
 }
@@ -236,7 +237,6 @@ img.select_style {
 
 /* バトルエリア */
 #battle_area {
-    width: 1280px;
     height: 97%;
     overflow-y: auto;
     margin-left: 5px;
@@ -245,6 +245,14 @@ img.select_style {
 
 #battle_display {
     background-color: #fff;
+}
+
+.show_mode {
+    width: 1280px;
+}
+
+.hide_mode {
+    width: 1590px;
 }
 
 #btnDownload {
@@ -304,10 +312,12 @@ img.select_style {
 }
 
 @media screen and (max-width: 1400px) {
-    #battle_area {
+    .show_mode {
         width: 400px;
-        height: auto;
-        margin: auto;
+    }
+
+    .hide_mode {
+        width: 400px;
     }
 
     .turn {
@@ -327,9 +337,18 @@ img.select_style {
         width: 80px;
     }
 }
+@media screen and (max-width: 768px) {
+    .show_mode,
+    .hide_mode {
+        margin: auto;
+    }
+}
 
-.header_area {
-    width: 375px;
+.turn_header_area {
+    width: 305px;
+}
+
+.turn_header_top {
     display: flex;
     justify-content: space-between;
 }
@@ -348,8 +367,8 @@ img.select_style {
 }
 
 .enemy_icon {
-    width: 30px;
-    height: 30px;
+    width: 23px;
+    height: 23px;
 }
 
 .enemy_count {
@@ -373,7 +392,7 @@ img.select_style {
 }
 
 .od_text {
-    padding-top: 11px;
+    padding-top: 5px;
     font-size: 13px;
 }
 
@@ -386,14 +405,48 @@ img.select_style {
     background-color: #FF0;
 }
 
-.front_area .unit_skill {
-    font-size: 12px;
+.show_mode .front_area .unit_skill {
     width: 125px;
 }
 
-.back_area .unit_skill {
-    font-size: 12px;
+.show_mode .back_area .unit_skill {
     width: 72px;
+}
+
+.hide_mode .unit_skill {
+    width: 150px;
+}
+
+.show_mode .icon_list {
+    width: 72px;
+    overflow: hidden;
+}
+
+.hide_mode .icon_list {
+    width: 96px;
+    overflow: hidden;
+}
+
+@media screen and (max-width: 1400px) {
+    .hide_mode .front_area .unit_skill {
+        width: 125px;
+    }
+
+    .hide_mode .back_area .unit_skill {
+        width: 72px;
+    }
+
+    .hide_mode .icon_list {
+        width: 72px;
+        overflow: hidden;
+    }
+    .back_area .icon_list {
+        display: none;
+    }
+}
+
+.unit_skill {
+    font-size: 12px;
 }
 
 .action_select {
@@ -441,21 +494,15 @@ img.unit_buff {
     height: 24px;
 }
 
-.back_area .icon_list {
-    display: none;
-}
-
-.icon_list {
-    width: 72px;
-}
-
 .enemy_count {
     line-height: 21px;
     font-size: 14px;
 }
 
 .enemy_icon_list {
-    width: 150px;
+    width: 290px;
+    margin-left: 5px;
+    margin-top: -1px;
 }
 
 .hidden-option {

@@ -35,6 +35,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@hello-pangea/dnd@17.0.0/dist/dnd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
   <script src="js/header.js"></script>
   <script src="js/common.js"></script>
   <script src="js/const.js"></script>
@@ -71,9 +72,6 @@
       // スタイルリスト読み込み
       select_troops = select_troops ? select_troops : 0;
       loadTroopsList(select_style_list, select_troops);
-      
-      // イベント設定
-      setEventTrigger();
 
       // MicroModal初期化
       MicroModal.init({

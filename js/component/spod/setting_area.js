@@ -40,16 +40,6 @@ const SettingAreaComponent = ({ }) => {
                 return;
             }
         }
-        // 初期化
-        turn_list = [];
-        user_operation_list = [];
-        battle_enemy_info = getEnemyInfo();
-        for (let i = 1; i <= 3; i++) {
-            battle_enemy_info[`physical_${i}`] = Number($(`#enemy_physical_${i}`).val());
-        }
-        for (let i = 0; i <= 5; i++) {
-            battle_enemy_info[`element_${i}`] = Number($(`#enemy_element_${i}`).val());
-        }
         procBattleStart();
     };
 

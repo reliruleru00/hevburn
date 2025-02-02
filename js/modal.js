@@ -30,7 +30,7 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
     for (let i = 0; i < select_list.length; i++) {
         if (i !== select_chara_no && select_list[i]?.style_info.chara_id === style_info?.chara_id) {
             // メンバーを入れ替える
-            if (!select_list[select_chara_no]) {
+            if (select_list[select_chara_no]) {
                 // メンバーの情報を削除
                 if (typeof removeMember == "function") {
                     removeMember(select_list, i, isTrigger);
@@ -54,7 +54,7 @@ function setMember(select_list, select_chara_no, style_id, isTrigger) {
     localStorage.setItem(`troops_${select_troops}_${select_chara_no}`, style_id);
 
     // ステータスを読み込む
-    loadStyle(member_info);
+    loadStyle(member_info, style_info);
     select_list[select_chara_no] = member_info;
 
     if (typeof updateMember == "function") {
@@ -85,7 +85,7 @@ function saveStyle(member_info) {
 }
 
 // ステータスを読み込む
-function loadStyle(member_info) {
+function loadStyle(member_info, style_info) {
     let style_id = member_info.style_info.style_id;
     let save_item = localStorage.getItem("style_" + style_id);
     if (save_item) {
@@ -102,6 +102,11 @@ function loadStyle(member_info) {
             member_info.chain = Number(items[11]);
             member_info.init_sp = Number(items[12]);
         }
+    }
+    if (style_info.rarity == 2) {
+        member_info.limit_count = 10;
+    } else if (style_info.rarity == 3) {
+        member_info.limit_count = 20;
     }
 }
 
@@ -183,7 +188,7 @@ function setSubMember(sub_chara_no, style_id) {
     }
 
     // ステータスを読み込み
-    loadStyle(member_info);
+    loadStyle(member_info, style_info);
     sub_style_list[sub_chara_no] = member_info;
 
     // デバフのみを追加

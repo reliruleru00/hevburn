@@ -1,12 +1,12 @@
 let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
 // 使用不可スタイル
-const NOT_USE_STYLE = [];
+const NOT_USE_STYLE = [36, 150];
 // 謎の処理順序
 const ACTION_ORDER = [1, 0, 2, 3, 4, 5];
 // 残ターン消費バフ
-// 星屑の航路/星屑の航路+/バウンシー・ブルーミー/月光/流れ星に唄えば/チャーミングボイス/かき鳴らせキラーチューン/ジャムセッション
-const REST_TURN_COST_BUFF = [67, 491, 523, 567, 568, 573, 575, 577];
+// 星屑の航路/星屑の航路+/バウンシー・ブルーミー/月光/流れ星に唄えば/チャーミングボイス/かき鳴らせキラーチューン/ジャムセッション/蒼星のイリデッセンス
+const REST_TURN_COST_BUFF = [67, 491, 523, 567, 568, 573, 575, 577, 586];
 
 const styleSheet = document.createElement('style');
 document.head.appendChild(styleSheet);
@@ -217,6 +217,7 @@ class turn_data {
         this.unitLoop(function (unit) {
             unit.over_drive_sp = sp_list[over_drive_level];
         });
+        this.abilityAction(ABILIRY_OD_START);
         this.trigger_over_drive = true;
     }
     removeOverDrive() {
@@ -566,6 +567,12 @@ class unit_data {
                     buff.effect_sum = ability.effect_size * ability.effect_count;
                     buff.rest_turn = -1;
                     self.buff_list.push(buff);
+                    break;
+                case EFFECT_OVERDRIVE_SP: // ODSPアップ
+                    $.each(target_list, function (index, target_no) {
+                        let unit_data = getUnitData(turn_data, target_no);
+                        unit_data.over_drive_sp += ability.effect_size;
+                    });
                     break;
                 case EFFECT_HEALSP: // SP回復
                     $.each(target_list, function (index, target_no) {
@@ -1437,6 +1444,10 @@ function getSpCost(turn_data, skill_info, unit) {
     if (turn_data.over_drive_max_turn > 0) {
         // 獅子に鰭
         if (checkAbilityExist(unit.ability_other, 1521)) {
+            sp_cost_down = 2;
+        }
+        // 飛躍
+        if (checkAbilityExist(unit.ability_other, 1525)) {
             sp_cost_down = 2;
         }
     }

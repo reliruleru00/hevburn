@@ -122,21 +122,13 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn, hideMode }) =
                 }
                 // 前衛と後衛の交換
                 if (place_no <= 2 && 3 <= old_place_no) {
-                    old_unit.select_skill_id = old_unit.init_skill_id;
-                    new_unit.select_skill_id = 0;
-                    new_unit.sp_cost = 0;
-                    new_unit.buff_effect_select_type = null;
-                    new_unit.buff_target_chara_id = null;
+                    excahngeUnit(new_unit, old_unit);
                     select_skill[place_no] = { skill_id: 0 };
                 }
                 // 後衛と前衛の交換
                 if (3 <= place_no && old_place_no <= 2) {
-                    old_unit.select_skill_id = 0;
-                    old_unit.sp_cost = 0;
-                    old_unit.buff_effect_select_type = null;
-                    old_unit.buff_target_chara_id = null;
+                    excahngeUnit(old_unit, new_unit);
                     select_skill[old_place_no] = { skill_id: 0 };
-                    new_unit.select_skill_id = new_unit.init_skill_id;
                 }
                 const tmp_skill = select_skill[place_no];
                 select_skill[place_no] = select_skill[old_place_no]
@@ -151,6 +143,15 @@ const TurnDataComponent = React.memo(({ turn, index, is_last_turn, hideMode }) =
         }
         user_operation.selected_place_no = place_no;
         reRender(user_operation, is_next_influence);
+    })
+
+    // 前衛後衛ユニット交換
+    const excahngeUnit = ((old_front, old_back) => {
+        old_front.select_skill_id = 0;
+        old_front.sp_cost = 0;
+        old_front.buff_effect_select_type = null;
+        old_front.buff_target_chara_id = null;
+        old_back.select_skill_id = old_back.init_skill_id;
     })
 
     // 次ターン

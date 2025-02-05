@@ -748,7 +748,7 @@ function calcDamage() {
     let stat_down = hacking || misfortune;
 
     let basePower = getBasePower(member_info, stat_up, stat_down);
-    let buff = getSumBuffEffectSize();
+    let buff = getSumBuffEffectSize(grade_sum);
     let mindeye = isWeak() ? getSumEffectSize("mindeye") / 100 + 1 : 1;
     let debuff = getSumDebuffEffectSize();
     let fragile = isWeak() ? getSumEffectSize("fragile") / 100 + 1 : 1;
@@ -2102,7 +2102,7 @@ function getSumEffectSize(class_name) {
 }
 
 // 合計バフ効果量取得
-function getSumBuffEffectSize() {
+function getSumBuffEffectSize(grade_sum) {
     // スキルバフ合計
     let sum_buff = getSumEffectSize("buff");
     // 攻撃力アップアビリティ
@@ -2124,6 +2124,10 @@ function getSumBuffEffectSize() {
     sum_buff += $("#eternal_vows").prop("checked") ? 50 : 0;
     // オギャり
     sum_buff += $("#babied").prop("checked") ? 30 : 0;
+    // スコアタグレード
+    if (grade_sum.power_up) {
+        sum_buff += grade_sum.power_up;
+    }
     // 制圧戦
     sum_buff += getBikePartsEffectSize("buff");
     return 1 + sum_buff / 100;
@@ -2539,6 +2543,10 @@ function getGradeSum() {
                 if (conditions.includes("step_turn")) {
                     let step_turn = Number(conditions.replace("step_turn", ""));
                     turn_count = Math.floor(Number($("#turn_count").val()) / step_turn);
+                } else if (conditions) {
+                    if (!judgeConditions(conditions)) {
+                        return 
+                    }
                 }
                 grade_sum[kind] = grade["effect_size" + index];
                 grade_sum["effect_count"] = turn_count;
@@ -2546,6 +2554,18 @@ function getGradeSum() {
         });
     });
     return grade_sum;
+}
+
+// 条件判定
+function judgeConditions(conditions) {
+    switch (conditions) {
+        case "token":
+            let attack_info = getAttackInfo();
+            // トークン
+            let token_count = Number($(`#token_${attack_info.chara_id}`).val());
+            return token_count > 0;
+    }
+    return false;
 }
 
 // 敵ステータス設定

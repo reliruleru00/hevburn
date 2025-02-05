@@ -2509,7 +2509,9 @@ function updateGrade() {
 
 // グレード情報取得
 function getGradeSum() {
-    let grade_sum = $.extend(true, {}, grade_list.filter((obj) => obj.score_attack_no == 0)[0]);
+    let grade_sum =  {"score_attack_no":0,"half":0,"grade_no":0, "grade_rate":0,"grade_none":0,
+        "step_turn":0,"defense_rate":0,"dp_rate":0,"hp_rate":0,"physical_1":0,"physical_2":0,"physical_3":0,
+        "element_0":0,"element_1":0,"element_2":0,"element_3":0,"element_4":0,"element_5":0,"destruction":0,"critical":0};
     let enemy_info = getEnemyInfo();
     if (enemy_info == undefined) {
         return;
@@ -2518,23 +2520,28 @@ function getGradeSum() {
         // スコアタ以外の場合は、基本値
         return grade_sum;
     }
-    let sum_list = ["defense_rate", "dp_rate", "hp_rate", "physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5", "destruction", "critical"];
     let checked_id = $('input[name="rule_tab"]:checked').attr('id');
     $("." + checked_id + ":checked").each(function (index, value) {
         let grade_no = Number($(value).data("grade_no"));
         let half = Number(checked_id.match(/\d+/g));
-        grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == half && obj.grade_no == grade_no).forEach(value => {
-            grade_sum["grade_rate"] += value["grade_rate"];
-            if (value.grade_none == 1) {
+        grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == half && obj.grade_no == grade_no).forEach(grade => {
+            grade_sum["grade_rate"] += grade["grade_rate"];
+            if (grade.grade_none == 1) {
                 return true;
             }
-            let step_turn = Number(value["step_turn"]);
-            let turn_count = 1;
-            if (step_turn != 0) {
-                turn_count = Math.floor(Number($("#turn_count").val()) / step_turn);
-            }
-            sum_list.forEach(element => {
-                grade_sum[element] += Number(value[element]) * turn_count;
+            [1, 2, 3].forEach(index => {
+                let kind = grade["effect_kind" + index];
+                if (kind =="") {
+                    return;
+                }
+                let turn_count = 1;
+                let conditions = grade["conditions" + index];
+                if (conditions.includes("step_turn")) {
+                    let step_turn = Number(conditions.replace("step_turn", ""));
+                    turn_count = Math.floor(Number($("#turn_count").val()) / step_turn);
+                }
+                grade_sum[kind] = grade["effect_size" + index];
+                grade_sum["effect_count"] = turn_count;
             });
         });
     });
@@ -2994,11 +3001,19 @@ function getFunnelEffectSize(buff_id, member_info) {
 
 // 敵防御力取得
 function getEnemyDefenceRate(grade_sum) {
-    let enemy_defence_rate = 1 - grade_sum.defense_rate / 100;
-    if ($("#skull_feather_1st_defense").is(':visible')) {
-        let defense = Number($("#skull_feather_1st_defense").val())
-        enemy_defence_rate *= (1 - 0.05) ** defense;
+    let defence_rate = 0;
+    if (grade_sum.defense_rate) {
+        defence_rate = grade_sum.defense_rate / 100;
     }
+    let count = 1;
+    if (grade_sum.effect_count !== undefined) {
+        count = grade_sum.effect_count;
+    }    
+    if ($("#skull_feather_1st_defense").is(':visible')) {
+        defence_rate = 5 / 100;
+        count = Number($("#skull_feather_1st_defense").val())
+    }
+    let enemy_defence_rate = (1 - defence_rate) ** count;
     return enemy_defence_rate;
 }
 

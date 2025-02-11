@@ -11,6 +11,13 @@ const ContentsAreaComponent = ({ }) => {
     const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no == enemy_select);
     let enemy_info = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 
+    if (!enemy_info) {
+        // データ消えたりしてたら初期値に戻す
+        enemy_class = "1";
+        enemy_select = "1";
+        enemy_info = enemy_list[0];
+    }
+
     const handleChange = (enemy_class, enemy_select) => {
         const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no == enemy_select);
         setEnemyInfo(filtered_enemy.length > 0 ? filtered_enemy[0] : undefined);

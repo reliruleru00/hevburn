@@ -8,8 +8,6 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange, is_free_i
         localStorage.setItem("enemy_class", enemy_class);
         localStorage.setItem("enemy_select", "1");
 
-
-        
         setEnemy({ enemy_class: enemy_class, enemy_select: "1" });
         handleChange(enemy_class, "1");
     };

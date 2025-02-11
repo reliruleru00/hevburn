@@ -24,8 +24,7 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange }) => {
     }
 
     return (
-        <div>
-            <label className="area_title">敵情報</label>
+        <>
             <div id="enemy_select">
                 <select id="enemy_class" value={enemy.enemy_class} onChange={(e) => changeEnemyClass(e.target.value)}>
                     <option value="1">異時層</option>
@@ -39,7 +38,7 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange }) => {
                     <option value="9">イベント隠しボス</option>
                     <option value="10">時の修練場</option>
                     <option value="11">制圧戦</option>
-                    <option value="12">セラフ遭遇戦</option>
+                    {/* <option value="12">セラフ遭遇戦</option> */}
                 </select>
                 <select id="enemy_list" value={enemy.enemy_select} onChange={(e) => changeEnemySelect(e.target.value)}>
                     {class_List.map((value) => {
@@ -60,6 +59,6 @@ const EnmeyListComponent = ({ enemy_class, enemy_select, handleChange }) => {
                     <option value="3">3体</option>
                 </select>
             </div>
-        </div>
+        </>
     )
 };

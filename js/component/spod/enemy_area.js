@@ -21,6 +21,7 @@ const EnemyAreaComponent = ({ enemy_class, enemy_select }) => {
 
     return (
         <div className="surround_area mx-auto mt-2 adjust_width" id="enemy_area">
+            <label className="area_title">敵情報</label>
             <EnmeyListComponent enemy_class={enemy.enemy_class} enemy_select={enemy.enemy_select} handleChange={setEnemyStatus} />
             <div className="resist_area mx-auto mt-2">
                 <div className="grid grid-cols-9">

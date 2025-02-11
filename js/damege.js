@@ -720,7 +720,7 @@ function calcDamage() {
 
     // スコア計算
     if ($("#enemy_class").val() == ENEMY_CLASS_SCORE_ATTACK) {
-        // calcScore(critical_detail, grade_sum.grade_rate);
+        calcScore(critical_detail, grade_sum.grade_rate);
     }
     // メンバー情報更新
     if (typeof updateMember == "function") {
@@ -2407,6 +2407,9 @@ function updateGrade() {
 
 // グレード情報取得
 function getGradeSum(enemy_info) {
+    if (!enemy_info) {
+        enemy_info = getEnemyInfo();
+    }
     let grade_sum = {
         "score_attack_no": 0, "half": 0, "grade_no": 0, "grade_rate": 0, "grade_none": 0,
         "step_turn": 0, "defense_rate": 0, "dp_rate": 0, "hp_rate": 0, "physical_1": 0, "physical_2": 0, "physical_3": 0,
@@ -2477,6 +2480,13 @@ function setEnemyStatus(enemy_info) {
     // }
     if (!enemy_info) {
         return;
+    }
+
+    // 移行中の暫定対応
+    if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
+        $("#prediction_score").show();
+    } else {
+        $("#prediction_score").hide();
     }
 
     $("#enemy_stat").val(enemy_info.enemy_stat);

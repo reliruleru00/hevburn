@@ -9,6 +9,12 @@ const ScoreSettingComponent = ({ enemy_info }) => {
 
     let half_grade = filtered_grade.filter((obj) => obj.half == selectHalf);
 
+    // タブ変更
+    const handleTabChange = (half) => {
+        setSelectHalf(half)
+        setEnemyStatus(enemy_info);
+    }
+
     // レベル変更
     const handleScoreChange = () => {
         setEnemyStatus(enemy_info);
@@ -24,7 +30,7 @@ const ScoreSettingComponent = ({ enemy_info }) => {
             <div id="half_tab">
                 {uniqueHalf.map((half, index) => (
                     <React.Fragment key={half}>
-                        <input defaultChecked={index === 0} id={`half_tab_${half}`} name="rule_tab" type="radio" onChange={() => setSelectHalf(half)}/>
+                        <input defaultChecked={index === 0} id={`half_tab_${half}`} name="rule_tab" type="radio" onChange={() => handleTabChange(half)}/>
                         <label htmlFor={`half_tab_${half}`} id={`half_tab_${half}`}>
                             {half}週目
                         </label>
@@ -49,8 +55,8 @@ const ScoreSettingComponent = ({ enemy_info }) => {
                 </span>
                 <div>
                     {half_grade.map((grade, index) => (
-                        <div key={`grade_${index}`}>
-                            <input className={`half_check half_tab_${index + 1}`} type="checkbox" id={`half_grade${index}`}
+                        <div key={`grade_${selectHalf}_${index}`}>
+                            <input className={`half_check half_tab_${selectHalf}`} type="checkbox" id={`half_grade${index}`}
                              data-grade_no={grade.grade_no}
                              onChange={() => handleGradeChange()}/>
                             <label className="checkbox01" htmlFor={`half_grade${index}`}>

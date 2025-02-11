@@ -2475,6 +2475,9 @@ function setEnemyStatus(enemy_info) {
     //         displayScoreAttack(enemy_info);
     //         break;
     // }
+    if (!enemy_info) {
+        return;
+    }
 
     $("#enemy_stat").val(enemy_info.enemy_stat);
     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;

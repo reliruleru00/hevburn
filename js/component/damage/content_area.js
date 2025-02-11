@@ -24,7 +24,7 @@ const ContentsAreaComponent = ({ }) => {
     return (
         <>
             <label className="area_title">コンテンツ情報</label>
-            <EnmeyListComponent enemy_class={enemy_class} enemy_select={enemy_select} handleChange={handleChange} />
+            <EnmeyListComponent enemy_class={enemy_class} enemy_select={enemy_select} handleChange={handleChange} is_free_input={true}/>
             <HardLayerComponent enemy_info={enemy_info} />
             <ScoreSettingComponent enemy_info={enemy_info} />
             <BikePartsComponent enemy_info={enemy_info} />

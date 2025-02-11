@@ -6,17 +6,6 @@ let ref_status_list = {};
 let chara_sp_list = [];
 
 function setEventTrigger() {
-    // 敵リストイベント
-    // $("#enemy_class").on("change", function (event) {
-    //     let enemy_class = Number($(this).val());
-    //     localStorage.setItem("enemy_class", enemy_class);
-    //     localStorage.setItem("enemy_list", "1");
-    //     createEnemyList(enemy_class);
-    // });
-    // $("#enemy_list").on("change", function (event) {
-    //     localStorage.setItem("enemy_list", $(this).val());
-    //     setEnemyStatus();
-    // });
     // 攻撃スキル変更
     $("#attack_list").on("change", function (event) {
         let attack_info = getAttackInfo();
@@ -238,64 +227,7 @@ function setEventTrigger() {
             this.value = max;
         }
     });
-    // バイクパーツ交換
-    // $(".bike_parts").on("change", function () {
-    //     let has_charge = false;
-    //     let has_mindeye = false;
-    //     let has_funnel = false;
-    //     let has_funnel_impro = false;
-    //     $('.bike_parts').each(function () {
-    //         if ($(this).val() === "3") {
-    //             has_charge = true;
-    //         }
-    //         if ($(this).val() === "6") {
-    //             has_mindeye = true;
-    //         }
-    //         if ($(this).val() === "8") {
-    //             has_funnel = true;
-    //         }
-    //         if ($(this).val() === "15") {
-    //             has_funnel_impro = true;
-    //         }
-    //     });
-    //     if (has_charge) {
-    //         toggleItemVisibility(`.skill_id-8001`, true);
-    //         $(".charge").each(function (index, value) {
-    //             sortEffectSize($(value));
-    //             select2ndSkill($(value));
-    //         });
-    //     } else {
-    //         toggleItemVisibility(`.skill_id-8001`, false);
-    //     }
-    //     if (has_mindeye) {
-    //         toggleItemVisibility(`.skill_id-8002`, true);
-    //         $(".mindeye").each(function (index, value) {
-    //             sortEffectSize($(value));
-    //             select2ndSkill($(value));
-    //         });
-    //     } else {
-    //         toggleItemVisibility(`.skill_id-8002`, false);
-    //     }
-    //     if (has_funnel) {
-    //         toggleItemVisibility(`.skill_id-8003`, true);
-    //         $(".funnel").each(function (index, value) {
-    //             sortEffectSize($(value));
-    //             select2ndSkill($(value));
-    //         });
-    //     } else {
-    //         toggleItemVisibility(`.skill_id-8003`, false);
-    //     }
-    //     if (has_funnel_impro) {
-    //         toggleItemVisibility(`.skill_id-8004`, true);
-    //         $(".funnel").each(function (index, value) {
-    //             sortEffectSize($(value));
-    //             select2ndSkill($(value));
-    //         });
-    //     } else {
-    //         toggleItemVisibility(`.skill_id-8004`, false);
-    //     }
-    // });
-    // 士気/夢の泪レベル変更
+    // 士気レベル変更
     $("#morale_count").on("change", function (event) {
         updateVariableEffectSize();
     });
@@ -412,18 +344,6 @@ function setEventTrigger() {
         }
         $(".row_dp").css("display", "none");
     });
-    // スコアアタック敵強さ変更
-    // $("#score_lv").on("change", function (event) {
-    //     updateEnemyScoreAttack();
-    //     // バフ効果量を更新
-    //     $(".variable_effect_size").each(function (index, value) {
-    //         updateBuffEffectSize($(value));
-    //     });
-    // });
-    // セラフ遭遇戦敵強さ変更
-    // $("input[name=card]").on("change", function (event) {
-    //     updateSeraphEncounter();
-    // });
     // 強ブレイクチェック
     $("#strong_break").on("change", function (event) {
         let enemy_info = getEnemyInfo();
@@ -435,18 +355,6 @@ function setEventTrigger() {
         }
         $(".row_dp").css("display", "none");
     });
-    // スコアアタックチェック変更
-    // $(document).on("change", "input.half_check", function (event) {
-    //     updateGrade();
-    // });
-    // スコアタタブ変更
-    // $("input[name=rule_tab]").on("change", function (event) {
-    //     updateGrade();
-    // });
-    // サブパーティ変更
-    // $("#sub_troops").on("change", function (event) {
-    //     loadSubTroopsList($(this).val());
-    // });
     // カンマ区切り
     $(".comma").on('blur change input', function (event) {
         let newValue = removeComma($(this).val())
@@ -454,30 +362,6 @@ function setEventTrigger() {
         let formattedValue = newValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         // フォームの値を置き換える
         $(this).val(formattedValue);
-    });
-    // 敵保存ボタンクリック
-    $("#enemy_save").on("click", function (event) {
-        let enemy_class_no = Number($("#enemy_list option:selected").val());
-        let enemy_name = window.prompt("敵名称を入力してください", "敵" + enemy_class_no);
-        if (enemy_name === null) {
-            return;
-        }
-        let enemy_info = {};
-        enemy_info.enemy_name = enemy_name
-        enemy_info.enemy_stat = $("#enemy_stat").val();
-        enemy_info.max_dp = removeComma($("#enemy_dp_0").val()) + "," + removeComma($("#enemy_dp_1").val()) + "," + removeComma($("#enemy_dp_2").val()) + "," + removeComma($("#enemy_dp_3").val());
-        enemy_info.max_hp = removeComma($("#enemy_hp").val());
-        let enemy_info_status_list = ["destruction_limit", "destruction"];
-        enemy_info_status_list.forEach(value => {
-            enemy_info[value] = $("#enemy_" + value).val();
-        });
-        let enemy_info_resist_list = ["physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",];
-        enemy_info_resist_list.forEach(value => {
-            enemy_info[value] = $("#enemy_" + value).data("init");
-        });
-        $("#enemy_list option:selected").text(enemy_name);
-        updateEnemyStatus(enemy_class_no, enemy_info);
-        localStorage.setItem("free_enemy_" + enemy_class_no, JSON.stringify(enemy_info));
     });
     // ダメージ詳細を開く
     $(".open_detail").on("click", function (event) {
@@ -2420,21 +2304,21 @@ function getPassiveInfo(skill_id) {
 
 // 敵リスト作成
 function createEnemyList(enemy_class) {
-    $("#enemy_list").empty();
-    $.each(enemy_list, function (index, value) {
-        if (value.enemy_class == enemy_class) {
-            var option = $('<option>')
-                .val(value.enemy_class_no);
-            if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
-                option.text(`#${value.sub_no} ${value.enemy_name}`)
-            } else if (enemy_class == ENEMY_CLASS_CLOCK_TOWER_NORMAL || enemy_class == ENEMY_CLASS_CLOCK_TOWER_HARD) {
-                option.text(`(${value.sub_no}F) ${value.enemy_name}`)
-            } else {
-                option.text(value.enemy_name);
-            }
-            $("#enemy_list").append(option);
-        }
-    });
+    // $("#enemy_list").empty();
+    // $.each(enemy_list, function (index, value) {
+    //     if (value.enemy_class == enemy_class) {
+    //         var option = $('<option>')
+    //             .val(value.enemy_class_no);
+    //         if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
+    //             option.text(`#${value.sub_no} ${value.enemy_name}`)
+    //         } else if (enemy_class == ENEMY_CLASS_CLOCK_TOWER_NORMAL || enemy_class == ENEMY_CLASS_CLOCK_TOWER_HARD) {
+    //             option.text(`(${value.sub_no}F) ${value.enemy_name}`)
+    //         } else {
+    //             option.text(value.enemy_name);
+    //         }
+    //         $("#enemy_list").append(option);
+    //     }
+    // });
 
     // const reverse = [ENEMY_CLASS_SCORE_ATTACK, ENEMY_CLASS_STELLAR_SWEEP_FRONT, ENEMY_CLASS_EVENT_PRISMATIC]
     // if (reverse.includes(enemy_class)) {
@@ -2453,12 +2337,12 @@ function createEnemyList(enemy_class) {
     // $("#score_lv").hide();
     // $("#prediction_score").hide();
     // }
-    if (enemy_class == ENEMY_CLASS_HARD_LAYER) {
-        // 異時層の場合、サブパーティを表示する。
-        $(".hard_layer").css("display", "block");
-    } else {
-        $(".hard_layer").css("display", "none");
-    }
+    // if (enemy_class == ENEMY_CLASS_HARD_LAYER) {
+    //     // 異時層の場合、サブパーティを表示する。
+    //     $(".hard_layer").css("display", "block");
+    // } else {
+    //     $(".hard_layer").css("display", "none");
+    // }
     // if (enemy_class == ENEMY_CLASS_CONTROL_BATTLE) {
     //     // 制圧戦、バイクバフを表示する。
     //     $(".bike_buff").css("display", "block");
@@ -2477,21 +2361,21 @@ function createEnemyList(enemy_class) {
     //     removeSupportMember(0);
     //     $(".bike_buff").css("display", "none");
     // }
-    if (enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
-        $(".randam_card").show();
-    } else {
-        $(".randam_card").hide();
-    }
-    if (enemy_class == ENEMY_CLASS_FREE_INPUT) {
-        // 自由入力の場合、入力を解除する
-        $("#enemy_save").show();
-        $(".enemy_input").attr("readonly", false);
-        $("#enemy_list").addClass("short");
-    } else {
-        $("#enemy_save").hide();
-        $(".enemy_input").attr("readonly", true);
-        $("#enemy_list").removeClass("short");
-    }
+    // if (enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
+    //     $(".randam_card").show();
+    // } else {
+    //     $(".randam_card").hide();
+    // }
+    // if (enemy_class == ENEMY_CLASS_FREE_INPUT) {
+    //     // 自由入力の場合、入力を解除する
+    //     $("#enemy_save").show();
+    //     $(".enemy_input").attr("readonly", false);
+    //     $("#enemy_list").addClass("short");
+    // } else {
+    //     $("#enemy_save").hide();
+    //     $(".enemy_input").attr("readonly", true);
+    //     $("#enemy_list").removeClass("short");
+    // }
     // 既存のメンバーの情報を削除
     for (let i = 0; i < 6; i++) {
         removeSubMember(i);
@@ -2709,35 +2593,6 @@ function updateSeraphEncounter() {
     //     setEnemyElement(`#enemy_element_${i}`, enemy_info[`element_${i}`] - resist[i]);
     // }
 }
-
-// スコアアタック表示
-// function displayScoreAttack(enemy_info) {
-//     for (let i = 1; i <= 3; i++) {
-//         let grade_info = grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == i);
-//         if (grade_info.length == 0) {
-//             $("#label_half_tab_" + i).hide();
-//             continue;
-//         } else {
-//             $("#label_half_tab_" + i).show();
-//         }
-//         $("#half_content_" + i).html("");
-//         grade_info.forEach(value => {
-//             let id = "half_" + i + "_grade" + value.grade_no;
-//             let div = $("<div>");
-//             let input = $("<input>").attr("type", "checkbox")
-//                 .attr("id", id)
-//                 .data("grade_no", value.grade_no)
-//                 .addClass("half_check")
-//                 .addClass("half_tab_" + i);
-//             let label = $("<label>").attr("for", id)
-//                 .addClass("checkbox01")
-//                 .text(value.grade_name + "(グレード:" + value.grade_rate + ")");
-//             div.append(input);
-//             div.append(label);
-//             $("#half_content_" + i).append(div);
-//         });
-//     }
-// }
 
 // スコア設定
 function calcScore(detail, grade_magn) {

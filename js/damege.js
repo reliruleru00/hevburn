@@ -617,6 +617,7 @@ function calcDamage() {
     let misfortune = $("#misfortune").prop("checked") ? 20 : 0;
     // ハッキング
     let hacking = $("#hacking").prop("checked") ? 100 : 0;
+
     // 士気
     let morale = Number($("#morale_count").val()) * 5;
     // 夢の泪
@@ -2931,9 +2932,39 @@ function getStatUp(member_info) {
     if ($("#enemy_class").val() == ENEMY_CLASS_CONTROL_BATTLE) {
         all_status_up = Number($("#all_status_up").val());
     }
+    // スコアタボーナス
+    let score_bonus = 0;
+    if ($("#enemy_class").val() == ENEMY_CLASS_SCORE_ATTACK) {
+        score_bonus = getScoreAttackBonus("STAT_UP", member_info);
+    }
     // パッシブ(能力固定上昇)
     let passive_status_up = getSumAbilityEffectSize(25, member_info.is_select, member_info.style_info.chara_id);
-    return morale + tears_of_dreams + all_status_up + passive_status_up;
+    return morale + tears_of_dreams + all_status_up + score_bonus + passive_status_up;
+}
+
+// スコアタボーナス取得
+function getScoreAttackBonus(kind, member_info) {
+    let element = member_info.style_info.element;
+    let element2 = member_info.style_info.element2;
+    let physical = getCharaData(member_info.style_info.chara_id).physical;
+    let enemy_info = getEnemyInfo();
+    let effect_sum = 0;
+    bonus_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.effect_kind == kind).forEach((obj) => {
+        let conditions = obj.conditions.split("_");
+        switch (conditions[0]) {
+            case "element":
+                if (conditions[1] == element || conditions[1] == element2) {
+                    effect_sum += obj.effect_size;
+                }
+                break;
+            case "physical":
+                if (conditions[1] == physical) {
+                    effect_sum += obj.effect_size;
+                }
+                break;
+        }
+    })
+    return effect_sum;
 }
 
 // DPゲージ設定

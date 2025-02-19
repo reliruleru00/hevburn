@@ -1432,10 +1432,6 @@ function getSpCost(turn_data, skill_info, unit) {
     if (ZeroSpSkill(turn_data, skill_info, unit)) {
         sp_cost = 0;
     }
-    // SP全消費
-    if (sp_cost == 99) {
-        sp_cost = unit.sp + unit.over_drive_sp;
-    }
     // 追加ターン
     if (turn_data.additional_turn) {
         // クイックリキャスト
@@ -1474,6 +1470,11 @@ function getSpCost(turn_data, skill_info, unit) {
         const count = unit.use_skill_list.filter(value => value === 578).length;
         sp_cost = 8 + 4 * count;
         sp_cost = sp_cost > 20 ? 20 : sp_cost;
+    }
+    // SP全消費
+    if (sp_cost == 99) {
+        sp_cost = unit.sp + unit.over_drive_sp;
+        sp_cost_down = 0;
     }
     sp_cost -= sp_cost_down;
     return sp_cost < 0 ? 0 : sp_cost;

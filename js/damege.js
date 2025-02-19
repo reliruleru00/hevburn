@@ -47,8 +47,8 @@ function setEventTrigger() {
         }
         select_attack_skill = attack_info;
         let max_lv = attack_info.max_lv;
-        let chara_no = $(this).find("option:selected").data("chara_no");
-        let member_info = select_style_list[chara_no];
+        let chara_id = $(this).find("option:selected").data("chara_id");
+        let member_info = getCharaIdToMember(chara_id);
         let chara_id_class = "chara_id-" + attack_info.chara_id;
         let style_id_class = "style_id-" + attack_info.style_id;
         let attack_id_class = "attack_id-" + attack_info.attack_id;
@@ -99,10 +99,10 @@ function setEventTrigger() {
 
         $("input[type=checkbox].ability").each(function (index, value) {
             let ability_id = $(value).data("ability_id");
-            let chara_no = $(value).data("chara_no");
+            let chara_id = $(value).data("chara_id");
             let ability_info = getAbilityInfo(ability_id);
             let limit_border = Number($(value).data("limit_border"));
-            let member_info = chara_no < 10 ? select_style_list[chara_no] : sub_style_list[chara_no - 10];
+            let member_info = getCharaIdToMember(chara_id)
             setAbilityCheck(value, ability_info, limit_border, member_info.limit_count, chara_id_class);
         });
 
@@ -200,8 +200,7 @@ function setEventTrigger() {
     $(".lv_effect").on("change", function (event) {
         let buff_type_id = $(this).attr("id").replace("_lv", "");
         let option = $("#" + buff_type_id + " option:selected");
-        let chara_no = Number(option.data("chara_no"));
-        let chara_id = chara_no < 10 ? select_style_list[chara_no].style_info.chara_id : sub_style_list[chara_no - 10].style_info.chara_id;
+        let chara_id = Number(option.data("chara_id"));
         let buff_id = Number(option.val());
         let skill_lv = $(this).prop("selectedIndex") + 1;
         // バフ効果量更新
@@ -607,9 +606,8 @@ function calcDamage() {
     // グレード
     let grade_sum = getGradeSum();
     // メンバー
-    let chara_no = $("#attack_list option:selected").data("chara_no");
-    let member_info = select_style_list[chara_no];
-    let chara_id = member_info.style_info.chara_id;
+    let chara_id = $("#attack_list option:selected").data("chara_id");
+    let member_info = getCharaIdToMember(chara_id);
 
     // 闘志
     let fightingspirit = $("#fightingspirit").prop("checked") ? 20 : 0;
@@ -959,11 +957,10 @@ function updateFieldEffectSize(chara_id_class, strengthen) {
 function updateBuffEffectSize(option, skill_lv) {
     let buff_id = Number(option.val());
     skill_lv = skill_lv || Number(option.data("select_lv"));
-    let chara_no = Number(option.data("chara_no"));
+    let chara_id = Number(option.data("chara_id"));
     let skill_buff = getBuffIdToBuff(buff_id);
-    let member_info = chara_no < 10 ? select_style_list[chara_no] : chara_no < 20 ? sub_style_list[chara_no - 10] : support_style_list[chara_no - 20];
+    let member_info = getCharaIdToMember(chara_id);
     let effect_size = getEffectSize(skill_buff.buff_kind, buff_id, member_info, skill_lv);
-    let chara_id = member_info.style_info.chara_id;
     let chara_name = getCharaData(chara_id).chara_short_name;
     let ability_streng = getStrengthen(member_info, skill_buff);
     // バフ強化1.2倍
@@ -1159,7 +1156,7 @@ function addAttackList(member_info) {
             .text(`${value.attack_name}(${value.hit_count}Hit)`)
             .val(value.attack_id)
             .css("display", display)
-            .data("chara_no", member_info.chara_no)
+            .data("chara_id", value.chara_id)
             .addClass("skill_kind-" + kind)
             .addClass("chara_id-" + value.chara_id);
         $("#attack_list").append(option);
@@ -1431,7 +1428,6 @@ function addBuffList(member_info, member_kind) {
             .val(value.buff_id)
             .data("select_lv", value.max_lv)
             .data("max_lv", value.max_lv)
-            .data("chara_no", member_info.chara_no)
             .data("skill_id", value.skill_id)
             .data("chara_id", chara_id)
             .css("display", "none")
@@ -1471,7 +1467,6 @@ function addElementField(member_info, field_name, effect_size, field_element, bu
     let option = $('<option>')
         .text(option_text)
         .data("effect_size", effect_size)
-        .data("chara_no", member_info.chara_no)
         .data("chara_id", chara_id)
         .data("skill_id", skill_id)
         .val(buff_id)
@@ -1571,7 +1566,6 @@ function addAbility(member_info) {
             .data("limit_border", limit_border)
             .data("ability_id", ability_id)
             .data("chara_id", chara_id)
-            .data("chara_no", member_info.chara_no)
             .addClass("ability_element-" + ability_info.element)
             .addClass("ability")
             .addClass(chara_id_class);
@@ -1760,7 +1754,6 @@ function addPassive(member_info) {
         let input = $('<input>').attr("type", "checkbox").attr("id", id)
             .data("effect_size", effect_size)
             .data("skill_id", skill_id)
-            .data("chara_no", member_info.chara_no)
             .addClass("passive")
             .addClass(add_check_class)
             .addClass(chara_id_class);
@@ -2316,6 +2309,23 @@ function getPassiveInfo(skill_id) {
     return filtered_passive.length > 0 ? filtered_passive[0] : undefined;
 }
 
+// キャラIDからメンバー情報取得
+function getCharaIdToMember(chara_id) {
+    const filtered_member = (style_list) =>  {
+        const filter_list = style_list.filter((obj) => obj?.style_info?.chara_id == chara_id);
+        return  filter_list.length > 0 ? filter_list[0] : undefined;
+    }
+    let member;
+    member = filtered_member(select_style_list)
+    if (!member) {
+        member = filtered_member(sub_style_list)
+    }
+    if (!member) {
+        member = filtered_member(support_style_list)
+    }
+    return member;
+}
+
 // 敵リスト作成
 function createEnemyList(enemy_class) {
     // $("#enemy_list").empty();
@@ -2726,12 +2736,12 @@ function sortEffectSize(selecter) {
 // 攻撃情報取得
 function getAttackInfo() {
     const attack_id = Number($("#attack_list option:selected").val());
-    const chara_no = Number($("#attack_list option:selected").data("chara_no"));
+    const chara_id = Number($("#attack_list option:selected").data("chara_id"));
     const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
     let attack_info = filtered_attack.length > 0 ? filtered_attack[0] : undefined;
     if (attack_info) {
         attack_info.attack_physical = getCharaData(attack_info.chara_id).physical;
-        let member_info = select_style_list[chara_no];
+        let member_info = getCharaIdToMember(chara_id);
         attack_info.style_element = member_info.style_info.element;
         attack_info.style_element2 = member_info.style_info.element2;
     }

@@ -869,6 +869,11 @@ function getChainEffectSize(type) {
 // 消費SP計算
 function getSpCost() {
     chara_sp_list = {};
+    let sp_cost_down = 0;
+    // 蒼天
+    if ($("#ability_all72").prop("checked")) {
+        sp_cost_down = 1;
+    }
     // SP消費量計算
     for (let i = 0; i < select_style_list.length; i++) {
         if (select_style_list[i] === undefined) {
@@ -904,7 +909,7 @@ function getSpCost() {
                 if (key == "skill_id") {
                     return true;
                 } else if (key == "sp_cost") {
-                    single_sp_cost = Number(data);
+                    single_sp_cost = Number(data) - sp_cost_down;
                     return true;
                 }
                 if (max_count < Number(data)) {
@@ -975,6 +980,12 @@ function updateBuffEffectSize(option, skill_lv) {
 
 // バフ強化効果量取得
 function getStrengthen(member_info, skill_buff) {
+    let sp_cost_down = 0;
+    // 蒼天
+    if ($("#ability_all72").prop("checked")) {
+        sp_cost_down = 1;
+    }
+
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
     let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
@@ -1011,7 +1022,7 @@ function getStrengthen(member_info, skill_buff) {
             strengthen += 10;
         }
         // モロイウオ
-        if (ability_list.includes(506) && $("#ability_all243").prop("checked") && skill_buff.sp_cost <= 8) {
+        if (ability_list.includes(506) && $("#ability_all243").prop("checked") && (skill_buff.sp_cost - sp_cost_down) <= 8) {
             strengthen += 30;
         }
         // 王の眼差し
@@ -2212,6 +2223,10 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     let activation_none_effect_size = 0;
     let activation_physical_effect_size = 0;
     let activation_element_effect_size = 0;
+    let sp_cost_down = 0;
+    if ($("#ability_all72").prop("checked")) {
+        sp_cost_down = 1;
+    }
     $("input[type=checkbox].ability:checked").each(function (index, value) {
         if ($(value).parent().css("display") === "none") {
             return true;
@@ -2220,7 +2235,7 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
         if (ability_id == 602) {
             // キレアジ
             let attack_info = getAttackInfo();
-            if (attack_info.sp_cost > 8) {
+            if (attack_info.sp_cost - sp_cost_down > 8) {
                 return true;
             }
         }

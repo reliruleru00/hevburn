@@ -1248,7 +1248,7 @@ function startAction(turn_data) {
         }
 
         // EXスキル使用
-        if (skill_info.skill_kind == 1 || skill_info.skill_kind == 2) {
+        if (skill_info.skill_kind == KIND_EX_GENERATE || skill_info.skill_kind == KIND_EX_EXCLUSIVE) {
             // アビリティ
             unit_data.abilityAction(turn_data, ABILIRY_EX_SKILL_USE);
             // EXスキル連続使用
@@ -1390,7 +1390,7 @@ const getOverDrive = (turn) => {
                 unit_od_plus += attack_info.hit_count * hit_od * enemy_target;
                 unit_od_plus += funnel_list.length * hit_od * enemy_target;
                 // EXスキル連続使用
-                if (checkBuffExist(unit_data.buff_list, BUFF_EX_DOUBLE)) {
+                if (checkBuffExist(unit_data.buff_list, BUFF_EX_DOUBLE) && (skill_info.skill_kind == KIND_EX_GENERATE || skill_info.skill_kind == KIND_EX_EXCLUSIVE)) {
                     buff_list.forEach(function (buff_info) {
                         // 連撃のみ処理
                         if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind)) {

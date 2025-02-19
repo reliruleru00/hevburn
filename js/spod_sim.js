@@ -217,8 +217,10 @@ class turn_data {
         this.add_over_drive_gauge = 0;
 
         let sp_list = [0, 5, 12, 20];
+        let self = this;
         this.unitLoop(function (unit) {
             unit.over_drive_sp = sp_list[over_drive_level];
+            unit.sp_cost = getSpCost(self, getSkillData(unit.select_skill_id), unit);
         });
         this.abilityAction(ABILIRY_OD_START);
         this.trigger_over_drive = true;
@@ -229,8 +231,10 @@ class turn_data {
         this.over_drive_gauge = this.start_over_drive_gauge;
         this.add_over_drive_gauge = 0;
 
+        let self = this;
         this.unitLoop(function (unit) {
             unit.over_drive_sp = 0;
+            unit.sp_cost = getSpCost(self, getSkillData(unit.select_skill_id), unit);
         });
         this.trigger_over_drive = false;
     }
@@ -415,16 +419,11 @@ class unit_data {
         });
     }
     payCost() {
-        if (this.sp_cost >= 90) {
-            this.sp = 0;
-            this.over_drive_sp = 0;
-        } else {
-            // OD上限突破
-            if (this.sp + this.over_drive_sp > 99) {
-                this.sp = 99 - this.over_drive_sp;
-            }
-            this.sp -= this.sp_cost;
+        // OD上限突破
+        if (this.sp + this.over_drive_sp > 99) {
+            this.sp = 99 - this.over_drive_sp;
         }
+        this.sp -= this.sp_cost;
         this.sp_cost = 0;
     }
 
@@ -1432,6 +1431,10 @@ function getSpCost(turn_data, skill_info, unit) {
     }
     if (ZeroSpSkill(turn_data, skill_info, unit)) {
         sp_cost = 0;
+    }
+    // SP全消費
+    if (sp_cost == 99) {
+        sp_cost = unit.sp + unit.over_drive_sp;
     }
     // 追加ターン
     if (turn_data.additional_turn) {

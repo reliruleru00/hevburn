@@ -1924,7 +1924,7 @@ function setAloneActivation(option) {
     }
 }
 
-// 単独発動判定バフ
+// 単独発動判定
 function isAloneActivation(buff_info) {
     if (ALONE_ACTIVATION_BUFF_KIND.includes(buff_info.buff_kind)) {
         return buff_info.effect_count > 0;

@@ -314,6 +314,7 @@ class unit_data {
     constructor() {
         this.place_no = 99;
         this.sp = 1;
+        this.ep = 0;
         this.over_drive_sp = 0;
         this.add_sp = 0;
         this.sp_cost = 0;
@@ -646,6 +647,12 @@ class unit_data {
                             }
                         }
                     });
+                    break;
+                case EFFECT_HEALEP: // EP回復
+                   self.ep += ability.effect_size;
+                    if (self.ep > 10) {
+                        self.ep = 10
+                    }
                     break;
                 case EFFECT_MORALE: // 士気
                     $.each(target_list, function (index, target_no) {

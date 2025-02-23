@@ -1,7 +1,16 @@
 let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
 // 使用不可スタイル
-const NOT_USE_STYLE = [36, 150, 152, 154];
+const NOT_USE_STYLE = [36];
+// 制限アビリティ
+const CONSTRAINTS_ABILITY = [
+    1136, // 勝勢
+    1138, // ラストリゾート
+    1505, // 激動
+    1509, // 怪盗乱麻
+    1523, // アンコール
+    1525, // ポジショニング
+];
 // 謎の処理順序
 const ACTION_ORDER = [1, 0, 2, 3, 4, 5];
 // 残ターン消費バフ
@@ -16,6 +25,7 @@ let physical_name = ["", "斬", "突", "打"];
 let element_name = ["無", "火", "氷", "雷", "光", "闇"];
 let user_operation_list = [];
 let seq_last_turn = 0;
+let constraints_list = [];
 
 const KB_NEXT_ACTION = 1;
 const KB_NEXT_ACTION_OD = 2;
@@ -392,7 +402,7 @@ class unit_data {
         for (let i = this.buff_list.length - 1; i >= 0; i--) {
             let buff_info = this.buff_list[i];
             // ターン消費バフ
-            if (REST_TURN_COST_BUFF.includes(buff_info.skill_id)) {
+            if (isAloneActivation(buff_info)) {
                 if (buff_info.rest_turn == 1) {
                     this.buff_list.splice(i, 1);
                 } else {
@@ -555,7 +565,10 @@ class unit_data {
                         return;
                     }
                     break;
-
+                case "破壊率が200%以上":
+                case "トークン4つ以上":
+                case "敵のバフ解除":
+                    return;
             }
             switch (ability.effect_type) {
                 case EFFECT_FUNNEL: // 連撃数アップ
@@ -723,6 +736,8 @@ function procBattleStart() {
     let turn_init = getInitBattleData();
     // バトルエリアリフレッシュ
     startBattle();
+    // 制約事項更新
+    updateConstraints();
     // ターンを進める
     proceedTurn(turn_init, true);
 }
@@ -746,6 +761,7 @@ function getInitBattleData() {
     // 初期データ作成
     let turn_init = new turn_data();
     let unit_list = [];
+    constraints_list = [];
 
     let init_sp_add = Number($("#init_sp_add").val());
     // スタイル情報を作成
@@ -792,6 +808,9 @@ function getInitBattleData() {
             ["0", "00", "1", "3", "5", "10"].forEach(num => {
                 if (member_info.style_info[`ability${num}`] && num <= member_info.limit_count) {
                     let ability_info = getAbilityInfo(member_info.style_info[`ability${num}`]);
+                    if (CONSTRAINTS_ABILITY.includes(ability_info.ability_id)) {
+                        constraints_list.push(ability_info.ability_id);
+                    }
                     switch (ability_info.activation_timing) {
                         case ABILIRY_BATTLE_START: // 戦闘開始時
                             unit.ability_battle_start.push(ability_info);

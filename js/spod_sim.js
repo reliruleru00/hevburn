@@ -434,7 +434,12 @@ class unit_data {
         if (this.sp + this.over_drive_sp > 99) {
             this.sp = 99 - this.over_drive_sp;
         }
-        this.sp -= this.sp_cost;
+        if (this.select_skill_id == 591) {
+            // ノヴァエリミネーション
+            this.ep -= this.sp_cost;
+        } else {
+            this.sp -= this.sp_cost;
+        }
         this.sp_cost = 0;
     }
 

@@ -105,6 +105,7 @@ const RANGE_SELF = 7; // 自分
 const RANGE_SELF_OTHER = 8; // 自分以外
 const RANGE_SELF_AND_UNIT = 9; // 自分と味方単体
 const RANGE_FRONT_OTHER = 10; // 自分以外の前衛
+const RANGE_OTHER_UNIT = 11; // 自分以外の味方単体
 const RANGE_31C_MEMBER = 33; // 31Cメンバー
 const RANGE_31E_MEMBER = 35; // 31Eメンバー
 const RANGE_MARUYAMA_MEMBER = 41; // 丸山部隊

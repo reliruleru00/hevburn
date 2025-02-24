@@ -2027,6 +2027,7 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
         case RANGE_ENEMY_ALL: // 敵全体
             break;
         case RANGE_ALLY_UNIT: // 味方単体
+        case RANGE_OTHER_UNIT: // 自分以外の味方単体
             target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === buff_target_chara_id);
             target_list.push(target_unit_data[0].place_no);
             break;

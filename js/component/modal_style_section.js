@@ -168,7 +168,7 @@ const StyleSelectComponent = () => {
                     />)
                 })}
                 <div>
-                    <div className="text-center">
+                    <div className="text-sm text-center mt-1">
                         <label>バフの対象：</label>
                         <label className="radio_label ml-0.5">
                             <input type="radio" name="target" value="all" checked={narrowStyle.target == "self"}
@@ -188,19 +188,19 @@ const StyleSelectComponent = () => {
                     </div>
                     <div className="text-sm">
                         <select className="narrow_buff" onChange={(e) => chengeBuff(Number(e.target.value), 1)} value={narrowStyle.buff_1}>
-                            <option value="-1"></option>
+                            <option value="-1">未設定</option>
                             {BUFF_LIST.map(([key, value]) => (
                                 <option key={`buff1_${key}`} value={key}>{value}</option>
                             ))}
                         </select>
                         <select className="narrow_buff" onChange={(e) => chengeBuff(Number(e.target.value), 2)} value={narrowStyle.buff_2}>
-                            <option value="-1"></option>
+                            <option value="-1">未設定</option>
                             {BUFF_LIST.map(([key, value]) => (
                                 <option key={`buff2_${key}`} value={key}>{value}</option>
                             ))}
                         </select>
                         <select className="narrow_buff" onChange={(e) => chengeBuff(Number(e.target.value), 3)} value={narrowStyle.buff_3}>
-                            <option value="-1"></option>
+                            <option value="-1">未設定</option>
                             {BUFF_LIST.map(([key, value]) => (
                                 <option key={`buff3_${key}`} value={key}>{value}</option>
                             ))}

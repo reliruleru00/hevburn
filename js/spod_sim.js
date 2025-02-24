@@ -654,7 +654,7 @@ class unit_data {
                     });
                     break;
                 case EFFECT_HEALEP: // EP回復
-                   self.ep += ability.effect_size;
+                    self.ep += ability.effect_size;
                     if (self.ep > 10) {
                         self.ep = 10
                     }
@@ -2061,6 +2061,9 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             break;
         case CHARA_ID_MARUYAMA: // 丸山部隊メンバー
             target_list = getTargetPlaceList(turn_data.unit_list, CHARA_ID_MARUYAMA);
+            break;
+        case RANGE_RUKA_SHARO: // 月歌とシャロ
+            target_list = getTargetPlaceList(turn_data.unit_list, CHARA_ID_RUKA_SHARO);
             break;
         default:
             break;

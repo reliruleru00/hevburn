@@ -141,9 +141,6 @@ const BattleAreaComponent = () => {
                         className={"modal-content modal-narrwow " + (modal.isOpen ? "modal-content-open" : "")}
                         overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
                     >
-                        <div>
-                            <label className="modal_label">データ選択</label>
-                        </div>
                         <SaveLoadComponent mode={modal.mode} handleClose={closeModal} />
                     </ReactModal>
                     : null

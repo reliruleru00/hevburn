@@ -467,6 +467,7 @@ img.select_style {
     margin-top: -56px;
     text-align: right;
     pointer-events: none;
+    white-space: nowrap;
 }
 
 .unit_sp.minus {

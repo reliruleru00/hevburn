@@ -1043,7 +1043,7 @@ const reflectUserOperation = (turn_data, isLoadMode) => {
         if (turn_data.additional_turn) {
             if (!isLoadMode) {
                 if (operation_place_no != unit.place_no) {
-                    turn_data.user_operation.select_skill[unit.place_no].skill_id = unit.init_skill_id;
+                    turn_data.user_operation.select_skill[unit.place_no].skill_id = unit.place_no < 3 ? unit.init_skill_id : SKILL_NONE;
                     turn_data.user_operation.place_style[unit.place_no] = unit.style.style_info.style_id;
                 }
                 return;

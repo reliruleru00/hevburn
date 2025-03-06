@@ -76,6 +76,7 @@ const EFFECT_STATUSUP_VALUE = 25; // 能力上昇(固定)
 const EFFECT_STATUSUP_RATE = 26; // 能力上昇(%)
 const EFFECT_FIELD_STRENGTHEN = 27; // フィールド強化
 const EFFECT_BUFF_STRENGTHEN = 28; // バフ強化
+const EFFECT_ADDITIONALTURN = 29; // 追加ターン
 const EFFECT_TOKEN_UP = 30; // トークンアップ
 const EFFECT_TOKEN_ATTACKUP = 31; // トークン1つにつき攻撃力アップ
 const EFFECT_TOKEN_DEFFENCEUP = 32; // トークン1つにつき防御力アップ

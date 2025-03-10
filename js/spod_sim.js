@@ -1792,8 +1792,8 @@ function skillHealSp(turn_data, target_no, add_sp, limit_sp, use_place_no, is_re
     let unit_data = getUnitData(turn_data, target_no);
     let unit_sp = unit_data.sp;
     let minus_sp = 0;
-    // クレール・ド・リュンヌ(＋)は消費SPを加味する。
-    if (buff_id == 120 || buff_id == 121) {
+    // クレール・ド・リュンヌ(＋)、収穫祭+は消費SPを加味する。
+    if (buff_id == 120 || buff_id == 121 || buff_id == 229) {
         minus_sp = unit_data.sp_cost;
     }
     unit_sp += add_sp;

@@ -1,4 +1,4 @@
-const SaveLoadComponent = ({ mode, handleClose }) => {
+const ModalSaveLoad = ({ mode, handleClose }) => {
     const NONE = "無し"
 
     const handleClick = (i, name) => {
@@ -153,7 +153,7 @@ const SaveLoadComponent = ({ mode, handleClose }) => {
     }
 
     return (
-        <>
+        <div className="p-6">
             <div>
                 <label className="modal_label">データ選択</label>
             </div>
@@ -175,6 +175,6 @@ const SaveLoadComponent = ({ mode, handleClose }) => {
                     <input type="button" className="text-sm w-[120px]" onClick={chickRead} value="ファイルから読み込み" />
                 }
             </div>
-        </>
+        </div>
     );
 };

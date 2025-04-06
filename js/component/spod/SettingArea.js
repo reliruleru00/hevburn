@@ -198,7 +198,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
 
     turn_init.enemy_count = Number($("#enemy_select_count").val());;
     turn_init.unit_list = unit_list;
-
+    turn_init.enemy_info = getEnemyInfo()
     // 戦闘開始アビリティ
     abilityAction(ABILIRY_BATTLE_START, turn_init);
     setUserOperation(turn_init);
@@ -206,7 +206,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     return turn_init;
 }
 
-const SettingArea = ({ hideMode }) => {
+const SettingArea = ({ hideMode, dispatch }) => {
     // 敵選択
     let enemy_class = localStorage.getItem("enemy_class");
     enemy_class = enemy_class ? enemy_class : "1";
@@ -223,7 +223,6 @@ const SettingArea = ({ hideMode }) => {
     }
 
     const { styleList, setStyleList, saveMember } = useStyleList();
-    const { simProc, setSimProc } = useSimProc();
 
     // 戦闘開始前処理
     const startBattle = () => {
@@ -254,14 +253,14 @@ const SettingArea = ({ hideMode }) => {
         }
 
         /** 戦闘開始処理 */
-        // 戦闘データ初期化
-        cleanBattleData(simProc);
         // 初期データ作成
         let turn_init = getInitBattleData(styleList.selectStyleList, saveMember, detailSetting);
         // 制約事項更新
         updateConstraints();
-        // ターンを進める
-        proceedTurn(setSimProc, simProc, turn_init, true);
+        // 初期処理
+        initTurn(turn_init, true);
+        let turn_list = [turn_init];
+        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list});
     };
 
     const [modalIsOpen, setModalIsOpen] = React.useState(false);

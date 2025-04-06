@@ -389,7 +389,7 @@ function startAction(turn_data) {
         }
 
         if (attack_info) {
-            consumeBuffUnit(unit_data, attack_info, skill_info);
+            consumeBuffUnit(turn_data, unit_data, attack_info, skill_info);
         }
 
         // EXスキル使用
@@ -405,7 +405,7 @@ function startAction(turn_data) {
                     }
                 }
                 if (attack_info) {
-                    consumeBuffUnit(unit_data, attack_info, skill_info);
+                    consumeBuffUnit(turn_data, unit_data, attack_info, skill_info);
                 }
                 unit_data.buff_list = unit_data.buff_list.filter(obj => obj.buff_kind !== BUFF_EX_DOUBLE);
             }
@@ -434,9 +434,9 @@ function startAction(turn_data) {
 }
 
 // 耐性判定
-function isResist(physical, element, attack_id) {
-    let physical_rate = battle_enemy_info[`physical_${physical}`];
-    let element_rate = battle_enemy_info[`element_${element}`];
+function isResist(enemy_info, physical, element, attack_id) {
+    let physical_rate = enemy_info[`physical_${physical}`];
+    let element_rate = enemy_info[`element_${element}`];
     if (PENETRATION_ATTACK_LIST.includes(attack_id)) {
         physical_rate = 400;
         element_rate = 100;
@@ -445,12 +445,12 @@ function isResist(physical, element, attack_id) {
 }
 
 // 弱点判定
-function isWeak(physical, element, attack_id) {
+function isWeak(enemy_info, physical, element, attack_id) {
     if (PENETRATION_ATTACK_LIST.includes(attack_id)) {
         return true;
     }
-    let physical_rate = battle_enemy_info[`physical_${physical}`];
-    let element_rate = battle_enemy_info[`element_${element}`];
+    let physical_rate = enemy_info[`physical_${physical}`];
+    let element_rate = enemy_info[`element_${element}`];
     return physical_rate / 100 * element_rate / 100 > 1;
 }
 
@@ -510,15 +510,16 @@ const getOverDrive = (turn) => {
                 }
                 unit_od_plus += Math.floor(buff_info.max_power * correction * 100) / 100;
             }
-            // 連撃のみとオギャり状態処理
-            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind) || buff_info.buff_kind == BUFF_BABIED) {
+            // 連撃、オギャり状態、チャージ処理
+            const PROC_KIND = [BUFF_BABIED, BUFF_CHARGE];
+            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind) || PROC_KIND .includes(buff_info.buff_kind)) {
                 addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
             }
         });
         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
 
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
-            if (isResist(physical, unit_data.normal_attack_element, skill_info.attack_id)) {
+            if (isResist(turn.enemy_info, physical, unit_data.normal_attack_element, skill_info.attack_id)) {
                 correction = 1 + badies / 100;
                 let hit_od = Math.floor(2.5 * correction * 100) / 100;
                 let hit_count = 3;
@@ -528,7 +529,17 @@ const getOverDrive = (turn) => {
                 unit_od_plus += hit_od * hit_count;
             }
         } else if (skill_info.attack_id) {
-            if (isResist(physical, attack_info.attack_element, skill_info.attack_id)) {
+            // 攻撃IDの変換(暫定)
+            let attack_id = skill_info.attack_id
+            switch (skill_info.attack_id) {
+                case 83:
+                    // 唯雅粛正
+                    if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
+                        attack_id = 84;
+                    }
+                    break;
+            }
+            if (isResist(turn.enemy_info, physical, attack_info.attack_element, attack_id)) {
                 correction = 1 + (badies + earring) / 100;
                 let hit_od = Math.floor(2.5 * correction * 100) / 100;
                 let enemy_target = enemy_count;
@@ -564,7 +575,7 @@ const getOverDrive = (turn) => {
         // 追撃
         if (skill_id == 3) {
             let chara_data = getCharaData(unit_data.style.style_info.chara_id);
-            if (isResist(chara_data.physical, 0, 0)) {
+            if (isResist(turn.enemy_info, chara_data.physical, 0, 0)) {
                 od_plus += chara_data.pursuit * 2.5;
             }
         }
@@ -963,7 +974,7 @@ function isAloneActivation(buff_info) {
 }
 
 // 攻撃時にバフ消費
-function consumeBuffUnit(unit_data, attack_info, skill_info) {
+function consumeBuffUnit(turn_data, unit_data, attack_info, skill_info) {
     let consume_kind = [];
     let consume_count = 2
     if (skill_info.attack_id) {
@@ -1001,7 +1012,7 @@ function consumeBuffUnit(unit_data, attack_info, skill_info) {
                     if (buff_info.buff_kind == BUFF_MINDEYE) {
                         // 弱点のみ消費
                         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
-                        if (!isWeak(physical, attack_info.attack_element, attack_info.attack_id)) {
+                        if (!isWeak(turn_data.enemy_info, physical, attack_info.attack_element, attack_info.attack_id)) {
                             continue;
                         }
                     }

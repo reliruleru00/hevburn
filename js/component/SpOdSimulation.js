@@ -167,26 +167,64 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
 };
 const useStyleList = () => React.useContext(StyleListContext);
 
-const SimProcContext = React.createContext({
-    turn_list: [],
-    user_operation_list: [],
-    seq_last_turn: 0,
-});
-// Providerコンポーネントを作成
-const SimProcProvider = ({ children }) => {
-    const [simProc, setSimProc] = React.useState({
-        turn_list: [],
-        user_operation_list: [],
-        seq_last_turn: 0,
-    });
+// const SimProcContext = React.createContext({
+//     turn_list: [],
+//     user_operation_list: [],
+//     seq_last_turn: 0,
+// });
+// // Providerコンポーネントを作成
+// const SimProcProvider = ({ children }) => {
+//     const [simProc, setSimProc] = React.useState({
+//         turn_list: [],
+//         user_operation_list: [],
+//         seq_last_turn: 0,
+//     });
 
-    return (
-        <SimProcContext.Provider value={{ simProc, setSimProc }}>
-            {children}
-        </SimProcContext.Provider>
-    );
+//     return (
+//         <SimProcContext.Provider value={{ simProc, setSimProc }}>
+//             {children}
+//         </SimProcContext.Provider>
+//     );
+// };
+// const useSimProc = () => React.useContext(SimProcContext);
+
+
+// リスト更新用のReducer
+const reducer = (state, action) => {
+    switch (action.type) {
+        case "INIT_TURN_LIST":
+            return { ...state, turn_list: action.turn_list };
+
+        case "ADD_TURN_LIST":
+            return { ...state, turn_list: [...state.turn_list, action.payload] };
+
+        case "ADD_AND_UPDATE": {
+            // 最終ターンの追加
+            state.turn_list.push(action.turn_data);
+            // return { ...state, turn_list: state.turn_list };
+            return state;
+        }
+        case "UPDATE_FROM_INDEX":
+            return {
+                ...state,
+                turn_list: state.turn_list.map((turn, index) =>
+                    index >= action.index ? { ...turn, updated: true } : turn
+                ),
+            };
+
+        case "UPDATE_ONE_ITEM": {
+            const newState = [...state];
+            newState[action.payload.index] = {
+                ...newState[action.payload.index],
+                updated: true, // 指定インデックスのみ更新
+            };
+            return newState;
+        }
+
+        default:
+            return state;
+    }
 };
-const useSimProc = () => React.useContext(SimProcContext);
 
 const SpOdSimulation = () => {
     // モーダル
@@ -200,15 +238,19 @@ const SpOdSimulation = () => {
 
     const [hideMode, setHideMode] = React.useState(false);
 
+    const [simProc, dispatch] = React.useReducer(reducer, {
+        turn_list: [],
+        seq_last_turn: 0,
+        enemy_info: {}
+    });
+
     return (
-        <SimProcProvider>
-            <StyleListProvider selectStyleList={selectStyleList} selectTroops={selectTroops}>
-                <div className="frame w-screen pt-3 overflow-y-scroll border-b">
-                    <SettingArea hideMode={hideMode} />
-                    <BattleArea hideMode={hideMode} setHideMode={setHideMode} />
-                </div>
-            </StyleListProvider>
-        </SimProcProvider>
+        <StyleListProvider selectStyleList={selectStyleList} selectTroops={selectTroops}>
+            <div className="frame w-screen pt-3 overflow-y-scroll border-b">
+                <SettingArea hideMode={hideMode} dispatch={dispatch} />
+                <BattleArea hideMode={hideMode} setHideMode={setHideMode} simProc={simProc} dispatch={dispatch} />
+            </div>
+        </StyleListProvider>
     );
 }
 

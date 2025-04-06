@@ -1,10 +1,8 @@
-const TurnData = React.memo(({ turn, index, is_last_turn, hideMode, isCapturing }) => {
+const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = React.useRef(false);
     const [turnData, setTurnData] = React.useState({
         user_operation: turn.user_operation
     });
-
-    const { simProc, setSimProc } = useSimProc();
 
     // 再描画
     const reRender = (user_operation, is_next_influence) => {
@@ -187,13 +185,13 @@ const TurnData = React.memo(({ turn, index, is_last_turn, hideMode, isCapturing 
         turn.is_last_turn = false;
         let turn_data = deepClone(turn);
         turn_data.is_last_turn = true;
-        startAction(turn_data, simProc.seq_last_turn);
-        // 次ターンを追加
-        proceedTurn(setSimProc, simProc, turn_data, true);
+        startAction(turn_data, seq_last_turn);
+        // // ターン開始処理
+        handlers.proceedTurn(turn_data, true);
     };
 
     React.useEffect(() => {
-        if (simProc.seq_last_turn !== index && isNextInfluence.current) {
+        if (seq_last_turn !== index && isNextInfluence.current) {
             // 最終ターンの情報
             const last_turn_operation = simProc.turn_list[simProc.seq_last_turn].user_operation;
 
@@ -299,10 +297,10 @@ const TurnData = React.memo(({ turn, index, is_last_turn, hideMode, isCapturing 
                             {turn.start_over_drive_gauge >= 100 && !turn.additional_turn && (turn.over_drive_number == 0 || turn.trigger_over_drive) ?
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
-                            {is_last_turn ?
+                            {seq_last_turn == index ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
-                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => returnTurn(simProc, turn.seq_turn)} />
+                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => handlers.returnTurn(turn.seq_turn)} />
                             }
                         </div>
                     </div>

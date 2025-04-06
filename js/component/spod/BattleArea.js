@@ -593,34 +593,15 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
 /** UnitDataここまで */
 
 // 戦闘データ初期化
-function cleanBattleData(simProc) {
+function cleanBattleData() {
     // 初期化
-    simProc.turn_list = [];
-    simProc.user_operation_list = [],
-        battle_enemy_info = getEnemyInfo();
+    battle_enemy_info = getEnemyInfo();
     for (let i = 1; i <= 3; i++) {
         battle_enemy_info[`physical_${i}`] = Number($(`#enemy_physical_${i}`).val());
     }
     for (let i = 0; i <= 5; i++) {
         battle_enemy_info[`element_${i}`] = Number($(`#enemy_element_${i}`).val());
     }
-}
-
-// ターンを進める
-function proceedTurn(setSimProc, simProc, turn_data, isInitTurn) {
-    // ターン開始処理
-    initTurn(turn_data, isInitTurn);
-
-    const updatedSimProc = { ...simProc };
-    updatedSimProc.turn_list.push(turn_data);
-    updatedSimProc.seq_last_turn = simProc.turn_list.length - 1;
-
-    if (isInitTurn) {
-        updatedSimProc.user_operation_list.push(turn_data.user_operation);
-        // 画面反映
-        // setUpdatedTurnIndexList(seq_last_turn);
-    }
-    setSimProc(updatedSimProc);
 }
 
 // ターン初期処理
@@ -638,23 +619,13 @@ function initTurn(turn_data) {
     }
 }
 
-// ターンを戻す
-function returnTurn(simProc, seq_turn) {
-    // 指定されたnumber以上の要素を削除
-    simProc.turn_list = simProc.turn_list.slice(0, seq_turn + 1);
-    simProc.seq_last_turn = simProc.turn_list.length - 1;
-    simProc.user_operation_list = simProc.user_operation_list.slice(0, seq_turn + 1);
-}
-
-const BattleArea = ({ hideMode, setHideMode }) => {
+const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
     const [key, setKey] = React.useState(0);
 
     const [updatedTurnIndexList, setUpdatedTurnIndexList] = React.useState([]);
 
     const [isCapturing, setIsCapturing] = React.useState(false);  // キャプチャ中の状態を管理
     const elementRef = React.useRef(null); // キャプチャ対象の要素参照
-
-    const { simProc, setSimProc } = useSimProc();
 
     const clickDownload = async () => {
         if (!elementRef.current) return;
@@ -730,6 +701,32 @@ const BattleArea = ({ hideMode, setHideMode }) => {
         });
     };
 
+    // ターンを進める
+    function proceedTurn(turn_data, isInitTurn) {
+        // ターン開始処理
+        initTurn(turn_data, isInitTurn);
+
+        simProc.turn_list.push(turn_data);
+        simProc.seq_last_turn = simProc.turn_list.length - 1;
+        if (isInitTurn) {
+            // 画面反映
+            setUpdatedTurnIndexList(simProc.seq_last_turn);
+        }
+    }
+
+    // ターンを戻す
+    function returnTurn(seq_turn) {
+        // 指定されたnumber以上の要素を削除
+        simProc.turn_list = simProc.turn_list.slice(0, seq_turn + 1);
+        simProc.seq_last_turn = simProc.turn_list.length - 1;
+        // simProc.user_operation_list = simProc.user_operation_list.slice(0, seq_turn + 1);
+        // 画面反映
+        setUpdatedTurnIndexList(simProc.seq_last_turn);
+    }
+
+    // 引数のfuntionをまとめる
+    const handlers = { proceedTurn, returnTurn };
+
     const changeHideMode = (e) => {
         const hideMode = e.target.checked;
         setHideMode(hideMode);
@@ -763,7 +760,7 @@ const BattleArea = ({ hideMode, setHideMode }) => {
                     <div id="battle_display" className="text-left" ref={elementRef}>
                         {simProc.turn_list.map((turn, index) => {
                             return <TurnData turn={turn} index={index} key={`turn${index}-${key}`}
-                                is_last_turn={simProc.seq_last_turn == index} hideMode={hideMode} isCapturing={isCapturing} />
+                                seq_last_turn={simProc.turn_list.length - 1} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
                         })}
                     </div>
                 </div>

@@ -94,6 +94,18 @@ function checkMember(unit_list, troops) {
     return member_list.length;
 }
 
+
+// SPチェック
+function checkSp(turn_data, range_area, sp) {
+    let target_list = getTargetList(turn_data, range_area, null, null, null);
+    let exist_list = target_list.filter(function (target_no) {
+        let unit_data = getUnitData(turn_data, target_no);
+        return unit_data.sp < sp;
+    })
+    return exist_list.length > 0;
+}
+
+
 // スキルデータ更新
 const skillUpdate = (turn_data, skill_id, place_no) => {
     const unit = turn_data.unit_list.filter(unit => unit.place_no === place_no)[0];
@@ -334,7 +346,7 @@ function getBuffInfo(skill_id) {
 // アビリティ情報取得
 function getAbilityInfo(ability_id) {
     const filtered_ability = ability_list.filter((obj) => obj.ability_id == ability_id);
-    return filtered_ability.length > 0 ? filtered_ability[0] : undefined;
+    return filtered_ability.length > 0 ? JSON.parse(JSON.stringify(filtered_ability[0])) : undefined;
 }
 
 // パッシブ情報取得
@@ -463,6 +475,10 @@ function origin(turn_data, skill_info, unit_data) {
             let target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === unit_data.buff_target_chara_id);
             target_unit_data[0].next_turn_min_sp = 3;
             break;
+        case 617: // ドリーミー・ガーデン
+            let target_unit_list = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id !== unit_data.style.style_info.chara_id);
+            target_unit_list.forEach(unit => unit.next_turn_min_sp = 10);
+            break;
     }
     return;
 }
@@ -512,7 +528,7 @@ const getOverDrive = (turn) => {
             }
             // 連撃、オギャり状態、チャージ処理
             const PROC_KIND = [BUFF_BABIED, BUFF_CHARGE];
-            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind) || PROC_KIND .includes(buff_info.buff_kind)) {
+            if (BUFF_FUNNEL_LIST.includes(buff_info.buff_kind) || PROC_KIND.includes(buff_info.buff_kind)) {
                 addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
             }
         });
@@ -678,6 +694,7 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
         case CONDITIONS_PERCENTAGE_30: // 確率30%
         case CONDITIONS_DOWN_TURN: // ダウンターン
         case CONDITIONS_BUFF_DISPEL: // バフ解除
+        case CONDITIONS_DP_OVER_100: // DP100%以上
             return unit_data.buff_effect_select_type == 1;
         case CONDITIONS_OVER_DRIVE: // オーバードライブ中
             return turn_data.over_drive_max_turn > 0;
@@ -707,6 +724,8 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return !checkBuffExist(unit_data.buff_list, BUFF_DIVA_BLESS);
         case CONDITIONS_NOT_NEGATIVE: // ネガティブ以外
             return !checkBuffExist(unit_data.buff_list, BUFF_NAGATIVE);
+        case CONDITIONS_SP_UNDER_0_ALL: // SP0以下の味方がいる
+            return checkSp(turn_data, RANGE_ALLY_ALL, 0);
     }
     return true;
 }

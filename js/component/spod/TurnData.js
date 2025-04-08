@@ -72,6 +72,9 @@ const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing
         if (conditionsList.includes(CONDITIONS_BUFF_DISPEL) || skill_info.attribute_conditions == CONDITIONS_BUFF_DISPEL) {
             effect_type = 7;
         }
+        if (conditionsList.includes(CONDITIONS_DP_OVER_100) || skill_info.attribute_conditions == CONDITIONS_DP_OVER_100) {
+            effect_type = 8;
+        }
 
         switch (skill_id) {
             case 50: // トリック・カノン
@@ -220,7 +223,7 @@ const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing
         let sp_cost = unit.sp_cost;
         let skill_info = getSkillData(unit.select_skill_id);
 
-        const selectionConditions = [CONDITIONS_HAS_SHADOW, CONDITIONS_DOWN_TURN];
+        const selectionConditions = [CONDITIONS_HAS_SHADOW, CONDITIONS_DOWN_TURN, CONDITIONS_DP_OVER_100];
         if (selectionConditions.includes(skill_info.attribute_conditions)) {
             if (unit.buff_effect_select_type == 1) {
                 if (skill_info.skill_attribute == ATTRIBUTE_SP_HALF) {

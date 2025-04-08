@@ -1,7 +1,7 @@
 
 
 
-const ModalEffectSelection = ({ closeModal, onSelect, effectType}) => {
+const ModalEffectSelection = ({ closeModal, onSelect, effectType }) => {
 
     const setSelectEffect = (effect) => {
         onSelect(effect);
@@ -30,6 +30,9 @@ const ModalEffectSelection = ({ closeModal, onSelect, effectType}) => {
             break;
         case 7:
             value = ["バフ解除なし", "バフ解除あり"];
+            break;
+        case 8:
+            value = ["DP100%未満", "DP100%以上"];
             break;
     }
     return (

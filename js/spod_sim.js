@@ -360,13 +360,13 @@ function startAction(turn_data) {
     // 追加ターンフラグ削除
     if (turn_data.additional_turn) {
         turn_data.additional_turn = false;
-        turn_data.unitLoop(function (unit) {
+        unitLoop(function (unit) {
             if (unit.additional_turn) {
                 unit.additional_turn = false;
             } else {
                 unit.no_action = true;
             }
-        });
+        }, turn_data.unit_list);
     }
     // フィールド判定
     let old_field = turn_data.old_field;

@@ -450,6 +450,11 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 });
                 break;
             case EFFECT_HEALSP: // SP回復
+                if (ability.used && ability.ability_id == 1528) {
+                    // 戦場の華
+                    return;
+                }
+                ability.used = true;
                 $.each(target_list, function (index, target_no) {
                     let unit_data = getUnitData(turn_data, target_no);
                     if (unit_data.sp + unit_data.over_drive_sp < 20) {
@@ -540,7 +545,8 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 });
                 break;
             case EFFECT_OVERDRIVEPOINTUP: // ODアップ
-                if (ability.used) {
+                if (ability.used && ability.ability_id == 1207) {
+                    // V字回復
                     return;
                 }
                 ability.used = true;

@@ -195,13 +195,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
 
     React.useEffect(() => {
         if (!isLastTurn && isNextInfluence.current) {
-            // 最終ターンの情報
-            const last_turn_operation = simProc.turn_list[simProc.seq_last_turn].user_operation;
-
-            // 指定されたnumber以上の要素を削除
-            simProc.turn_list = simProc.turn_list.slice(0, index + 1);
-            let turn_data = simProc.turn_list[index];
-            recreateTurnData(setSimProc, simProc, turn_data, last_turn_operation, false);
+            handlers.recreateTurn(index);
         }
     }, [turnData, index]);
 
@@ -215,6 +209,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const handleSelectTarget = (chara_id) => {
         const unit = turn.unit_list.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_target_chara_id = chara_id;
+        reRender(turn.user_operation, true);
     };
 
     const handleSelectEffect = (effect_type) => {

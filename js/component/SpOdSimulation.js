@@ -4,8 +4,9 @@ const StyleListContext = React.createContext({
     selectTroops: 0,
     styleList: defaultSelectStyleList,
     loadMember: () => { },
-    SetMember: () => { },
+    setMember: () => { },
     removeMember: () => { },
+    setStyle: () => { },
 });
 
 const initialMember = {
@@ -159,8 +160,14 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
         saveStyle(styleList.selectStyleList[index]);
     };
 
+    const setStyle = (style, index) => {
+        const updatedStyleList = [...styleList.selectStyleList];
+        updatedStyleList[index] = style;
+        setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+    }
+
     return (
-        <StyleListContext.Provider value={{ styleList, setStyleList, loadMember, setMember, removeMember, saveMember }}>
+        <StyleListContext.Provider value={{ styleList, setStyleList, loadMember, setMember, removeMember, saveMember, setStyle }}>
             {children}
         </StyleListContext.Provider>
     );
@@ -188,10 +195,43 @@ const reducer = (state, action) => {
                 turn_list: state.turn_list.slice(0, action.payload + 1),
             };
         }
+        case "UPD_TURN_LIST": {
+            // 最終ターンの情報
+            const userOperationList = state.turn_list.map(turn => turn.user_operation);
+            let turnData = state.turn_list[action.payload];
+            let turnLsit = state.turn_list.slice(0, action.payload + 1)
+            recreateTurnData(turnLsit, turnData, userOperationList, false);
+
+            return {
+                ...state,
+                turn_list: turnLsit,
+            };
+        }
         default:
             return state;
     }
 };
+
+// ターンデータ再生成
+const recreateTurnData = (turnList, turnData, userOperationList, isLoadMode) => {
+    // ユーザ操作リストのチェック
+    userOperationList.forEach((item) => {
+        item.used = compereUserOperation(item, turnData) <= 0;
+    })
+
+    while (compereUserOperation(turnData.user_operation, userOperationList[userOperationList.length - 1]) < 0) {
+        // 現ターン処理
+        turnData = deepClone(turnData);
+        startAction(turnData);
+        initTurn(turnData, false);
+        // proceedTurn(turnData, false);
+        turnList.push(turnData);
+        // ユーザ操作の更新
+        updateUserOperation(userOperationList, turnData);
+        // ユーザ操作をターンに反映
+        reflectUserOperation(turnData, isLoadMode);
+    }
+}
 
 const SpOdSimulation = () => {
     // モーダル
@@ -203,19 +243,10 @@ const SpOdSimulation = () => {
     let selectStyleList = Array(6).fill(undefined);
     loadTroopsList(selectStyleList, selectTroops);
 
-    const [hideMode, setHideMode] = React.useState(false);
-
-    const [simProc, dispatch] = React.useReducer(reducer, {
-        turn_list: [],
-        seq_last_turn: 0,
-        enemy_info: {}
-    });
-
     return (
         <StyleListProvider selectStyleList={selectStyleList} selectTroops={selectTroops}>
             <div className="frame w-screen pt-3 overflow-y-scroll border-b">
-                <SettingArea hideMode={hideMode} dispatch={dispatch} />
-                <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turn_list} dispatch={dispatch} />
+                <SettingArea />
             </div>
         </StyleListProvider>
     );

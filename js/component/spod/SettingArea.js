@@ -206,7 +206,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     return turn_init;
 }
 
-const SettingArea = ({ hideMode, dispatch }) => {
+const SettingArea = () => {
     // 敵選択
     let enemy_class = localStorage.getItem("enemy_class");
     enemy_class = enemy_class ? enemy_class : "1";
@@ -222,7 +222,15 @@ const SettingArea = ({ hideMode, dispatch }) => {
         localStorage.setItem("is_overwrite", e.target.checked);
     }
 
-    const { styleList, setStyleList, saveMember } = useStyleList();
+    const { styleList, setStyleList, setMember, saveMember, setStyle } = useStyleList();
+
+    const [hideMode, setHideMode] = React.useState(false);
+
+    const [simProc, dispatch] = React.useReducer(reducer, {
+        turn_list: [],
+        seq_last_turn: 0,
+        enemy_info: {}
+    });
 
     // 戦闘開始前処理
     const startBattle = () => {
@@ -260,12 +268,45 @@ const SettingArea = ({ hideMode, dispatch }) => {
         // 初期処理
         initTurn(turn_init, true);
         let turn_list = [turn_init];
-        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list});
+        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list });
     };
 
     const [modalIsOpen, setModalIsOpen] = React.useState(false);
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
+
+    const loadData = (saveData) => {
+        // 部隊情報上書き
+        const updatedStyleList = [...styleList.selectStyleList];
+        saveData.unit_data_list.forEach((unit_data, index) => {
+            if (unit_data) {
+                let style_info = style_list.find((obj) => obj.style_id === unit_data.style_id);
+                // メンバー情報作成
+                let member_info = { ...initialMember };
+                member_info.is_select = true;
+                member_info.chara_no = Number(index);
+                member_info.style_info = style_info;
+                member_info.limit_count = unit_data.limit_count;
+                member_info.earring = unit_data.earring;
+                member_info.bracelet = unit_data.bracelet;
+                member_info.chain = unit_data.chain;
+                member_info.init_sp = unit_data.init_sp;
+                member_info.exclusion_skill_list = unit_data.exclusion_skill_list;
+                updatedStyleList[index] = member_info;
+            } else {
+                removeMember(index);
+            }
+        })
+        setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+        // 初期データ作成
+        let turnInit = getInitBattleData(updatedStyleList, saveMember, detailSetting);
+        // 制約事項更新
+        updateConstraints();
+        let turn_list = [];
+        recreateTurnData(turn_list, turnInit, saveData.user_operation_list, true);
+        // 画面反映
+        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list });
+    }
 
     const [enemy, setEnemy] = React.useState({
         enemy_class: enemy_class,
@@ -328,6 +369,7 @@ const SettingArea = ({ hideMode, dispatch }) => {
                         </div>
                     </div>
             }
+            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turn_list} dispatch={dispatch} loadData={loadData} />
         </>
     )
 };

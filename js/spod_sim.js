@@ -117,27 +117,6 @@ const skillUpdate = (turn_data, skill_id, place_no) => {
     }
 }
 
-// ターンデータ再生成
-const recreateTurnData = (setSimProc, simProc, turn_data, last_turn_operation, isLoadMode) => {
-    // ユーザ操作リストのチェック
-    simProc.user_operation_list.forEach((item) => {
-        item.used = compereUserOperation(item, turn_data) <= 0;
-    })
-
-    while (compereUserOperation(turn_data.user_operation, last_turn_operation) < 0) {
-        // 現ターン処理
-        turn_data = deepClone(turn_data);
-        startAction(turn_data);
-        proceedTurn(setSimProc, simProc, turn_data, false);
-        // ユーザ操作の更新
-        updateUserOperation(simProc.user_operation_list, turn_data);
-        // ユーザ操作をターンに反映
-        reflectUserOperation(turn_data, isLoadMode);
-    }
-    // ユーザ操作リストの削除
-    simProc.user_operation_list = simProc.user_operation_list.filter((item) => item.used)
-}
-
 // ユーザ操作の取得
 const updateUserOperation = (user_operation_list, turn_data) => {
     let filtered = user_operation_list.filter((item) =>
@@ -601,6 +580,9 @@ const getOverDrive = (turn) => {
 
 // 消費SP取得
 function getSpCost(turn_data, skill_info, unit) {
+    if (!skill_info) {
+        return 0;
+    }
     let sp_cost = skill_info.sp_cost;
     let sp_cost_down = turn_data.sp_cost_down
     if (harfSpSkill(turn_data, skill_info, unit)) {

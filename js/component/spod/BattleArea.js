@@ -24,7 +24,7 @@ const turnProceed = (kb_next, turn) => {
         // オーバードライブ
         if (turn.over_drive_max_turn > 0) {
             turn.over_drive_number++;
-            unitLoop(unitOverDriveTurnProceed, unit_list)
+            unitLoop(unitOverDriveTurnProceed, turn.unit_list)
             if (turn.over_drive_max_turn < turn.over_drive_number) {
                 // オーバードライブ終了
                 turn.over_drive_max_turn = 0;
@@ -625,7 +625,7 @@ function initTurn(turn_data) {
     }
 }
 
-const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) => {
+const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, loadData }) => {
     const [isCapturing, setIsCapturing] = React.useState(false);  // キャプチャ中の状態を管理
     const elementRef = React.useRef(null); // キャプチャ対象の要素参照
 
@@ -704,7 +704,7 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) =>
     };
 
     // ターンを進める
-    function proceedTurn(turn_data, isInitTurn) {
+    const proceedTurn = (turn_data, isInitTurn) => {
         // ターン開始処理
         initTurn(turn_data, isInitTurn);
         // 次ターン追加
@@ -712,13 +712,19 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) =>
     }
 
     // ターンを戻す
-    function returnTurn(seq_turn) {
+    const returnTurn = (seq_turn) => {
         // ターン削除
         dispatch({ type: 'DEL_TURN_LIST', payload: seq_turn });
     }
 
+    // ターン再生成
+    const recreateTurn = (seq_turn) => {
+        // ターン削除
+        dispatch({ type: 'UPD_TURN_LIST', payload: seq_turn });
+    }
+
     // 引数のfuntionをまとめる
-    const handlers = { proceedTurn, returnTurn };
+    const handlers = { proceedTurn, returnTurn, recreateTurn };
 
     const changeHideMode = (e) => {
         const hideMode = e.target.checked;
@@ -753,7 +759,7 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) =>
                     <div id="battle_display" className="text-left" ref={elementRef}>
                         {turnList.map((turn, index) => {
                             return <TurnData turn={turn} index={index} key={`turn${index}`}
-                            isLastTurn={turnList.length - 1 == index} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
+                                isLastTurn={turnList.length - 1 == index} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
                         })}
                     </div>
                 </div>
@@ -765,7 +771,7 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) =>
                     className={"modal-content modal-narrwow " + (modal.isOpen ? "modal-content-open" : "")}
                     overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
                 >
-                    <ModalSaveLoad mode={modal.mode} handleClose={closeModal} />
+                    <ModalSaveLoad mode={modal.mode} handleClose={closeModal} turnList={turnList} loadData={loadData} />
                 </ReactModal>
             }
         </div>

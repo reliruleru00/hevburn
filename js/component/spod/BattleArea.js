@@ -625,11 +625,7 @@ function initTurn(turn_data) {
     }
 }
 
-const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
-    const [key, setKey] = React.useState(0);
-
-    const [updatedTurnIndexList, setUpdatedTurnIndexList] = React.useState([]);
-
+const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch }) => {
     const [isCapturing, setIsCapturing] = React.useState(false);  // キャプチャ中の状態を管理
     const elementRef = React.useRef(null); // キャプチャ対象の要素参照
 
@@ -711,23 +707,14 @@ const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
     function proceedTurn(turn_data, isInitTurn) {
         // ターン開始処理
         initTurn(turn_data, isInitTurn);
-
-        simProc.turn_list.push(turn_data);
-        simProc.seq_last_turn = simProc.turn_list.length - 1;
-        if (isInitTurn) {
-            // 画面反映
-            setUpdatedTurnIndexList(simProc.seq_last_turn);
-        }
+        // 次ターン追加
+        dispatch({ type: 'ADD_TURN_LIST', payload: turn_data });
     }
 
     // ターンを戻す
     function returnTurn(seq_turn) {
-        // 指定されたnumber以上の要素を削除
-        simProc.turn_list = simProc.turn_list.slice(0, seq_turn + 1);
-        simProc.seq_last_turn = simProc.turn_list.length - 1;
-        // simProc.user_operation_list = simProc.user_operation_list.slice(0, seq_turn + 1);
-        // 画面反映
-        setUpdatedTurnIndexList(simProc.seq_last_turn);
+        // ターン削除
+        dispatch({ type: 'DEL_TURN_LIST', payload: seq_turn });
     }
 
     // 引数のfuntionをまとめる
@@ -749,7 +736,7 @@ const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
 
     return (
         <div id="battle_area">
-            {simProc.turn_list.length == 0 ?
+            {turnList.length == 0 ?
                 <input type="button" id="btnLoad" value="読込" onClick={() => openModal("load")} />
                 :
                 <div className={display_class}>
@@ -764,9 +751,9 @@ const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
                         </div>
                     </div>
                     <div id="battle_display" className="text-left" ref={elementRef}>
-                        {simProc.turn_list.map((turn, index) => {
-                            return <TurnData turn={turn} index={index} key={`turn${index}-${key}`}
-                                seq_last_turn={simProc.turn_list.length - 1} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
+                        {turnList.map((turn, index) => {
+                            return <TurnData turn={turn} index={index} key={`turn${index}`}
+                            isLastTurn={turnList.length - 1 == index} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
                         })}
                     </div>
                 </div>
@@ -783,4 +770,4 @@ const BattleArea = ({ hideMode, setHideMode, simProc, dispatch }) => {
             }
         </div>
     )
-};
+});

@@ -1,4 +1,4 @@
-const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing, handlers }) => {
+const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = React.useRef(false);
     const [turnData, setTurnData] = React.useState({
         user_operation: turn.user_operation
@@ -188,13 +188,13 @@ const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing
         turn.is_last_turn = false;
         let turn_data = deepClone(turn);
         turn_data.is_last_turn = true;
-        startAction(turn_data, seq_last_turn);
-        // // ターン開始処理
+        startAction(turn_data);
+        // ターン開始処理
         handlers.proceedTurn(turn_data, true);
     };
 
     React.useEffect(() => {
-        if (seq_last_turn !== index && isNextInfluence.current) {
+        if (!isLastTurn && isNextInfluence.current) {
             // 最終ターンの情報
             const last_turn_operation = simProc.turn_list[simProc.seq_last_turn].user_operation;
 
@@ -300,7 +300,7 @@ const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing
                             {turn.start_over_drive_gauge >= 100 && !turn.additional_turn && (turn.over_drive_number == 0 || turn.trigger_over_drive) ?
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
-                            {seq_last_turn == index ?
+                            {isLastTurn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
                                 <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => handlers.returnTurn(turn.seq_turn)} />
@@ -332,4 +332,12 @@ const TurnData = React.memo(({ turn, index, seq_last_turn, hideMode, isCapturing
             </div>
         </div>
     )
+}, (prevProps, nextProps) => {
+  // 再描画が必要ないなら true を返す
+  return (
+    prevProps.turn === nextProps.turn &&
+    prevProps.isLastTurn === nextProps.isLastTurn &&
+    prevProps.hideMode === nextProps.hideMode &&
+    prevProps.isCapturing === nextProps.isCapturing
+  );
 });

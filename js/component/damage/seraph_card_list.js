@@ -63,7 +63,7 @@ const SeraphCardList = ({ enemy_info }) => {
                     enemy_info.sub_no > i + 1 ? (
                         <select
                             key={`card${i}`}
-                            className="bike_parts w-48"
+                            className="bike_parts w-[200px]"
                             value={selectedIndices[i]}
                             onChange={(e) => changeCradList(i, parseInt(e.target.value, 10))}
                         >

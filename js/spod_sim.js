@@ -846,9 +846,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                     buff = createBuffData(buff_info, use_unit_data);
                     unit_data.buff_list.push(buff);
                 }
-                if (buff.lv < 10) {
-                    buff.lv += buff_info.effect_size;
-                }
+                buff.lv = Math.min(buff.lv + buff_info.effect_size, 10);
             });
             break;
         case BUFF_DEFENSEDOWN: // 防御力ダウン
@@ -963,6 +961,7 @@ function createBuffData(buff_info, use_unit_data) {
     buff.buff_id = buff_info.buff_id;
     buff.max_power = buff_info.max_power;
     buff.rest_turn = buff_info.effect_count == 0 ? -1 : buff_info.effect_count;
+    buff.lv = 0;
     switch (buff_info.buff_kind) {
         case BUFF_DEFENSEDOWN: // 防御力ダウン
         case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン

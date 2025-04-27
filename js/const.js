@@ -60,7 +60,8 @@ const BUFF_NAGATIVE = 38; // ネガティブ
 const BUFF_DISPEL = 90; // ディスペル
 const BUFF_ABILITY_FUNNEL = 116; // アビリティ連撃
 const BUFF = {
-    ELEMENT_ATTACKUP: 1, // 属性アップ
+    ATTACKUP: 0, // 攻撃力アップ
+    ELEMENT_ATTACKUP: 1, // 属性攻撃力アップ
     MINDEYE: 2, // 心眼
     DEFENSEDOWN: 3, // 防御ダウン
     ELEMENT_DEFENSEDOWN: 4, // 属性防御ダウン
@@ -97,6 +98,7 @@ const BUFF = {
     DIVA_BLESS: 36, // 歌姫の加護
     SHREDDING: 37, // 速弾き
     NAGATIVE: 38, // ネガティブ
+    YAMAWAKI_SERVANT: 39, //山脇様のしもべ 
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -363,7 +365,7 @@ const SKILL = {
     COMMAND_ACTION: 4, // 指揮行動
 }
 /** 貫通クリティカル */
-const PENETRATION_ATTACK_LIST = [84, 135, 137, 156, 163, 95, 2179];
+const PENETRATION_ATTACK_LIST = [84, 135, 137, 156, 163, 95, 190, 2179];
 /** 単独発動バフ */
 const ALONE_ACTIVATION_BUFF_LIST = [4, 133, 134, 201, 202, 216, 217, 221, 222, 2606, 2607, 1033, 1034, 1036, 1113];
 const ALONE_ACTIVATION_BUFF_KIND = [

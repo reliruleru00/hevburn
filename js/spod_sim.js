@@ -38,7 +38,7 @@ const ABILIRY_EX_SKILL_USE = 8;
 const ABILIRY_OTHER = 99;
 
 const BUFF_FUNNEL_LIST = [BUFF_FUNNEL, BUFF_ABILITY_FUNNEL];
-const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED, BUFF_DIVA_BLESS];
+const SINGLE_BUFF_LIST = [BUFF_CHARGE, BUFF_RECOIL, BUFF_ARROWCHERRYBLOSSOMS, BUFF_ETERNAL_OARH, BUFF_EX_DOUBLE, BUFF_BABIED, BUFF_DIVA_BLESS, BUFF.YAMAWAKI_SERVANT];
 const FIELD_LIST = {
     [FIELD_NORMAL]: "無し",
     [FIELD_FIRE]: "火",
@@ -285,6 +285,9 @@ function getBuffIconImg(buff_info) {
             break;
         case BUFF_NAGATIVE: // ネガティブ
             src += "IconNegativeMind";
+            break;
+        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
+            src += "IconYamawakiServant";
             break;
     }
     if (buff_info.buff_element != 0) {
@@ -696,6 +699,8 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return turn_data.enemy_count == 3;
         case CONDITIONS_31A_OVER_3: // 31A3人以上
             return checkMember(turn_data.unit_list, "31A") >= 3;
+        case CONDITIONS.OVER_31D_3: // 31D3人以上
+            return checkMember(turn_data.unit_list, "31D") >= 3;
         case CONDITIONS_31E_OVER_3: // 31E3人以上
             return checkMember(turn_data.unit_list, "31E") >= 3;
         case CONDITIONS_FIELD_NOT_FIRE: // 火属性フィールド以外
@@ -708,6 +713,14 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             return !checkBuffExist(unit_data.buff_list, BUFF_NAGATIVE);
         case CONDITIONS_SP_UNDER_0_ALL: // SP0以下の味方がいる
             return checkSp(turn_data, RANGE_ALLY_ALL, 0);
+        case CONDITIONS.SARVANT_OVER3: // 山脇様のしもべ3人以上
+            let servant_count = 0;
+            turn_data.unit_list.forEach((unit) => {
+                if (checkBuffExist(unit.buff_list, BUFF.YAMAWAKI_SERVANT)) {
+                    servant_count++;
+                };
+            })
+            return servant_count >= 3;
     }
     return true;
 }
@@ -769,6 +782,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
         case BUFF_BABIED: // オギャり
         case BUFF_DIVA_BLESS: // 歌姫の加護
         case BUFF_SHREDDING: // 速弾き
+        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
             // バフ追加
             target_list = getTargetList(turn_data, buff_info.range_area, buff_info.target_element, place_no, use_unit_data.buff_target_chara_id);
             if (buff_info.buff_kind == BUFF_ATTACKUP || buff_info.buff_kind == BUFF_ELEMENT_ATTACKUP) {
@@ -1149,6 +1163,9 @@ function getBuffKindName(buff_info) {
             break;
         case BUFF_NAGATIVE: // ネガティブ
             buff_kind_name += "ネガティブ";
+            break;
+        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
+            buff_kind_name += "山脇様のしもべ";
             break;
         default:
             break;

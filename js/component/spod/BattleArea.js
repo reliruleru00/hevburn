@@ -425,6 +425,15 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     return;
                 }
                 break;
+            case "山脇様のしもべ6人":
+                for (let i = 0; i < 6; i++) {
+                    let unit = turn_data.unit_list[i];
+                    if (unit.blank) return;
+                    if (!checkBuffExist(unit.buff_list, BUFF.YAMAWAKI_SERVANT)) {
+                        return;
+                    }
+                }
+                break;
             case "破壊率が200%以上":
             case "トークン4つ以上":
             case "敵のバフ解除":
@@ -432,7 +441,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
         }
         switch (ability.effect_type) {
             case EFFECT_FUNNEL: // 連撃数アップ
-                buff = new buff_data();
+                buff = {};
                 buff.ability_id = ability.ability_id;
                 buff.buff_kind = BUFF_ABILITY_FUNNEL;
                 buff.buff_name = ability.ability_name;
@@ -491,6 +500,12 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                                         unit_data.sp += ability.effect_size;
                                     }
                                     break;
+                                case 1140: // 世界を滅ぼすお手伝いでゲス！
+                                    // 山脇様のしもべチェック
+                                    if (checkBuffExist(unit_data.buff_list, BUFF.YAMAWAKI_SERVANT)) {
+                                        unit_data.sp += ability.effect_size;
+                                    };
+                                    break;
                                 default:
                                     unit_data.sp += ability.effect_size;
                                     break;
@@ -532,7 +547,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     if (exist_list.length > 0) {
                         buff = exist_list[0];
                     } else {
-                        buff = new buff_data();
+                        buff = {};
                         buff.buff_kind = BUFF_MORALE;
                         buff.buff_element = 0;
                         buff.rest_turn = -1;
@@ -545,8 +560,9 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 });
                 break;
             case EFFECT_OVERDRIVEPOINTUP: // ODアップ
-                if (ability.used && ability.ability_id == 1207) {
-                    // V字回復
+                // V字回復,世界征服の始まりでゲス！
+                const onlyUseList = [1207, 1209]
+                if (ability.used && onlyUseList.includes(ability.ability_id)) {
                     return;
                 }
                 ability.used = true;
@@ -556,7 +572,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 }
                 break;
             case EFFECT_ARROWCHERRYBLOSSOMS: // 桜花の矢
-                buff = new buff_data();
+                buff = {};
                 buff.buff_kind = BUFF_ARROWCHERRYBLOSSOMS;
                 buff.buff_element = 0;
                 buff.rest_turn = -1;
@@ -564,7 +580,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 unit.buff_list.push(buff);
                 break;
             case EFFECT_CHARGE: // チャージ
-                buff = new buff_data();
+                buff = {};
                 buff.buff_kind = BUFF_CHARGE;
                 buff.buff_element = 0;
                 buff.rest_turn = -1;
@@ -580,7 +596,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 }
                 break;
             case EFFECT_NEGATIVE: // ネガティブ
-                buff = new buff_data();
+                buff = {};
                 buff.buff_kind = BUFF_NAGATIVE;
                 buff.buff_element = 0;
                 buff.rest_turn = ability.effect_count + 1;
@@ -592,6 +608,14 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     unit.additional_turn = true;
                     turn_data.additional_turn = true;
                 }
+                break;
+            case EFFECT.YAMAWAKI_SERVANT: // 山脇様のしもべ
+                buff = {};
+                buff.buff_kind = BUFF.YAMAWAKI_SERVANT;
+                buff.buff_element = 0;
+                buff.rest_turn = -1;
+                buff.buff_name = ability.ability_name;
+                unit.buff_list.push(buff);
                 break;
         }
     });

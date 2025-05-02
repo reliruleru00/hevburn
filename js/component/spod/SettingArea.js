@@ -104,6 +104,9 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             ["0", "00", "1", "3", "4", "5", "10"].forEach(num => {
                 if (member_info.style_info[`ability${num}`] && num <= member_info.limit_count) {
                     let ability_info = getAbilityInfo(member_info.style_info[`ability${num}`]);
+                    if (!ability_info) {
+                        return;
+                    }
                     if (CONSTRAINTS_ABILITY.includes(ability_info.ability_id)) {
                         constraints_list.push(ability_info.ability_id);
                     }

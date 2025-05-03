@@ -729,6 +729,13 @@ function judgmentCondition(conditions, turn_data, unit_data, skill_id) {
             } else if (CONDITIONS.SARVANT_OVER6 == conditions) {
                 return servant_count >= 6;
             }
+        case CONDITIONS.USE_COUNT_2: // 2回目以降
+            return 1 <= unit_data.use_skill_list.filter(id => id === skill_id).length;
+        case CONDITIONS.USE_COUNT_3: // 3回目以降
+            return 2 <= unit_data.use_skill_list.filter(id => id === skill_id).length;
+        case CONDITIONS.USE_COUNT_4: // 4回目以降
+            return 3 <= unit_data.use_skill_list.filter(id => id === skill_id).length;
+
     }
     return true;
 }

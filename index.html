@@ -38,6 +38,7 @@
   <script type="text/babel" src="js/component/style_list.js"></script>
   <script type="text/babel" src="js/component/damage/chara_status.js"></script>
   <script type="text/babel" src="js/component/damage/content_area.js"></script>
+  <script type="text/babel" src="js/component/damage/enemy_area.js"></script>
   <script type="text/babel" src="js/component/damage/score_setting.js"></script>
   <script type="text/babel" src="js/component/damage/bike_parts.js"></script>
   <script type="text/babel" src="js/component/damage/hard_layer.js"></script>
@@ -193,8 +194,8 @@
               </div>
             </div>
           </div>
-          <div id="contents_area" class="surround_area adjust_width mx-auto mt-2"></div>
-          <div class="enemy_status surround_area mx-auto mt-2 adjust_width">
+          <div id="enemy_area"></div>
+          <!-- <div class="enemy_status surround_area mx-auto mt-2 adjust_width">
             <label class="area_title">敵情報</label>
             <div class="flex">
               <div class="flex flex-wrap gap-1 w-40">
@@ -275,7 +276,7 @@
                     id="enemy_element_5" class="enemy_type_value enemy_input" readonly></div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="surround_area mx-auto my-2 adjust_width">
             <label class="area_title">他設定</label>
             <div class="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
@@ -318,8 +319,6 @@
                 for="fightingspirit">闘志</label>
               <input type="checkbox" id="misfortune" class="ml-3 pt-0.5"><label class="checkbox01"
                 for="misfortune">厄</label>
-              <input type="checkbox" id="strong_break" class="ml-3 pt-0.5"><label class="checkbox01"
-                for="strong_break">強ブレイク</label>
               <div class="flex">
                 <div class="pt-0.5">士気</div>
                 <select id="morale_count" class="morale">

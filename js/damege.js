@@ -409,32 +409,37 @@ function setEventTrigger() {
     });
     // 残り耐久反映
     $(".durability_reflection").on("click", function (event) {
+        let dp = 0;
+        let index = 0;
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-            let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
-            if (enemy_dp == 0) {
-                setDpGarge(i, 0);
-            } else {
-                setDpGarge(i, Math.ceil((open_damage_detail.avg_rest_dp[i] / enemy_dp) * 100));
+            if ($("#enemy_dp_" + i).val()) {
+                let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
+                let rest = Math.ceil((open_damage_detail.avg_rest_dp[i] / enemy_dp) * 100);
+                if (rest != 100) {
+                    dp = rest;
+                    index = i;
+                    break;
+                }
             }
         }
         let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
-        setHpGarge(Math.ceil((open_damage_detail.avg_rest_hp / enemy_hp) * 100));
-        $("#enemy_destruction_rate").val(Math.floor(open_damage_detail.avg_destruction_last_rate));
-
+        updateEnemyDurability(
+            index, dp,
+            Math.ceil((open_damage_detail.avg_rest_hp / enemy_hp) * 100),
+            Math.floor(open_damage_detail.avg_destruction_last_rate),
+        );
         MicroModal.close('modal_damage_detail');
         // 自動選択外す
         $("#auto_skill").prop("checked", false);
-        // ダメージ再計算
-        calcDamage();
     });
     // ダメージ再計算
-    $("input[type=range]").on("mouseup", function (event) {
-        calcDamage();
-        if (!$(this).data("changed")) {
-            // changeイベントのデフォルト動作を防止
-            // event.preventDefault();
-        }
-    });
+    // $("input[type=range]").on("mouseup", function (event) {
+    //     calcDamage();
+    //     if (!$(this).data("changed")) {
+    //         // changeイベントのデフォルト動作を防止
+    //         // event.preventDefault();
+    //     }
+    // });
     $(document).on("change", "input, select", function (event) {
         calcDamage();
     });
@@ -558,13 +563,18 @@ class RestGauge {
         $("#detail_max_damage").val(Math.floor(this.max_damage).toLocaleString());
         $("#detail_damage").val(Math.floor(this.avg_damage).toLocaleString());
         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-            let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
-            let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp, "dp");
-            $("#rest_dp_rate_" + i).val(disp_rest);
-            // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
-            let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
-            // 対象の要素にスタイルを設定
-            $("#rest_dp_rate_" + i).css("background", gradientStyle);
+            if ($("#enemy_dp_" + i).val()) {
+                $("#rest_dp_rate_" + i).parent().show();
+                let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
+                let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp, "dp");
+                $("#rest_dp_rate_" + i).val(disp_rest);
+                // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
+                let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
+                // 対象の要素にスタイルを設定
+                $("#rest_dp_rate_" + i).css("background", gradientStyle);
+            } else {
+                $("#rest_dp_rate_" + i).parent().hide();
+            }
         }
         let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
         let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp, "hp");
@@ -702,8 +712,11 @@ function calcDamage() {
     $("#skill_power").val((Math.floor(basePower * 100) / 100).toFixed(2));
     $("#skill_power_critical").val((Math.floor(critical_power * 100) / 100).toFixed(2));
     $("#mag_buff").val(convertToPercentage(buff));
-    let dp_debuff = getSumEffectSize("dp_debuff")
-    $("#mag_debuff").val(convertToPercentage(dp_debuff + debuff));
+    if ($("#dp_range_0").val() && Number($("#dp_range_0").val())) {
+        let dp_debuff = getSumEffectSize("dp_debuff") / 100;
+        debuff += dp_debuff;
+    }
+    $("#mag_debuff").val(convertToPercentage(debuff));
     $("#mag_element_field").val(convertToPercentage(element_field));
     $("#mag_special").val(convertToPercentage(special));
     $("#mag_funnel").val(convertToPercentage(funnel_sum));
@@ -1263,7 +1276,7 @@ function createBuffList() {
         let chara_id = $(value).data("chara_id");
         let skill_id = $(value).data("skill_id");
         let skill_info = getSkillData(skill_id)
-        if (!buff_info) {
+        if (!buff_info || !skill_info) {
             return true;
         }
         let unique_key = chara_id + '-' + skill_info.skill_id;
@@ -1322,7 +1335,7 @@ function setBuffList() {
             let chara_id = $(option).data("chara_id");
             let skill_id = $(option).data("skill_id");
             let skill_info = getSkillData(skill_id)
-            if (!buff_info || buff_info.buff_id == 0) {
+            if (!buff_info || buff_info.buff_id == 0 || !skill_info) {
                 return true;
             }
             let unique_key = chara_id + '-' + skill_info.skill_id;

@@ -64,7 +64,7 @@ const ContentsAreaComponent = ({ }) => {
     const setDp = (state, action) => {
         const { index, value } = action;
         const newDpRate = state.dpRate.map((_, i) => {
-            if (i < index) return 0;
+            if (i > index) return 0;
             if (i === index) return value;
             return 100;
         });
@@ -110,7 +110,7 @@ const ContentsAreaComponent = ({ }) => {
                 return {
                     ...state,
                     destruction: Math.min(value, state.max_limit),
-                    dpRate: Array(state.enemy_info.max_dp.split(",").length).fill(0),
+                    dpRate: value > 100 ? Array(state.enemy_info.max_dp.split(",").length).fill(0) : state.dpRate,
                 };
             }
             case "STRONG_BREAK": {

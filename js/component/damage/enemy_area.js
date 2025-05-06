@@ -35,8 +35,6 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
     };
 
     const handleDpChange = (index, value) => {
-        if (value > 0) {
-        }
         dispatch({ type: "SET_DP", index, value });
     };
 
@@ -48,11 +46,18 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
     window.updateAttackInfo = function (attack_info) {
         setAttackInfo(attack_info);
     }
-
+    // 耐性変更
     window.setEnemyResistDown = function (attack_element, resist_down) {
         const newResist = [0, 0, 0, 0, 0, 0];
         newResist[attack_element] = resist_down;
         setElementResistDown(newResist)
+    }
+
+    // 敵情報反映
+    window.updateEnemyDurability = function (index, dp, hp, destruction) {
+        dispatch({ type: "SET_DP", index, value: dp });
+        dispatch({ type: "SET_HP", value: hp });
+        dispatch({ type: "SET_DESTRUCTION", value: destruction });
     }
 
     let maxHp = Number(enemy_info.max_hp);
@@ -79,6 +84,11 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
         displayWeakRow();
     }, [enemy_info, elementResistDown]);
 
+    React.useEffect(() => {
+        // ダメージ再計算
+        calcDamage();
+    });
+    
     // 自由入力時の対応
     let is_free_input = false;
     if (enemy_info.enemy_class == ENEMY_CLASS.FREE_INPUT) {
@@ -123,7 +133,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
                                 let no = max_dp_list.length - 1 - index;
                                 let enemy_id = "enemy_dp_" + no;
                                 let range_id = "dp_range_" + no;
-                                let dp_rate = state.dpRate[index];
+                                let dp_rate = state.dpRate[no];
                                 let maxDp = Number(max_dp_list[no]);
                                 if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
                                     let score_attack = getScoreAttack(enemy_info.sub_no);
@@ -135,7 +145,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
                                     <div className="dp_gauge" key={enemy_id}>
                                         <input type="text" className="w-20 text-right comma" value={Number(maxDp).toLocaleString()} id={enemy_id} pattern="\d*" readOnly={!is_free_input}
                                             onChange={(e) => handleMaxDpEnemyChange(no, e.target.value)} />
-                                        <input type="range" className="enemy_dp_range dp_range" value={dp_rate} id={range_id} max="100" min="0" step="1" onChange={(e) => handleDpChange(index, e.target.value)}
+                                        <input type="range" className="enemy_dp_range dp_range" value={dp_rate} id={range_id} max="100" min="0" step="1" onChange={(e) => handleDpChange(no, e.target.value)}
                                             style={{ background: background }}
                                         />
                                         <output className="gauge_rate">{dp_rate}%</output>

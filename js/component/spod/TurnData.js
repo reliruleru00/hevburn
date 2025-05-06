@@ -243,7 +243,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const openModal = (index, type, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
-    console.log(`render${index}`);
+    // console.log(`render${index}`);
     return (
         <div className="turn">
             <div className="turn_header_area">

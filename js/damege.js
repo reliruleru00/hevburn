@@ -10,9 +10,6 @@ function setEventTrigger() {
     $("#attack_list").on("change", function (event) {
         let attack_info = getAttackInfo();
         if (select_attack_skill !== undefined) {
-            // $("." + type_physical[select_attack_skill.attack_physical]).removeClass("selected");
-            // $("." + type_element[select_attack_skill.attack_element]).removeClass("selected");
-
             if (attack_info === undefined || select_attack_skill.chara_id !== attack_info.chara_id) {
                 toggleItemVisibility(`.only_chara_id-${select_attack_skill.chara_id}`, false);
             }
@@ -36,8 +33,6 @@ function setEventTrigger() {
             $(".skill_unique").hide();
 
             $(".status_attack_skill").removeClass("status_attack_skill");
-            // 敵情報初期化
-            // resetEnemyResist();
         }
         if (attack_info === undefined) {
             $("#attack_physical, #attack_element").attr("src", "img/blank.png");
@@ -113,8 +108,6 @@ function setEventTrigger() {
         let attack_element = type_element[attack_info.attack_element];
         $("#attack_physical").attr("src", "img/" + attack_physical + ".webp");
         $("#attack_element").attr("src", "img/" + attack_element + ".webp");
-        // $("." + attack_physical).addClass("selected");
-        // $("." + attack_element).addClass("selected");
         if (typeof updateAttackInfo == "function") {
             updateAttackInfo(attack_info);
         }
@@ -184,13 +177,9 @@ function setEventTrigger() {
     $(".resist_down").on("change", function (event) {
         updateEnemyResistDown();
     });
-    // $(".enemy_type_value").on("change", function (event) {
-    //     setEnemyElement("#" + $(this).prop("id"), $(this).val(), null, null);
-    //     updatePenetrationResist();
-    //     displayWeakRow();
-    // });
     $("#servant_count").on("change", function (event) {
-        updatePenetrationResist();
+        let attack_info = getAttackInfo();
+        updateEnemyResistDown();
     });
     // チャージ変更
     $("#charge").on("change", function (event) {
@@ -298,68 +287,12 @@ function setEventTrigger() {
             $("#enemy_destruction_rate").val(maxDestruction);
         }
     });
-    // 破壊率変更
-    // $("#enemy_destruction_rate").on("change", function (event) {
-    //     let destructionValue = Number($(this).val());
-    //     if (destructionValue <= 100) {
-    //         $(this).val(100);
-    //     } else {
-    //         for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-    //             setDpGarge(i, 0);
-    //         }
-    //         $(".row_dp").css("display", "none");
-    //         let maxDestruction = Number($("#enemy_destruction_limit").val());
-    //         if (maxDestruction < destructionValue) {
-    //             $(this).val(maxDestruction);
-    //         }
-    //     }
-    // });
     // プレイヤーDP変更
     $(".player_dp_range").on("input", function (event) {
         let val = $(this).val();
         $("#player_dp_rate").val(val + '%');
         applyGradient($(".player_dp_range"), "#4F7C8B", val / 1.5);
     });
-    // 残りDP変更
-    // $(".enemy_dp_range").on("input", function (event) {
-    //     $("#enemy_destruction_rate").val(100);
-    //     let dp_no = Number($(this).prop("id").replace(/\D/g, ''));
-    //     setDpGarge(dp_no, $(this).val())
-    //     if ($(this).val() == 0 && dp_no == 0) {
-    //         $(".row_dp").css("display", "none");
-    //     } else {
-    //         $(".row_dp").css("display", "table-cell");
-    //     }
-    //     // 下層のDPを100に、上位を0にする。
-    //     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-    //         if (i < dp_no) {
-    //             setDpGarge(i, 100);
-    //         } else if (i > dp_no) {
-    //             setDpGarge(i, 0);
-    //         }
-    //     }
-    //     setHpGarge(100)
-    // });
-    // // 残りHP変更
-    // $("#hp_range").on("input", function (event) {
-    //     setHpGarge($(this).val())
-    //     // DP無力化
-    //     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-    //         setDpGarge(i, 0);
-    //     }
-    //     $(".row_dp").css("display", "none");
-    // });
-    // 強ブレイクチェック
-    // $("#strong_break").on("change", function (event) {
-    //     let enemy_info = getEnemyInfo();
-    //     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
-    //     $("#enemy_destruction_limit").val(enemy_info.destruction_limit + strong_break);
-    //     $("#enemy_destruction_rate").val(enemy_info.destruction_limit + strong_break);
-    //     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-    //         setDpGarge(i, 0);
-    //     }
-    //     $(".row_dp").css("display", "none");
-    // });
     // カンマ区切り
     $(document).on("focus", ".comma", function (event) {
         let newValue = removeComma($(this).val())
@@ -432,14 +365,6 @@ function setEventTrigger() {
         // 自動選択外す
         $("#auto_skill").prop("checked", false);
     });
-    // ダメージ再計算
-    // $("input[type=range]").on("mouseup", function (event) {
-    //     calcDamage();
-    //     if (!$(this).data("changed")) {
-    //         // changeイベントのデフォルト動作を防止
-    //         // event.preventDefault();
-    //     }
-    // });
     $(document).on("change", "input, select", function (event) {
         calcDamage();
     });
@@ -1078,22 +1003,6 @@ function isWeak() {
     return physical_resist * element_resist > 10000;
 }
 
-// 敵耐性初期化
-// function resetEnemyResist() {
-//     let enemy_info = getEnemyInfo();
-//     // 表示変更
-//     let physical = select_attack_skill.attack_physical;
-//     let element_physical = enemy_info["physical_" + physical];
-//     $("#enemy_physical_" + physical).val(Math.floor(element_physical));
-//     setEnemyElement("#enemy_physical_" + physical, Math.floor(element_physical), null, null);
-//     let element = select_attack_skill.attack_element;
-//     let element_element = enemy_info["element_" + element];
-//     $("#enemy_element_" + element).val(Math.floor(element_element));
-//     setEnemyElement("#enemy_element_" + element, Math.floor(element_element), null, null);
-//     // 貫通クリティカル
-//     updatePenetrationResist();
-// }
-
 // 敵耐性変更
 function updateEnemyResistDown() {
     let attack_info = getAttackInfo();
@@ -1104,58 +1013,6 @@ function updateEnemyResistDown() {
     // 表示変更
     if (typeof setEnemyResistDown == "function") {
         setEnemyResistDown(attack_info.attack_element, resist_down);
-    }
-    // setEnemyElement(`#enemy_element_${attack_info.attack_element}`, null, null, Math.floor(resist_down));
-    // 貫通クリティカル
-    // updatePenetrationResist();
-    // 弱点行
-    // displayWeakRow();
-}
-
-// 貫通クリティカル耐性変更
-function updatePenetrationResist() {
-    let attack_info = getAttackInfo();
-    if (attack_info === undefined) {
-        return false
-    }
-    let physical = attack_info.attack_physical;
-    // 貫通クリティカル
-    if (PENETRATION_ATTACK_LIST.includes(attack_info.attack_id)) {
-        let week_value = 100;
-        switch (attack_info.attack_id) {
-            case 135: // 華麗なるファントム・シーフ
-                week_value += 400;
-                break;
-            case 84: // 唯雅粛正(チャージ)
-            case 137: // トゥルーペネトレーター+
-            case 156: // バブルデストロイヤー
-            case 163: // ロココ・デストラクション
-                week_value += 300;
-                break;
-            case 95: // 三日月宗近+
-            case 2179: // ネオンバースト
-                week_value += 200;
-                break;
-            case 190: // メガデストロイヤー
-                let servant = Number($("#servant_count").val());
-                if (servant < 2) {
-                    week_value += 300;
-                } else if (servant < 4) {
-                    week_value += 350;
-                } else {
-                    week_value += 400;
-                }
-                break;
-            default:
-                break;
-        }
-        let element_init = Number($("#enemy_element_0").data("init")) || 0;
-        let physical_init = Number($(`#enemy_physical_${physical}`).data("init")) || 0;
-        setEnemyElement("#enemy_element_0", null, 100 - element_init, null);
-        setEnemyElement(`#enemy_physical_${physical}`, null, week_value - physical_init, null);
-    } else {
-        setEnemyElement("#enemy_element_0", null, 0, null);
-        setEnemyElement(`#enemy_physical_${physical}`, null, 0, null);
     }
 }
 
@@ -1723,7 +1580,6 @@ function checkFrontAbility() {
     });
     return front.length;
 }
-
 
 // パッシブ追加
 function addPassive(member_info) {
@@ -2408,88 +2264,6 @@ function getCharaIdToMember(chara_id) {
     return member;
 }
 
-// 敵リスト作成
-// function createEnemyList(enemy_class) {
-// $("#enemy_list").empty();
-// $.each(enemy_list, function (index, value) {
-//     if (value.enemy_class == enemy_class) {
-//         var option = $('<option>')
-//             .val(value.enemy_class_no);
-//         if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
-//             option.text(`#${value.sub_no} ${value.enemy_name}`)
-//         } else if (enemy_class == ENEMY_CLASS_CLOCK_TOWER_NORMAL || enemy_class == ENEMY_CLASS_CLOCK_TOWER_HARD) {
-//             option.text(`(${value.sub_no}F) ${value.enemy_name}`)
-//         } else {
-//             option.text(value.enemy_name);
-//         }
-//         $("#enemy_list").append(option);
-//     }
-// });
-
-// const reverse = [ENEMY_CLASS_SCORE_ATTACK, ENEMY_CLASS_STELLAR_SWEEP_FRONT, ENEMY_CLASS_EVENT_PRISMATIC]
-// if (reverse.includes(enemy_class)) {
-//     // 表示を逆順にする
-//     $("#enemy_list").html($("#enemy_list option").toArray().reverse());
-//     $("#enemy_list").prop("selectedIndex", 0);
-// }
-
-// if (enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
-// スコアタの場合、グレードを表示する。
-// $(".score_attack").css("display", "block");
-// $("#score_lv").show();
-// $("#prediction_score").show();
-// } else {
-// $(".score_attack").css("display", "none");
-// $("#score_lv").hide();
-// $("#prediction_score").hide();
-// }
-// if (enemy_class == ENEMY_CLASS_HARD_LAYER) {
-//     // 異時層の場合、サブパーティを表示する。
-//     $(".hard_layer").css("display", "block");
-// } else {
-//     $(".hard_layer").css("display", "none");
-// }
-// if (enemy_class == ENEMY_CLASS_CONTROL_BATTLE) {
-//     // 制圧戦、バイクバフを表示する。
-//     $(".bike_buff").css("display", "block");
-//     $(".bike_parts").val(0);
-//     // メンバー情報作成
-//     let member_info = new Member();
-//     member_info.is_select = true;
-//     member_info.chara_no = 20;
-//     let style_info = {};
-//     style_info.chara_id = 501;
-//     style_info.jewel_type = 0;
-//     member_info.style_info = style_info;
-//     support_style_list[0] = member_info;
-//     addBuffList(member_info, 2);
-// } else {
-//     removeSupportMember(0);
-//     $(".bike_buff").css("display", "none");
-// }
-// if (enemy_class == ENEMY_CLASS_SERAPH_ENCOUNTER) {
-//     $(".randam_card").show();
-// } else {
-//     $(".randam_card").hide();
-// }
-// if (enemy_class == ENEMY_CLASS_FREE_INPUT) {
-//     // 自由入力の場合、入力を解除する
-//     $("#enemy_save").show();
-//     $(".enemy_input").attr("readonly", false);
-//     $("#enemy_list").addClass("short");
-// } else {
-//     $("#enemy_save").hide();
-//     $(".enemy_input").attr("readonly", true);
-//     $("#enemy_list").removeClass("short");
-// }
-//     // 既存のメンバーの情報を削除
-//     for (let i = 0; i < 6; i++) {
-//         removeSubMember(i);
-//     }
-//     $("#sub_troops").val(-1);
-//     setEnemyStatus();
-// }
-
 // 敵情報取得
 function getEnemyInfo() {
     const enemy_class = Number($("#enemy_class option:selected").val());
@@ -2497,17 +2271,6 @@ function getEnemyInfo() {
     const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
     return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
 }
-
-// // グレード情報更新
-// function updateGrade(grade_sum) {
-//     for (let i = 1; i <= 3; i++) {
-//         setEnemyElement("#enemy_physical_" + i, null, - grade_sum["physical_" + i], null);
-//     }
-//     for (let i = 0; i <= 5; i++) {
-//         setEnemyElement("#enemy_element_" + i, null, - grade_sum["element_" + i], null);
-//     }
-//     displayWeakRow();
-// }
 
 // グレード情報取得
 function getGradeSum(enemy_info) {
@@ -2567,96 +2330,12 @@ function judgeConditions(conditions) {
     return false;
 }
 
-// 敵ステータス設定
-// function setEnemyStatus(enemy_info, isUpdate) {
-//     if (!enemy_info) {
-//         return;
-//     }
-
-//     // 移行中の暫定対応
-//     if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
-//         $("#prediction_score").show();
-//     } else {
-//         $("#prediction_score").hide();
-//     }
-//     $("#enemy_stat").val(enemy_info.enemy_stat);
-//     let strong_break = $("#strong_break").prop("checked") ? 300 : 0;
-//     $("#enemy_destruction_limit").val(Number(enemy_info.destruction_limit) + strong_break);
-//     $("#enemy_destruction_rate").val(Number(enemy_info.destruction_limit) + strong_break);
-//     $("#enemy_destruction").val(Number(enemy_info.destruction));
-//     for (let i = 1; i <= 3; i++) {
-//         setEnemyElement("#enemy_physical_" + i, enemy_info["physical_" + i], 0, 0);
-//     }
-//     for (let i = 0; i <= 5; i++) {
-//         setEnemyElement("#enemy_element_" + i, enemy_info["element_" + i], 0, 0);
-//     }
-//     $("#enemy_hp").val(Number(enemy_info.max_hp).toLocaleString());
-//     setHpGarge(100);
-//     let max_dp_list = enemy_info.max_dp.split(",");
-//     for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-//         if (i < max_dp_list.length) {
-//             $("#enemy_dp_" + i).val(Number(max_dp_list[i]).toLocaleString());
-//             $("#enemy_dp_" + i).parent().show();
-//             $("#rest_dp_rate_" + i).parent().show();
-//         } else {
-//             $("#enemy_dp_" + i).parent().hide();
-//             $("#rest_dp_rate_" + i).parent().hide();
-//         }
-//         setDpGarge(i, 0);
-//     }
-//     $(".row_dp").css("display", "none");
-//     if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
-//         updateEnemyScoreAttack(enemy_info);
-//     }
-//     // バフ効果量を更新
-//     $(".variable_effect_size").each(function (index, value) {
-//         updateBuffEffectSize($(value));
-//     });
-//     if (isUpdate) {
-//         // 再ソート
-//         $(".redisplay").each(function (index, value) {
-//             sortEffectSize($(value));
-//             select2ndSkill($(value));
-//         });
-//     }
-//     // 耐性変更時用に再実行
-//     updateEnemyResistDown();
-
-//     // ダメージ再計算
-//     calcDamage();
-// }
-
 // 敵ステータス更新
 function updateEnemyStatus(enemy_class_no, enemy_info) {
     const enemy_class = 99;
     let filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
     let index = enemy_list.findIndex((obj) => obj === filtered_enemy[0]);
     Object.assign(enemy_list[index], enemy_info);
-}
-
-// スコアアタック敵ステータス設定
-function updateEnemyScoreAttack(enemy_info) {
-    // if (!enemy_info) {
-    //     enemy_info = getEnemyInfo();
-    // }
-    // let grade_sum = getGradeSum(enemy_info);
-    // let score_attack = getScoreAttack(enemy_info.sub_no);
-    // let score_lv = Number($("#score_lv").val() ? $("#score_lv").val() : 150);
-    // let enemy_stat = score_stat[score_lv - 100];
-    // let enemy_hp = getScoreHpDp(score_lv, score_attack, "hp_rate");
-    // let max_dp_list = enemy_info.max_dp.split(",");
-    // for (let i = 0; i < max_dp_list.length; i++) {
-    //     let enemy_dp = getScoreHpDp(score_lv, score_attack, "dp_rate");
-    //     $("#enemy_dp_" + i).val((enemy_dp * (1 + grade_sum["dp_rate"] / 100)).toLocaleString());
-    // // }
-    // $("#enemy_stat").val(enemy_stat);
-    // $("#socre_enemy_unit").val(score_attack.enemy_count);
-    // $("#enemy_hp").val((enemy_hp * (1 + grade_sum["hp_rate"] / 100)).toLocaleString());
-    // if (grade_sum["destruction_limit"]) {
-    //     $("#enemy_destruction_limit").val(grade_sum["destruction_limit"]);
-    //     $("#enemy_destruction_rate").val(grade_sum["destruction_limit"]);
-    // }
-    // updateGrade(grade_sum);
 }
 
 // セラフ遭遇戦敵ステータス設定
@@ -2728,33 +2407,6 @@ function getDamageBonus(damage, num, score_attack) {
         damage_bonus = damage_limit_value * (1 + Math.log(damage / damage_limit_value));
     }
     return Math.floor(damage_bonus * score_attack.max_damage_rate / 100);
-}
-
-// 敵耐性設定
-function setEnemyElement(id, init, content, resist_down) {
-    init = init ?? $(id).data("init");
-    $(id).data("init", init);
-    content = content ?? $(id).data("content");
-    $(id).data("content", content);
-    resist_down = resist_down ?? $(id).data("resist_down");
-    $(id).data("resist_down", resist_down);
-
-    init = Number(init) || 0;
-    content = Number(content) || 0;
-    resist_down = Number(resist_down) || 0;
-
-    if (resist_down > 0 && init < 100) {
-        init = 100;
-    }
-    let val = init + content + resist_down;
-    $(id).val(val);
-    $(id).removeClass("enemy_resist");
-    $(id).removeClass("enemy_weak");
-    if (val < 100) {
-        $(id).addClass("enemy_resist");
-    } else if (val > 100) {
-        $(id).addClass("enemy_weak");
-    }
 }
 
 // 効果量ソート
@@ -3053,18 +2705,6 @@ function getScoreAttackBonus(kind, member_info) {
     return effect_max;
 }
 
-// DPゲージ設定
-// function setDpGarge(i, val) {
-//     $("#dp_range_" + i).val(val);
-//     $("#dp_rate_" + i).val(val + '%');
-//     applyGradient($("#dp_range_" + i), "#4F7C8B", val);
-// }
-// HPゲージ設定
-// function setHpGarge(val) {
-//     $("#hp_range").val(val);
-//     $("#hp_rate").val(val + '%');
-//     applyGradient($("#hp_range"), "#7C4378", val);
-// }
 // カンマ削除
 function removeComma(value) {
     var regex = /[^0-9]/g;

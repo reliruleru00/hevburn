@@ -92,11 +92,12 @@ const loadExclusionSkill = (member_info) => {
 // 部隊リストの呼び出し
 const loadTroopsList = (select_list, troops_no) => {
     for (let i = 0; i < 6; i++) {
+        select_list[i] = undefined;
+    }
+    for (let i = 0; i < 6; i++) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
         if (!isNaN(style_id) && Number(style_id) !== 0) {
             setStyleMember(select_list, troops_no, i, Number(style_id));
-        } else {
-            select_list[i] = undefined;
         }
     }
 }

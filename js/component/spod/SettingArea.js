@@ -225,7 +225,7 @@ const SettingArea = () => {
         localStorage.setItem("is_overwrite", e.target.checked);
     }
 
-    const { styleList, setStyleList, setMember, saveMember, setStyle } = useStyleList();
+    const { styleList, setStyleList, saveMember, removeMember } = useStyleList();
 
     const [hideMode, setHideMode] = React.useState(false);
 
@@ -359,7 +359,7 @@ const SettingArea = () => {
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={startBattle} />
                         </div>
                         <div>
-                            <ConstraintsListComponent />
+                            <ConstraintsList />
                         </div>
                         <div>
                             <ReactModal

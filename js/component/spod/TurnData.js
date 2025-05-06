@@ -209,12 +209,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const handleSelectTarget = (chara_id) => {
         const unit = turn.unit_list.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_target_chara_id = chara_id;
+        turn.user_operation.select_skill[modalSetting.modalIndex].buff_target_chara_id = chara_id;
         reRender(turn.user_operation, true);
     };
 
     const handleSelectEffect = (effect_type) => {
         const unit = turn.unit_list.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_effect_select_type = effect_type;
+        turn.user_operation.select_skill[modalSetting.modalIndex].buff_effect_select_type = effect_type;
         let sp_cost = unit.sp_cost;
         let skill_info = getSkillData(unit.select_skill_id);
 

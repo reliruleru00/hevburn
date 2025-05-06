@@ -44,6 +44,7 @@ const ContentsAreaComponent = ({ }) => {
             hp_rate: 0,
             dp_rate: 0,
             destruction_limit: 0,
+            destruction_resist: 0,
         }
     };
 

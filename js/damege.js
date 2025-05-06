@@ -275,18 +275,6 @@ function setEventTrigger() {
             return;
         }
     });
-    // 破壊率上限変更
-    $("#enemy_destruction_limit").on("change", function (event) {
-        let destructionValue = Number($("#enemy_destruction_rate").val());
-        let maxDestruction = Number($(this).val());
-        if (maxDestruction <= 100) {
-            $(this).val(100);
-            maxDestruction = 100;
-        }
-        if (maxDestruction < destructionValue) {
-            $("#enemy_destruction_rate").val(maxDestruction);
-        }
-    });
     // プレイヤーDP変更
     $(".player_dp_range").on("input", function (event) {
         let val = $(this).val();
@@ -2231,7 +2219,7 @@ function getDestructionEffectSize(hit_count) {
     destruction_effect_size += getChainEffectSize("blast");
     // 制圧戦
     destruction_effect_size += getBikePartsEffectSize("destruction_rate");
-    destruction_effect_size -= grade_sum.destruction;
+    destruction_effect_size += grade_sum.destruction;
     return destruction_effect_size / 100;
 }
 

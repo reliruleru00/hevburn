@@ -60,6 +60,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
         dispatch({ type: "SET_DESTRUCTION", value: destruction });
     }
 
+    // HP補正
     let maxHp = Number(enemy_info.max_hp);
     let enemy_stat = Number(enemy_info.enemy_stat);
     if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
@@ -70,6 +71,9 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
     maxHp *= (1 + state.correction.hp_rate / 100);
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
 
+    // 破壊率補正
+    let destruction = enemy_info.destruction
+    destruction *= (1 - state.correction.destruction_resist / 100);
 
     React.useEffect(() => {
         // 初回描画時に呼び出す
@@ -88,7 +92,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
         // ダメージ再計算
         calcDamage();
     });
-    
+
     // 自由入力時の対応
     let is_free_input = false;
     if (enemy_info.enemy_class == ENEMY_CLASS.FREE_INPUT) {
@@ -122,7 +126,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
                         <label className="checkbox01 text-xs font-bold" htmlFor="strong_break">強ブレイク</label>
                     </div>
                     <div className="text-right enemy_label">破壊係数</div>
-                    <input type="number" className="text-center" id="enemy_destruction" min="1" value={enemy_info.destruction} readOnly={!is_free_input}
+                    <input type="number" className="text-center" id="enemy_destruction" min="1" value={destruction} readOnly={!is_free_input}
                         onChange={(e) => handleEnemyChange("destruction", e.target.value)} />
                 </div>
                 <div>

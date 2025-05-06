@@ -18,7 +18,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData }) => {
                 user_operation_list: userOperationList,
             }
             let compress = compressString(JSON.stringify(save_data));
-            // localStorage.setItem(`sim_data_${i}`, compress);
+            localStorage.setItem(`sim_data_${i}`, compress);
             handleClose();
         } else if (mode == "load") {
             let jsonstr = localStorage.getItem(`sim_data_${i}`);

@@ -246,10 +246,10 @@ const SettingArea = () => {
             }
         };
         // 後衛が居る場合、前衛に空き不可
-        const hasBlankFront = select_style_list.some(function (style, index) {
+        const hasBlankFront = styleList.selectStyleList.some(function (style, index) {
             return style === undefined && index <= 2
         });
-        const hasBack = select_style_list.some(function (style, index) {
+        const hasBack = styleList.selectStyleList.some(function (style, index) {
             return style !== undefined && index >= 3
         });
         if (hasBlankFront && hasBack) {
@@ -296,6 +296,7 @@ const SettingArea = () => {
                 member_info.init_sp = unit_data.init_sp;
                 member_info.exclusion_skill_list = unit_data.exclusion_skill_list;
                 updatedStyleList[index] = member_info;
+                localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, unit_data.style_id);
             } else {
                 removeMember(index);
             }

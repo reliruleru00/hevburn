@@ -59,7 +59,7 @@ const CharaStatus = () => {
         // 初期化
         $("#sub_troops").val("-1");
         loadSubTroopsList(-1);
-        loadTroopsList(select_style_list, select_troops);
+        select_style_list = loadTroopsList(select_troops);
     }
 
     // メンバー追加

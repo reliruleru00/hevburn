@@ -1,34 +1,40 @@
 const ContentsAreaComponent = ({ }) => {
-
     // 敵選択
-    let enemy_class = localStorage.getItem("enemy_class");
-    enemy_class = enemy_class ? enemy_class : "1";
-    let enemy_select = localStorage.getItem("enemy_select");
-    enemy_select = enemy_select ? enemy_select : "1";
+    const [enemyClass, setEnemyClass] = React.useState(() => {
+        let enemy_class = localStorage.getItem("enemy_class");
+        return enemy_class ? enemy_class : "1";
+    });
 
-    const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no == enemy_select);
-    let enemy_info = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
+    const [enemySelect, setEnemySelect] = React.useState(() => {
+        let enemy_select = localStorage.getItem("enemy_select");
+        return enemy_select ? enemy_select : "1";
+    });
 
-    if (!enemy_info) {
+    const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemyClass && obj.enemy_class_no == enemySelect);
+    let enemyInfo = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
+
+    if (!enemyInfo) {
         // データ消えたりしてたら初期値に戻す
-        enemy_class = "1";
-        enemy_select = "1";
-        enemy_info = enemy_list[0];
+        enemyClass = "1";
+        enemySelect = "1";
+        enemyInfo = enemy_list[0];
     }
-    enemy_info = Object.assign({}, enemy_info);
+    enemyInfo = Object.assign({}, enemyInfo);
 
-    const handleChange = (enemy_class, enemy_select) => {
-        const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no == enemy_select);
-        let enemy_info = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
-        dispatch({ type: "SET_ENEMY", enemy_info });
+    const handleChange = (newClass, newSelect) => {
+        const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == newClass && obj.enemy_class_no == newSelect);
+        let enemyInfo = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
+        setEnemyClass(newClass);
+        setEnemySelect(newSelect);
+        dispatch({ type: "SET_ENEMY", enemy_info : enemyInfo });
     };
 
     const initialState = {
-        enemy_info: enemy_info,
+        enemy_info: enemyInfo,
         hpRate: 100,
-        dpRate: Array(enemy_info.max_dp.split(",").length).fill(0),
-        destruction: enemy_info.destruction_limit,
-        max_limit: enemy_info.destruction_limit,
+        dpRate: Array(enemyInfo.max_dp.split(",").length).fill(0),
+        destruction: enemyInfo.destruction_limit,
+        max_limit: enemyInfo.destruction_limit,
         strong_break: false,
         score_lv: 150,
         correction: {
@@ -146,7 +152,7 @@ const ContentsAreaComponent = ({ }) => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
     let attack_info = getAttackInfo();
     // 移行中の暫定対応
-    if (enemy_info.enemy_class == ENEMY_CLASS_SCORE_ATTACK) {
+    if (enemyClass == ENEMY_CLASS_SCORE_ATTACK) {
         $("#prediction_score").show();
     } else {
         $("#prediction_score").hide();
@@ -160,11 +166,11 @@ const ContentsAreaComponent = ({ }) => {
         <>
             <div id="contents_area" className="surround_area adjust_width mx-auto mt-2">
                 <label className="area_title">コンテンツ情報</label>
-                <EnmeyListComponent enemy_class={enemy_class} enemy_select={enemy_select} handleChange={handleChange} is_free_input={true} />
-                <HardLayerComponent enemy_info={enemy_info} />
-                <ScoreSettingComponent enemy_info={enemy_info} state={state} dispatch={dispatch} />
-                <BikePartsComponent enemy_info={enemy_info} />
-                <SeraphCardList enemy_info={enemy_info} />
+                <EnmeyListComponent enemyClass={enemyClass} enemySelect={enemySelect} handleChange={handleChange} isFreeInput={true} />
+                <HardLayerComponent enemy_info={enemyInfo} />
+                <ScoreSettingComponent enemy_info={enemyInfo} state={state} dispatch={dispatch} />
+                <BikePartsComponent enemy_info={enemyInfo} />
+                <SeraphCardList enemy_info={enemyInfo} />
             </div>
             <div id="enemy_status" className="surround_area adjust_width mx-auto mt-2">
                 <EnemyAreaComponent state={state} dispatch={dispatch} attack_info={attack_info} />

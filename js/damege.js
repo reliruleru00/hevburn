@@ -31,9 +31,9 @@ function setEventTrigger() {
                 $(`.buff_physical-${select_attack_skill.attack_physical} > input:not(':disabled')`).prop("checked", false);
             }
             // キャラ、スタイル専用非表示
-            $(".skill_unique").hide();
+            // $(".skill_unique").hide();
 
-            $(".status_attack_skill").removeClass("status_attack_skill");
+            // $(".status_attack_skill").removeClass("status_attack_skill");
         }
         if (attack_info === undefined) {
             // $("#attack_physical, #attack_element").attr("src", "img/blank.png");
@@ -596,11 +596,11 @@ function calcDamage() {
         buff += 0.5
     }
     // 影分身(アーデルハイト)
-    if (attack_info.chara_id == 17 && $("#skill_unique_shadow_clone_17").prop("checked")) {
+    if (attack_info.chara_id == 17 && $("#skill_unique_shadow_clone").prop("checked")) {
         buff += 0.3;
     }
     // 影分身(マリー)
-    if (attack_info.chara_id == 18 && $("#skill_unique_shadow_clone_18").prop("checked")) {
+    if (attack_info.chara_id == 18 && $("#skill_unique_shadow_clone").prop("checked")) {
         buff += 0.3;
     }
 

@@ -26,7 +26,7 @@ const AttackList = ({ setAttackInfo }) => {
                 break;
             }
         }
-    }, []);
+    }, [cehckSpecial]);
 
     const handleChangeAttackId = (value) => {
         setSelectAttackId(value);
@@ -49,7 +49,7 @@ const AttackList = ({ setAttackInfo }) => {
         <div className="attack_area surround_area mx-auto mt-2 adjust_width">
             <label className="area_title">攻 撃</label>
             <div className="flex">
-                <select className="ml-6" id="attack_list" onChange={e => handleChangeAttackId(Number(e.target.value))}>
+                <select className="ml-6" id="attack_list" value={selectAttackId} onChange={e => handleChangeAttackId(Number(e.target.value))}>
                     {styleList.selectStyleList.map((memberInfo, index) => {
                         let charaData = getCharaData(memberInfo.style_info.chara_id)
                         return (
@@ -58,7 +58,7 @@ const AttackList = ({ setAttackInfo }) => {
                                     obj.chara_id === memberInfo.style_info.chara_id
                                     && (obj.style_id === memberInfo.style_info.style_id || obj.style_id === 0)
                                     && (!cehckSpecial || obj.attack_id < 1000)
-                                ).sort((x, y) => y.skill_id - x.skill_id
+                                ).sort((x, y) => y.style_id - x.style_id
                                 ).map((skill, index) => {
                                     return (
                                         <option key={`attack${skill.attack_id}`} value={skill.attack_id} data-chara_id={skill.chara_id}>
@@ -99,79 +99,88 @@ const AttackList = ({ setAttackInfo }) => {
                         EXスキル以外を非表示にする
                     </label>
                 </div>
-                {selectAttackInfo && (() => {
-                    if (selectAttackInfo.attack_id === 190) {
-                        return (
-                            <div className="skill_unique">
-                                <div className="flex">
-                                    山脇様のしもべ
-                                    <select id="servant_count">
-                                        <option value="1">1人</option>
-                                        <option value="2">2人</option>
-                                        <option value="3">3人</option>
-                                        <option value="4">4人</option>
-                                        <option value="5">5人</option>
-                                        <option value="6">6人</option>
-                                    </select>
-                                </div>
-                            </div>
-                        )
-                    }
-                })()}
-                < div className="skill_unique attack_attack_id-115 attack_attack_id-2167 attack_attack_id-136 attack_attack_id-166 attack_attack_id-187 hidden">
-                    <div className="flex">
-                        自身のDP
-                        <div className="dp_gauge">
-                            <input
-                                className="player_dp_range dp_range w-[160px]"
-                                defaultValue="100"
-                                id="skill_unique_dp_rate"
-                                max="150"
-                                min="0"
-                                step="1"
-                                style={{
-                                    background:
-                                        "linear-gradient(to right, rgb(79, 124, 139) 0%, rgb(196, 211, 216) 66.6667%, rgb(255, 255, 255) 66.6667%)",
-                                }}
-                                type="range"
-                            />
-                            <output className="gauge_rate" id="player_dp_rate">
-                                100%
-                            </output>
-                        </div>
-                    </div>
-                </div>
-                <div className="skill_unique attack_attack_id-154 attack_attack_id-155 attack_attack_id-2162 hidden">
-                    <div className="flex">
-                        残りSP
-                        <input
-                            className="ml-2 w-12"
-                            defaultValue="30"
-                            id="skill_unique_sp"
-                            type="number"
-                        />
-                    </div>
-                </div>
-
-                <div className="skill_unique attack_chara_id-45 hidden">
-                    <input id="skill_unique_cherry_blossoms" type="checkbox" />
-                    <label className="checkbox01" htmlFor="skill_unique_cherry_blossoms">
-                        桜花の矢
-                    </label>
-                </div>
-                <div className="skill_unique attack_chara_id-17 hidden">
-                    <input id="skill_unique_shadow_clone_17" type="checkbox" />
-                    <label className="checkbox01" htmlFor="skill_unique_shadow_clone_17">
-                        影分身
-                    </label>
-                </div>
-                <div className="skill_unique attack_chara_id-18 hidden">
-                    <input id="skill_unique_shadow_clone_18" type="checkbox" />
-                    <label className="checkbox01" htmlFor="skill_unique_shadow_clone_18">
-                        影分身
-                    </label>
-                </div>
+                <SkillUnique selectAttackInfo={selectAttackInfo} />
             </div>
         </div >
     )
 };
+
+const DP_LIST = [115, 136, 187, 2167, 166];
+const SP_LIST = [154, 155, 2162];
+
+function SkillUnique({ selectAttackInfo }) {
+    if (!selectAttackInfo) return null;
+
+    const { attack_id, chara_id } = selectAttackInfo;
+
+    if (attack_id === 190) {
+        return (
+            <div className="skill_unique">
+                <div className="flex">
+                    山脇様のしもべ
+                    <select id="servant_count">
+                        {[1, 2, 3, 4, 5, 6].map(num => (
+                            <option key={num} value={num}>{num}人</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+        );
+    }
+
+    if (DP_LIST.includes(attack_id)) {
+        return (
+            <div className="skill_unique">
+                <div className="flex">
+                    自身のDP
+                    <div className="dp_gauge">
+                        <input type="range" className="player_dp_range dp_range w-[160px]" defaultValue="100" id="skill_unique_dp_rate" max="150" min="0" step="1"
+                            style={{
+                                background:
+                                    "linear-gradient(to right, rgb(79, 124, 139) 0%, rgb(196, 211, 216) 66.6667%, rgb(255, 255, 255) 66.6667%)",
+                            }}
+                        />
+                        <output className="gauge_rate" id="player_dp_rate">
+                            100%
+                        </output>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (SP_LIST.includes(attack_id)) {
+        return (
+            <div className="skill_unique">
+                <div className="flex">
+                    残りSP
+                    <input className="ml-2 w-12" defaultValue="30" max="30" mix="0" id="skill_unique_sp" type="number" />
+                </div>
+            </div>
+        );
+    }
+
+    if (chara_id === 45) {
+        return (
+            <div className="skill_unique">
+                <input id="skill_unique_cherry_blossoms" type="checkbox" />
+                <label className="checkbox01" htmlFor="skill_unique_cherry_blossoms">
+                    桜花の矢
+                </label>
+            </div>
+        );
+    }
+
+    if (chara_id === 17 || chara_id === 18) {
+        return (
+            <div className="skill_unique">
+                <input id="skill_unique_shadow_clone" type="checkbox" />
+                <label className="checkbox01" htmlFor="skill_unique_shadow_clone">
+                    影分身
+                </label>
+            </div>
+        );
+    }
+
+    return null;
+}

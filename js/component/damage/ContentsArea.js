@@ -1,4 +1,4 @@
-const ContentsAreaComponent = ({ }) => {
+const ContentsArea = ({ attackInfo }) => {
     // 敵選択
     const [enemyClass, setEnemyClass] = React.useState(() => {
         let enemy_class = localStorage.getItem("enemy_class");
@@ -26,7 +26,7 @@ const ContentsAreaComponent = ({ }) => {
         let enemyInfo = filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
         setEnemyClass(newClass);
         setEnemySelect(newSelect);
-        dispatch({ type: "SET_ENEMY", enemy_info : enemyInfo });
+        dispatch({ type: "SET_ENEMY", enemy_info: enemyInfo });
     };
 
     const initialState = {
@@ -150,7 +150,6 @@ const ContentsAreaComponent = ({ }) => {
         }
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
-    let attack_info = getAttackInfo();
     // 移行中の暫定対応
     if (enemyClass == ENEMY_CLASS_SCORE_ATTACK) {
         $("#prediction_score").show();
@@ -173,13 +172,8 @@ const ContentsAreaComponent = ({ }) => {
                 <SeraphCardList enemy_info={enemyInfo} />
             </div>
             <div id="enemy_status" className="surround_area adjust_width mx-auto mt-2">
-                <EnemyAreaComponent state={state} dispatch={dispatch} attack_info={attack_info} />
+                <EnemyAreaComponent state={state} dispatch={dispatch} attackInfo={attackInfo} />
             </div>
         </>
     )
 };
-
-$(function () {
-    const rootElement = document.getElementById('enemy_area');
-    ReactDOM.createRoot(rootElement).render(<ContentsAreaComponent />);
-});

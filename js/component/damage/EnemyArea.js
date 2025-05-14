@@ -1,11 +1,9 @@
-const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
+const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     const PHYSICAL_LIST = { 1: "slash", 2: "stab", 3: "strike" };
     const ELEMENT_LIST = { 0: "none", 1: "fire", 2: "ice", 3: "thunder", 4: "light", 5: "dark" };
 
     let enemy_info = state.enemy_info;
     let max_dp_list = enemy_info.max_dp.split(",");
-
-    const [attackInfo, setAttackInfo] = React.useState(attack_info);
 
     const [elementResistDown, setElementResistDown] = React.useState([0, 0, 0, 0, 0, 0]);
 
@@ -43,9 +41,9 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
     };
 
     // 攻撃スキル変更
-    window.updateAttackInfo = function (attack_info) {
-        setAttackInfo(attack_info);
-    }
+    // window.updateAttackInfo = function (attackInfo) {
+    //     setAttackInfo(attackInfo);
+    // }
     // 耐性変更
     window.setEnemyResistDown = function (attack_element, resist_down) {
         const newResist = [0, 0, 0, 0, 0, 0];
@@ -180,7 +178,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
                         let id = `physical_${key}`;
                         let correction = state.correction[`physical_${key}`];
                         let val = enemy_info[id] - (focus == id ? 0 : correction);
-                        if (attackInfo.penetration && key == attackInfo.attack_physical) {
+                        if (attackInfo?.penetration && key == attackInfo?.attack_physical) {
                             // 貫通クリティカル
                             val = 100 + Number(attackInfo.penetration);
                             if (attackInfo.attack_id == 190) {
@@ -217,7 +215,7 @@ const EnemyAreaComponent = ({ state, dispatch, attack_info }) => {
                                 val = 100;
                             }
                             val -= correction - elementResistDown[key];
-                            if (attackInfo.penetration && key == 0) {
+                            if (attackInfo?.penetration && key == 0) {
                                 // 貫通クリティカル
                                 val = 100;
                             }

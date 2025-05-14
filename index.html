@@ -34,11 +34,17 @@
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@hello-pangea/dnd@17.0.0/dist/dnd.min.js"></script>
-  <script type="text/babel" src="js/component/modal_style_section.js"></script>
-  <script type="text/babel" src="js/component/style_list.js"></script>
-  <script type="text/babel" src="js/component/damage/chara_status.js"></script>
-  <script type="text/babel" src="js/component/damage/content_area.js"></script>
-  <script type="text/babel" src="js/component/damage/enemy_area.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-modal/3.16.3/react-modal.min.js"
+    integrity="sha512-wEXWOhy18Z5jma0v5C67KJJ9g5qh7069+o7eLtWCuzOvJMcpVa3r5vODBzgId6RE0zmz7CsgHKnjsRMczzb5hA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/damege.js"></script>
+  <script type="text/babel" src="js/component/DanageCalculation.js"></script>
+  <script type="text/babel" src="js/component/StyleIcon.js"></script>
+  <script type="text/babel" src="js/component/ModalStyleSelection.js"></script>
+  <script type="text/babel" src="js/component/damage/AttackList.js"></script>
+  <script type="text/babel" src="js/component/damage/CharaStatus.js"></script>
+  <script type="text/babel" src="js/component/damage/ContentsArea.js"></script>
+  <script type="text/babel" src="js/component/damage/EnemyArea.js"></script>
   <script type="text/babel" src="js/component/damage/score_setting.js"></script>
   <script type="text/babel" src="js/component/damage/bike_parts.js"></script>
   <script type="text/babel" src="js/component/damage/hard_layer.js"></script>
@@ -50,7 +56,6 @@
   <script src="js/const.js"></script>
   <script src="js/chara_data.js"></script>
   <script src="js/chara_style.js"></script>
-  <script src="js/damege.js"></script>
   <script src="js/modal.js"></script>
   <script src="js/skill_list.js"></script>
   <script src="js/skill_attack.js"></script>
@@ -63,8 +68,6 @@
   <script src="js/score_data.js"></script>
   <script>
     var chara_no = -1;
-    var type_physical = ["", "slash", "stab", "strike"];
-    var type_element = ["none", "fire", "ice", "thunder", "light", "dark"];
     var select_attack_skill;
     var open_damage_detail;
     const buff_kbn = {
@@ -104,11 +107,6 @@
       // イベント設定
       setEventTrigger();
 
-      // スタイルリスト読み込み
-      select_troops = select_troops ? select_troops : 0;
-      $("#troops_btn_" + select_troops).addClass("selected_troops");
-      loadTroopsList(select_style_list, select_troops);
-
       // MicroModal初期化
       MicroModal.init({
         disableScroll: true,
@@ -125,76 +123,10 @@
   <main>
     <div class="header"></div>
     <div class="frame w-screen pt-3 overflow-y-scroll border-b" style="visibility: hidden;">
+      <div id="root"></div>
       <div class="display_area mx-auto">
         <div class="status_area mx-auto">
-          <div id="chara_status" class="grid grid-cols-7 text-center gap-y-px gap-x-0"></div>
-          <div class="attack_area surround_area mx-auto mt-2 adjust_width">
-            <label class="area_title">攻 撃</label>
-            <div class="flex">
-              <select id="attack_list" class="ml-6">
-              </select>
-              <div class="lv"><select id="skill_lv"></select></div>
-              <img id="attack_physical" class="w-6 h-6" src="img/blank.png">
-              <img id="attack_element" class="w-6 h-6" src="img/blank.png">
-              <label id="range_area">単体</label>
-            </div>
-            <div class="ml-6">
-              <div class="mb-2">
-                <input type="checkbox" id="skill_special_display" checked><label class="checkbox01"
-                  for="skill_special_display">EXスキル以外を非表示にする</label>
-              </div>
-              <!-- バーチカルフォース/パドマ・ナーチュナー/花舞う、可憐のフレア/プレゼント・フォー・ユー/ディナミコ・アチェーゾ専用 -->
-              <div
-                class="skill_unique attack_attack_id-115 attack_attack_id-2167 attack_attack_id-136 attack_attack_id-166 attack_attack_id-187 hidden">
-                <div class="flex">
-                  自身のDP
-                  <div class="dp_gauge">
-                    <input type="range" id="skill_unique_dp_rate" class="player_dp_range dp_range w-[160px]" min="0"
-                      max="150" step="1" value="100"
-                      style="background: linear-gradient(to right, rgb(79, 124, 139) 0%, rgb(196, 211, 216) 66.6667%, rgb(255, 255, 255) 66.6667%);">
-                    <output id="player_dp_rate" class="gauge_rate">100%</output>
-                  </div>
-                </div>
-              </div>
-              <!-- コーシュカ・アルマータ/疾きこと風の如し専用 -->
-              <div class="skill_unique attack_attack_id-154 attack_attack_id-155 attack_attack_id-2162 hidden">
-                <div class="flex">
-                  残りSP
-                  <input id="skill_unique_sp" type="number" value="30" class="ml-2 w-12">
-                </div>
-              </div>
-              <!-- メガデストロイヤー専用 -->
-              <div class="skill_unique attack_attack_id-190 hidden">
-                <div class="flex">
-                  山脇様のしもべ
-                  <select id="servant_count">
-                    <option value="1">1人</option>
-                    <option value="2">2人</option>
-                    <option value="3">3人</option>
-                    <option value="4">4人</option>
-                    <option value="5">5人</option>
-                    <option value="6">6人</option>
-                  </select>
-                </div>
-              </div>
-              <!-- 美也専用 -->
-              <div class="skill_unique attack_chara_id-45 hidden">
-                <input type="checkbox" id="skill_unique_cherry_blossoms"><label class="checkbox01"
-                  for="skill_unique_cherry_blossoms">桜花の矢</label>
-              </div>
-              <!-- アーデルハイト専用 -->
-              <div class="skill_unique attack_chara_id-17 hidden">
-                <input type="checkbox" id="skill_unique_shadow_clone_17"><label class="checkbox01"
-                  for="skill_unique_shadow_clone_17">影分身</label>
-              </div>
-              <!-- マリー専用 -->
-              <div class="skill_unique attack_chara_id-18 hidden">
-                <input type="checkbox" id="skill_unique_shadow_clone_18"><label class="checkbox01"
-                  for="skill_unique_shadow_clone_18">影分身</label>
-              </div>
-            </div>
-          </div>
-          <div id="enemy_area"></div>
+          <div id="status_area"></div>
           <div class="surround_area mx-auto my-2 adjust_width">
             <label class="area_title">他設定</label>
             <div class="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
@@ -354,8 +286,10 @@
                 </td>
               </tr>
               <tr>
-                <td class="display_style_id-161 display_style_id-162 display_style_id-163 hidden type " colspan="2">山脇様のしもべ</td>
-                <td class="display_style_id-161 display_style_id-162 display_style_id-163 hidden"><select id="servant" class="servant redisplay" name="buff">
+                <td class="display_style_id-161 display_style_id-162 display_style_id-163 hidden type " colspan="2">
+                  山脇様のしもべ</td>
+                <td class="display_style_id-161 display_style_id-162 display_style_id-163 hidden"><select id="servant"
+                    class="servant redisplay" name="buff">
                     <option selected value="">無し</option>
                   </select></td>
                 <td class="display_style_id-161 display_style_id-162 display_style_id-163 hidden"></td>
@@ -772,13 +706,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal micromodal-slide" id="modal_style_section" aria-hidden="true">
-      <div class="modal__overlay" tabindex="-1" data-micromodal-close>
-        <div class="modal__container container_style" role="dialog" aria-modal="true" aria-labelledby="modal_section">
-          <div id="modal_section" class="modal_section"></div>
         </div>
       </div>
     </div>

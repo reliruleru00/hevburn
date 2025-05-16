@@ -1950,6 +1950,12 @@ function getSumBuffEffectSize(attack_info, grade_sum) {
     if (grade_sum.power_up) {
         sum_buff += grade_sum.power_up;
     }
+    if (attack_info.attack_element != 0) {
+        let name = "element_power_up_" + attack_info.attack_element;
+        if (grade_sum[name]) {
+            sum_buff += grade_sum[name];
+        }
+    }
     // 制圧戦
     sum_buff += getBikePartsEffectSize("buff");
     return 1 + sum_buff / 100;

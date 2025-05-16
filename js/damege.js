@@ -2389,6 +2389,8 @@ function calcScore(detail, grade_magn) {
 // ダメージボーナス算出
 function getDamageBonus(damage, num, score_attack) {
     damage *= Number($("#socre_enemy_unit").val());
+    // ダメージ上限
+    damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
     let damage_bonus;
     let damage_limit_value;
     if (score_attack.enemy_count == 1) {

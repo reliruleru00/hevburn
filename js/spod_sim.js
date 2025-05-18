@@ -377,7 +377,8 @@ function startAction(turn_data) {
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP, BUFF_CRITICALRATEUP, BUFF_CRITICALDAMAGEUP, BUFF_ELEMENT_CRITICALRATEUP,
         BUFF_ELEMENT_CRITICALDAMAGEUP, BUFF_CHARGE, BUFF_DAMAGERATEUP];
-    seq.forEach(function (skill_data) {
+    const front_cost_list = [];
+    for (const skill_data of seq) {
         let skill_info = skill_data.skill_info;
         let unit_data = getUnitData(turn_data, skill_data.place_no);
         // SP消費してから行動
@@ -394,6 +395,7 @@ function startAction(turn_data) {
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
         } else if (skill_info.attack_id) {
+            front_cost_list.push(unit_data.sp_cost);
             attack_info = getAttackInfo(skill_info.attack_id);
         }
 
@@ -428,6 +430,52 @@ function startAction(turn_data) {
             }
         }
         origin(turn_data, skill_info, unit_data);
+    }
+
+    // 後衛の選択取得
+    [3, 4, 5].forEach(function (place_no) {
+        let unit_data = getUnitData(turn_data, place_no);
+        let skill_id = unit_data.select_skill_id;
+        // 無し
+        if (skill_id == SKILL.NONE) {
+            return true;
+        }
+        // 追撃
+        if (skill_id == SKILL.PURSUIT) {
+            abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+            return true;
+        }
+
+        // 自動追撃
+        if (skill_id == SKILL.AUTO_PURSUIT) {
+            front_cost_list.filter(cost => cost <= 8).forEach(cost => {
+                abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+            });
+            return true;
+        }
+        let skill_info = getSkillData(skill_id)
+        let attack_info = getAttackInfo(skill_info.attack_id);
+        if (attack_info) {
+            // SP消費してから行動
+            payCost(unit_data);
+
+            let buff_list = getBuffInfo(skill_info.skill_id);
+            for (let i = 0; i < buff_list.length; i++) {
+                let buff_info = buff_list[i];
+                if (!(buff_info.skill_attack1 == 999 && ATTACK_AFTER_LIST.includes(buff_info.buff_kind))) {
+                    addBuffUnit(turn_data, buff_info, place_no, unit_data);
+                }
+            }
+            consumeBuffUnit(turn_data, unit_data, attack_info, skill_info);
+        }
+        if (skill_id == 633) {
+            // ネコジェット・シャテキ後自動追撃
+            abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+            const validCosts = front_cost_list.filter(cost => cost <= 8);
+            validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
+                abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+            });
+        }
     });
 
     turn_data.over_drive_gauge += turn_data.add_over_drive_gauge;
@@ -520,11 +568,7 @@ const getOverDrive = (turn) => {
 
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             if (isResist(turn.enemy_info, physical, unit_data.normal_attack_element, skill_info.attack_id)) {
-                let enemy_target = 1;
-                if (checkPassiveExist(unit_data.passive_skill_list, 606)) {
-                    enemy_target = enemy_count;
-                }
-                unit_od_plus += calcODGain(3, enemy_target, badies);
+                unit_od_plus += calcODGain(3, 1, badies);
             }
         } else if (skill_info.attack_id) {
             // 攻撃IDの変換(暫定)
@@ -581,8 +625,6 @@ const getOverDrive = (turn) => {
             if (isResist(turn.enemy_info, physical, 0, 0)) {
                 let chara_data = getCharaData(unit_data.style.style_info.chara_id)
                 front_cost_list.filter(cost => cost <= 8).forEach(cost => {
-                    // 追撃アビリティ
-                    abilityAction(ABILIRY.PURSUIT, turn);
                     od_plus += chara_data.pursuit * 2.5
                 });
             }
@@ -603,17 +645,12 @@ const getOverDrive = (turn) => {
                 od_plus += calcODGain(attack_info.hit_count, enemy_target, badies, earring, funnel_list.length);
             }
         }
-
         if (skill_id == 633) {
-            // ネコジェット・シャテキ
-            abilityAction(ABILIRY.PURSUIT, turn);
-            // 追撃アビリティ
+            // ネコジェット・シャテキ後自動追撃
             if (isResist(turn.enemy_info, physical, 0, 0)) {
                 let chara_data = getCharaData(unit_data.style.style_info.chara_id)
                 const validCosts = front_cost_list.filter(cost => cost <= 8);
                 validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
-                    // 追撃アビリティ
-                    abilityAction(ABILIRY.PURSUIT, turn);
                     od_plus += chara_data.pursuit * 2.5;
                 });
             }

@@ -178,6 +178,7 @@ const abilityAction = (action_kbn, turn) => {
         abilityActionUnit(turn, action_kbn, unit)
     }, turn.unit_list);
 }
+
 /** TurnDataここまで */
 
 /** UnitDataここから */
@@ -383,7 +384,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
             }
             break;
         case ABILIRY.PURSUIT: // 追撃時
-            action_list = unit.ability_ex_skill_use;
+            action_list = unit.ability_pursuit;
             break;
         case ABILIRY.OTHER: // その他
             action_list = unit.ability_other;

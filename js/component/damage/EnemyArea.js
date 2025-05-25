@@ -5,7 +5,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     let enemy_info = state.enemy_info;
     let max_dp_list = enemy_info.max_dp.split(",");
 
-    const [elementResistDown, setElementResistDown] = React.useState([0, 0, 0, 0, 0, 0]);
+    // const [elementResistDown, setElementResistDown] = React.useState([0, 0, 0, 0, 0, 0]);
 
     const handleEnemyChange = (key, value) => {
         const newEnemyInfo = enemy_info;
@@ -40,15 +40,9 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         dispatch({ type: "STRONG_BREAK", checked });
     };
 
-    // 攻撃スキル変更
-    // window.updateAttackInfo = function (attackInfo) {
-    //     setAttackInfo(attackInfo);
-    // }
     // 耐性変更
     window.setEnemyResistDown = function (attack_element, resist_down) {
-        const newResist = [0, 0, 0, 0, 0, 0];
-        newResist[attack_element] = resist_down;
-        setElementResistDown(newResist)
+        dispatch({ type: "SET_RRGIST_DOWN", element: attack_element, value: resist_down });
     }
 
     // 敵情報反映
@@ -66,7 +60,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         maxHp = getScoreHpDp(state.score_lv, score_attack, "hp_rate");
         enemy_stat = score_stat[state.score_lv - 100];
     }
-    maxHp *= (1 + state.correction.hp_rate / 100);
+    maxHp = Math.floor(maxHp * (1 + state.correction.hp_rate / 100));
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
 
     // 破壊率補正
@@ -78,13 +72,12 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         updateEnemyResistDown();
     }, []);
 
-    React.useEffect(() => {
-        // 再描画時に呼び出す
-        $(".variable_effect_size").each(function (index, value) {
-            updateBuffEffectSize($(value));
-        });
-        displayWeakRow();
-    }, [enemy_info, elementResistDown]);
+    // React.useEffect(() => {
+    //     // 再描画時に呼び出す
+    //     $(".variable_effect_size").each(function (index, value) {
+    //         updateBuffEffectSize($(value));
+    //     });
+    // }, [enemy_info, state.ResistDown]);
 
     React.useEffect(() => {
         // ダメージ再計算
@@ -141,7 +134,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                                     let score_attack = getScoreAttack(enemy_info.sub_no);
                                     maxDp = getScoreHpDp(state.score_lv, score_attack, "dp_rate");
                                 }
-                                maxDp *= (1 + state.correction.dp_rate / 100);
+                                maxDp = Math.floor(maxDp * (1 + state.correction.dp_rate / 100));
                                 let background = getApplyGradient("#4F7C8B", dp_rate)
                                 return (
                                     <div className="dp_gauge" key={enemy_id}>
@@ -211,10 +204,10 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         let val = enemy_info[id]
                         if (!focus) {
                             // 属性打ち消し
-                            if (val < 100 && elementResistDown[key] > 0) {
+                            if (val < 100 && state.regist_down[key] > 0) {
                                 val = 100;
                             }
-                            val -= correction - elementResistDown[key];
+                            val -= correction - state.regist_down[key];
                             if (attackInfo?.penetration && key == 0) {
                                 // 貫通クリティカル
                                 val = 100;

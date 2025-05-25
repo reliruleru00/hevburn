@@ -1,4 +1,4 @@
-const PredictionScoreComponent = ({}) => {
+const PredictionScoreComponent = ({ }) => {
 
     React.useEffect(() => {
         // 初回起動時に強制表示(移行中の暫定対応)
@@ -6,7 +6,7 @@ const PredictionScoreComponent = ({}) => {
     }, []);
 
     return (
-        <>
+        <div id="prediction_score" className="surround_area mx-auto my-2 adjust_width">
             <label className="area_title">予測スコア</label>
             <div className="mx-auto w-[330px] mt-2">
                 <div>
@@ -112,11 +112,6 @@ const PredictionScoreComponent = ({}) => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 };
-
-$(function () {
-    const rootElement = document.getElementById('prediction_score');
-    ReactDOM.createRoot(rootElement).render(<PredictionScoreComponent />);
-});

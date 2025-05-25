@@ -50,7 +50,7 @@ const AttackList = ({ setAttackInfo }) => {
             <label className="area_title">攻 撃</label>
             <div className="flex">
                 <select className="ml-6" id="attack_list" value={selectAttackId} onChange={e => handleChangeAttackId(Number(e.target.value))}>
-                    {styleList.selectStyleList.map((memberInfo, index) => {
+                    {styleList.selectStyleList.filter(memberInfo => memberInfo && memberInfo.is_select).map((memberInfo, index) => {
                         let charaData = getCharaData(memberInfo.style_info.chara_id)
                         return (
                             <optgroup key={`chara${memberInfo.style_info.chara_id}`} label={charaData.chara_name}>

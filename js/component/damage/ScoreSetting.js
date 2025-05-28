@@ -1,6 +1,6 @@
-const ScoreSettingComponent = ({ enemy_info, state, dispatch }) => {
-
+const ScoreSettingComponent = ({ state, dispatch }) => {
     const [selectHalf, setSelectHalf] = React.useState(1);
+    let enemy_info = state.enemy_info;
     if (enemy_info === undefined || enemy_info.enemy_class != ENEMY_CLASS_SCORE_ATTACK) {
         return null;
     }

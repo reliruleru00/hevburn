@@ -1,8 +1,8 @@
 const BuffSelect = ({ attackInfo, buffList, buffKind, buffSettingMap, handleChangeSkillLv, selectedKey, onChangeSelectedKey, filteredBuffList }) => {
-    if (Object.keys(buffSettingMap).length === 0) return null;
-
-    let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo) 
-    kindBuffList.sort((a, b) => buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size);
+    let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo)
+    if (Object.keys(buffSettingMap).length > 0) {
+        kindBuffList.sort((a, b) => buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size);
+    }
 
     let selectBuff = kindBuffList.find(buff => buff.key === selectedKey);
     return (

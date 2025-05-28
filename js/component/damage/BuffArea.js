@@ -4,8 +4,7 @@ const ELEMENT_KIND = [
     BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
     BUFF.ELEMENT_CRITICALRATEUP,
     BUFF.ELEMENT_CRITICALDAMAGEUP,
-    BUFF.RESISTDOWN,
-    BUFF.FIELD
+    BUFF.RESISTDOWN
 ]
 const OTHER_ONLY_AREA = [
     RANGE.ALLY_BACK,
@@ -14,15 +13,63 @@ const OTHER_ONLY_AREA = [
     RANGE.OTHER_UNIT,
 ]
 
-const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
+const BUFF_KBN = {
+    0: "power_up",
+    1: "element_up",
+    2: "mindeye",
+    3: "defense_down",
+    4: "element_down",
+    5: "fragile",
+    6: "critical_up",
+    7: "critical_damege",
+    8: "critical_element",
+    9: "critical_damege_element",
+    10: "charge",
+    11: "element_field",
+    12: "destruction_rete_up",
+    14: "fightingspirit",
+    15: "misfortune",
+    16: "funnel",
+    18: "strong_break",
+    19: "dp_defense_down",
+    20: "resist_down",
+    21: "permanent_defense_down",
+    22: "permanent_element_down",
+    39: "servant"
+};
+
+const TARGET_KIND = [
+    EFFECT.ATTACKUP, // 攻撃力アップ
+    EFFECT.DAMAGERATEUP, // 破壊率上昇
+    EFFECT.CRITICAL_UP, // クリティカル率アップ
+    EFFECT.FIELD_DEPLOYMENT, // フィールド展開
+    EFFECT.STATUSUP_VALUE, // 能力固定上昇
+    EFFECT.STATUSUP_RATE, // 能力%上昇
+    EFFECT.FIELD_STRENGTHEN, // フィールド強化
+    EFFECT.BUFF_STRENGTHEN, // バフ強化
+]
+const SUB_TARGET_KIND = [
+    EFFECT.FIELD_DEPLOYMENT, // フィールド展開
+    EFFECT.STATUSUP_VALUE, // 能力固定上昇
+    EFFECT.STATUSUP_RATE, // 能力%上昇
+    EFFECT.FIELD_STRENGTHEN, // フィールド強化
+    EFFECT.BUFF_STRENGTHEN, // バフ強化
+]
+const BuffArea = ({ attackInfo, state, dispatch }) => {
 
     const { styleList } = useStyleList();
     const [buffSettingMap, setBuffSettingMap] = React.useState({});
+    let enemyInfo = state.enemy_info;
 
-    const buffList = React.useMemo(() => {
-        let list = [];
+    const { buffList, abilityList, passiveList } = React.useMemo(() => {
+        let buffList = [];
+        let abilityList = [];
+        let passiveList = [];
+
         styleList.selectStyleList.filter(memberInfo => memberInfo && memberInfo.is_select).forEach(member_info => {
             const charaId = member_info.style_info.chara_id;
+            const styleId = member_info.style_info.style_id;
+            const charaName = getCharaData(charaId).chara_short_name;
             const styleBuffList = skill_buff.filter(obj =>
                 (obj.chara_id === charaId || obj.chara_id === 0) &&
                 (obj.style_id === member_info.style_info.style_id || obj.style_id === 0)
@@ -32,19 +79,25 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
             newStyleBuffList.forEach(buff => {
                 buff.key = `${buff.buff_id}_${charaId}`;
                 buff.member_info = member_info;
-                buff.chara_name = getCharaData(charaId).chara_short_name;
+                buff.chara_name = charaName;
             });
 
-            list.push(...newStyleBuffList);
-        });
-        return list;
-    }, [attackInfo, enemyInfo, styleList]);
+            buffList.push(...newStyleBuffList);
 
+            const createFieldBuff = (key, skillName, fieldElement, effectSize) => {
+                let fieldBuff = {
+                    key: key,
+                    buff_kind: BUFF.FIELD,
+                    buff_name: skillName,
+                    buff_element: fieldElement,
+                    buff_id: key,
+                    chara_name: charaName,
+                    max_power: effectSize,
+                    max_lv: 1
+                };
+                return fieldBuff;
+            }
 
-    const abilityList = React.useMemo(() => {
-        let list = [];
-        styleList.selectStyleList.filter(memberInfo => memberInfo && memberInfo.is_select).forEach(member_info => {
-            const charaId = member_info.style_info.chara_id;
             const limitCount = member_info.limit_count;
             // ロールアビリティ
             let styleAbility = {
@@ -55,10 +108,10 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                 "5": member_info.style_info.ability5,
                 "10": member_info.style_info.ability10
             };
-            // if (member_info.style_info.role == ROLE_ADMIRAL) {
-            //     ability_list["0"] = 299;
-            // }
-            const newStyleAbilityList = Object.keys(styleAbility).map(key => {
+            if (member_info.style_info.role == ROLE.ADMIRAL) {
+                styleAbility["00"] = 299;
+            }
+            Object.keys(styleAbility).forEach(key => {
                 let abilityId = styleAbility[key];
                 if (abilityId == null || abilityId > 1000) {
                     const servant_list = [1019, 1020, 1021];
@@ -68,24 +121,58 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                     // 1000番以降は不要
                     return;
                 }
+                // if (!is_select && ability_info.range_area != RANGE_FIELD) {
+                //     // 他部隊のアビリティはフィールドのみ許可
+                //     return;
+                // }
 
-                const newAbility = JSON.parse(JSON.stringify(getAbilityInfo(abilityId)));
-                newAbility.key = `${abilityId}_${charaId}`;
-                newAbility.limit_count = limitCount;
-                newAbility.limit_border = Number(key);
-                newAbility.chara_id = charaId;
-                newAbility.chara_name = getCharaData(charaId).chara_short_name;
-                return newAbility;
+                let abilityInfo = getAbilityInfo(abilityId);
+                if (abilityInfo.range_area == RANGE.FIELD) {
+                    let buff = createFieldBuff(
+                        `ability-${abilityId}_${charaId}`,
+                        abilityInfo.ability_name,
+                        abilityInfo.element,
+                        abilityInfo.effect_size)
+                    buffList.push(buff);
+                } else {
+                    const newAbility = JSON.parse(JSON.stringify(abilityInfo));
+                    newAbility.key = `${abilityId}_${charaId}`;
+                    newAbility.limit_count = limitCount;
+                    newAbility.limit_border = Number(key);
+                    newAbility.chara_id = charaId;
+                    newAbility.chara_name = charaName;
+                    abilityList.push(newAbility)
+                }
             })
-            // if (!is_select && ability_info.range_area != RANGE_FIELD) {
-            //     // 他部隊のアビリティはフィールドのみ許可
-            //     return;
-            // }
 
-            list.push(...newStyleAbilityList.filter(ability => ability !== undefined));
+            let stylePassiveList = skill_list.filter(obj =>
+                obj.chara_id === charaId &&
+                (obj.style_id === styleId || obj.style_id === 0) &&
+                obj.skill_active == 1
+            );
+            stylePassiveList.forEach(skill => {
+                let passive = getPassiveInfo(skill.skill_id);
+                if (!passive || !TARGET_KIND.includes(passive.effect_type)) {
+                    return;
+                }
+                // if (!is_select && !SUB_TARGET_KIND.includes(passive_info.effect_type)) {
+                //     // 他部隊のアビリティは一部のみ許可
+                //     return true;
+                // }
+                if (passive.range_area === RANGE.FIELD) {
+                    let buff = createFieldBuff(`passive-${passive.skill_id}_${charaId}`, passive.passive_name, 0, passive.effect_size)
+                    buffList.push(buff);
+                } else {
+                    passive.key = `${passive.skill_id}_${charaId}`;
+                    passive.member_info = member_info;
+                    passive.chara_name = charaName;
+                    passiveList.push(passive);
+                }
+            });
         });
-        return list;
+        return { buffList, abilityList, passiveList };
     }, [attackInfo, enemyInfo, styleList]);
+
 
     React.useEffect(() => {
         const initialMap = {};
@@ -93,7 +180,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
             initialMap[buff.key] = {
                 buff_id: buff.buff_id,
                 skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff.buff_kind, buff.buff_id, buff.member_info, buff.max_lv)
+                effect_size: getEffectSize(buff, buff.max_lv)
             };
         });
         setBuffSettingMap(initialMap);
@@ -103,7 +190,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
         let buff = buffList.filter(buff => buff.key === buffKey)[0];
         const newSetting = buffSettingMap[buffKey]
         newSetting.skill_lv = lv;
-        newSetting.effect_size = getEffectSize(buff.buff_kind, newSetting.buff_id, buff.member_info, lv)
+        newSetting.effect_size = getEffectSize(buff, lv)
         setBuffSettingMap(prev => ({
             ...prev,
             [buffKey]: newSetting
@@ -114,9 +201,9 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
     let isWeak = React.useMemo(() => {
         if (attackInfo === undefined) return false;
         let physical_resist = enemyInfo[`physical_${attackInfo?.attack_physical}`];
-        let element_resist = enemyInfo[`element_${attackInfo?.attack_element}`];
+        let element_resist = enemyInfo[`element_${attackInfo?.attack_element}`] - state.correction[`element_${attackInfo?.attack_element}`];
         return physical_resist * element_resist > 10000;
-    }, [attackInfo, enemyInfo]);
+    }, [attackInfo, state.enemy_info, state.correction]);
     let isDp = state.dpRate[0] !== 0;
 
     const attackUpBuffs = [
@@ -193,44 +280,61 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
     ];
 
     let buffKeyList = {};
+    const filedKey = `filed-${BUFF.FIELD}`
+    const chargeKey = `charge-${BUFF.CHARGE}`
     attackUpBuffs.forEach(buff => {
-        buffKeyList[`buff-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
     });
     defDownBuffs.forEach(buff => {
-        buffKeyList[`debuff-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
     });
     criticalBuffs.forEach(buff => {
-        buffKeyList[`critical-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
     });
+    buffKeyList[filedKey] = "";
+    buffKeyList[chargeKey] = "";
 
     const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
 
-    const handleSelectChange = (buffKey, buffKind, newSelect, effectSize) => {
-        if (buffKind == BUFF.RESISTDOWN) {
-            dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: effectSize });
-        }
+    const getBuffKindEffectSize = (buffKind) => {
+        const totalEffectSize = Object.keys(selectBuffKeyMap)
+            .filter((buffKey) => buffKey.startsWith(`${BUFF_KBN[buffKind]}-${buffKind}`))
+            .reduce((sum, buffKey) => {
+                const buff = buffSettingMap[selectBuffKeyMap[buffKey]];
+                return sum + (buff ? buff.effect_size : 0);
+            }, 0);
+        return totalEffectSize;
+    }
+
+    const handleSelectChange = (buffKey, buffKind, newSelect) => {
+        let effectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
+        dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: effectSize });
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
     };
 
     // 上から2番目のbuffを子にセット
     const selectSecondBuff = () => {
-        Object.keys(selectBuffKeyMap).forEach((buffKey) => {
+        Object.keys(buffKeyList).forEach((buffKey) => {
             let buffKind = Number(buffKey.split('-')[1]);
             let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo);
             kindBuffList.sort((a, b) => buffSettingMap[b.key].effect_size - buffSettingMap[a.key].effect_size);
             if (kindBuffList.length >= 1) {
-                handleSelectChange(buffKey, buffKind, kindBuffList[0].key, buffSettingMap[kindBuffList[0].key].effect_size);
+                handleSelectChange(buffKey, buffKind, kindBuffList[0].key);
             }
         })
     }
 
     // バフの絞り込み
     const filteredBuffList = (buffList, buffKind, attackInfo) => {
+        if (!attackInfo) return [];
         return buffList.filter(buff => {
             if (buff.buff_kind !== buffKind) {
                 return false;
             }
             if (ELEMENT_KIND.includes(buff.buff_kind) && attackInfo.attack_element !== buff.buff_element) {
+                return false;
+            }
+            if (buff.buff_kind === BUFF.FIELD && buff.buff_element !== 0 && buff.buff_element !== attackInfo.attack_element) {
                 return false;
             }
             if (buff.range_area === RANGE.SELF && buff.chara_id !== attackInfo.chara_id) {
@@ -241,7 +345,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
             }
             if (buff.buff_id == 2607 && buff.member_info.style_info.style_id != 145) {
                 // 月光(歌姫の加護)
-                return;
+                return; false;
             }
             return true;
         });
@@ -254,13 +358,17 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
     }
 
     React.useEffect(() => {
+        setSelectBuffKeyMap(buffKeyList);
         if (attackInfo) {
             selectSecondBuff();
         }
-    }, [enemyInfo, attackInfo]);
+    }, [state.enemy_info, attackInfo]);
 
-    const filedKey = `filed-${BUFF.FIELD}`
-    const chargeKey = `charge-${BUFF.CHARGE}`
+    // if (attackInfo) {
+    //     let effectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
+    //     dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: effectSize });
+    // }
+
     return (
         <div className="buff_area text-right mx-auto">
             <div className="flex justify-between items-center w-full">
@@ -303,7 +411,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                             </td>
                         </tr>
                         {attackUpBuffs.map((buff, index) => {
-                            const key = `buff-${buff.kind}-${buff.num}`
+                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
                             return (
                                 <tr key={key}>
                                     {index === 0 && (
@@ -331,7 +439,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                             </td>
                         </tr>
                         {defDownBuffs.map((buff, index) => {
-                            const key = `debuff-${buff.kind}-${buff.num}`
+                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
                             return (
                                 <tr key={key}>
                                     {index === 0 && (
@@ -359,7 +467,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                             </td>
                         </tr>
                         {criticalBuffs.map((buff, index) => {
-                            const key = `critical-${buff.kind}-${buff.num}`
+                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
                             return (
                                 <tr key={key}>
                                     {index === 0 && (
@@ -398,7 +506,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                                 buffSettingMap={buffSettingMap}
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[filedKey] || ""}
-                                onChangeSelectedKey={(e) => handleSelectChange(key, buff.kind, e.target.value)}
+                                onChangeSelectedKey={(e) => handleSelectChange(filedKey, BUFF.FIELD, e.target.value)}
                                 filteredBuffList={filteredBuffList}
                             />
                         </tr>
@@ -419,7 +527,7 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                                 buffSettingMap={buffSettingMap}
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[chargeKey] || ""}
-                                onChangeSelectedKey={(e) => handleSelectChange(key, buff.kind, e.target.value)}
+                                onChangeSelectedKey={(e) => handleSelectChange(chargeKey, BUFF.CHARGE, e.target.value)}
                                 filteredBuffList={filteredBuffList}
                             />
                         </tr>
@@ -462,7 +570,9 @@ const BuffArea = ({ attackInfo, enemyInfo, state, dispatch }) => {
                         </tr>
                         <tr>
                             <td className="kind pc_only">パッシブ</td>
-                            <td className="text-left" colSpan="5" id="skill_passive" />
+                            <td className="text-left" colSpan="5" id="skill_passive">
+                                <PassiveCheckbox attackInfo={attackInfo} passiveList={passiveList} />
+                            </td>
                         </tr>
                     </tbody>
                 </table>

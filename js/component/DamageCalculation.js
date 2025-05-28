@@ -168,6 +168,7 @@ const setEnemy = (state, action) => {
         max_limit: enemy.destruction_limit,
         strong_break: false,
         correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
+        resist_down: [0, 0, 0, 0, 0, 0],
     };
 };
 
@@ -254,7 +255,7 @@ const reducer = (state, action) => {
             newResist[action.element] = Number(action.value);
             return {
                 ...state,
-                regist_down: newResist,
+                resist_down: newResist,
             };
         }
 
@@ -290,14 +291,13 @@ const DamageCalculation = () => {
         enemySelect = "1";
         initEnemyInfo = enemy_list[0];
     }
-    const [enemyInfo, setEnemyInfo] = React.useState(initEnemyInfo);
 
     const initialState = {
-        enemy_info: enemyInfo,
+        enemy_info: initEnemyInfo,
         hpRate: 100,
-        dpRate: Array(enemyInfo.max_dp.split(",").length).fill(0),
-        destruction: enemyInfo.destruction_limit,
-        max_limit: enemyInfo.destruction_limit,
+        dpRate: Array(initEnemyInfo.max_dp.split(",").length).fill(0),
+        destruction: initEnemyInfo.destruction_limit,
+        max_limit: initEnemyInfo.destruction_limit,
         strong_break: false,
         score_lv: 150,
         correction: {
@@ -315,22 +315,25 @@ const DamageCalculation = () => {
             destruction_limit: 0,
             destruction_resist: 0,
         },
-        regist_down: [0, 0, 0, 0, 0, 0],
+        resist_down: [0, 0, 0, 0, 0, 0],
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
     return (
         <StyleListProvider selectStyleList={styleList} selectTroops={selectTroops}>
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
-                    <CharaStatus attackInfo={attackInfo} />
-                    <AttackList setAttackInfo={setAttackInfo} />
-                    <ContentsArea attackInfo={attackInfo} enemyInfo={enemyInfo} enemyClass={enemyClass}
-                        enemySelect={enemySelect} setEnemyInfo={setEnemyInfo} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
+                    <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops}/>
+                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} />
+                    <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
+                        enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
                     <OtherSetting attackInfo={attackInfo} />
-                    <PredictionScoreComponent />
+                    {enemyClass == ENEMY_CLASS.SCORE_ATTACK ?
+                        <PredictionScoreComponent />
+                        : null
+                    }
                 </div>
-                <BuffArea attackInfo={attackInfo} enemyInfo={enemyInfo} state={state} dispatch={dispatch} />
+                <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch} />
             </div>
         </StyleListProvider>
     );

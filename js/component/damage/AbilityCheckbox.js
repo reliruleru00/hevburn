@@ -2,9 +2,9 @@ const AbilityCheckbox = ({ attackInfo, abilityList, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
         switch (ability.range_area) {
-            case RANGE_FIELD:
+            case RANGE.FIELD:
                 return false;
-            case RANGE_SELF:
+            case RANGE.SELF:
                 if (attackInfo && attackInfo.chara_id !== ability.chara_id) {
                     return false;
                 }
@@ -12,11 +12,11 @@ const AbilityCheckbox = ({ attackInfo, abilityList, rengeArea }) => {
                     return false;
                 }
                 break;
-            case RANGE_ALLY_FRONT:
-            case RANGE_ALLY_BACK:
-            case RANGE_ALLY_ALL:
-            case RANGE_ENEMY_ALL:
-            case RANGE_OTHER:
+            case RANGE.ALLY_FRONT:
+            case RANGE.ALLY_BACK:
+            case RANGE.ALLY_ALL:
+            case RANGE.ENEMY_ALL:
+            case RANGE.OTHER:
                 switch (ability.activation_place) {
                     case 1: // 前衛
                         if (rengeArea !== 1) {
@@ -91,11 +91,12 @@ const AbilityCheckbox = ({ attackInfo, abilityList, rengeArea }) => {
                     <div key={key}>
                         <input
                             type="checkbox"
-                            name="ability"
+                            className="ability"
                             id={key}
                             disabled={disabled}
                             defaultChecked={checked}
                             data-effect_size={ability.effect_size}
+                            data-ability_id={ability.ability_id}
                         />
                         <label htmlFor={key}
                             className="checkbox01">

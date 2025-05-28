@@ -50,6 +50,7 @@
   <script type="text/babel" src="js/component/damage/EnemyArea.js"></script>
   <script type="text/babel" src="js/component/damage/OtherSetting.js"></script>
   <script type="text/babel" src="js/component/damage/ScoreSetting.js"></script>
+  <script type="text/babel" src="js/component/damage/PassiveCheckbox.js"></script>
   <script type="text/babel" src="js/component/damage/bike_parts.js"></script>
   <script type="text/babel" src="js/component/damage/hard_layer.js"></script>
   <script type="text/babel" src="js/component/damage/PredictionScore.js"></script>
@@ -111,10 +112,10 @@
       // イベント設定
       setEventTrigger();
 
-      // // MicroModal初期化
-      // MicroModal.init({
-      //   disableScroll: true,
-      // });
+      // MicroModal初期化
+      MicroModal.init({
+        disableScroll: true,
+      });
     });
     // ロード完了後に表示
     $(window).on("load", function () {

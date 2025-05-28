@@ -1,64 +1,129 @@
-const AttackList = ({ setAttackInfo }) => {
+const AttackList = ({ attackInfo, setAttackInfo }) => {
     const { styleList } = useStyleList();
 
-    const [cehckSpecial, setCehckSpecial] = React.useState(true);
-    const [selectAttackId, setSelectAttackId] = React.useState(undefined);
-    const [selectSlillLv, setSelectSlillLv] = React.useState(undefined);
-
-    const TYPE_PHYSICAL = ["", "slash", "stab", "strike"];
+    const TYPE_PHYSICAL = ["none", "slash", "stab", "strike"];
     const TYPE_ELEMENT = ["none", "fire", "ice", "thunder", "light", "dark"];
 
-    // 初回起動時の自動選択
-    React.useEffect(() => {
-        if (styleList.selectStyleList.length === 0) return;
-
-        for (let memberInfo of styleList.selectStyleList) {
-            const charaId = memberInfo.style_info.chara_id;
-            const styleId = memberInfo.style_info.style_id;
-
-            const matchedSkill = skill_attack.filter(skill =>
-                skill.chara_id === charaId &&
-                (skill.style_id === styleId || skill.style_id === 0) &&
-                (!cehckSpecial || skill.attack_id < 1000)
-            ).sort((x, y) => y.skill_id - x.skill_id);
-            if (matchedSkill.length > 0) {
-                handleChangeAttackId(matchedSkill[0].attack_id);
-                break;
-            }
-        }
-    }, [cehckSpecial]);
-
     const handleChangeAttackId = (value) => {
-        setSelectAttackId(value);
         let selectAttackInfo = getAttackInfo(value);
         if (selectAttackInfo) {
             const physical = getCharaData(selectAttackInfo.chara_id).physical;
             selectAttackInfo.attack_physical = physical;
-            setSelectSlillLv(selectAttackInfo.max_lv);
+            setSelectSKillLv(selectAttackInfo.max_lv);
             setAttackInfo(selectAttackInfo);
         }
     }
 
     const getAttackInfo = (value) => {
-        const filteredAttack = skill_attack.filter((obj) => obj.attack_id === value);
+        const filteredAttack = memberAttackList.filter((obj) => obj.attack_id === value);
         return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
     }
-    let selectAttackInfo = getAttackInfo(selectAttackId);
+
+    const [checkSpecial, setCheckSpecial] = React.useState(true);
+
+    const memberAttackList = React.useMemo(() => {
+        let memberAttackList = [];
+        for (let memberInfo of styleList.selectStyleList) {
+            if (!memberInfo) continue;
+            const charaId = memberInfo.style_info.chara_id;
+            const styleId = memberInfo.style_info.style_id;
+            const matchedSkill = skill_attack.filter(skill =>
+                skill.chara_id === charaId &&
+                (skill.style_id === styleId || skill.style_id === 0) &&
+                (!checkSpecial || skill.attack_id < 1000)
+            ).sort((x, y) => y.skill_id - x.skill_id);
+            if (matchedSkill.length > 0) {
+                memberAttackList.push(...matchedSkill);
+            }
+        }
+        return memberAttackList;
+    }, [checkSpecial, styleList.selectStyleList]);
+
+    React.useEffect(() => {
+        if (!attackInfo || !memberAttackList.some(a => a.attack_id === attackInfo.attack_id)) {
+            if (memberAttackList.length > 0) {
+                const firstAttack = memberAttackList[0];
+                const newInfo = {
+                    ...firstAttack,
+                    attack_physical: getCharaData(firstAttack.chara_id).physical,
+                };
+                setAttackInfo(newInfo);
+                setSelectSKillLv(newInfo.max_lv);
+            } else {
+                setAttackInfo(undefined);
+                setSelectSKillLv(undefined);
+            }
+        }
+        calcDamage();
+    }, [memberAttackList, attackInfo]);
+
+    const [selectSKillLv, setSelectSKillLv] = React.useState(attackInfo ? attackInfo.max_lv : undefined);
+
+    window.getBasePower = function (member_info, member_correction, enemy_correction) {
+        if (!attackInfo) return 0;
+        let jewel_lv = 0;
+        if (member_info.style_info.jewel_type == "1") {
+            jewel_lv = member_info.jewel_lv;
+        }
+        let molecule = 0;
+        let denominator = 0;
+        if (attackInfo.ref_status_1 != 0) {
+            molecule += (member_info[status_kbn[attackInfo.ref_status_1]] + member_correction) * 2;
+            denominator += 2;
+        }
+        if (attackInfo.ref_status_2 != 0) {
+            molecule += member_info[status_kbn[attackInfo.ref_status_2]] + member_correction;
+            denominator += 1;
+        }
+        if (attackInfo.ref_status_3 != 0) {
+            molecule += member_info[status_kbn[attackInfo.ref_status_3]] + member_correction;
+            denominator += 1;
+        }
+        let enemy_stat = Number($("#enemy_stat").val()) - enemy_correction;
+        let status = molecule / denominator;
+
+        let min_power = attackInfo.min_power * (1 + 0.05 * (selectSKillLv - 1));
+        let max_power = attackInfo.max_power * (1 + 0.02 * (selectSKillLv - 1));
+        let skill_stat = attackInfo.param_limit;
+        let base_power;
+        // 宝珠分以外
+        if (enemy_stat - skill_stat / 2 > status) {
+            base_power = 1;
+        } else if (enemy_stat > status) {
+            base_power = min_power / (skill_stat / 2) * (status - (enemy_stat - skill_stat / 2));
+        } else if (enemy_stat + skill_stat > status) {
+            base_power = (max_power - min_power) / skill_stat * (status - enemy_stat) + min_power;
+        } else {
+            base_power = max_power;
+        }
+
+        // 宝珠分(SLvの恩恵を受けない)
+        if (jewel_lv > 0) {
+            let jusl_stat = skill_stat + jewel_lv * 20;
+            if (enemy_stat - skill_stat / 2 > status) {
+                base_power += 0;
+            } else if (enemy_stat > status) {
+                base_power += attackInfo.min_power / (jusl_stat / 2) * (status - (enemy_stat - jusl_stat / 2)) * jewel_lv * 0.02;
+            } else if (enemy_stat + jusl_stat > status) {
+                base_power += ((attackInfo.max_power - attackInfo.min_power) / jusl_stat * (status - enemy_stat) + attackInfo.min_power) * jewel_lv * 0.02;
+            } else {
+                base_power += attackInfo.max_power * jewel_lv * 0.02;
+            }
+        }
+        return base_power;
+    }
 
     return (
         <div className="attack_area surround_area mx-auto mt-2 adjust_width">
             <label className="area_title">攻 撃</label>
             <div className="flex">
-                <select className="ml-6" id="attack_list" value={selectAttackId} onChange={e => handleChangeAttackId(Number(e.target.value))}>
+                <select className="ml-6" id="attack_list" value={attackInfo?.attack_id} onChange={e => handleChangeAttackId(Number(e.target.value))}>
                     {styleList.selectStyleList.filter(memberInfo => memberInfo && memberInfo.is_select).map((memberInfo, index) => {
                         let charaData = getCharaData(memberInfo.style_info.chara_id)
                         return (
                             <optgroup key={`chara${memberInfo.style_info.chara_id}`} label={charaData.chara_name}>
-                                {skill_attack.filter(obj =>
+                                {memberAttackList.filter(obj =>
                                     obj.chara_id === memberInfo.style_info.chara_id
-                                    && (obj.style_id === memberInfo.style_info.style_id || obj.style_id === 0)
-                                    && (!cehckSpecial || obj.attack_id < 1000)
-                                ).sort((x, y) => y.style_id - x.style_id
                                 ).map((skill, index) => {
                                     return (
                                         <option key={`attack${skill.attack_id}`} value={skill.attack_id} data-chara_id={skill.chara_id}>
@@ -70,21 +135,22 @@ const AttackList = ({ setAttackInfo }) => {
                         )
                     })}
                 </select>
-                <div className="lv" style={{ display: "block" }}>
-                    <select id="skill_lv" value={selectSlillLv} onChange={e => setSelectSlillLv(e.target.value)} >
-                        {selectAttackInfo && (() =>
-                            Array.from({ length: selectAttackInfo.max_lv }, (_, i) => selectAttackInfo.max_lv - i).map(value => (
-                                <option key={`skill${value}`} value={value}>
-                                    {value}
-                                </option>
-                            ))
-                        )()}
-                    </select>
-                </div>
-                {selectAttackInfo && (() => {
-                    const { attack_element, attack_physical, range_area } = selectAttackInfo;
+                {attackInfo && (() => {
+                    const { attack_element, range_area } = attackInfo;
+                    const attack_physical = getCharaData(attackInfo.chara_id).physical;
                     return (
                         <>
+                            <div className="lv">
+                                <select id="skill_lv" value={selectSKillLv} onChange={e => setSelectSKillLv(e.target.value)} >
+                                    {attackInfo && (() =>
+                                        Array.from({ length: attackInfo.max_lv }, (_, i) => attackInfo.max_lv - i).map(value => (
+                                            <option key={`skill${value}`} value={value}>
+                                                {value}
+                                            </option>
+                                        ))
+                                    )()}
+                                </select>
+                            </div>
                             <img className="w-6 h-6" src={`img/${TYPE_PHYSICAL[attack_physical]}.webp`} alt="物理属性" />
                             <img className="w-6 h-6" src={`img/${TYPE_ELEMENT[attack_element]}.webp`} alt="属性" />
                             <label id="range_area">{range_area === 1 ? "単体" : "全体"}</label>
@@ -94,12 +160,12 @@ const AttackList = ({ setAttackInfo }) => {
             </div>
             <div className="ml-6">
                 <div className="mb-2">
-                    <input id="skill_special_display" type="checkbox" checked={cehckSpecial} onChange={e => setCehckSpecial(e.target.checked)} />
+                    <input id="skill_special_display" type="checkbox" checked={checkSpecial} onChange={e => setCheckSpecial(e.target.checked)} />
                     <label className="checkbox01" htmlFor="skill_special_display">
                         EXスキル以外を非表示にする
                     </label>
                 </div>
-                <SkillUnique selectAttackInfo={selectAttackInfo} />
+                <SkillUnique attackInfo={attackInfo} />
             </div>
         </div >
     )
@@ -108,10 +174,10 @@ const AttackList = ({ setAttackInfo }) => {
 const DP_LIST = [115, 136, 187, 2167, 166];
 const SP_LIST = [154, 155, 2162];
 
-function SkillUnique({ selectAttackInfo }) {
-    if (!selectAttackInfo) return null;
+function SkillUnique({ attackInfo }) {
+    if (!attackInfo) return null;
 
-    const { attack_id, chara_id } = selectAttackInfo;
+    const { attack_id, chara_id } = attackInfo;
 
     if (attack_id === 190) {
         return (

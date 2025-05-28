@@ -40,11 +40,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         dispatch({ type: "STRONG_BREAK", checked });
     };
 
-    // 耐性変更
-    window.setEnemyResistDown = function (attack_element, resist_down) {
-        dispatch({ type: "SET_RRGIST_DOWN", element: attack_element, value: resist_down });
-    }
-
     // 敵情報反映
     window.updateEnemyDurability = function (index, dp, hp, destruction) {
         dispatch({ type: "SET_DP", index, value: dp });
@@ -67,10 +62,10 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     let destruction = enemy_info.destruction
     destruction *= (1 - state.correction.destruction_resist / 100);
 
-    React.useEffect(() => {
-        // 初回描画時に呼び出す
-        updateEnemyResistDown();
-    }, []);
+    // React.useEffect(() => {
+    //     // 初回描画時に呼び出す
+    //     // updateEnemyResistDown();
+    // }, []);
 
     // React.useEffect(() => {
     //     // 再描画時に呼び出す
@@ -204,15 +199,16 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         let val = enemy_info[id]
                         if (!focus) {
                             // 属性打ち消し
-                            if (val < 100 && state.regist_down[key] > 0) {
+                            if (val < 100 && state.resist_down[key] > 0) {
                                 val = 100;
                             }
-                            val -= correction - state.regist_down[key];
+                            val -= correction - state.resist_down[key];
                             if (attackInfo?.penetration && key == 0) {
                                 // 貫通クリティカル
                                 val = 100;
                             }
                         }
+                        val = Math.floor(val);
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
                         let select = attackInfo?.attack_element == key ? " selected" : "";
                         return (<div key={id} className={select}>

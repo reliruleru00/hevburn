@@ -14,7 +14,10 @@ const ContentsArea = ({ attackInfo, enemyInfo, enemyClass, enemySelect, setEnemy
                 <label className="area_title">コンテンツ情報</label>
                 <EnmeyListComponent enemyClass={enemyClass} enemySelect={enemySelect} handleChange={handleChange} isFreeInput={true} />
                 <HardLayerComponent enemy_info={enemyInfo} />
-                <ScoreSettingComponent state={state} dispatch={dispatch} />
+                {enemyClass == ENEMY_CLASS.SCORE_ATTACK ?
+                    <ScoreSettingComponent state={state} dispatch={dispatch} />
+                    : null
+                }
                 <BikePartsComponent enemy_info={enemyInfo} />
                 <SeraphCardList enemy_info={enemyInfo} />
             </div>

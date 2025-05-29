@@ -5,13 +5,17 @@ const OtherSetting = ({ attackInfo }) => {
             <div className="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
                 <div className="flex">
                     <div className="pt-0.5">属性リング</div>
-                    <select disabled id="elememt_ring">
+                    <select id="elememt_ring" disabled={attackInfo?.attack_element === 0}>
                         <option value="0">無し</option>
-                        <option value="2">+0(2%)</option>
-                        <option value="4">+1(4%)</option>
-                        <option value="6">+2(6%)</option>
-                        <option value="8">+3(8%)</option>
-                        <option value="10">+4(10%)</option>
+                        {attackInfo?.attack_element !== 0 && (
+                            <>
+                                <option value="2">+0(2%)</option>
+                                <option value="4">+1(4%)</option>
+                                <option value="6">+2(6%)</option>
+                                <option value="8">+3(8%)</option>
+                                <option value="10">+4(10%)</option>
+                            </>
+                        )}
                     </select>
                 </div>
                 <div className="flex">
@@ -53,6 +57,7 @@ const OtherSetting = ({ attackInfo }) => {
                         <option value="0">選択無し</option>
                         <option value="1">火耀</option>
                         <option value="2">銀氷</option>
+                        <option value="3">雷霆</option>
                     </select>
                 </div>
                 <input id="overdrive" type="checkbox" />

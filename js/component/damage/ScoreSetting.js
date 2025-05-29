@@ -1,11 +1,17 @@
 const ScoreSettingComponent = ({ state, dispatch }) => {
     const [selectHalf, setSelectHalf] = React.useState(1);
-    let enemy_info = state.enemy_info;
-    if (enemy_info === undefined || enemy_info.enemy_class != ENEMY_CLASS_SCORE_ATTACK) {
+    const [checkedGrades, setCheckedGrades] = React.useState({});
+
+    let enemyInfo = state.enemy_info;
+    if (enemyInfo === undefined || enemyInfo.enemy_class != ENEMY_CLASS_SCORE_ATTACK) {
         return null;
     }
-    let filtered_grade = grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no);
-    let filtered_bonus = bonus_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no);
+    React.useEffect(() => {
+        setCheckedGrades([]);
+    }, [enemyInfo.sub_no]);
+
+    let filtered_grade = grade_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
+    let filtered_bonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
     const uniqueHalf = [...new Set(filtered_grade.map(item => item.half))];
 
     let half_grade = filtered_grade.filter((obj) => obj.half == selectHalf);
@@ -13,7 +19,8 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
     // タブ変更
     const handleTabChange = (half) => {
         setSelectHalf(half)
-        dispatch({ type: "RESET_COLLECT"});
+        setCheckedGrades([]);
+        dispatch({ type: "RESET_COLLECT" });
     }
 
     // レベル変更
@@ -23,8 +30,12 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
 
     // グレード変更
     const handleGradeChange = (grade, checked) => {
+        setCheckedGrades(prev => ({
+            ...prev,
+            [grade.grade_no]: checked
+        }));
         dispatch({ type: "SET_COLLECT", grade, checked });
-    }
+    };
 
     const getImg = (conditions) => {
         let img = "img/";
@@ -100,6 +111,7 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
                         <div key={`grade_${selectHalf}_${index}`}>
                             <input className={`half_check half_tab_${selectHalf}`} type="checkbox" id={`half_grade${index}`}
                                 data-grade_no={grade.grade_no}
+                                checked={!!checkedGrades[grade.grade_no]}
                                 onChange={(e) => handleGradeChange(grade, e.target.checked)} />
                             <label className="checkbox01" htmlFor={`half_grade${index}`}>
                                 {grade.grade_name}(グレード:{grade.grade_rate})

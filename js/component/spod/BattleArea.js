@@ -417,6 +417,11 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     return;
                 };
                 break;
+            case "チャージ状態":
+                if (!checkBuffExist(unit.buff_list, BUFF.CHARGE)) {
+                    return;
+                };
+                break;
             case "SP0以下":
                 if (self.sp > 0) {
                     return;
@@ -587,13 +592,16 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 buff.buff_name = ability.ability_name;
                 unit.buff_list.push(buff);
                 break;
-            case EFFECT_CHARGE: // チャージ
-                buff = {};
-                buff.buff_kind = BUFF_CHARGE;
-                buff.buff_element = 0;
-                buff.rest_turn = -1;
-                buff.buff_name = ability.ability_name;
-                unit.buff_list.push(buff);
+            case EFFECT.CHARGE: // チャージ
+                $.each(target_list, function (index, target_no) {
+                    let unit = getUnitData(turn_data, target_no);
+                    buff = {};
+                    buff.buff_kind = BUFF_CHARGE;
+                    buff.buff_element = 0;
+                    buff.rest_turn = -1;
+                    buff.buff_name = ability.ability_name;
+                    unit.buff_list.push(buff);
+                });
                 break;
             case EFFECT_FIELD_DEPLOYMENT: // フィールド
                 if (ability.element) {

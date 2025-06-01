@@ -814,6 +814,10 @@ function getSpCost() {
     if ($("#ability_all72").prop("checked")) {
         sp_cost_down = 1;
     }
+    // ハイブースト状態
+    if ($("#skill_passive635").prop("checked")) {
+        sp_cost_down = -2;
+    }
     // SP消費量計算
     for (let i = 0; i < select_style_list.length; i++) {
         if (select_style_list[i] === undefined) {
@@ -925,6 +929,10 @@ function getStrengthen(member_info, skill_buff) {
     if ($("#ability_all72").prop("checked")) {
         sp_cost_down = 1;
     }
+    // ハイブースト状態
+    if ($("#skill_passive635").prop("checked")) {
+        sp_cost_down = -2;
+    }
 
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
@@ -946,6 +954,10 @@ function getStrengthen(member_info, skill_buff) {
         // 自慢のフロートバイク
         if (ability_list.includes(509) && $("#ability_all910").prop("checked")) {
             strengthen += 25;
+        }
+        // ハイブースト状態
+        if ($("#skill_passive635").prop("checked")) {
+            strengthen += 20;
         }
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
@@ -976,6 +988,18 @@ function getStrengthen(member_info, skill_buff) {
         // 水光のゆらめき(あいな専用)
         if (member_info.style_info.chara_id == 24 && $("#skill_passive559").prop("checked")) {
             strengthen += 10;
+        }
+        // ハイブースト状態
+        if ($("#skill_passive635").prop("checked")) {
+            strengthen += 20;
+        }
+    }
+    // 防御ダウン以外のデバフスキル
+    let other_debuff = [BUFF_FRAGILE];
+    if (other_debuff.includes(skill_buff.buff_kind)) {
+        // ハイブースト状態
+        if ($("#skill_passive635").prop("checked")) {
+            strengthen += 20;
         }
     }
     return strengthen;
@@ -1585,6 +1609,7 @@ function addPassive(member_info) {
         EFFECT_STATUSUP_RATE, // 能力%上昇
         EFFECT_FIELD_STRENGTHEN, // フィールド強化
         EFFECT_BUFF_STRENGTHEN, // バフ強化
+        EFFECT.HIGH_BOOST, // ハイブースト状態
     ]
     const SUB_TARGET_KIND = [
         EFFECT_FIELD_DEPLOYMENT, // フィールド展開
@@ -1647,6 +1672,7 @@ function addPassive(member_info) {
                 add_check_class = "strengthen_field";
                 break;
             case EFFECT_BUFF_STRENGTHEN: // バフ強化
+            case EFFECT.HIGH_BOOST: // ハイブースト状態
                 add_div_class = "passive_all";
                 add_check_class = "strengthen_skill";
                 break;
@@ -2156,6 +2182,10 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     if ($("#ability_all72").prop("checked")) {
         sp_cost_down = 1;
     }
+    // ハイブースト状態
+    if ($("#skill_passive635").prop("checked")) {
+        sp_cost_down = -2;
+    }
     $("input[type=checkbox].ability:checked").each(function (index, value) {
         let ability_id = Number($(value).data("ability_id"));
         if (ability_id == 602) {
@@ -2207,7 +2237,12 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
         if (passive_info.effect_type == effect_type) {
             effect_size = Number($(value).data("effect_size"));
         }
-        ability_effect_size += effect_size;
+        // ハイブースト状態
+        if (skill_id == 635 && effect_type == EFFECT.ATTACKUP) {
+            ability_effect_size += 180;
+        } else {
+            ability_effect_size += effect_size;
+        }
     });
     return ability_effect_size;
 }

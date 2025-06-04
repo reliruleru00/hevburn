@@ -5,8 +5,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     let enemy_info = state.enemy_info;
     let max_dp_list = enemy_info.max_dp.split(",");
 
-    // const [elementResistDown, setElementResistDown] = React.useState([0, 0, 0, 0, 0, 0]);
-
     const handleEnemyChange = (key, value) => {
         const newEnemyInfo = enemy_info;
         let newValue = removeComma(value);
@@ -61,18 +59,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     // 破壊率補正
     let destruction = enemy_info.destruction
     destruction *= (1 - state.correction.destruction_resist / 100);
-
-    // React.useEffect(() => {
-    //     // 初回描画時に呼び出す
-    //     // updateEnemyResistDown();
-    // }, []);
-
-    // React.useEffect(() => {
-    //     // 再描画時に呼び出す
-    //     $(".variable_effect_size").each(function (index, value) {
-    //         updateBuffEffectSize($(value));
-    //     });
-    // }, [enemy_info, state.ResistDown]);
 
     React.useEffect(() => {
         // ダメージ再計算

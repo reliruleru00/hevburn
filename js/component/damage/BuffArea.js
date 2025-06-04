@@ -307,8 +307,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
     }
 
     const handleSelectChange = (buffKey, buffKind, newSelect) => {
-        let effectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
-        dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: effectSize });
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
     };
 
@@ -356,6 +354,13 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
             handleSelectChange(buffKey, "");
         })
     }
+
+    let resistDownEffectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
+    React.useEffect(() => {
+        if (attackInfo) {
+            dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });
+        }
+    }, [state.enemy_info, state.resist_down, attackInfo, resistDownEffectSize]);
 
     React.useEffect(() => {
         setSelectBuffKeyMap(buffKeyList);

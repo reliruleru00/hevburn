@@ -429,6 +429,10 @@ select.filed {
     width: 90px;
 }
 
+.type_column {
+    width: 160px;
+}
+
 .skill_name_column {
     width: 273px;
 }

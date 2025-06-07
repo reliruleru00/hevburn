@@ -995,7 +995,7 @@ function getStrengthen(member_info, skill_buff) {
         }
     }
     // 防御ダウン以外のデバフスキル
-    let other_debuff = [BUFF_FRAGILE];
+    let other_debuff = [BUFF.FRAGILE, BUFF.RESISTDOWN];
     if (other_debuff.includes(skill_buff.buff_kind)) {
         // ハイブースト状態
         if ($("#skill_passive635").prop("checked")) {
@@ -1076,19 +1076,19 @@ function isWeak() {
 // }
 
 // スキルレベルリスト作成
-function createSkillLvList(id, max_lv, select_lv) {
-    let $select = $("#" + id);
-    $select.empty();
-    for (var i = 1; i <= max_lv; i++) {
-        var option = $("<option>")
-            .text(i)
-            .val(i);
-        $select.append(option);
-    }
-    $select.parent().css("display", "block");
-    $select.find("option[value='" + select_lv + "']").prop('selected', true);
-    $select.prop("disabled", (max_lv === 1));
-}
+// function createSkillLvList(id, max_lv, select_lv) {
+//     let $select = $("#" + id);
+//     $select.empty();
+//     for (var i = 1; i <= max_lv; i++) {
+//         var option = $("<option>")
+//             .text(i)
+//             .val(i);
+//         $select.append(option);
+//     }
+//     $select.parent().css("display", "block");
+//     $select.find("option[value='" + select_lv + "']").prop('selected', true);
+//     $select.prop("disabled", (max_lv === 1));
+// }
 
 // バフリスト生成
 function createBuffList() {
@@ -1740,150 +1740,227 @@ function getEffectSize(buff, skill_lv) {
 }
 
 // スキル設定
-function select2ndSkill(select) {
-    let id = select.attr("id");
-    // 自動選択無しの場合は更新しない
-    if (!$("#auto_skill").prop("checked")) {
-        // 外されていた場合は、「無し」にする。
-        if (select.find(":selected").css("display") == "none") {
-            select.prop("selectedIndex", 0);
-        }
-        if (select.prop("selectedIndex") == 0) {
-            resetSkillLv(id);
-            ref_status_list["status_" + id] = [];
-        }
-        return;
-    }
-    select.prop("selectedIndex", 0);
-    if (select.prop("disabled")) {
-        return;
-    }
-    ref_status_list["status_" + id] = [];
-    for (let i = 1; i < select.find("option").length; i++) {
-        let option = select.find("option")[i];
-        if ($(option).css("display") !== "none") {
-            let buff_id = Number($(option).val());
-            let buff_info = getBuffIdToBuff(buff_id);
-            if (buff_info && buff_info.skill_id > 9000) {
-                // アタッカライズ、クリシン、コンセ、ソフニング
-                continue;
-            }
-            $(option).prop("selected", true);
-            if (isOnlyBuff($(option))) {
-                $(option).prop("selected", false);
-                continue;
-            }
-            if (isOnlyUse($(option))) {
-                $(option).prop("selected", false);
-                continue;
-            }
-            if (isOtherOnlyUse($(option))) {
-                $(option).prop("selected", false);
-                continue;
-            }
-            if (buff_id == 0) {
-                // アビリティ
-                break;
-            }
-            setAloneActivation($(option));
-            let select_lv = $(option).data("select_lv");
-            let max_lv = $(option).data("max_lv");
-            createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
-            // 選択スキルのステータスを着色
-            setStatusToBuff(option, select.attr("id"));
-            return;
-        }
-    }
-    resetSkillLv(select.prop("id"));
-}
+// function select2ndSkill(select) {
+//     let id = select.attr("id");
+//     // 自動選択無しの場合は更新しない
+//     if (!$("#auto_skill").prop("checked")) {
+//         // 外されていた場合は、「無し」にする。
+//         if (select.find(":selected").css("display") == "none") {
+//             select.prop("selectedIndex", 0);
+//         }
+//         if (select.prop("selectedIndex") == 0) {
+//             resetSkillLv(id);
+//             ref_status_list["status_" + id] = [];
+//         }
+//         return;
+//     }
+//     select.prop("selectedIndex", 0);
+//     if (select.prop("disabled")) {
+//         return;
+//     }
+//     ref_status_list["status_" + id] = [];
+//     for (let i = 1; i < select.find("option").length; i++) {
+//         let option = select.find("option")[i];
+//         if ($(option).css("display") !== "none") {
+//             let buff_id = Number($(option).val());
+//             let buff_info = getBuffIdToBuff(buff_id);
+//             if (buff_info && buff_info.skill_id > 9000) {
+//                 // アタッカライズ、クリシン、コンセ、ソフニング
+//                 continue;
+//             }
+//             $(option).prop("selected", true);
+//             if (isOnlyBuff($(option))) {
+//                 $(option).prop("selected", false);
+//                 continue;
+//             }
+//             if (isOnlyUse($(option))) {
+//                 $(option).prop("selected", false);
+//                 continue;
+//             }
+//             if (isOtherOnlyUse($(option))) {
+//                 $(option).prop("selected", false);
+//                 continue;
+//             }
+//             if (buff_id == 0) {
+//                 // アビリティ
+//                 break;
+//             }
+//             setAloneActivation($(option));
+//             let select_lv = $(option).data("select_lv");
+//             let max_lv = $(option).data("max_lv");
+//             createSkillLvList(select.attr("id") + "_lv", max_lv, select_lv);
+//             // 選択スキルのステータスを着色
+//             setStatusToBuff(option, select.attr("id"));
+//             return;
+//         }
+//     }
+//     resetSkillLv(select.prop("id"));
+// }
 
 // 単一バフが既に設定済み判定
-function isOnlyBuff(option) {
+// function isOnlyBuff(option) {
+//     if (option.hasClass("only_first")) {
+//         let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
+//         let buff_id_class = "buff_id-" + option.val();
+//         if ($("." + class_name + " option." + buff_id_class + ":selected").length > 1) {
+//             return true;
+//         }
+//     }
+//     if (option.hasClass("only_one") && select_attack_skill !== undefined) {
+//         if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+//             let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
+//             let skill_id_class = "skill_id-" + option.data("skill_id");
+//             let buff_id_class = "buff_id-" + option.val();
+//             if (["111", "112", "113"].includes(option.val())) {
+//                 // 豪快！パイレーツキャノン専用
+//                 if ($("." + class_name + " option." + skill_id_class + ":selected").length > 1) {
+//                     return true;
+//                 }
+//             } else {
+//                 if ($("." + class_name + " option." + buff_id_class + ":selected").length > 1) {
+//                     return true;
+//                 }
+//             }
+//         }
+//     }
+//     return false;
+// }
 
-    if (option.hasClass("only_first")) {
-        let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
-        let buff_id_class = "buff_id-" + option.val();
-        if ($("." + class_name + " option." + buff_id_class + ":selected").length > 1) {
-            return true;
-        }
+
+// 一度しか設定出来ないバフ
+function isOnlyBuff(attackInfo, buffInfo) {
+    // 初回限定
+    if (buffInfo.conditions === CONDITIONS.SKILL_INIT) {
+        return true;
     }
-    if (option.hasClass("only_one") && select_attack_skill !== undefined) {
-        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
-            let class_name = option.parent().attr("id").replace(/[0-9]/g, '');
-            let skill_id_class = "skill_id-" + option.data("skill_id");
-            let buff_id_class = "buff_id-" + option.val();
-            if (["111", "112", "113"].includes(option.val())) {
-                // 豪快！パイレーツキャノン専用
-                if ($("." + class_name + " option." + skill_id_class + ":selected").length > 1) {
-                    return true;
-                }
-            } else {
-                if ($("." + class_name + " option." + buff_id_class + ":selected").length > 1) {
-                    return true;
-                }
-            }
-        }
+
+    // 攻撃スキルに付与されているバフ
+    const ATTACK_BUFF_LIST = [
+        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
+        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
+    if (ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) &&
+        buffInfo.skill_attack1 &&
+        buffInfo.chara_id === attackInfo.chara_id) {
+        return true;
     }
     return false;
 }
 
 // 他スキルに使用出来ない攻撃バフ
-function isOnlyUse(option) {
-    if (option.hasClass("only_one") && select_attack_skill !== undefined) {
-        if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
-            var attack_id = select_attack_skill.attack_id;
-            var class_list = option.attr("class").split(" ");
-
-            let ret = true;
-            for (var i = 0; i < class_list.length; i++) {
-                var class_name = class_list[i];
-                if (class_name.startsWith("skill_attack-")) {
-                    var partial_class = class_name.replace("skill_attack-", "");
-                    if (Number(partial_class) != 0 && (Number(partial_class) == 999 || attack_id == Number(partial_class))) {
-                        ret = false;
-                    }
-                }
-            }
-            return ret;
-        }
+function isOnlyUse(attackInfo, buffInfo) {
+    if (!buffInfo.skill_attack1 || buffInfo.chara_id !== attackInfo.chara_id) {
+        return false;
     }
-    return false;
-}
-
-// 自分に使用出来ない攻撃バフ
-function isOtherOnlyUse(option) {
-    if (select_attack_skill !== undefined) {
-        if (option.hasClass("only_other_chara_id-" + select_attack_skill.chara_id)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// 単独発動設定
-function setAloneActivation(option) {
-    let buff_id = option.data("buff_id");
-    let id = option.parent().attr("id");
-    let partner_id = id.endsWith('1') ? id.slice(0, -1) + '2' : id.slice(0, -1) + '1';
-    let buff_info = getBuffIdToBuff(buff_id);
-    // 他スキルを使用不可にする。
-    if (buff_info && isAloneActivation(buff_info)) {
-        $(`#${partner_id}`).prop("disabled", true);
-        $(`#${partner_id}`).prop("selectedIndex", 0);
-        $(`#${partner_id}`).find("option").first().text("使用不可");
-    } else {
-        $(`#${partner_id}`).prop("disabled", false);
-        $(`#${partner_id}`).find("option").first().text("無し");
-    }
+    const attackId = attackInfo.attack_id;
+    const match = [buffInfo.skill_attack1, buffInfo.skill_attack2].some(id => {
+        const numId = Number(id);
+        return numId === 999 || attackId === numId;
+    });
+    return !match;
 }
 
 // 単独発動判定
-function isAloneActivation(buff_info) {
-    if (ALONE_ACTIVATION_BUFF_KIND.includes(buff_info.buff_kind)) {
-        return buff_info.effect_count > 0;
+function isAloneActivation(buffInfo) {
+    if (!buffInfo) {
+        return false;
+    }
+    if (ALONE_ACTIVATION_BUFF_KIND.includes(buffInfo.buff_kind)) {
+        return buffInfo.effect_count > 0;
     }
     return false;
 }
+
+function getBestBuffKeys(attackInfo, kindBuffList, buffSettingMap) {
+    // 単独発動の中で最大値のeffect_sizeの要素を取得
+    const aloneBuffs = kindBuffList.filter(buffInfo => isAloneActivation(buffInfo));
+    const maxAloneBuff = aloneBuffs.reduce((max, buff) =>
+        !max || buffSettingMap[buff.key].effect_size > buffSettingMap[max.leu].effect_size ? buff : max, null);
+
+    // 単独発動以外の中から、effect_sizeでソートして上位2件を取得
+    const normalBuffs = kindBuffList.filter(buffInfo => !isAloneActivation(buffInfo));
+    const sortedNormalBuffs = [...normalBuffs].sort((a, b) => b.effect_size - a.effect_size);
+    const top1 = sortedNormalBuffs[0];
+    const top2 = sortedNormalBuffs[1];
+
+    let combinedScore = 0;
+    let combinedKeys = [];
+
+    if (top1 && top2) {
+        const top1Only = isOnlyBuff(attackInfo, top1) || isOnlyUse(attackInfo, top1);
+        if (top1Only) {
+            // 両方を使う
+            combinedScore = buffSettingMap[top1.key].effect_size + buffSettingMap[top2.key].effect_size;
+            combinedKeys = [top1.key, top2.key];
+        } else {
+            // 同じkeyを2回使う
+            combinedScore = buffSettingMap[top1.key].effect_size * 2;
+            combinedKeys = [top1.key, top1.key];
+        }
+    } else if (top1) {
+        // 2番目が存在しない場合（1件しかない）
+        const top1Only = isOnlyBuff(attackInfo, top1) || isOnlyUse(attackInfo, top1);
+        combinedScore = top1Only ? top1.effect_size : top1.effect_size * 2;
+        combinedKeys = top1Only ? [top1.key] : [top1.key, top1.key];
+    }
+
+    // 比較して大きい方を返す
+    if (maxAloneBuff && buffSettingMap[maxAloneBuff.key].effect_size >= combinedScore) {
+        return [maxAloneBuff.key];
+    } else {
+        return combinedKeys;
+    }
+}
+
+// 他スキルに使用出来ない攻撃バフ
+// function isOnlyUse(option) {
+//     if (option.hasClass("only_one") && select_attack_skill !== undefined) {
+//         if (option.hasClass("chara_id-" + select_attack_skill.chara_id)) {
+//             var attack_id = select_attack_skill.attack_id;
+//             var class_list = option.attr("class").split(" ");
+
+//             let ret = true;
+//             for (var i = 0; i < class_list.length; i++) {
+//                 var class_name = class_list[i];
+//                 if (class_name.startsWith("skill_attack-")) {
+//                     var partial_class = class_name.replace("skill_attack-", "");
+//                     if (Number(partial_class) != 0 && (Number(partial_class) == 999 || attack_id == Number(partial_class))) {
+//                         ret = false;
+//                     }
+//                 }
+//             }
+//             return ret;
+//         }
+//     }
+//     return false;
+// }
+
+// 自分に使用出来ない攻撃バフ
+// function isOtherOnlyUse(option) {
+//     if (select_attack_skill !== undefined) {
+//         if (option.hasClass("only_other_chara_id-" + select_attack_skill.chara_id)) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+// 単独発動設定
+// function setAloneActivation(option) {
+//     let buff_id = option.data("buff_id");
+//     let id = option.parent().attr("id");
+//     let partner_id = id.endsWith('1') ? id.slice(0, -1) + '2' : id.slice(0, -1) + '1';
+//     let buff_info = getBuffIdToBuff(buff_id);
+//     // 他スキルを使用不可にする。
+//     if (buff_info && isAloneActivation(buff_info)) {
+//         $(`#${partner_id}`).prop("disabled", true);
+//         $(`#${partner_id}`).prop("selectedIndex", 0);
+//         $(`#${partner_id}`).find("option").first().text("使用不可");
+//     } else {
+//         $(`#${partner_id}`).prop("disabled", false);
+//         $(`#${partner_id}`).find("option").first().text("無し");
+//     }
+// }
+
 
 // 選択バフのステータスを着色
 function setStatusToBuff(option, id) {
@@ -2714,8 +2791,8 @@ function getScoreAttackBonus(kind, member_info) {
     let enemy_info = getEnemyInfo();
     let effect_max = 0;
     let num = $("input[name='rule_tab']:checked").attr("id").split("_")[2];
-    bonus_list.filter((obj) => 
-        obj.score_attack_no == enemy_info.sub_no && 
+    bonus_list.filter((obj) =>
+        obj.score_attack_no == enemy_info.sub_no &&
         (obj.half == 0 || obj.half == num) &&
         obj.effect_kind == kind
     ).forEach((obj) => {

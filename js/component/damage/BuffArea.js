@@ -77,7 +77,7 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
 
             const newStyleBuffList = JSON.parse(JSON.stringify(styleBuffList));
             newStyleBuffList.forEach(buff => {
-                buff.key = `${buff.buff_id}_${charaId}`;
+                buff.key = `${buff.buff_id}-${charaId}`;
                 buff.member_info = member_info;
                 buff.chara_name = charaName;
             });
@@ -202,79 +202,63 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
         if (attackInfo === undefined) return false;
         let physical_resist = enemyInfo[`physical_${attackInfo?.attack_physical}`];
         let element_resist = enemyInfo[`element_${attackInfo?.attack_element}`] - state.correction[`element_${attackInfo?.attack_element}`];
-        return physical_resist * element_resist > 10000;
+        return PENETRATION_ATTACK_LIST.includes(attackInfo.attack_id) || physical_resist * element_resist > 10000;
     }, [attackInfo, state.enemy_info, state.correction]);
     let isDp = state.dpRate[0] !== 0;
 
     const attackUpBuffs = [
-        { name: "攻撃力UP1", kind: BUFF.ATTACKUP, num: 1 },
-        { name: "攻撃力UP2", kind: BUFF.ATTACKUP, num: 2 },
+        { name: "攻撃力UP", kind: BUFF.ATTACKUP },
         ...(isElement
             ? [
-                { name: "属性攻撃力UP1", kind: BUFF.ELEMENT_ATTACKUP, num: 1 },
-                { name: "属性攻撃力UP2", kind: BUFF.ELEMENT_ATTACKUP, num: 2 },
+                { name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP },
             ]
             : []),
         ...(isWeak
             ? [
-                { name: "心眼1", kind: BUFF.MINDEYE, num: 1 },
-                { name: "心眼2", kind: BUFF.MINDEYE, num: 2 },
+                { name: "心眼", kind: BUFF.MINDEYE },
             ]
             : []),
-        { name: "連撃1", kind: BUFF.FUNNEL, num: 1 },
-        { name: "連撃2", kind: BUFF.FUNNEL, num: 2 },
-        { name: "破壊率UP1", kind: BUFF.DAMAGERATEUP, num: 1 },
-        { name: "破壊率UP2", kind: BUFF.DAMAGERATEUP, num: 2 },
+        { name: "連撃", kind: BUFF.FUNNEL },
+        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP },
     ];
 
     const defDownBuffs = [
-        { name: "防御力DOWN1", kind: BUFF.DEFENSEDOWN, num: 1 },
-        { name: "防御力DOWN2", kind: BUFF.DEFENSEDOWN, num: 2 },
+        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN },
         ...(isDp
             ? [
-                { name: "DP防御力DOWN1", kind: BUFF.DEFENSEDP, num: 1 },
-                { name: "DP防御力DOWN2", kind: BUFF.DEFENSEDP, num: 2 },
+                { name: "DP防御力DOWN", kind: BUFF.DEFENSEDP },
             ]
             : []),
         ...(isElement
             ? [
-                { name: "属性防御力DOWN1", kind: BUFF.ELEMENT_DEFENSEDOWN, num: 1 },
-                { name: "属性防御力DOWN2", kind: BUFF.ELEMENT_DEFENSEDOWN, num: 2 },
+                { name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN },
             ]
             : []),
-        { name: "防御力DOWN1(永)", kind: BUFF.ETERNAL_DEFENSEDOWN, num: 1 },
-        { name: "防御力DOWN2(永)", kind: BUFF.ETERNAL_DEFENSEDOWN, num: 2 },
+        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN },
         ...(isElement
             ? [
-                { name: "属性防御力DOWN1(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, num: 1 },
-                { name: "属性防御力DOWN2(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, num: 2 },
+                { name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN },
             ]
             : []),
         ...(isWeak
             ? [
-                { name: "脆弱1", kind: BUFF.FRAGILE, num: 1 },
-                { name: "脆弱2", kind: BUFF.FRAGILE, num: 2 },
+                { name: "脆弱", kind: BUFF.FRAGILE },
             ]
             : []),
         ...(isElement
             ? [
-                { name: "耐性ダウン1", kind: BUFF.RESISTDOWN, num: 1 },
-                { name: "耐性ダウン2", kind: BUFF.RESISTDOWN, num: 2 },
+                { name: "耐性ダウン", kind: BUFF.RESISTDOWN },
             ]
             : []),
     ];
 
     const criticalBuffs = [
-        { name: "クリティカル率UP1", kind: BUFF.CRITICALRATEUP, num: 1 },
-        { name: "クリティカル率UP2", kind: BUFF.CRITICALRATEUP, num: 2 },
-        { name: "クリダメUP1", kind: BUFF.CRITICALDAMAGEUP, num: 1 },
-        { name: "クリダメUP2", kind: BUFF.CRITICALDAMAGEUP, num: 2 },
+        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP },
+        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP },
         ...(isElement
             ? [
-                { name: "属性クリ率UP1", kind: BUFF.ELEMENT_CRITICALRATEUP, num: 1 },
-                { name: "属性クリ率UP2", kind: BUFF.ELEMENT_CRITICALRATEUP, num: 2 },
-                { name: "属性クリダメUP1", kind: BUFF.ELEMENT_CRITICALDAMAGEUP, num: 1 },
-                { name: "属性クリダメUP2", kind: BUFF.ELEMENT_CRITICALDAMAGEUP, num: 2 }
+                { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP },
+                { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP },
             ]
             : []),
     ];
@@ -283,13 +267,13 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
     const filedKey = `filed-${BUFF.FIELD}`
     const chargeKey = `charge-${BUFF.CHARGE}`
     attackUpBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
     });
     defDownBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
     });
     criticalBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`] = "";
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
     });
     buffKeyList[filedKey] = "";
     buffKeyList[chargeKey] = "";
@@ -306,24 +290,23 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
         return totalEffectSize;
     }
 
-    const handleSelectChange = (buffKey, buffKind, newSelect) => {
+    const handleSelectChange = (buffKey, newSelect) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
     };
 
     // 上から2番目のbuffを子にセット
-    const selectSecondBuff = () => {
+    const selectBestBuff = () => {
         Object.keys(buffKeyList).forEach((buffKey) => {
             let buffKind = Number(buffKey.split('-')[1]);
-            let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo);
-            kindBuffList.sort((a, b) => buffSettingMap[b.key].effect_size - buffSettingMap[a.key].effect_size);
+            let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo, false);
             if (kindBuffList.length >= 1) {
-                handleSelectChange(buffKey, buffKind, kindBuffList[0].key);
+                handleSelectChange(buffKey, getBestBuffKeys(attackInfo, kindBuffList, buffSettingMap));
             }
         })
     }
 
     // バフの絞り込み
-    const filteredBuffList = (buffList, buffKind, attackInfo) => {
+    const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
         if (!attackInfo) return [];
         return buffList.filter(buff => {
             if (buff.buff_kind !== buffKind) {
@@ -338,12 +321,17 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
             if (buff.range_area === RANGE.SELF && buff.chara_id !== attackInfo.chara_id) {
                 return false;
             }
+            // 自分に使用出来ない攻撃バフ
             if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.chara_id === attackInfo.chara_id) {
                 return false;
             }
             if (buff.buff_id == 2607 && buff.member_info.style_info.style_id != 145) {
                 // 月光(歌姫の加護)
-                return; false;
+                return false;
+            }
+            if (!isOrb && buff.skill_id > 9000) {
+                // オーブスキル
+                return false;
             }
             return true;
         });
@@ -351,7 +339,7 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
 
     const selectNoneBuff = () => {
         Object.keys(selectBuffKeyMap).forEach((buffKey) => {
-            handleSelectChange(buffKey, "");
+            handleSelectChange(buffKey, []);
         })
     }
 
@@ -360,19 +348,14 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
         if (attackInfo) {
             dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });
         }
-    }, [state.enemy_info, state.resist_down, attackInfo, resistDownEffectSize]);
+    }, [state.enemy_info, attackInfo, resistDownEffectSize]);
 
     React.useEffect(() => {
         setSelectBuffKeyMap(buffKeyList);
         if (attackInfo) {
-            selectSecondBuff();
+            selectBestBuff();
         }
     }, [state.enemy_info, attackInfo]);
-
-    // if (attackInfo) {
-    //     let effectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
-    //     dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: effectSize });
-    // }
 
     return (
         <div className="buff_area text-right mx-auto">
@@ -393,7 +376,7 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                     />
                 </div>
                 <div className="flex items-center">
-                    <input defaultChecked id="auto_skill" type="checkbox" onChange={selectSecondBuff} />
+                    <input defaultChecked id="auto_skill" type="checkbox" onChange={selectBestBuff} />
                     <label className="checkbox01 ml-2" htmlFor="auto_skill">
                         スタイル/攻撃スキル/敵選択時に最適スキルを自動選択する
                     </label>
@@ -403,105 +386,92 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                 <table>
                     <colgroup>
                         <col className="title_column pc_only" />
-                        <col className="type1_column" />
-                        <col className="type2_column" />
+                        <col className="type_column" />
                         <col className="skill_name_column" />
                         <col className="reinforce_column" />
                         <col className="skill_lv_column" />
                     </colgroup>
                     <tbody>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="4">
                                 バフ
                             </td>
                         </tr>
                         {attackUpBuffs.map((buff, index) => {
-                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
+                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
                             return (
-                                <tr key={key}>
-                                    {index === 0 && (
-                                        <td className="kind pc_only" rowSpan={attackUpBuffs.length}>
-                                            バフ
-                                        </td>
-                                    )}
-                                    <td colSpan="2">{buff.name}</td>
-                                    <BuffSelect
-                                        attackInfo={attackInfo}
-                                        buffList={buffList}
-                                        buffKind={buff.kind}
-                                        buffSettingMap={buffSettingMap}
-                                        handleChangeSkillLv={handleChangeSkillLv}
-                                        selectedKey={selectBuffKeyMap[key] || ""}
-                                        onChangeSelectedKey={(e) => handleSelectChange(key, buff.kind, e.target.value)}
-                                        filteredBuffList={filteredBuffList}
-                                    />
-                                </tr>
+                                <BuffField key={buffKey}
+                                    index={index}
+                                    rowSpan={attackUpBuffs.length * 2}
+                                    buffName={buff.name}
+                                    buffKey={buffKey}
+                                    attackInfo={attackInfo}
+                                    buffList={buffList}
+                                    buffKind={buff.kind}
+                                    buffSettingMap={buffSettingMap}
+                                    handleChangeSkillLv={handleChangeSkillLv}
+                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    handleSelectChange={handleSelectChange}
+                                    filteredBuffList={filteredBuffList}
+                                />
                             )
                         })}
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="4">
                                 デバフ
                             </td>
                         </tr>
                         {defDownBuffs.map((buff, index) => {
-                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
+                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
                             return (
-                                <tr key={key}>
-                                    {index === 0 && (
-                                        <td className="kind pc_only" rowSpan={defDownBuffs.length}>
-                                            デバフ
-                                        </td>
-                                    )}
-                                    <td colSpan="2">{buff.name}</td>
-                                    <BuffSelect
-                                        attackInfo={attackInfo}
-                                        buffList={buffList}
-                                        buffKind={buff.kind}
-                                        buffSettingMap={buffSettingMap}
-                                        handleChangeSkillLv={handleChangeSkillLv}
-                                        selectedKey={selectBuffKeyMap[key] || ""}
-                                        onChangeSelectedKey={(e) => handleSelectChange(key, buff.kind, e.target.value)}
-                                        filteredBuffList={filteredBuffList}
-                                    />
-                                </tr>
+                                <BuffField key={buffKey}
+                                    index={index}
+                                    rowSpan={defDownBuffs.length * 2}
+                                    buffName={buff.name}
+                                    buffKey={buffKey}
+                                    attackInfo={attackInfo}
+                                    buffList={buffList}
+                                    buffKind={buff.kind}
+                                    buffSettingMap={buffSettingMap}
+                                    handleChangeSkillLv={handleChangeSkillLv}
+                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    handleSelectChange={handleSelectChange}
+                                    filteredBuffList={filteredBuffList}
+                                />
                             )
                         })}
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="4">
                                 クリティカル
                             </td>
                         </tr>
                         {criticalBuffs.map((buff, index) => {
-                            const key = `${BUFF_KBN[buff.kind]}-${buff.kind}-${buff.num}`
+                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
                             return (
-                                <tr key={key}>
-                                    {index === 0 && (
-                                        <td className="kind pc_only" rowSpan={criticalBuffs.length}>
-                                            クリティカル
-                                        </td>
-                                    )}
-                                    <td colSpan="2">{buff.name}</td>
-                                    <BuffSelect
-                                        attackInfo={attackInfo}
-                                        buffList={buffList}
-                                        buffKind={buff.kind}
-                                        buffSettingMap={buffSettingMap}
-                                        handleChangeSkillLv={handleChangeSkillLv}
-                                        selectedKey={selectBuffKeyMap[key] || ""}
-                                        onChangeSelectedKey={(e) => handleSelectChange(key, buff.kind, e.target.value)}
-                                        filteredBuffList={filteredBuffList}
-                                    />
-                                </tr>
+                                <BuffField key={buffKey}
+                                    index={index}
+                                    rowSpan={criticalBuffs.length * 2}
+                                    buffName={buff.name}
+                                    buffKey={buffKey}
+                                    attackInfo={attackInfo}
+                                    buffList={buffList}
+                                    buffKind={buff.kind}
+                                    buffSettingMap={buffSettingMap}
+                                    handleChangeSkillLv={handleChangeSkillLv}
+                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    handleSelectChange={handleSelectChange}
+                                    filteredBuffList={filteredBuffList}
+                                />
                             )
                         })}
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="4">
                                 フィールド
                             </td>
                         </tr>
                         <tr>
                             <td className="kind pc_only">フィールド</td>
-                            <td className="type " colSpan="2">
+                            <td className="type">
                                 フィールド
                             </td>
                             <BuffSelect
@@ -516,13 +486,13 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                             />
                         </tr>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="4">
                                 チャージ
                             </td>
                         </tr>
                         <tr>
                             <td className="kind pc_only">チャージ</td>
-                            <td className="type" colSpan="2">
+                            <td className="type">
                                 チャージ
                             </td>
                             <BuffSelect
@@ -536,6 +506,18 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                 filteredBuffList={filteredBuffList}
                             />
                         </tr>
+                    </tbody>
+                </table>
+                <table>
+                    <colgroup>
+                        <col className="title_column pc_only" />
+                        <col className="type1_column" />
+                        <col className="type2_column" />
+                        <col className="skill_name_column" />
+                        <col className="reinforce_column" />
+                        <col className="skill_lv_column" />
+                    </colgroup>
+                    <tbody>
                         <tr className="sp_only">
                             <td className="kind" colSpan="5">
                                 アビリティ

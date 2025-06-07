@@ -31,7 +31,7 @@ const AttackList = ({ attackInfo, setAttackInfo }) => {
                 skill.chara_id === charaId &&
                 (skill.style_id === styleId || skill.style_id === 0) &&
                 (!checkSpecial || skill.attack_id < 1000)
-            ).sort((x, y) => y.skill_id - x.skill_id);
+            ).sort((x, y) => y.style_id - x.style_id || y.skill_id - x.skill_id);
             if (matchedSkill.length > 0) {
                 memberAttackList.push(...matchedSkill);
             }

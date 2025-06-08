@@ -55,6 +55,7 @@ const SUB_TARGET_KIND = [
     EFFECT.FIELD_STRENGTHEN, // フィールド強化
     EFFECT.BUFF_STRENGTHEN, // バフ強化
 ]
+
 const BuffArea = ({ attackInfo, state, dispatch }) => {
 
     const { styleList } = useStyleList();
@@ -70,9 +71,11 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
             const charaId = member_info.style_info.chara_id;
             const styleId = member_info.style_info.style_id;
             const charaName = getCharaData(charaId).chara_short_name;
-            const styleBuffList = skill_buff.filter(obj =>
-                (obj.chara_id === charaId || obj.chara_id === 0) &&
-                (obj.style_id === member_info.style_info.style_id || obj.style_id === 0)
+            const styleBuffList = skill_buff.filter(buff =>
+                (buff.chara_id === charaId || buff.chara_id === 0) &&
+                (buff.style_id === member_info.style_info.style_id || buff.style_id === 0) &&
+                (BUFF_KBN[buff.buff_kind]) &&
+                (buff.buff_id != 2607 || member_info.style_info.style_id === 145) // 月光(歌姫の加護)
             );
 
             const newStyleBuffList = JSON.parse(JSON.stringify(styleBuffList));
@@ -80,6 +83,7 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                 buff.key = `${buff.buff_id}-${charaId}`;
                 buff.member_info = member_info;
                 buff.chara_name = charaName;
+                buff.use_chara_id = charaId;
             });
 
             buffList.push(...newStyleBuffList);
@@ -87,13 +91,14 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
             const createFieldBuff = (key, skillName, fieldElement, effectSize) => {
                 let fieldBuff = {
                     key: key,
+                    use_chara_id: charaId,
                     buff_kind: BUFF.FIELD,
                     buff_name: skillName,
                     buff_element: fieldElement,
                     buff_id: key,
                     chara_name: charaName,
                     max_power: effectSize,
-                    max_lv: 1
+                    max_lv: 1,
                 };
                 return fieldBuff;
             }
@@ -294,54 +299,48 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
     };
 
-    // 上から2番目のbuffを子にセット
-    const selectBestBuff = () => {
-        Object.keys(buffKeyList).forEach((buffKey) => {
-            let buffKind = Number(buffKey.split('-')[1]);
-            let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo, false);
-            if (kindBuffList.length >= 1) {
-                handleSelectChange(buffKey, getBestBuffKeys(attackInfo, kindBuffList, buffSettingMap));
-            }
-        })
-    }
-
-    // バフの絞り込み
-    const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
-        if (!attackInfo) return [];
-        return buffList.filter(buff => {
-            if (buff.buff_kind !== buffKind) {
-                return false;
-            }
-            if (ELEMENT_KIND.includes(buff.buff_kind) && attackInfo.attack_element !== buff.buff_element) {
-                return false;
-            }
-            if (buff.buff_kind === BUFF.FIELD && buff.buff_element !== 0 && buff.buff_element !== attackInfo.attack_element) {
-                return false;
-            }
-            if (buff.range_area === RANGE.SELF && buff.chara_id !== attackInfo.chara_id) {
-                return false;
-            }
-            // 自分に使用出来ない攻撃バフ
-            if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.chara_id === attackInfo.chara_id) {
-                return false;
-            }
-            if (buff.buff_id == 2607 && buff.member_info.style_info.style_id != 145) {
-                // 月光(歌姫の加護)
-                return false;
-            }
-            if (!isOrb && buff.skill_id > 9000) {
-                // オーブスキル
-                return false;
-            }
-            return true;
-        });
-    }
-
+    // 全て外す
     const selectNoneBuff = () => {
         Object.keys(selectBuffKeyMap).forEach((buffKey) => {
             handleSelectChange(buffKey, []);
         })
     }
+
+    // 上から2番目のbuffを子にセット
+    const selectBestBuff = () => {
+        Object.keys(buffKeyList).forEach((buffKey) => {
+            let buffKind = Number(buffKey.split('-')[1]);
+            let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo, false);
+            const buffItemList = [
+                ...kindBuffList,
+                ...kindBuffList.filter(buffInfo =>
+                    !(isAloneActivation(buffInfo) || isOnlyBuff(attackInfo, buffInfo) || isOnlyUse(attackInfo, buffInfo))
+                ),
+            ];
+            handleSelectChange(buffKey, getBestBuffKeys(buffItemList, buffSettingMap));
+        })
+    }
+
+    // バフ一括設定
+    const setMultiBuff = (settingBuffList) => {
+        Object.keys(buffKeyList).forEach(buffKey => {
+            const buffKind = Number(buffKey.split('-')[1]);
+            const buffItemList = Object.entries(settingBuffList).flatMap(([key, count]) => {
+                if (count === 0) return [];
+                const [skillId, charaId] = key.split('-').map(Number);
+                const matchedBuffs = buffList.filter(buffInfo =>
+                    buffInfo.buff_kind === buffKind &&
+                    buffInfo.skill_id === skillId &&
+                    buffInfo.use_chara_id === charaId
+                );
+                // countが1なら1回、2なら2回追加（同じ要素を重複追加）
+                return Array(count).fill(matchedBuffs).flat();
+            });
+            const bestKeys = getBestBuffKeys(buffItemList, buffSettingMap);
+            handleSelectChange(buffKey, bestKeys);
+        });
+        closeModal();
+    };
 
     let resistDownEffectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
     React.useEffect(() => {
@@ -356,6 +355,13 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
             selectBestBuff();
         }
     }, [state.enemy_info, attackInfo]);
+
+    const [modal, setModal] = React.useState({
+        isOpen: false,
+        mode: ""
+    });
+    const openModal = (mode) => setModal({ isOpen: true });
+    const closeModal = () => setModal({ isOpen: false, mode: "" });
 
     return (
         <div className="buff_area text-right mx-auto">
@@ -372,6 +378,7 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                         className="buff_btn"
                         defaultValue="一括設定"
                         id="open_select_buff"
+                        onClick={openModal}
                         type="button"
                     />
                 </div>
@@ -412,7 +419,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || ""}
                                     handleSelectChange={handleSelectChange}
-                                    filteredBuffList={filteredBuffList}
                                 />
                             )
                         })}
@@ -436,7 +442,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || ""}
                                     handleSelectChange={handleSelectChange}
-                                    filteredBuffList={filteredBuffList}
                                 />
                             )
                         })}
@@ -460,7 +465,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || ""}
                                     handleSelectChange={handleSelectChange}
-                                    filteredBuffList={filteredBuffList}
                                 />
                             )
                         })}
@@ -482,7 +486,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[filedKey] || ""}
                                 onChangeSelectedKey={(e) => handleSelectChange(filedKey, BUFF.FIELD, e.target.value)}
-                                filteredBuffList={filteredBuffList}
                             />
                         </tr>
                         <tr className="sp_only">
@@ -503,7 +506,6 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[chargeKey] || ""}
                                 onChangeSelectedKey={(e) => handleSelectChange(chargeKey, BUFF.CHARGE, e.target.value)}
-                                filteredBuffList={filteredBuffList}
                             />
                         </tr>
                     </tbody>
@@ -584,6 +586,14 @@ const BuffArea = ({ attackInfo, state, dispatch }) => {
                     </a>
                 </div>
             </div>
+            <ReactModal
+                isOpen={modal.isOpen}
+                onRequestClose={closeModal}
+                className={"modal-content modal-narrwow " + (modal.isOpen ? "modal-content-open" : "")}
+                overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
+            >
+                <BuffBulkSetting buffList={buffList} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />
+            </ReactModal>
         </div >
     )
 };

@@ -1,7 +1,7 @@
 
 
 const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
-    buffList, buffKind, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange, filteredBuffList }) => {
+    buffList, buffKind, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange }) => {
 
     let isAlone = false;
     if (selectedKey[0]) {
@@ -29,7 +29,6 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
                     selectedKey={selectedKey}
                     index={0}
                     handleSelectChange={handleSelectChange}
-                    filteredBuffList={filteredBuffList}
                 />
             </tr>
             <tr>
@@ -54,7 +53,6 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
                         selectedKey={selectedKey}
                         index={1}
                         handleSelectChange={handleSelectChange}
-                        filteredBuffList={filteredBuffList}
                     />
                 }
 
@@ -63,7 +61,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
     )
 }
 
-const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange, filteredBuffList }) => {
+const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange }) => {
     let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo)
     if (Object.keys(buffSettingMap).length > 0) {
         kindBuffList.sort((a, b) => buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size);

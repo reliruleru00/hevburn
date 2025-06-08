@@ -697,12 +697,7 @@ input[type="button"].durability_reflection {
 .container_multi_buff {
     background-color: #fff;
     padding: 20px;
-    width: 350px;
-    max-height: calc(100svh - 50px);
     border-radius: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    box-sizing: border-box;
 }
 
 .multi_inner_headline {

@@ -771,12 +771,12 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
 
     let display_class = hideMode ? "hide_mode " : "show_mode";
 
-    const [modal, setModa] = React.useState({
+    const [modal, setModal] = React.useState({
         isOpen: false,
         mode: ""
     });
-    const openModal = (mode) => setModa({ isOpen: true, mode: mode });
-    const closeModal = () => setModa({ isOpen: false, mode: "" });
+    const openModal = (mode) => setModal({ isOpen: true, mode: mode });
+    const closeModal = () => setModal({ isOpen: false, mode: "" });
 
     return (
         <div id="battle_area">

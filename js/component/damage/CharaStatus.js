@@ -1,6 +1,6 @@
 const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
-const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops }) => {
+const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyMap }) => {
     const { styleList, setStyleList, loadMember, removeMember } = useStyleList();
 
     // 設定変更
@@ -76,15 +76,6 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops }) => {
 
     // 移行時暫定対応
     select_style_list = styleList.selectStyleList;
-    let list = [];
-    if (attackInfo) {
-        for (let i = 1; i <= 3; i++) {
-            if (status_kbn[attackInfo["ref_status_" + i]]) {
-                list.push(status_kbn[attackInfo["ref_status_" + i]] + attackInfo.chara_id);
-            }
-        }
-    }
-    ref_status_list["status_attack"] = list;
     return (
         <>
             <div id="chara_status" className="grid grid-cols-7 text-center gap-y-px gap-x-0">
@@ -163,7 +154,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops }) => {
                 </div>
                 {styleList.selectStyleList.map((value, index) => {
                     let style = value;
-                    let chara_id = style ? style.style_info.chara_id : 0;
+                    let charaId = style ? style.style_info.chara_id : 0;
                     let rarity = style ? style.style_info.rarity : 0;
                     let str = style ? style.str : 400;
                     let dex = style ? style.dex : 400;
@@ -175,23 +166,35 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops }) => {
                     let jewel = style ? style.jewel_lv : 0;
                     let token = style ? style.token ? style.token : 0 : 0;
                     let results = [];
-                    Object.keys(ref_status_list).forEach(key => {
-                        if (ref_status_list[key].length == 0) {
-                            return null;
+                    if (attackInfo && attackInfo.chara_id == charaId) {
+                        for (let i = 1; i <= 3; i++) {
+                            if (status_kbn[attackInfo["ref_status_" + i]]) {
+                                results.push(status_kbn[attackInfo["ref_status_" + i]]);
+                            }
                         }
-                        ref_status_list[key].forEach(status => {
-                            if (status.includes(chara_id)) {
-                                results.push(status.replace(chara_id, ""));
+                    }
+                    Object.values(selectBuffKeyMap)
+                        .flat()
+                        .forEach(entry => {
+                            const [buffId, useCharaId] = entry.split("-");
+                            if (Number(useCharaId) !== charaId) return;
+                            const buffInfo = getBuffIdToBuff(Number(buffId));
+                            if (!buffInfo) return;
+
+                            for (let i = 1; i <= 2; i++) {
+                                const statusKey = buffInfo[`ref_status_${i}`];
+                                if (status_kbn[statusKey] && buffInfo.min_power != buffInfo.max_power) {
+                                    results.push(status_kbn[statusKey]);
+                                }
                             }
                         });
-                    })
                     let strClassName = "status " + (results.includes("str") ? "status_active" : "");
                     let dexClassName = "status " + (results.includes("dex") ? "status_active" : "");
                     let conClassName = "status " + (results.includes("con") ? "status_active" : "");
                     let mndClassName = "status " + (results.includes("mnd") ? "status_active" : "");
                     let intClassName = "status " + (results.includes("int") ? "status_active" : "");
                     let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
-                    let sp_cost = chara_sp_list[chara_id] ? chara_sp_list[chara_id] : 0;
+                    let sp_cost = chara_sp_list[charaId] ? chara_sp_list[charaId] : 0;
                     return (
                         <div key={`chara_no${index}`} >
                             <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>
@@ -204,18 +207,18 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops }) => {
                                 {rarity == 2 ? <option value="10">10</option> : null}
                                 {rarity == 3 ? <option value="20">20</option> : null}
                             </select>
-                            <input className={strClassName} value={str} id={`str_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
-                            <input className={dexClassName} value={dex} id={`dex_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
-                            <input className={conClassName} value={con} id={`con_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
-                            <input className={mndClassName} value={mnd} id={`mnd_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
-                            <input className={intClassName} value={int} id={`int_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
-                            <input className={lukClassName} value={luk} id={`luk_${chara_id}`} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
+                            <input className={strClassName} value={str} id={`str_${charaId}`} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
+                            <input className={dexClassName} value={dex} id={`dex_${charaId}`} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
+                            <input className={conClassName} value={con} id={`con_${charaId}`} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
+                            <input className={mndClassName} value={mnd} id={`mnd_${charaId}`} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
+                            <input className={intClassName} value={int} id={`int_${charaId}`} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
+                            <input className={lukClassName} value={luk} id={`luk_${charaId}`} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
                             <select className="jewel" value={jewel} onChange={(e) => { setSetting(index, "jewel_lv", e.target.value) }}>
                                 {Array.from({ length: 6 }, (_, i) => (
                                     <option value={i} key={`jewel_${i}`}>{i}</option>
                                 ))}
                             </select>
-                            <select className="token" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} id={`token_${chara_id}`}>
+                            <select className="token" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} id={`token_${charaId}`}>
                                 {Array.from({ length: 11 }, (_, i) => (
                                     <option value={i} key={`token_${i}`}>{i}</option>
                                 ))}

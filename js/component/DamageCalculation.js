@@ -262,6 +262,10 @@ const reducer = (state, action) => {
         default: return state;
     }
 };
+
+const filedKey = `filed-${BUFF.FIELD}`
+const chargeKey = `charge-${BUFF.CHARGE}`
+
 const DamageCalculation = () => {
     // モーダル
     ReactModal.setAppElement("#root");
@@ -318,11 +322,63 @@ const DamageCalculation = () => {
         resist_down: [0, 0, 0, 0, 0, 0],
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
+
+    let enemyInfo = state.enemy_info;
+    let isElement = attackInfo?.attack_element !== 0;
+    let isWeak = React.useMemo(() => {
+        if (attackInfo === undefined) return false;
+        let physical_resist = enemyInfo[`physical_${attackInfo?.attack_physical}`];
+        let element_resist = enemyInfo[`element_${attackInfo?.attack_element}`] - state.correction[`element_${attackInfo?.attack_element}`];
+        return PENETRATION_ATTACK_LIST.includes(attackInfo.attack_id) || physical_resist * element_resist > 10000;
+    }, [attackInfo, enemyInfo, state.correction]);
+    let isDp = state.dpRate[0] !== 0;
+
+    const attackUpBuffs = [
+        { name: "攻撃力UP", kind: BUFF.ATTACKUP },
+        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP },] : []),
+        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE },] : []),
+        { name: "連撃", kind: BUFF.FUNNEL },
+        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP },
+    ];
+
+    const defDownBuffs = [
+        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN },
+        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP },] : []),
+        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN },] : []),
+        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN },
+        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN },] : []),
+        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE },] : []),
+        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN },] : []),
+    ];
+
+    const criticalBuffs = [
+        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP },
+        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP },
+        ...(isElement ? [
+            { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP },
+            { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP },
+        ] : []),
+    ];
+
+    let buffKeyList = {};
+    attackUpBuffs.forEach(buff => {
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+    });
+    defDownBuffs.forEach(buff => {
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+    });
+    criticalBuffs.forEach(buff => {
+        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+    });
+    buffKeyList[filedKey] = [];
+    buffKeyList[chargeKey] = [];
+    const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
+
     return (
         <StyleListProvider selectStyleList={styleList} selectTroops={selectTroops}>
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
-                    <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops}/>
+                    <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops} selectBuffKeyMap={selectBuffKeyMap} />
                     <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} />
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
@@ -333,7 +389,9 @@ const DamageCalculation = () => {
                         : null
                     }
                 </div>
-                <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch} />
+                <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
+                    selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap} buffKeyList={buffKeyList}
+                    attackUpBuffs={attackUpBuffs} defDownBuffs={defDownBuffs} criticalBuffs={criticalBuffs} />
             </div>
         </StyleListProvider>
     );

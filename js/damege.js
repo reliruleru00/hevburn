@@ -2,7 +2,6 @@ let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
 let sub_style_list = Array(6).fill(undefined);
 let support_style_list = Array(6).fill(undefined);
-let ref_status_list = {};
 let chara_sp_list = [];
 
 function setEventTrigger() {
@@ -1181,6 +1180,9 @@ function getEffectSize(buff, skill_lv) {
 
 // 一度しか設定出来ないバフ
 function isOnlyBuff(attackInfo, buffInfo) {
+    if (!buffInfo) {
+        return false;
+    }
     // 初回限定
     if (buffInfo.conditions === CONDITIONS.SKILL_INIT) {
         return true;
@@ -1200,6 +1202,9 @@ function isOnlyBuff(attackInfo, buffInfo) {
 
 // 他スキルに使用出来ない攻撃バフ
 function isOnlyUse(attackInfo, buffInfo) {
+    if (!buffInfo) {
+        return false;
+    }
     if (!buffInfo.skill_attack1 || buffInfo.chara_id !== attackInfo.chara_id) {
         return false;
     }
@@ -1258,48 +1263,48 @@ function getBestBuffKeys(kindBuffList, buffSettingMap) {
 
 
 // 選択バフのステータスを着色
-function setStatusToBuff(option, id) {
-    // 非表示項目は設定しない
-    if ($(option).parent().parent().css('display') == 'none') {
-        return;
-    }
-    let buff = getBuffIdToBuff(Number($(option).val()));
-    if (buff !== undefined) {
-        let chara_id = $(option).data("chara_id");
-        let list = [];
-        if (status_kbn[buff.ref_status_1]) {
-            list.push(status_kbn[buff.ref_status_1] + chara_id);
-        }
-        if (status_kbn[buff.ref_status_2]) {
-            list.push(status_kbn[buff.ref_status_2] + chara_id);
-        }
-        ref_status_list["status_" + id] = list;
-    }
-}
+// function setStatusToBuff(option, id) {
+//     // 非表示項目は設定しない
+//     if ($(option).parent().parent().css('display') == 'none') {
+//         return;
+//     }
+//     let buff = getBuffIdToBuff(Number($(option).val()));
+//     if (buff !== undefined) {
+//         let chara_id = $(option).data("chara_id");
+//         let list = [];
+//         if (status_kbn[buff.ref_status_1]) {
+//             list.push(status_kbn[buff.ref_status_1] + chara_id);
+//         }
+//         if (status_kbn[buff.ref_status_2]) {
+//             list.push(status_kbn[buff.ref_status_2] + chara_id);
+//         }
+//         ref_status_list["status_" + id] = list;
+//     }
+// }
 
 // アビリティ項目の設定
-function setAbilityDisplay(limit_count, chara_id) {
-    // フィールドを更新
-    $("#element_field option").each(function (index, value) {
-        if (index === 0) return true;
-        if ($(value).data("skill_id") == 0) {
-            if ($(value).hasClass(chara_id)) {
-                if (limit_count >= 3) {
-                    $(value).data("limit_border", true);
-                    $(value).css("display", "block");
-                } else {
-                    $(value).data("limit_border", false);
-                    $(value).css("display", "none");
-                }
-            } else {
-                if (!$(value).data("limit_border")) {
-                    $(value).css("display", "none");
-                }
-            }
-            select2ndSkill($(value).parent());
-        }
-    });
-}
+// function setAbilityDisplay(limit_count, chara_id) {
+//     // フィールドを更新
+//     $("#element_field option").each(function (index, value) {
+//         if (index === 0) return true;
+//         if ($(value).data("skill_id") == 0) {
+//             if ($(value).hasClass(chara_id)) {
+//                 if (limit_count >= 3) {
+//                     $(value).data("limit_border", true);
+//                     $(value).css("display", "block");
+//                 } else {
+//                     $(value).data("limit_border", false);
+//                     $(value).css("display", "none");
+//                 }
+//             } else {
+//                 if (!$(value).data("limit_border")) {
+//                     $(value).css("display", "none");
+//                 }
+//             }
+//             select2ndSkill($(value).parent());
+//         }
+//     });
+// }
 
 // 効果量合計
 function getSumEffectSize(class_name) {

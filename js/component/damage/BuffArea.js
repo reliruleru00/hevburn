@@ -203,8 +203,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
         }));
     };
 
-    // const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
-
     const getBuffKindEffectSize = (buffKind) => {
         const totalEffectSize = Object.keys(selectBuffKeyMap)
             .filter((buffKey) => buffKey.startsWith(`${BUFF_KBN[buffKind]}-${buffKind}`))
@@ -237,7 +235,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     !(isAloneActivation(buffInfo) || isOnlyBuff(attackInfo, buffInfo) || isOnlyUse(attackInfo, buffInfo))
                 ),
             ];
-            handleSelectChange(buffKey, getBestBuffKeys(buffItemList, buffSettingMap));
+            handleSelectChange(buffKey, getBestBuffKeys(buffKind, buffItemList, buffSettingMap));
         })
     }
 
@@ -256,7 +254,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 // countが1なら1回、2なら2回追加（同じ要素を重複追加）
                 return Array(count).fill(matchedBuffs).flat();
             });
-            const bestKeys = getBestBuffKeys(buffItemList, buffSettingMap);
+            const bestKeys = getBestBuffKeys(buffKind, buffItemList, buffSettingMap);
             handleSelectChange(buffKey, bestKeys);
         });
         closeModal();
@@ -404,6 +402,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 attackInfo={attackInfo}
                                 buffList={buffList}
                                 buffKind={BUFF.FIELD}
+                                buffKey={filedKey}
                                 buffSettingMap={buffSettingMap}
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[filedKey] || ""}
@@ -425,6 +424,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 attackInfo={attackInfo}
                                 buffList={buffList}
                                 buffKind={BUFF.CHARGE}
+                                buffKey={chargeKey}
                                 buffSettingMap={buffSettingMap}
                                 handleChangeSkillLv={handleChangeSkillLv}
                                 selectedKey={selectBuffKeyMap[chargeKey] || ""}

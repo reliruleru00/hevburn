@@ -232,7 +232,7 @@ function calcDamage() {
         return;
     }
     // SP消費計算
-    getSpCost();
+    // getSpCost();
     // グレード
     let grade_sum = getGradeSum();
     // メンバー
@@ -1227,7 +1227,7 @@ function isAloneActivation(buffInfo) {
     return false;
 }
 
-function getBestBuffKeys(kindBuffList, buffSettingMap) {
+function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     let combinedScore = 0;
     let combinedKeys = [];
 
@@ -1245,7 +1245,7 @@ function getBestBuffKeys(kindBuffList, buffSettingMap) {
     const top1 = sortedNormalBuffs[0];
     const top2 = sortedNormalBuffs[1];
 
-    if (top1 && top2) {
+    if (top1 && top2 && ![BUFF.CHARGE, BUFF.FIELD].includes(buffKind)) {
         combinedScore = buffSettingMap[top1.key].effect_size + buffSettingMap[top2.key].effect_size;
         combinedKeys = [top1.key, top2.key];
     } else if (top1) {

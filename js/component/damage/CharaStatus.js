@@ -166,20 +166,24 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                     let jewel = style ? style.jewel_lv : 0;
                     let token = style ? style.token ? style.token : 0 : 0;
                     let results = [];
+                    let spCost = {};
                     if (attackInfo && attackInfo.chara_id == charaId) {
                         for (let i = 1; i <= 3; i++) {
                             if (status_kbn[attackInfo["ref_status_" + i]]) {
                                 results.push(status_kbn[attackInfo["ref_status_" + i]]);
                             }
                         }
+                        spCost[attackInfo.skill_id] = 1;
                     }
-                    Object.values(selectBuffKeyMap)
-                        .flat()
-                        .forEach(entry => {
+                    for (const [key, values] of Object.entries(selectBuffKeyMap)) {
+                        let tempCount = {};
+                        for (const entry of values) {
                             const [buffId, useCharaId] = entry.split("-");
-                            if (Number(useCharaId) !== charaId) return;
+                            if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
                             if (!buffInfo) return;
+
+                            tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + 1;
 
                             for (let i = 1; i <= 2; i++) {
                                 const statusKey = buffInfo[`ref_status_${i}`];
@@ -187,14 +191,24 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                                     results.push(status_kbn[statusKey]);
                                 }
                             }
-                        });
+                        }
+                        for (const [skillId, count] of Object.entries(tempCount)) {
+                            spCost[skillId] = Math.max(spCost[skillId] ?? 0, count);
+                        }
+                    };
                     let strClassName = "status " + (results.includes("str") ? "status_active" : "");
                     let dexClassName = "status " + (results.includes("dex") ? "status_active" : "");
                     let conClassName = "status " + (results.includes("con") ? "status_active" : "");
                     let mndClassName = "status " + (results.includes("mnd") ? "status_active" : "");
                     let intClassName = "status " + (results.includes("int") ? "status_active" : "");
                     let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
-                    let sp_cost = chara_sp_list[charaId] ? chara_sp_list[charaId] : 0;
+                    let sp_cost = 0;
+                    for (const [key, value] of Object.entries(spCost)) {
+                        let skill = getSkillData(key);
+                        if (skill) {
+                            sp_cost += skill.sp_cost * value;
+                        }
+                    }
                     return (
                         <div key={`chara_no${index}`} >
                             <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>

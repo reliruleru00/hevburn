@@ -21,8 +21,8 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         dispatch({ type: "SET_ENEMY", enemy_info: newEnemyInfo });
     };
 
-    const handleEnemyDestructionChange = (value) => {
-        dispatch({ type: "SET_DESTRUCTION", value });
+    const handleEnemyDamageRateChange = (value) => {
+        dispatch({ type: "SET_DAMAGE_RATE", value });
     };
 
     const handleHpChange = (value) => {
@@ -38,13 +38,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         dispatch({ type: "STRONG_BREAK", checked });
     };
 
-    // 敵情報反映
-    window.updateEnemyDurability = function (index, dp, hp, destruction) {
-        dispatch({ type: "SET_DP", index, value: dp });
-        dispatch({ type: "SET_HP", value: hp });
-        dispatch({ type: "SET_DESTRUCTION", value: destruction });
-    }
-
     // HP補正
     let maxHp = Number(enemy_info.max_hp);
     let enemy_stat = Number(enemy_info.enemy_stat);
@@ -59,11 +52,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     // 破壊率補正
     let destruction = enemy_info.destruction
     destruction *= (1 - state.correction.destruction_resist / 100);
-
-    React.useEffect(() => {
-        // ダメージ再計算
-        calcDamage();
-    });
 
     // 自由入力時の対応
     let is_free_input = false;
@@ -88,11 +76,11 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                     <input type="number" className="w-10 text-center" value={enemy_stat} id="enemy_stat" readOnly={!is_free_input}
                         onChange={(e) => handleEnemyChange("enemy_stat", e.target.value)} />
                     <div className="text-right enemy_label">破壊率上限</div>
-                    <input type="number" className="w-10 text-center" value={state.max_limit} id="enemy_destruction_limit" readOnly={!is_free_input}
+                    <input type="number" className="w-10 text-center" value={state.maxDamageRate} id="enemy_destruction_limit" readOnly={!is_free_input}
                         onChange={(e) => handleEnemyChange("destruction_limit", e.target.value)} />
                     <div className="text-right enemy_label">破壊率</div>
-                    <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.destruction}
-                        onChange={(e) => handleEnemyDestructionChange(e.target.value)} />
+                    <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.damageRate}
+                        onChange={(e) => handleEnemyDamageRateChange(e.target.value)} />
                     <div className="text-right col-span-2 ml-14">
                         <input type="checkbox" id="strong_break" onChange={(e) => handleCheckStrongBreak(e.target.checked)} checked={state.strong_break} />
                         <label className="checkbox01 text-xs font-bold" htmlFor="strong_break">強ブレイク</label>

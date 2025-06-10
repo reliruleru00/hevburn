@@ -1,7 +1,7 @@
 const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
 const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyMap }) => {
-    const { styleList, setStyleList, loadMember, removeMember } = useStyleList();
+    const { styleList, setStyleList, saveMember, loadMember, removeMember } = useStyleList();
 
     // 設定変更
     const setSetting = (place_no, item, value) => {
@@ -10,6 +10,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
             ...updatedStyleList[place_no],
             [item]: Number(value)
         };
+        saveMember(place_no);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     }
 
@@ -74,8 +75,6 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
         buff_3: -1,
     });
 
-    // 移行時暫定対応
-    select_style_list = styleList.selectStyleList;
     return (
         <>
             <div id="chara_status" className="grid grid-cols-7 text-center gap-y-px gap-x-0">

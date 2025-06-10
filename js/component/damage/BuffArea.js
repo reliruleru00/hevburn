@@ -25,7 +25,7 @@ const BUFF_KBN = {
     8: "critical_element",
     9: "critical_damege_element",
     10: "charge",
-    11: "element_field",
+    11: "field",
     12: "destruction_rete_up",
     14: "fightingspirit",
     15: "misfortune",
@@ -57,10 +57,11 @@ const SUB_TARGET_KIND = [
 ]
 
 const BuffArea = ({ attackInfo, state, dispatch,
-    selectBuffKeyMap, setSelectBuffKeyMap, buffKeyList, attackUpBuffs, defDownBuffs, criticalBuffs }) => {
+    selectBuffKeyMap, setSelectBuffKeyMap, buffKeyList, 
+    buffSettingMap, setBuffSettingMap,
+    attackUpBuffs, defDownBuffs, criticalBuffs }) => {
 
     const { styleList } = useStyleList();
-    const [buffSettingMap, setBuffSettingMap] = React.useState({});
     const [checkUpdate, setCheckUpdate] = React.useState(true);
 
     const { buffList, abilityList, passiveList } = React.useMemo(() => {
@@ -438,14 +439,10 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     <colgroup>
                         <col className="title_column pc_only" />
                         <col className="type1_column" />
-                        <col className="type2_column" />
-                        <col className="skill_name_column" />
-                        <col className="reinforce_column" />
-                        <col className="skill_lv_column" />
                     </colgroup>
                     <tbody>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="3">
                                 アビリティ
                             </td>
                         </tr>
@@ -454,36 +451,36 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 アビリティ
                             </td>
                             <td>攻撃者</td>
-                            <td className="text-left" colSpan="4">
+                            <td className="text-left">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={0} />
                             </td>
                         </tr>
                         <tr>
                             <td>前衛</td>
-                            <td className="text-left" colSpan="4">
+                            <td className="text-left">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={1} />
                             </td>
                         </tr>
                         <tr>
                             <td>後衛</td>
-                            <td className="text-left" colSpan="4">
+                            <td className="text-left">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={2} />
                             </td>
                         </tr>
                         <tr>
                             <td>全体</td>
-                            <td className="text-left" colSpan="4">
+                            <td className="text-left">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={3} />
                             </td>
                         </tr>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="5">
+                            <td className="kind" colSpan="3">
                                 パッシブ
                             </td>
                         </tr>
                         <tr>
                             <td className="kind pc_only">パッシブ</td>
-                            <td className="text-left" colSpan="5" id="skill_passive">
+                            <td className="text-left" colSpan="2" id="skill_passive">
                                 <PassiveCheckbox attackInfo={attackInfo} passiveList={passiveList} />
                             </td>
                         </tr>
@@ -498,9 +495,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     <li>
                         ・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「強化」ボタンで設定してください。
                     </li>
-                    <li>
-                        ・現在、自動選択、一括選択において単独発動バフが効果量に関わらず優先度が高く表示されています。
-                    </li>
                 </ul>
                 <div className="mx-auto text-right">
                     <a
@@ -513,7 +507,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             <ReactModal
                 isOpen={modal.isOpen}
                 onRequestClose={closeModal}
-                className={"modal-content modal-narrwow " + (modal.isOpen ? "modal-content-open" : "")}
+                className={"modal-content " + (modal.isOpen ? "modal-content-open" : "")}
                 overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
             >
                 <BuffBulkSetting buffList={buffList} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />

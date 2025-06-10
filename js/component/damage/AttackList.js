@@ -1,4 +1,4 @@
-const AttackList = ({ attackInfo, setAttackInfo }) => {
+const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv}) => {
     const { styleList } = useStyleList();
 
     const TYPE_PHYSICAL = ["none", "slash", "stab", "strike"];
@@ -54,64 +54,7 @@ const AttackList = ({ attackInfo, setAttackInfo }) => {
                 setSelectSKillLv(undefined);
             }
         }
-        calcDamage();
     }, [memberAttackList, attackInfo]);
-
-    const [selectSKillLv, setSelectSKillLv] = React.useState(attackInfo ? attackInfo.max_lv : undefined);
-
-    window.getBasePower = function (member_info, member_correction, enemy_correction) {
-        if (!attackInfo) return 0;
-        let jewel_lv = 0;
-        if (member_info.style_info.jewel_type == "1") {
-            jewel_lv = member_info.jewel_lv;
-        }
-        let molecule = 0;
-        let denominator = 0;
-        if (attackInfo.ref_status_1 != 0) {
-            molecule += (member_info[status_kbn[attackInfo.ref_status_1]] + member_correction) * 2;
-            denominator += 2;
-        }
-        if (attackInfo.ref_status_2 != 0) {
-            molecule += member_info[status_kbn[attackInfo.ref_status_2]] + member_correction;
-            denominator += 1;
-        }
-        if (attackInfo.ref_status_3 != 0) {
-            molecule += member_info[status_kbn[attackInfo.ref_status_3]] + member_correction;
-            denominator += 1;
-        }
-        let enemy_stat = Number($("#enemy_stat").val()) - enemy_correction;
-        let status = molecule / denominator;
-
-        let min_power = attackInfo.min_power * (1 + 0.05 * (selectSKillLv - 1));
-        let max_power = attackInfo.max_power * (1 + 0.02 * (selectSKillLv - 1));
-        let skill_stat = attackInfo.param_limit;
-        let base_power;
-        // 宝珠分以外
-        if (enemy_stat - skill_stat / 2 > status) {
-            base_power = 1;
-        } else if (enemy_stat > status) {
-            base_power = min_power / (skill_stat / 2) * (status - (enemy_stat - skill_stat / 2));
-        } else if (enemy_stat + skill_stat > status) {
-            base_power = (max_power - min_power) / skill_stat * (status - enemy_stat) + min_power;
-        } else {
-            base_power = max_power;
-        }
-
-        // 宝珠分(SLvの恩恵を受けない)
-        if (jewel_lv > 0) {
-            let jusl_stat = skill_stat + jewel_lv * 20;
-            if (enemy_stat - skill_stat / 2 > status) {
-                base_power += 0;
-            } else if (enemy_stat > status) {
-                base_power += attackInfo.min_power / (jusl_stat / 2) * (status - (enemy_stat - jusl_stat / 2)) * jewel_lv * 0.02;
-            } else if (enemy_stat + jusl_stat > status) {
-                base_power += ((attackInfo.max_power - attackInfo.min_power) / jusl_stat * (status - enemy_stat) + attackInfo.min_power) * jewel_lv * 0.02;
-            } else {
-                base_power += attackInfo.max_power * jewel_lv * 0.02;
-            }
-        }
-        return base_power;
-    }
 
     return (
         <div className="attack_area surround_area mx-auto mt-2 adjust_width">
@@ -143,7 +86,7 @@ const AttackList = ({ attackInfo, setAttackInfo }) => {
                             <div className="lv">
                                 <select id="skill_lv" value={selectSKillLv} onChange={e => setSelectSKillLv(e.target.value)} >
                                     {attackInfo && (() =>
-                                        Array.from({ length: attackInfo.max_lv }, (_, i) => attackInfo.max_lv - i).map(value => (
+                                        Array.from({ length: attackInfo.max_lv }, (_, i) => i + 1).map(value => (
                                             <option key={`skill${value}`} value={value}>
                                                 {value}
                                             </option>

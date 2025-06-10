@@ -44,7 +44,6 @@ const saveStyle = (member_info) => {
         member_info.earring, member_info.bracelet,
         member_info.chain, member_info.init_sp].join(",");
         localStorage.setItem(`style_${style_id}`, save_item);
-        saveExclusionSkill(member_info);
     }
 }
 
@@ -164,8 +163,8 @@ const setEnemy = (state, action) => {
         enemy_info: enemy,
         hpRate: 100,
         dpRate: Array(enemy.max_dp.split(",").length).fill(0),
-        destruction: enemy.destruction_limit,
-        max_limit: enemy.destruction_limit,
+        damageRate: enemy.destruction_limit,
+        maxDamageRate: enemy.destruction_limit,
         strong_break: false,
         correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
         resist_down: [0, 0, 0, 0, 0, 0],
@@ -183,14 +182,14 @@ const setDp = (state, action) => {
         ...state,
         dpRate: newDpRate,
         hpRate: value > 0 ? 100 : state.hpRate,
-        destruction: 100,
+        damageRate: 100,
     };
 };
 
 const setCollect = (state, action) => {
     if (action.grade.grade_none == 1) return state;
     const updated = { ...state.correction };
-    let new_limit = state.max_limit;
+    let newMaxDamageRate = state.maxDamageRate;
     for (let i = 1; i <= 4; i++) {
         const kind = action.grade[`effect_kind${i}`];
         if (kind) {
@@ -201,12 +200,12 @@ const setCollect = (state, action) => {
             }
         }
     }
-    let new_destruction = new_limit < state.destruction ? new_limit : state.destruction;
+    let newDamageRate = new_limit < state.damageRate ? new_limit : state.damageRate;
     return {
         ...state,
         correction: updated,
-        max_limit: new_limit,
-        destruction: new_destruction,
+        maxDamageRate: newMaxDamageRate,
+        damageRate: newDamageRate,
     };
 };
 
@@ -216,11 +215,11 @@ const reducer = (state, action) => {
         case "SET_HP": return { ...state, hpRate: action.value };
         case "SET_DP": return setDp(state, action);
         case "RESET_DP": return { ...state, dpRate: Array(state.enemy_info.max_dp.split(",").length).fill(0), };
-        case "SET_DESTRUCTION": {
+        case "SET_DAMAGE_RATE": {
             let value = Number(action.value);
             return {
                 ...state,
-                destruction: Math.min(value, state.max_limit),
+                damageRate: Math.min(value, state.maxDamageRate),
                 dpRate: value > 100 ? Array(state.enemy_info.max_dp.split(",").length).fill(0) : state.dpRate,
             };
         }
@@ -232,8 +231,8 @@ const reducer = (state, action) => {
             return {
                 ...state,
                 strong_break: action.checked,
-                max_limit: limit,
-                destruction: limit,
+                maxDamageRate: limit,
+                damageRate: limit,
                 dpRate: Array(state.enemy_info.max_dp.split(",").length).fill(0),
             };
         }
@@ -263,7 +262,7 @@ const reducer = (state, action) => {
     }
 };
 
-const filedKey = `filed-${BUFF.FIELD}`
+const filedKey = `field-${BUFF.FIELD}`
 const chargeKey = `charge-${BUFF.CHARGE}`
 
 const DamageCalculation = () => {
@@ -277,6 +276,8 @@ const DamageCalculation = () => {
 
     const [styleList, setStyleList] = React.useState(() => loadTroopsList(selectTroops));
     const [attackInfo, setAttackInfo] = React.useState(undefined);
+    const [selectSKillLv, setSelectSKillLv] = React.useState(undefined);
+    const [buffSettingMap, setBuffSettingMap] = React.useState({});
 
     // 敵選択
     const [enemyClass, setEnemyClass] = React.useState(() => {
@@ -300,8 +301,8 @@ const DamageCalculation = () => {
         enemy_info: initEnemyInfo,
         hpRate: 100,
         dpRate: Array(initEnemyInfo.max_dp.split(",").length).fill(0),
-        destruction: initEnemyInfo.destruction_limit,
-        max_limit: initEnemyInfo.destruction_limit,
+        damageRate: initEnemyInfo.destruction_limit,
+        maxDamageRate: initEnemyInfo.destruction_limit,
         strong_break: false,
         score_lv: 150,
         correction: {
@@ -327,9 +328,8 @@ const DamageCalculation = () => {
     let isElement = attackInfo?.attack_element !== 0;
     let isWeak = React.useMemo(() => {
         if (attackInfo === undefined) return false;
-        let physical_resist = enemyInfo[`physical_${attackInfo?.attack_physical}`];
-        let element_resist = enemyInfo[`element_${attackInfo?.attack_element}`] - state.correction[`element_${attackInfo?.attack_element}`];
-        return PENETRATION_ATTACK_LIST.includes(attackInfo.attack_id) || physical_resist * element_resist > 10000;
+        const [physicalResist, elementResist] = getEnemyResist(attackInfo, enemyInfo, state.correction);
+        return physicalResist * elementResist > 10000;
     }, [attackInfo, enemyInfo, state.correction]);
     let isDp = state.dpRate[0] !== 0;
 
@@ -362,13 +362,13 @@ const DamageCalculation = () => {
 
     let buffKeyList = {};
     attackUpBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+        buffKeyList[getBuffKey(buff.kind)] = [];
     });
     defDownBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+        buffKeyList[getBuffKey(buff.kind)] = [];
     });
     criticalBuffs.forEach(buff => {
-        buffKeyList[`${BUFF_KBN[buff.kind]}-${buff.kind}`] = [];
+        buffKeyList[getBuffKey(buff.kind)] = [];
     });
     buffKeyList[filedKey] = [];
     buffKeyList[chargeKey] = [];
@@ -379,7 +379,7 @@ const DamageCalculation = () => {
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops} selectBuffKeyMap={selectBuffKeyMap} />
-                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} />
+                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv} />
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
@@ -391,8 +391,11 @@ const DamageCalculation = () => {
                 </div>
                 <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
                     selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap} buffKeyList={buffKeyList}
+                    buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
                     attackUpBuffs={attackUpBuffs} defDownBuffs={defDownBuffs} criticalBuffs={criticalBuffs} />
             </div>
+            <DamageResult attackInfo={attackInfo} styleList={styleList} state={state} selectSKillLv={selectSKillLv}
+                selectBuffKeyMap={selectBuffKeyMap} buffSettingMap={buffSettingMap}/>
         </StyleListProvider>
     );
 }

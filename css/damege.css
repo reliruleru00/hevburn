@@ -8,7 +8,7 @@ div.footer {
     left: 0px;
     bottom: 0px;
     width: 100%;
-    height: calc(110px + env(safe-area-inset-bottom));
+    height: calc(125px + env(safe-area-inset-bottom));
     transition: height 0.3s ease;
 }
 
@@ -28,7 +28,7 @@ div.footer {
     }
 
     div.footer {
-        height: calc(80px + env(safe-area-inset-bottom));
+        height: calc(95px + env(safe-area-inset-bottom));
     }
 
     .display_area {
@@ -397,18 +397,7 @@ label.strengthen input:checked+span {
     border-color: #149f14;
 }
 
-select.buff,
-select.mindeye,
-select.servant,
-select.funnel,
-select.destruction_rete_up,
-select.debuff,
-select.dp_debuff,
-select.fragile,
-select.resist,
-select.critical_rate,
-select.critical_buff,
-select.filed {
+select.buff {
     width: 100%;
     height: 21px;
 }
@@ -430,11 +419,11 @@ select.filed {
 }
 
 .type_column {
-    width: 160px;
+    width: 100px;
 }
 
 .skill_name_column {
-    width: 273px;
+    width: 333px;
 }
 
 .reinforce_column {
@@ -461,10 +450,6 @@ select.filed {
         font-size: small;
     }
 
-    .title_column {
-        width: 10%;
-    }
-
     .type1_column {
         width: 10%;
     }
@@ -473,8 +458,12 @@ select.filed {
         width: 16.25%;
     }
 
+    .type_column {
+        width: 25%;
+    }
+
     .skill_name_column {
-        width: calc(63.5% - 97px);
+        width: calc(75% - 109px);
     }
 
     .pc_only {
@@ -518,7 +507,6 @@ td[class*="block_style_id-"] {
 
 /* ダメージ詳細 */
 #damage_result {
-    margin-top: -15px;
     width: 560px;
 }
 

@@ -4,7 +4,7 @@ const BikePartsComponent = ({ enemy_info }) => {
         "攻撃＋改", "クリティカル率＋改", "敵防御ダウン改", "攻撃＋＋改", "クリティカルダメージ＋改", "連撃＋改", "破壊率＋改"];
 
     if (enemy_info === undefined || enemy_info.enemy_class != ENEMY_CLASS_CONTROL_BATTLE) {
-        removeSupportMember(0);
+        // removeSupportMember(0);
         return null;
     }
     React.useEffect(() => {

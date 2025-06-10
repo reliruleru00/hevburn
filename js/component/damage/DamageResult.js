@@ -1,5 +1,20 @@
 
-const DamageDetail = ({ mode, detail }) => {
+const DamageDetail = ({ mode, enemyInfo, detail }) => {
+
+    const baseData = mode === "normal" ? detail.nomarlResult : detail.criticalResult;
+    const minData = mode === "normal" ? detail.nomarlMinResult : detail.criticalMinResult;
+    const maxData = mode === "normal" ? detail.nomarlMaxResult : detail.criticalMaxResult;
+
+
+    let dispRestHp = calculatePercentage(maxData.restHp, minData.restHp, enemyInfo.max_hp, "hp");
+    let gradientStyleHp = generateGradientFromRange(dispRestHp, "#BE71BE")
+
+    // 破壊率
+    const maxRate = Math.round(maxData.damageRate * 10) / 10;
+    const minRate = Math.round(minData.damageRate * 10) / 10;
+
+    const rateText = maxRate === minRate ? `${maxRate}%` : `${maxRate}%～${minRate}%`;
+    const dpSize = baseData.restDp.length;
     return (
         <div className="modal__container container_damage">
             <div className="modal text-left w-[250px] mx-auto mt-2">
@@ -7,51 +22,39 @@ const DamageDetail = ({ mode, detail }) => {
                     <label className="damage_label">ダメージ詳細</label>
                 </div>
                 <div className="text-center mx-auto">
-                    <input type="text" className="text-center damage" value={mode === "normal" ? detail.damage : detail.criticalDamage} readOnly />
+                    <input type="text" className="text-center damage"
+                        value={baseData.damage} readOnly />
                     <div>
                         最大
-                        <input type="text" className="text-center min_damage" value={mode === "normal" ? detail.maxDamage : detail.criticalMaxDamage} readOnly />
+                        <input type="text" className="text-center min_damage" value={maxData.damage} readOnly />
                     </div>
                     <div>
                         最小
-                        <input type="text" className="text-center min_damage" value={mode === "normal" ? detail.minDamage : detail.criticalMinDamage} readOnly />
+                        <input type="text" className="text-center min_damage" value={minData.damage} readOnly />
                     </div>
                     <label className="detail_max_damage">最終破壊率</label>
-                    <label className="damage_label">{mode === "normal" ? detail.lastDamageRate : detail.lastCriticalDamageRate}%</label>
+                    <label className="damage_label">{rateText}</label>
                 </div>
                 <div className="enemy_rest_hp text-center w-[240px] mx-auto">
                     <div className="flex">
                         <div className="w-8">DP</div>
                         <div>
-                            <div className="dp_gauge">
-                                <output className="rest_gauge_rate" id="rest_dp_rate_3">
-                                    0%
-                                </output>
-                            </div>
-                            <div className="dp_gauge">
-                                <output className="rest_gauge_rate" id="rest_dp_rate_2">
-                                    0%
-                                </output>
-                            </div>
-                            <div className="dp_gauge">
-                                <output className="rest_gauge_rate" id="rest_dp_rate_1">
-                                    0%
-                                </output>
-                            </div>
-                            <div className="dp_gauge">
-                                <output className="rest_gauge_rate" id="rest_dp_rate_0">
-                                    0%
-                                </output>
-                            </div>
+                            {baseData.restDp.map((dp, revIndex) => {
+                                const index = baseData.restDp.length - 1 - revIndex;
+                                let enemyDp = Number(enemyInfo.max_dp.split(",")[index]);
+                                let dispRestDp = calculatePercentage(maxData.restDp[index], minData.restDp[index], enemyDp, "hp");
+                                return (
+                                    <output key={index} className="rest_gauge_rate"
+                                        style={{ background: generateGradientFromRange(dispRestDp, "#A7BEC5") }}>{dispRestDp}</output>
+                                )
+                            })}
                         </div>
                     </div>
                     <div className="flex">
                         <div className="w-8">HP</div>
                         <div>
                             <div className="flex">
-                                <output className="rest_gauge_rate" id="rest_hp_rate">
-                                    0%
-                                </output>
+                                <output className="rest_gauge_rate" style={{ background: gradientStyleHp }}>{dispRestHp}</output>
                             </div>
                         </div>
                     </div>
@@ -124,58 +127,6 @@ const DamageDetail = ({ mode, detail }) => {
     )
 }
 
-
-class RestGauge {
-    constructor() {
-        this.min_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
-        this.min_rest_hp = 0;
-        this.min_damage = 0;
-        this.min_destruction_last_rate = 100;
-        this.max_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
-        this.max_rest_hp = 0;
-        this.max_damage = 0;
-        this.max_destruction_last_rate = 100;
-        this.avg_rest_dp = Array(DP_GAUGE_COUNT).fill(0);
-        this.avg_rest_hp = 0;
-        this.avg_damage = 0;
-        this.avg_destruction_last_rate = 100;
-    }
-    // 詳細反映
-    setDamageDetail() {
-        $("#detail_min_damage").val(Math.floor(this.min_damage).toLocaleString());
-        $("#detail_max_damage").val(Math.floor(this.max_damage).toLocaleString());
-        $("#detail_damage").val(Math.floor(this.avg_damage).toLocaleString());
-        for (let i = 0; i < DP_GAUGE_COUNT; i++) {
-            if ($("#enemy_dp_" + i).val()) {
-                $("#rest_dp_rate_" + i).parent().show();
-                let enemy_dp = Number($("#enemy_dp_" + i).val().replace(/,/g, ""));
-                let disp_rest = calculatePercentage(this.max_rest_dp[i], this.min_rest_dp[i], enemy_dp, "dp");
-                $("#rest_dp_rate_" + i).val(disp_rest);
-                // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
-                let gradientStyle = generateGradientFromRange(disp_rest, "#A7BEC5")
-                // 対象の要素にスタイルを設定
-                $("#rest_dp_rate_" + i).css("background", gradientStyle);
-            } else {
-                $("#rest_dp_rate_" + i).parent().hide();
-            }
-        }
-        let enemy_hp = Number($("#enemy_hp").val().replace(/,/g, ""));
-        let disp_rest = calculatePercentage(this.max_rest_hp, this.min_rest_hp, enemy_hp, "hp");
-        $("#rest_hp_rate").val(disp_rest);
-        // generateGradientFromRangeメソッドを呼び出してグラデーションスタイルを取得
-        let gradientStyle = generateGradientFromRange(disp_rest, "#BE71BE")
-        // 対象の要素にスタイルを設定
-        $("#rest_hp_rate").css("background", gradientStyle);
-
-        // 破壊率
-        const maxRate = Math.round(this.max_destruction_last_rate * 10) / 10;
-        const minRate = Math.round(this.min_destruction_last_rate * 10) / 10;
-
-        const rateText = maxRate === minRate ? `${maxRate}%` : `${maxRate}%～${minRate}%`;
-        $("#detail_destruction_last_rate").text(rateText);
-    }
-}
-
 // 残りの実数値と全体値から、割合範囲を取得する。
 function calculatePercentage(min, max, total, dphp) {
     if (total == 0) {
@@ -204,18 +155,18 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
     let maxDamageRate = state.maxDamageRate;
     let destruction = Number(enemyInfo.destruction);
     let dpPenetration = state.dpRate[0] == 0;
-    let rest_dp = Array(state.dpRate.length).fill(0);
+    let restDp = Array(state.dpRate.length).fill(0);
     let dp_no = -1;  // 現在の使用DPゲージ番号を取得
     for (let i = 0; i < state.dpRate.length; i++) {
-        rest_dp[i] = 0;
+        restDp[i] = 0;
         if (state.dpRate[i] > 0) {
-            rest_dp[i] = Number(enemyInfo.max_dp.split(",")[i]) * state.dpRate[i] / 100;
+            restDp[i] = Number(enemyInfo.max_dp.split(",")[i]) * state.dpRate[i] / 100;
         }
-        if (rest_dp[i] > 0) {
+        if (restDp[i] > 0) {
             dp_no = i;
         }
     }
-    let rest_hp = enemyInfo.max_hp * state.hpRate / 100;
+    let restHp = enemyInfo.max_hp * state.hpRate / 100;
     let hit_count = attackInfo.hit_count;
     let destruction_size = destruction * attackInfo.destruction * damageRateUp;
     let damage = 0;
@@ -225,7 +176,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
 
     // ダメージ処理
     function procDamage(power, add_destruction) {
-        if (rest_dp[0] <= 0 && dpPenetration) {
+        if (restDp[0] <= 0 && dpPenetration) {
             special = 1 + attackInfo.hp_damege / 100;
             // add_buff = getEarringEffectSize("attack", hit_count) / 100;
             // add_debuff = 0;
@@ -234,16 +185,16 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
             // add_buff = getEarringEffectSize("break", hit_count) / 100;
             // add_debuff = getSumEffectSize("dp_debuff") / 100;
         }
-        let hit_damage = power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * damageRate / 100;
+        let hit_damage = Math.floor(power * (buff + add_buff) * (debuff + add_debuff) * fixed * special * damageRate / 100);
 
-        if (rest_dp[dp_no] > 0) {
-            rest_dp[dp_no] -= hit_damage;
+        if (restDp[dp_no] > 0) {
+            restDp[dp_no] -= hit_damage;
         } else if (dp_no >= 1) {
-            rest_dp[dp_no - 1] -= hit_damage;
+            restDp[dp_no - 1] -= hit_damage;
         } else {
-            rest_hp -= hit_damage;
+            restHp -= hit_damage;
         }
-        if (rest_dp[0] <= 0 && dpPenetration) {
+        if (restDp[0] <= 0 && dpPenetration) {
             damageRate += add_destruction;
             if (damageRate > maxDamageRate) damageRate = maxDamageRate;
         }
@@ -273,27 +224,12 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
         damage = billion * 2;
     }
 
-    // 0以下補正
-    // rest_dp = rest_dp.map(dp => Math.max(0, dp));
-    //    rest_hp = Math.max(0, rest_hp);
-    // if (id.includes("max")) {
-    //     rest_damage.max_rest_dp = rest_dp;
-    //     rest_damage.max_rest_hp = rest_hp;
-    //     rest_damage.max_damage = damage;
-    //     rest_damage.max_destruction_last_rate = destruction_rate;
-    // } else if (id.includes("min")) {
-    //     rest_damage.min_rest_dp = rest_dp;
-    //     rest_damage.min_rest_hp = rest_hp;
-    //     rest_damage.min_damage = damage;
-    //     rest_damage.min_destruction_last_rate = destruction_rate;
-    // } else {
-    //     rest_damage.avg_rest_dp = rest_dp;
-    //     rest_damage.avg_rest_hp = rest_hp;
-    //     rest_damage.avg_damage = damage;
-    //     rest_damage.avg_destruction_last_rate = destruction_rate;
-    // }
-
-    return [Math.floor(damage).toLocaleString(), Math.round(damageRate * 100) / 100];
+    return {
+        damage: Math.floor(damage).toLocaleString(),
+        restDp: restDp,
+        restHp: restHp,
+        damageRate: Math.round(damageRate * 100) / 100,
+    };
 }
 
 const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap }) => {
@@ -384,17 +320,17 @@ const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffK
     let enemy_defence_rate = 1;
 
     let fixed = mindeye * fragile * token * field * physical / 100 * element / 100 * enemy_defence_rate * skill_unique_rate;
-    const [damage, lastDamageRate] =
+    const nomarlResult =
         calculateDamage(state, skillPower, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
-    const [minDamage, lastMinDamageRate] =
+    const nomarlMinResult =
         calculateDamage(state, skillPower * 0.9, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
-    const [maxDamage, lastMaxDamageRate] =
+    const nomarlMaxResult =
         calculateDamage(state, skillPower * 1.1, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
-    const [criticalDamage, lastCriticalDamageRate] =
+    const criticalResult =
         calculateDamage(state, criticalPower, attackInfo, buff, debuff, fixed * criticalBuff, damageRateUp, funnelList);
-    const [criticalMinDamage, lastCriticalMinDamageRate] =
+    const criticalMinResult =
         calculateDamage(state, criticalPower * 0.9, attackInfo, buff, debuff, fixed * criticalBuff, damageRateUp, funnelList);
-    const [criticalMaxDamage, lastCriticalMaxDamageRate] =
+    const criticalMaxResult =
         calculateDamage(state, criticalPower * 1.1, attackInfo, buff, debuff, fixed * criticalBuff, damageRateUp, funnelList);
 
     // if ($("#dp_range_0").val() && Number($("#dp_range_0").val())) {
@@ -403,16 +339,14 @@ const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffK
     // }
 
     const detail = {
+        nomarlResult: nomarlResult,
+        nomarlMinResult: nomarlMinResult,
+        nomarlMaxResult: nomarlMaxResult,
+        criticalResult: criticalResult,
+        criticalMinResult: criticalMinResult,
+        criticalMaxResult: criticalMaxResult,
         skillPower: skillPower,
         criticalPower: criticalPower,
-        damage: damage,
-        minDamage: minDamage,
-        maxDamage: maxDamage,
-        lastDamageRate: lastDamageRate,
-        criticalDamage: criticalDamage,
-        criticalMinDamage: criticalMinDamage,
-        criticalMaxDamage: criticalMaxDamage,
-        lastCriticalDamageRate: lastCriticalDamageRate,
         buff: convertToPercentage(buff),
         debuff: convertToPercentage(debuff),
         special: convertToPercentage(special),
@@ -445,17 +379,17 @@ const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffK
                             </div>
                             <div>
                                 <label className="damage_label">最終破壊率</label>
-                                <label className="damage_label">{`${lastCriticalDamageRate}%`}</label>
+                                <label className="damage_label">{`${criticalResult.damageRate}%`}</label>
                                 <input type="button" className="open_detail" defaultValue="詳細" onClick={() => openModal("critical")} />
 
                             </div>
                             <div className="text-center mx-auto">
-                                <input type="text" className="text-center damage" value={criticalDamage} readOnly />
+                                <input type="text" className="text-center damage" value={criticalResult.damage} readOnly />
                                 <div className="leading-4 items-end">
                                     <label className="pb-0.5">(</label>
-                                    <input type="text" className="text-center min_damage" value={criticalMinDamage} readOnly />
+                                    <input type="text" className="text-center min_damage" value={criticalMinResult.damage} readOnly />
                                     <label className="pb-0.5">～</label>
-                                    <input type="text" className="text-center min_damage" value={criticalMaxDamage} readOnly />
+                                    <input type="text" className="text-center min_damage" value={criticalMaxResult.damage} readOnly />
                                     <label className="pb-0.5">)</label>
                                 </div>
                             </div>
@@ -466,16 +400,16 @@ const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffK
                             </div>
                             <div>
                                 <label className="damage_label">最終破壊率</label>
-                                <label className="damage_label">{`${lastDamageRate}%`}</label>
+                                <label className="damage_label">{`${nomarlResult.damageRate}%`}</label>
                                 <input type="button" className="open_detail" defaultValue="詳細" onClick={() => openModal("normal")} />
                             </div>
                             <div className="text-center mx-auto">
-                                <input className="text-center damage" value={damage} readOnly type="text" />
+                                <input className="text-center damage" value={nomarlResult.damage} readOnly type="text" />
                                 <div className="leading-4 items-end">
                                     <label className="pb-0.5">(</label>
-                                    <input type="text" className="text-center min_damage" value={minDamage} readOnly />
+                                    <input type="text" className="text-center min_damage" value={nomarlMinResult.damage} readOnly />
                                     <label className="pb-0.5">～</label>
-                                    <input type="text" className="text-center min_damage" value={maxDamage} readOnly />
+                                    <input type="text" className="text-center min_damage" value={nomarlMaxResult.damage} readOnly />
                                     <label className="pb-0.5">)</label>
                                 </div>
                             </div>
@@ -489,7 +423,7 @@ const DamageResult = ({ attackInfo, styleList, state, selectSKillLv, selectBuffK
                 className={"modal-content " + (modal.isOpen ? "modal-content-open" : "")}
                 overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
             >
-                <DamageDetail mode={modal.mode} detail={detail} />
+                <DamageDetail mode={modal.mode} enemyInfo={enemyInfo} detail={detail} />
             </ReactModal>
         </>
     )

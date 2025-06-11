@@ -737,7 +737,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
     // }
 
     let criticalPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, 50);
-    let criticalRate = getCriticalRate();
+    let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap);
     let criticalBuff = getCriticalBuff(selectBuffKeyMap, buffSettingMap);
 
     let token = 1;
@@ -1055,12 +1055,12 @@ function getDamagerateEffectSize(selectBuffKeyMap, buffSettingMap, hit_count) {
 }
 
 // クリティカル率取得
-function getCriticalRate(member_info) {
+function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap) {
     let criticalRate = 1.5;
-    // let diff = (member_info.luk - Number($("#enemy_stat").val()));
-    // critical_rate += diff > 0 ? diff * 0.04 : 0;
-    // critical_rate = critical_rate > 15 ? 15 : critical_rate;
-    // critical_rate += getSumEffectSize("critical_rate");
+    let diff = (attackMemberInfo.luk - enemyInfo.enemy_stat);
+    criticalRate += diff > 0 ? diff * 0.04 : 0;
+    criticalRate = criticalRate > 15 ? 15 : criticalRate;
+    criticalRate += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
     // critical_rate += getSumAbilityEffectSize(3);
     // critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
     // let grade_sum = getGradeSum();
@@ -1261,21 +1261,6 @@ function getSumAbilityEffectSize(effect_type, is_select, chara_id) {
     });
     return ability_effect_size;
 }
-
-// 破壊率アップ効果量取得
-// function getDestructionEffectSize(hit_count) {
-//     let destruction_effect_size = 100;
-//     let grade_sum = getGradeSum();
-//     destruction_effect_size += getSumEffectSize("destruction_rete_up");
-//     destruction_effect_size += getSumAbilityEffectSize(5);
-//     destruction_effect_size += getSumTokenAbilirySize(EFFECT_TOKEN_DAMAGERATEUP)
-//     destruction_effect_size += getEarringEffectSize("blast", 10 - hit_count);
-//     destruction_effect_size += getChainEffectSize("blast");
-//     // 制圧戦
-//     destruction_effect_size += getBikePartsEffectSize("destruction_rate");
-//     destruction_effect_size += grade_sum.destruction;
-//     return destruction_effect_size / 100;
-// }
 
 // アビリティ情報取得
 function getAbilityInfo(ability_id) {

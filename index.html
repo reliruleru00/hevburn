@@ -73,40 +73,12 @@
   <script src="js/grade.js"></script>
   <script src="js/bonus.js"></script>
   <script src="js/score_data.js"></script>
-  <script>
-    var chara_no = -1;
-    var select_attack_skill;
-    var open_damage_detail;
-
-    const DP_GAUGE_COUNT = 4;
-    $(function () {
-      // 自由入力取得
-      for (let i = 0; i < 10; i++) {
-        let free_enemy = localStorage.getItem("free_enemy_" + i);
-        if (free_enemy !== null) {
-          updateEnemyStatus(i, JSON.parse(free_enemy));
-        }
-      }
-
-      // イベント設定
-      setEventTrigger();
-
-      // MicroModal初期化
-      MicroModal.init({
-        disableScroll: true,
-      });
-    });
-    // ロード完了後に表示
-    $(window).on("load", function () {
-      $("div.frame").css("visibility", "visible");
-    });
-  </script>
 </head>
 
 <body>
   <main>
     <div class="header"></div>
-    <div class="frame w-screen pt-3 overflow-y-scroll border-b" style="visibility: hidden;">
+    <div class="frame w-screen pt-3 overflow-y-scroll border-b">
       <div id="root"></div>
       <div id="status_area"></div>
     </div>

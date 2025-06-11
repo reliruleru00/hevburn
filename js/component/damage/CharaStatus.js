@@ -1,7 +1,7 @@
 const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
 const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyMap }) => {
-    const { styleList, setStyleList, saveMember, loadMember, removeMember } = useStyleList();
+    const { styleList, setStyleList, saveMember, loadMember, removeMember, setLastUpdatedIndex } = useStyleList();
 
     // 設定変更
     const setSetting = (place_no, item, value) => {
@@ -10,7 +10,8 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
             ...updatedStyleList[place_no],
             [item]: Number(value)
         };
-        // saveMember(place_no);
+        saveMember(place_no);
+        setLastUpdatedIndex(place_no);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     }
 
@@ -149,6 +150,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                     <label className="label_status">運</label>
                     <label className="label_status">宝珠Lv</label>
                     <label className="label_status">トークン</label>
+                    <label className="label_status">士気</label>
                     <label className="label_status">消費SP</label>
                 </div>
                 {styleList.selectStyleList.map((value, index) => {
@@ -164,6 +166,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                     let limit = style ? style.limit_count : 2;
                     let jewel = style ? style.jewel_lv : 0;
                     let token = style ? style.token ? style.token : 0 : 0;
+                    let morale = style ? style.morale ? style.morale : 0 : 0;
                     let results = [];
                     let spCost = {};
                     if (attackInfo && attackInfo.chara_id == charaId) {
@@ -220,20 +223,25 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                                 {rarity == 2 ? <option value="10">10</option> : null}
                                 {rarity == 3 ? <option value="20">20</option> : null}
                             </select>
-                            <input className={strClassName} value={str} id={`str_${charaId}`} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
-                            <input className={dexClassName} value={dex} id={`dex_${charaId}`} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
-                            <input className={conClassName} value={con} id={`con_${charaId}`} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
-                            <input className={mndClassName} value={mnd} id={`mnd_${charaId}`} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
-                            <input className={intClassName} value={int} id={`int_${charaId}`} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
-                            <input className={lukClassName} value={luk} id={`luk_${charaId}`} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
-                            <select className="jewel" value={jewel} onChange={(e) => { setSetting(index, "jewel_lv", e.target.value) }}>
+                            <input className={strClassName} value={str} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
+                            <input className={dexClassName} value={dex} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
+                            <input className={conClassName} value={con} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
+                            <input className={mndClassName} value={mnd} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
+                            <input className={intClassName} value={int} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
+                            <input className={lukClassName} value={luk} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
+                            <select className="status" value={jewel} onChange={(e) => { setSetting(index, "jewel_lv", e.target.value) }}>
                                 {Array.from({ length: 6 }, (_, i) => (
                                     <option value={i} key={`jewel_${i}`}>{i}</option>
                                 ))}
                             </select>
-                            <select className="token" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} id={`token_${charaId}`}>
+                            <select className="status" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} >
                                 {Array.from({ length: 11 }, (_, i) => (
                                     <option value={i} key={`token_${i}`}>{i}</option>
+                                ))}
+                            </select>
+                            <select className="status" value={morale} onChange={(e) => { setSetting(index, "morale", e.target.value) }}>
+                                {Array.from({ length: 11 }, (_, i) => (
+                                    <option value={i} key={`morale_${i}`}>{i}</option>
                                 ))}
                             </select>
                             <label id={`sp_cost_${index}`}>{sp_cost}</label>

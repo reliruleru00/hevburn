@@ -7,6 +7,7 @@ const StyleListContext = React.createContext({
     setMember: () => { },
     removeMember: () => { },
     setStyle: () => { },
+    setLastUpdatedIndex: () => { },
 });
 
 const initialMember = {
@@ -148,8 +149,17 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     }
 
+    // 編集したステータスの保存
+    const [lastUpdatedIndex, setLastUpdatedIndex] = React.useState(null);
+    React.useEffect(() => {
+        if (lastUpdatedIndex !== null) {
+            saveStyle(styleList.selectStyleList[lastUpdatedIndex]);
+            setLastUpdatedIndex(null);
+        }
+    }, [styleList, lastUpdatedIndex]);
+
     return (
-        <StyleListContext.Provider value={{ styleList, setStyleList, loadMember, setMember, removeMember, saveMember, setStyle }}>
+        <StyleListContext.Provider value={{ styleList, setStyleList, loadMember, setMember, removeMember, saveMember, setStyle, setLastUpdatedIndex }}>
             {children}
         </StyleListContext.Provider>
     );
@@ -400,6 +410,15 @@ const RootComponent = () => {
         return selectTroops ? Number(selectTroops) : 0;
     });
 
+    // 自由入力取得
+    React.useEffect(() => {
+        for (let i = 0; i < 10; i++) {
+            let free_enemy = localStorage.getItem("free_enemy_" + i);
+            if (free_enemy !== null) {
+                updateEnemyStatus(i, JSON.parse(free_enemy));
+            }
+        }
+    })
     return (
         <StyleListProvider selectStyleList={loadTroopsList(selectTroops)} selectTroops={selectTroops}>
             <DamageCalculation selectTroops={selectTroops} setSelectTroops={setSelectTroops} />

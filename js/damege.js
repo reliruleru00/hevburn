@@ -5,18 +5,6 @@
 // let chara_sp_list = [];
 
 function setEventTrigger() {
-    // 入力制限
-    $(".limit_number").on("change", function (event) {
-        let min = parseInt(this.min);
-        let max = parseInt(this.max);
-        let value = parseInt(this.value);
-        if (value < min) {
-            this.value = min;
-        }
-        if (value > max) {
-            this.value = max;
-        }
-    });
     // 士気レベル変更
     $("#morale_count").on("change", function (event) {
         // updateVariableEffectSize();

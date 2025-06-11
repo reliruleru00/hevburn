@@ -128,18 +128,14 @@ img.sub_style {
     display: block;
 }
 
-.status,
-.limit,
-.jewel,
-.token {
+.status {
     height: 22px;
     width: 60px;
     margin-left: 3px;
     text-align: center;
 }
 
-.limit:disabled,
-.jewel:disabled {
+.status:disabled {
     border: solid 1px black;
 }
 

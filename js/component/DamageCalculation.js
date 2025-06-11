@@ -265,16 +265,8 @@ const reducer = (state, action) => {
 const filedKey = `field-${BUFF.FIELD}`
 const chargeKey = `charge-${BUFF.CHARGE}`
 
-const DamageCalculation = () => {
-    // モーダル
-    ReactModal.setAppElement("#root");
-
-    const [selectTroops, setSelectTroops] = React.useState(() => {
-        let selectTroops = localStorage.getItem('select_troops');
-        return selectTroops ? Number(selectTroops) : 0;
-    });
-
-    const [styleList, setStyleList] = React.useState(() => loadTroopsList(selectTroops));
+const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
+    const { styleList } = useStyleList();
     const [attackInfo, setAttackInfo] = React.useState(undefined);
     const [selectSKillLv, setSelectSKillLv] = React.useState(undefined);
     const [buffSettingMap, setBuffSettingMap] = React.useState({});
@@ -376,7 +368,7 @@ const DamageCalculation = () => {
 
     let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap);
     return (
-        <StyleListProvider selectStyleList={styleList} selectTroops={selectTroops}>
+        <>
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops} selectBuffKeyMap={selectBuffKeyMap} />
@@ -396,11 +388,26 @@ const DamageCalculation = () => {
                     attackUpBuffs={attackUpBuffs} defDownBuffs={defDownBuffs} criticalBuffs={criticalBuffs} />
             </div>
             <DamageResult damageResult={damageResult} enemyInfo={state.enemy_info} dispatch={dispatch} />
+        </>
+    );
+}
+const RootComponent = () => {
+    // モーダル
+    ReactModal.setAppElement("#root");
+
+    const [selectTroops, setSelectTroops] = React.useState(() => {
+        let selectTroops = localStorage.getItem('select_troops');
+        return selectTroops ? Number(selectTroops) : 0;
+    });
+
+    return (
+        <StyleListProvider selectStyleList={loadTroopsList(selectTroops)} selectTroops={selectTroops}>
+            <DamageCalculation selectTroops={selectTroops} setSelectTroops={setSelectTroops} />
         </StyleListProvider>
     );
 }
 
 $(function () {
     const rootElement = document.getElementById('status_area');
-    ReactDOM.createRoot(rootElement).render(<DamageCalculation />);
+    ReactDOM.createRoot(rootElement).render(<RootComponent />);
 });

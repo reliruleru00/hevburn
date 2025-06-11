@@ -10,7 +10,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
             ...updatedStyleList[place_no],
             [item]: Number(value)
         };
-        saveMember(place_no);
+        // saveMember(place_no);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     }
 

@@ -661,7 +661,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
         return null;
     }
     let enemyInfo = state.enemy_info;
-    let attackMemberInfo = styleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
+    let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
 
     // // グレード
     // let grade_sum = getGradeSum();

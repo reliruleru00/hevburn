@@ -213,7 +213,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                     }
                     return (
                         <div key={`chara_no${index}`} >
-                            <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>
+                            <select className="status" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>
                                 {rarity == 1 ?
                                     Array.from({ length: 5 }, (_, i) => (
                                         <option value={i} key={`limit_${i}`}>{i}</option>

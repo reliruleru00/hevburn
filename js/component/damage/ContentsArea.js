@@ -15,7 +15,7 @@ const ContentsArea = ({ attackInfo, enemyInfo, enemyClass, enemySelect, setEnemy
                 <EnmeyListComponent enemyClass={enemyClass} enemySelect={enemySelect} handleChange={handleChange} isFreeInput={true} />
                 <HardLayerComponent enemy_info={enemyInfo} />
                 {enemyClass == ENEMY_CLASS.SCORE_ATTACK ?
-                    <ScoreSettingComponent state={state} dispatch={dispatch} />
+                    <ScoreSetting state={state} dispatch={dispatch} />
                     : null
                 }
                 <BikePartsComponent enemy_info={enemyInfo} />

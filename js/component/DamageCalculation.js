@@ -197,7 +197,6 @@ const setDp = (state, action) => {
 };
 
 const setCollect = (state, action) => {
-    if (action.grade.grade_none == 1) return state;
     const updated = { ...state.correction };
     let newMaxDamageRate = state.maxDamageRate;
     for (let i = 1; i <= 4; i++) {
@@ -206,16 +205,17 @@ const setCollect = (state, action) => {
             const size = action.grade[`effect_size${i}`];
             updated[kind] = action.checked ? size : 0;
             if (kind === "destruction_limit") {
-                new_limit = state.enemy_info.destruction_limit + updated.destruction_limit + (state.strong_break ? 300 : 0);
+                newMaxDamageRate = state.enemy_info.destruction_limit + updated.destruction_limit + (state.strong_break ? 300 : 0);
             }
         }
     }
-    let newDamageRate = new_limit < state.damageRate ? new_limit : state.damageRate;
+    let newDamageRate = newMaxDamageRate < state.damageRate ? newMaxDamageRate : state.damageRate;
     return {
         ...state,
         correction: updated,
         maxDamageRate: newMaxDamageRate,
         damageRate: newDamageRate,
+        score: { ...state.score, totalGradeRate: action.totalGradeRate }
     };
 };
 
@@ -247,12 +247,16 @@ const reducer = (state, action) => {
             };
         }
         case "SET_SCORE_LV":
-            return { ...state, score_lv: action.lv };
+            return { ...state, score: { ...state.score, lv: action.lv } };
+
+        case "SET_SCORE_TURN":
+            return { ...state, score: { ...state.score, turnCount: action.turn } };
 
         case "RESET_COLLECT":
             return {
                 ...state,
                 correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
+                score: { ...state.score, totalGradeRate: 0 }
             };
 
         case "SET_COLLECT": {
@@ -306,7 +310,11 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
         damageRate: initEnemyInfo.destruction_limit,
         maxDamageRate: initEnemyInfo.destruction_limit,
         strong_break: false,
-        score_lv: 150,
+        score: {
+            lv: 150,
+            turnCount: 1,
+            totalGradeRate: 0,
+        },
         correction: {
             physical_1: 0,
             physical_2: 0,
@@ -387,8 +395,8 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
                     <OtherSetting attackInfo={attackInfo} />
-                    {enemyClass == ENEMY_CLASS.SCORE_ATTACK ?
-                        <PredictionScoreComponent />
+                    {enemyClass == ENEMY_CLASS.SCORE_ATTACK && damageResult ?
+                        <PredictionScore damageResult={damageResult} state={state} />
                         : null
                     }
                 </div>

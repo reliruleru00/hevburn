@@ -1,19 +1,16 @@
-const ScoreSettingComponent = ({ state, dispatch }) => {
+const ScoreSetting = ({ state, dispatch }) => {
     const [selectHalf, setSelectHalf] = React.useState(1);
     const [checkedGrades, setCheckedGrades] = React.useState({});
 
     let enemyInfo = state.enemy_info;
-    if (enemyInfo === undefined || enemyInfo.enemy_class != ENEMY_CLASS_SCORE_ATTACK) {
-        return null;
-    }
     React.useEffect(() => {
         setCheckedGrades([]);
     }, [enemyInfo.sub_no]);
 
     let filtered_grade = grade_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
     const uniqueHalf = [...new Set(filtered_grade.map(item => item.half))];
-    let filtered_bonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no && (obj.half == 0 ||obj.half == selectHalf));
- 
+    let filtered_bonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no && (obj.half == 0 || obj.half == selectHalf));
+
     let half_grade = filtered_grade.filter((obj) => obj.half == selectHalf);
 
     // タブ変更
@@ -23,6 +20,11 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
         dispatch({ type: "RESET_COLLECT" });
     }
 
+    // ターン変更
+    const handleTurnChange = (turn) => {
+        dispatch({ type: "SET_SCORE_TURN", turn });
+    }
+
     // レベル変更
     const handleScoreChange = (lv) => {
         dispatch({ type: "SET_SCORE_LV", lv });
@@ -30,11 +32,19 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
 
     // グレード変更
     const handleGradeChange = (grade, checked) => {
-        setCheckedGrades(prev => ({
-            ...prev,
+        // チェック状態の更新
+        const newCheckedGrades = {
+            ...checkedGrades,
             [grade.grade_no]: checked
-        }));
-        dispatch({ type: "SET_COLLECT", grade, checked });
+        };
+        setCheckedGrades(newCheckedGrades);
+
+        // チェックされているgradeの合計を計算
+        const totalGradeRate = half_grade
+            .filter(g => newCheckedGrades[g.grade_no])
+            .reduce((sum, g) => sum + g.grade_rate, 0);
+
+        dispatch({ type: "SET_COLLECT", grade, checked, totalGradeRate });
     };
 
     const getImg = (conditions) => {
@@ -84,7 +94,7 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
                 {uniqueHalf.map((half, index) => (
                     <React.Fragment key={half}>
                         <input defaultChecked={index === 0} id={`half_tab_${half}`} name="rule_tab" type="radio" onChange={() => handleTabChange(half)} />
-                        <label htmlFor={`half_tab_${half}`} id={`half_tab_${half}`}>
+                        <label htmlFor={`half_tab_${half}`}>
                             {half}週目
                         </label>
                     </React.Fragment>
@@ -92,7 +102,7 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
 
                 <span id="score_turn">
                     ターン数
-                    <select className="text-right w-12" id="turn_count">
+                    <select className="text-right w-12" value={state.score.turn} onChange={(e) => handleTurnChange(e.target.value)}>
                         {Array.from({ length: 30 }, (_, i) => (
                             <option value={i + 1} key={`turn_${i}`}>{i + 1}</option>
                         ))}
@@ -100,7 +110,7 @@ const ScoreSettingComponent = ({ state, dispatch }) => {
                 </span>
                 <span id="score_turn">
                     Lv
-                    <select className="text-right w-12" id="score_lv" value={state.score_lv} onChange={(e) => handleScoreChange(e.target.value)}>
+                    <select className="text-right w-12" value={state.score.lv} onChange={(e) => handleScoreChange(e.target.value)}>
                         {Array.from({ length: 50 }, (_, i) => (
                             <option value={150 - i} key={`score_lv_${i}`}>{150 - i}</option>
                         ))}

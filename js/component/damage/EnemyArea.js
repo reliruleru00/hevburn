@@ -43,8 +43,8 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     let enemy_stat = Number(enemy_info.enemy_stat);
     if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
         let score_attack = getScoreAttack(enemy_info.sub_no);
-        maxHp = getScoreHpDp(state.score_lv, score_attack, "hp_rate");
-        enemy_stat = score_stat[state.score_lv - 100];
+        maxHp = getScoreHpDp(state.score.lv, score_attack, "hp_rate");
+        enemy_stat = SCORE_STATUS[state.score.lv - 100];
     }
     maxHp = Math.floor(maxHp * (1 + state.correction.hp_rate / 100));
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
@@ -101,7 +101,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                                 let maxDp = Number(max_dp_list[no]);
                                 if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
                                     let score_attack = getScoreAttack(enemy_info.sub_no);
-                                    maxDp = getScoreHpDp(state.score_lv, score_attack, "dp_rate");
+                                    maxDp = getScoreHpDp(state.score.lv, score_attack, "dp_rate");
                                 }
                                 maxDp = Math.floor(maxDp * (1 + state.correction.dp_rate / 100));
                                 let background = getApplyGradient("#4F7C8B", dp_rate)

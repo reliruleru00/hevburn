@@ -732,13 +732,13 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
     let enemy_defence_rate = 1;
 
     let fixed = mindeye * fragile * token * field * physical / 100 * element / 100 * enemy_defence_rate * skill_unique_rate;
-    const normalResult =
+    const normalAvgResult =
         calculateDamage(state, skillPower, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
     const normalMinResult =
         calculateDamage(state, skillPower * 0.9, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
     const normalMaxResult =
         calculateDamage(state, skillPower * 1.1, attackInfo, buff, debuff, fixed, damageRateUp, funnelList);
-    const criticalResult =
+    const criticalAvgResult =
         calculateDamage(state, criticalPower, attackInfo, buff, debuff, fixed * criticalBuff, damageRateUp, funnelList);
     const criticalMinResult =
         calculateDamage(state, criticalPower * 0.9, attackInfo, buff, debuff, fixed * criticalBuff, damageRateUp, funnelList);
@@ -752,13 +752,13 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
 
     return {
         normalResult: {
-            middle: normalResult,
+            avg: normalAvgResult,
             min: normalMinResult,
             max: normalMaxResult,
             skillPower: skillPower,
         },
         criticalResult: {
-            middle: criticalResult,
+            avg: criticalAvgResult,
             min: criticalMinResult,
             max: criticalMaxResult,
             skillPower: criticalPower,
@@ -847,7 +847,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
         procDamage(basePower * value / 100, destruction_size * value / 100);
     });
 
-    const billion = 1000000000;
+    const billion = 1_000_000_000;
     if (damage > billion) {
         damage = billion * (2 - Math.exp(0.7 - 0.7 * (damage / billion)));
     }
@@ -856,7 +856,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, fixed, dama
     }
 
     return {
-        damage: Math.floor(damage).toLocaleString(),
+        damage: Math.floor(damage),
         restDp: restDp,
         restHp: restHp,
         damageRate: Math.round(damageRate * 10) / 10,
@@ -1378,25 +1378,25 @@ function updateSeraphEncounter(enemy_info, selectedList) {
     // setEnemyStatus(new_enemy_info)
 }
 
-// ダメージボーナス算出
-function getDamageBonus(damage, num, score_attack) {
-    damage *= Number($("#socre_enemy_unit").val());
-    // ダメージ上限
-    damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
-    let damage_bonus;
-    let damage_limit_value;
-    if (score_attack.enemy_count == 1) {
-        damage_limit_value = damage_limit1[num];
-    } else {
-        damage_limit_value = damage_limit2[num];
-    }
-    if (damage <= damage_limit_value) {
-        damage_bonus = damage;
-    } else {
-        damage_bonus = damage_limit_value * (1 + Math.log(damage / damage_limit_value));
-    }
-    return Math.floor(damage_bonus * score_attack.max_damage_rate / 100);
-}
+// // ダメージボーナス算出
+// function getDamageBonus(damage, num, score_attack) {
+//     damage *= Number($("#socre_enemy_unit").val());
+//     // ダメージ上限
+//     damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
+//     let damage_bonus;
+//     let damage_limit_value;
+//     if (score_attack.enemy_count == 1) {
+//         damage_limit_value = damage_limit1[num];
+//     } else {
+//         damage_limit_value = damage_limit2[num];
+//     }
+//     if (damage <= damage_limit_value) {
+//         damage_bonus = damage;
+//     } else {
+//         damage_bonus = damage_limit_value * (1 + Math.log(damage / damage_limit_value));
+//     }
+//     return Math.floor(damage_bonus * score_attack.max_damage_rate / 100);
+// }
 
 // 効果量ソート
 // function sortEffectSize(selecter) {

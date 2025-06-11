@@ -374,6 +374,7 @@ const DamageCalculation = () => {
     buffKeyList[chargeKey] = [];
     const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
 
+    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap);
     return (
         <StyleListProvider selectStyleList={styleList} selectTroops={selectTroops}>
             <div className="display_area mx-auto">
@@ -394,8 +395,7 @@ const DamageCalculation = () => {
                     buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
                     attackUpBuffs={attackUpBuffs} defDownBuffs={defDownBuffs} criticalBuffs={criticalBuffs} />
             </div>
-            <DamageResult attackInfo={attackInfo} styleList={styleList} state={state} selectSKillLv={selectSKillLv}
-                selectBuffKeyMap={selectBuffKeyMap} buffSettingMap={buffSettingMap}/>
+            <DamageResult damageResult={damageResult} enemyInfo={state.enemy_info} dispatch={dispatch} />
         </StyleListProvider>
     );
 }

@@ -80,7 +80,7 @@ const BikePartsComponent = ({ enemy_info }) => {
 
     // ステータスアップ変更
     const handleAllStatusUpChange = () => {
-        updateVariableEffectSize();
+        // updateVariableEffectSize();
     }
 
     return (

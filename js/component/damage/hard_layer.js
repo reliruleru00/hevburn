@@ -11,7 +11,7 @@ const HardLayerComponent = ({ enemy_info }) => {
     }
     // 夢の泪変更
     const handleTearsOfDreamsChange = () => {
-        updateVariableEffectSize();
+        // updateVariableEffectSize();
     }
 
     let traars_value = tears_of_dreams_list[enemy_info.enemy_class_no]

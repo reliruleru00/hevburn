@@ -199,7 +199,7 @@ const setDp = (state, action) => {
 const setCollect = (state, action) => {
     const updated = { ...state.correction };
     let newMaxDamageRate = state.maxDamageRate;
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 5; i++) {
         const kind = action.grade[`effect_kind${i}`];
         if (kind) {
             const size = action.grade[`effect_size${i}`];

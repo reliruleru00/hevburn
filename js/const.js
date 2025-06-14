@@ -273,6 +273,12 @@ const CONDITIONS_BUFF_DISPEL = 9; // バフ解除
 const CONDITIONS_DEFFENCE_DOWN = 11; // 防御ダウン中
 const CONDITIONS_FRAGILE = 12; // 脆弱中
 const CONDITIONS_TARGET_COVER = 13; // 集中・挑発状態
+const CONDITIONS_FIELD_NONE = 14; // フィールドなし
+const CONDITIONS_FIELD_FIRE = 15; // 火属性フィールド
+const CONDITIONS_FIELD_ICE = 16; // 氷属性フィールド
+const CONDITIONS_FIELD_THUNDER = 17; // 雷属性フィールド
+const CONDITIONS_FIELD_LIGHT = 18; // 光属性フィールド
+const CONDITIONS_FIELD_DARK = 19; // 闇属性フィールド
 const CONDITIONS_HAS_CHARGE = 21; // チャージ中
 const CONDITIONS_HAS_SHADOW = 22; // 影分身中
 const CONDITIONS_HAS_DODGE = 23; // 回避状態
@@ -302,6 +308,12 @@ const CONDITIONS = {
     DEFFENCE_DOWN: 11, // 防御ダウン中
     FRAGILE: 12, // 脆弱中
     TARGET_COVER: 13, // 集中・挑発状態
+    FIELD_NONE: 14, // フィールドなし
+    FIELD_FIRE: 15, // 火属性フィールド
+    FIELD_ICE: 16, // 氷属性フィールド
+    FIELD_THUNDER: 17, // 雷属性フィールド
+    FIELD_LIGHT: 18, // 光属性フィールド
+    FIELD_DARK: 19, // 闇属性フィールド
     HAS_CHARGE: 21, // チャージ中
     HAS_SHADOW: 22, // 影分身中
     HAS_DODGE: 23, // 回避状態

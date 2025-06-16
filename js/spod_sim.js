@@ -1,7 +1,10 @@
 let select_troops = localStorage.getItem('select_troops');
 let select_style_list = Array(6).fill(undefined);
+
+const SKILL_ID_640 = 640; //ファーマメントブーケショット
+
 // 使用不可スタイル
-const NOT_USE_STYLE = [36, 167];
+const NOT_USE_STYLE = [36];
 // 制限アビリティ
 const CONSTRAINTS_ABILITY = [
     1136, // 勝勢
@@ -337,6 +340,16 @@ function getAttackInfo(attack_id) {
     const filtered_attack = skill_attack.filter((obj) => obj.attack_id == attack_id);
     return filtered_attack.length > 0 ? filtered_attack[0] : undefined;
 }
+function getAttackIdToInfo(turnData, skillId) {
+    let filteredAttack = skill_attack.filter((obj) => obj.skill_id == skillId);
+    switch (skillId) {
+        case SKILL_ID_640:
+            //ファーマメントブーケショット
+            filteredAttack = filteredAttack.filter((obj) => obj.attack_element == turnData.field);
+            break;
+    }
+    return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
+}
 // バフ情報取得
 function getBuffInfo(skill_id) {
     const filtered_buff = skill_buff.filter((obj) => obj.skill_id == skill_id);
@@ -373,6 +386,7 @@ function startAction(turn_data) {
     if (old_field != select_field && select_field) {
         // 変更があった場合はフィールドターンをリセット
         turn_data.field_turn = 0;
+        turn_data.old_field = select_field;
     }
 
     let seq = sortActionSeq(turn_data);
@@ -394,16 +408,18 @@ function startAction(turn_data) {
                 addBuffUnit(turn_data, buff_info, skill_data.place_no, unit_data);
             }
         }
-        let attack_info;
+        let attackInfo;
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             attack_info = { "attack_id": 0, "attack_element": unit_data.normal_attack_element };
-        } else if (skill_info.attack_id) {
-            front_cost_list.push(sp_cost);
-            attack_info = getAttackInfo(skill_info.attack_id);
+        } else {
+            attackInfo = getAttackIdToInfo(turn_data, skill_info.skill_id);
+            if (attackInfo) {
+                front_cost_list.push(sp_cost);
+            }
         }
 
-        if (attack_info) {
-            consumeBuffUnit(turn_data, unit_data, attack_info, skill_info);
+        if (attackInfo) {
+            consumeBuffUnit(turn_data, unit_data, attackInfo, skill_info);
         }
 
         // EXスキル使用
@@ -461,8 +477,8 @@ function startAction(turn_data) {
         }
         let skill_info = getSkillData(skill_id)
         if (skill_info) {
-            let attack_info = getAttackInfo(skill_info.attack_id);
-            if (attack_info) {
+            let attackInfo = getAttackIdToInfo(turn_data, skill_id);
+            if (attackInfo) {
                 // SP消費してから行動
                 payCost(unit_data);
 
@@ -473,7 +489,7 @@ function startAction(turn_data) {
                         addBuffUnit(turn_data, buff_info, place_no, unit_data);
                     }
                 }
-                consumeBuffUnit(turn_data, unit_data, attack_info, skill_info);
+                consumeBuffUnit(turn_data, unit_data, attackInfo, skill_info);
             }
             if (skill_id == 633) {
                 // ネコジェット・シャテキ後自動追撃
@@ -549,11 +565,11 @@ const getOverDrive = (turn) => {
         const skill_info = skill_data.skill_info;
         const unit_data = getUnitData(temp_turn, skill_data.place_no);
         const buff_list = getBuffInfo(skill_info.skill_id);
-        const attack_info = getAttackInfo(skill_info.attack_id);
+        const attackInfo = getAttackIdToInfo(turn, skill_info.skill_id);
         let unit_od_plus = 0;
         // オギャり状態
         let badies = checkBuffExist(unit_data.buff_list, BUFF_BABIED) ? 20 : 0;
-        const earring = skill_info.attack_id ? getEarringEffectSize(attack_info.hit_count, unit_data) : 0;
+        const earring = (attackInfo) ? getEarringEffectSize(attackInfo.hit_count, unit_data) : 0;
 
         for (const buff_info of buff_list) {
             // OD増加
@@ -573,30 +589,29 @@ const getOverDrive = (turn) => {
             }
         }
         let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
-
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             if (isResist(turn.enemy_info, physical, unit_data.normal_attack_element, skill_info.attack_id)) {
                 unit_od_plus += calcODGain(3, 1, badies);
             }
-        } else if (skill_info.attack_id) {
+        } else if (attackInfo) {
             // 攻撃IDの変換(暫定)
-            let attack_id = skill_info.attack_id
-            switch (skill_info.attack_id) {
+            let attackId = attackInfo.attack_id
+            switch (attackId) {
                 case 83:
                     // 唯雅粛正
                     if (checkBuffExist(unit_data.buff_list, BUFF_CHARGE)) {
-                        attack_id = 84;
+                        attackId = 84;
                     }
                     break;
             }
             front_cost_list.push(unit_data.sp_cost);
-            if (isResist(turn.enemy_info, physical, attack_info.attack_element, attack_id)) {
+            if (isResist(turn.enemy_info, physical, attackInfo.attack_element, attackId)) {
                 let enemy_target = enemy_count;
-                if (attack_info.range_area == 1) {
+                if (attackInfo.range_area == 1) {
                     enemy_target = 1;
                 }
                 let funnel_list = getFunnelList(unit_data);
-                unit_od_plus += calcODGain(attack_info.hit_count, enemy_target, badies, earring, funnel_list.length);
+                unit_od_plus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
                 // EXスキル連続使用
                 if (checkBuffExist(unit_data.buff_list, BUFF_EX_DOUBLE) && (skill_info.skill_kind == KIND_EX_GENERATE || skill_info.skill_kind == KIND_EX_EXCLUSIVE)) {
                     buff_list.forEach(function (buff_info) {
@@ -606,7 +621,7 @@ const getOverDrive = (turn) => {
                         }
                     });
                     let funnel_list = getFunnelList(unit_data);
-                    unit_od_plus += calcODGain(attack_info.hit_count, enemy_target, badies, earring, funnel_list.length);
+                    unit_od_plus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
                 }
             }
         }
@@ -644,17 +659,17 @@ const getOverDrive = (turn) => {
 
         let skill_info = getSkillData(skill_id)
         if (skill_info) {
-            let attack_info = getAttackInfo(skill_info.attack_id);
-            if (attack_info) {
+            const attackInfo = getAttackIdToInfo(turn, skill_id);
+            if (attackInfo) {
                 let badies = checkBuffExist(unit_data.buff_list, BUFF_BABIED) ? 20 : 0;
-                const earring = skill_info.attack_id ? getEarringEffectSize(attack_info.hit_count, unit_data) : 0;
-                if (isResist(turn.enemy_info, physical, attack_info.attack_element, skill_info.attack_id)) {
+                const earring = skill_info.attack_id ? getEarringEffectSize(attackInfo.hit_count, unit_data) : 0;
+                if (isResist(turn.enemy_info, physical, attackInfo.attack_element, skill_info.attack_id)) {
                     let enemy_target = enemy_count;
-                    if (attack_info.range_area == 1) {
+                    if (attackInfo.range_area == 1) {
                         enemy_target = 1;
                     }
                     let funnel_list = getFunnelList(unit_data);
-                    od_plus += calcODGain(attack_info.hit_count, enemy_target, badies, earring, funnel_list.length);
+                    od_plus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
                 }
             }
             if (skill_id == 633) {

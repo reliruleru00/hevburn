@@ -84,7 +84,6 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
                 const copiedObj = JSON.parse(JSON.stringify(obj));
                 if (copiedObj.chara_id === 0) {
                     copiedObj.chara_id === member_info.style_info.chara_id;
-                    copiedObj.attack_physical = physical;
                 }
                 return copiedObj;
             });

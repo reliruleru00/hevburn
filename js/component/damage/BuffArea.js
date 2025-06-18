@@ -187,7 +187,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[buff.key] = {
                 buff_id: buff.buff_id,
                 skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff, buff.max_lv)
+                effect_size: getEffectSize(buff, buff.max_lv, state)
             };
         });
         setBuffSettingMap(initialMap);
@@ -197,22 +197,22 @@ const BuffArea = ({ attackInfo, state, dispatch,
         let buff = buffList.filter(buff => buff.key === buffKey)[0];
         const newSetting = buffSettingMap[buffKey]
         newSetting.skill_lv = lv;
-        newSetting.effect_size = getEffectSize(buff, lv)
+        newSetting.effect_size = getEffectSize(buff, lv, state);
         setBuffSettingMap(prev => ({
             ...prev,
             [buffKey]: newSetting
         }));
     };
 
-    const getBuffKindEffectSize = (buffKind) => {
-        const totalEffectSize = Object.keys(selectBuffKeyMap)
-            .filter((buffKey) => buffKey.startsWith(`${BUFF_KBN[buffKind]}-${buffKind}`))
-            .reduce((sum, buffKey) => {
-                const buff = buffSettingMap[selectBuffKeyMap[buffKey]];
-                return sum + (buff ? buff.effect_size : 0);
-            }, 0);
-        return totalEffectSize;
-    }
+    // const getBuffKindEffectSize = (buffKind) => {
+    //     const totalEffectSize = Object.keys(selectBuffKeyMap)
+    //         .filter((buffKey) => buffKey.startsWith(`${BUFF_KBN[buffKind]}-${buffKind}`))
+    //         .reduce((sum, buffKey) => {
+    //             const buff = buffSettingMap[selectBuffKeyMap[buffKey]];
+    //             return sum + (buff ? buff.effect_size : 0);
+    //         }, 0);
+    //     return totalEffectSize;
+    // }
 
     const handleSelectChange = (buffKey, newSelect) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
@@ -261,7 +261,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         closeModal();
     };
 
-    let resistDownEffectSize = getBuffKindEffectSize(BUFF.RESISTDOWN);
+    let resistDownEffectSize = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.RESISTDOWN])
     React.useEffect(() => {
         if (attackInfo) {
             dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });

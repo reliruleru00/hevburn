@@ -334,14 +334,15 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
-    let enemyInfo = state.enemy_info;
-    let isElement = attackInfo?.attack_element !== 0;
-    let isWeak = React.useMemo(() => {
-        if (attackInfo === undefined) return false;
-        const [physicalResist, elementResist] = getEnemyResist(attackInfo, enemyInfo, state.correction);
-        return physicalResist * elementResist > 10000;
-    }, [attackInfo, enemyInfo, state.correction]);
-    let isDp = state.dpRate[0] !== 0;
+    let isElement = false;
+    let isWeak = false;
+    if (attackInfo) {
+        isElement = attackInfo.attack_element;
+        const [physicalResist, elementResist] = getEnemyResist(attackInfo, state);
+        isWeak = physicalResist * elementResist > 10000;
+    }
+
+    let isDp = Number(state.dpRate[0]) !== 0;
 
     const attackUpBuffs = [
         { name: "攻撃力UP", kind: BUFF.ATTACKUP },
@@ -384,7 +385,15 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
     buffKeyList[chargeKey] = [];
     const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
 
-    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap);
+    const [otherSetting, setOtherSetting] = React.useState({
+        ring: "0",
+        earring: "0",
+        chain: "0",
+        overdrive: false,
+    });
+
+    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap, otherSetting);
+
     return (
         <>
             <div className="display_area mx-auto">
@@ -394,7 +403,7 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
-                    <OtherSetting attackInfo={attackInfo} />
+                    <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
                     {enemyClass == ENEMY_CLASS.SCORE_ATTACK && damageResult ?
                         <PredictionScore damageResult={damageResult} state={state} />
                         : null
@@ -421,9 +430,9 @@ const RootComponent = () => {
     // 自由入力取得
     React.useEffect(() => {
         for (let i = 0; i < 10; i++) {
-            let free_enemy = localStorage.getItem("free_enemy_" + i);
-            if (free_enemy !== null) {
-                updateEnemyStatus(i, JSON.parse(free_enemy));
+            let freeEnemy = localStorage.getItem("free_enemy_" + i);
+            if (freeEnemy !== null) {
+                updateEnemyStatus(i, JSON.parse(freeEnemy));
             }
         }
     })

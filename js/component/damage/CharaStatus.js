@@ -51,7 +51,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
             if (style) {
                 style_id = style.style_info.style_id;
             }
-            localStorage.setItem(`troops_${select_troops}_${index}`, style_id);
+            localStorage.setItem(`troops_${selectTroops}_${index}`, style_id);
         })
 
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });

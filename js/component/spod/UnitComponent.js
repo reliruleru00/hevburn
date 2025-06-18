@@ -57,19 +57,19 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
         })
     } else {
         skill_list = unit.skill_list.filter(skill => {
-            if (checkAbilityExist(unit.ability_other, 1530)) {
-                if (skill.skill_id == SKILL.AUTO_PURSUIT) {
+            if (skill.skill_id == SKILL.AUTO_PURSUIT) {
+                if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1530)) {
                     // 自動追撃
                     return true;
                 }
-            } else {
-                if (skill.skill_id == SKILL.NONE) {
-                    // なし
-                    return true;
-                } else if (skill.skill_id == SKILL.PURSUIT) {
-                    // 追撃
-                    return true;
-                }
+            }
+            if (skill.skill_id == SKILL.NONE) {
+                // なし
+                return true;
+            }
+            if (skill.skill_id == SKILL.PURSUIT) {
+                // 追撃
+                return true;
             }
             if (skill.skill_attribute === ATTRIBUTE.PURSUIT_ONLY) {
                 // 追撃専用

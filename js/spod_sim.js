@@ -37,7 +37,7 @@ const ABILIRY_BREAK = 6;
 const ABILIRY_RECEIVE_DAMAGE = 7;
 const ABILIRY_EX_SKILL_USE = 8;
 const ABILIRY_OTHER = 99;
-const ABILIRY = {
+const ABILIRY_TIMING = {
     BATTLE_START: 0,
     SELF_START: 1,
     ACTION_START: 2,
@@ -48,6 +48,7 @@ const ABILIRY = {
     RECEIVE_DAMAGE: 7,
     EX_SKILL_USE: 8,
     PURSUIT: 9,
+    FIELD_DEPLOY: 10,
     OTHER: 99,
 }
 
@@ -425,7 +426,7 @@ function startAction(turn_data) {
         // EXスキル使用
         if (skill_info.skill_kind == KIND_EX_GENERATE || skill_info.skill_kind == KIND_EX_EXCLUSIVE) {
             // アビリティ
-            abilityActionUnit(turn_data, ABILIRY_EX_SKILL_USE, unit_data);
+            abilityActionUnit(turn_data, ABILIRY_TIMING.EX_SKILL_USE, unit_data);
             // EXスキル連続使用
             if (checkBuffExist(unit_data.buff_list, BUFF_EX_DOUBLE)) {
                 for (let i = 0; i < buff_list.length; i++) {
@@ -464,14 +465,14 @@ function startAction(turn_data) {
         }
         // 追撃
         if (skill_id == SKILL.PURSUIT) {
-            abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+            abilityActionUnit(turn_data, ABILIRY_TIMING.PURSUIT, unit_data)
             return true;
         }
 
         // 自動追撃
         if (skill_id == SKILL.AUTO_PURSUIT) {
             front_cost_list.filter(cost => cost <= 8).forEach(cost => {
-                abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+                abilityActionUnit(turn_data, ABILIRY_TIMING.PURSUIT, unit_data)
             });
             return true;
         }
@@ -493,10 +494,10 @@ function startAction(turn_data) {
             }
             if (skill_id == 633) {
                 // ネコジェット・シャテキ後自動追撃
-                abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+                abilityActionUnit(turn_data, ABILIRY_TIMING.PURSUIT, unit_data)
                 const validCosts = front_cost_list.filter(cost => cost <= 8);
                 validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
-                    abilityActionUnit(turn_data, ABILIRY.PURSUIT, unit_data)
+                    abilityActionUnit(turn_data, ABILIRY_TIMING.PURSUIT, unit_data)
                 });
             }
         }
@@ -718,33 +719,33 @@ function getSpCost(turn_data, skill_info, unit) {
     // 追加ターン
     if (turn_data.additional_turn) {
         // クイックリキャスト
-        if (checkAbilityExist(unit.ability_other, 1506)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1506)) {
             sp_cost_down = 2;
         }
         // 優美なる剣舞
-        if (checkAbilityExist(unit.ability_other, 1512)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1512)) {
             sp_cost_down = 2;
         }
         // 疾駆
-        if (checkAbilityExist(unit.ability_other, 1515)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1515)) {
             sp_cost_down = 2;
         }
     }
     // オーバードライブ中
     if (turn_data.over_drive_max_turn > 0) {
         // 獅子に鰭
-        if (checkAbilityExist(unit.ability_other, 1521)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1521)) {
             sp_cost_down = 2;
         }
         // 飛躍
-        if (checkAbilityExist(unit.ability_other, 1525)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1525)) {
             sp_cost_down = 2;
         }
     }
     // 歌姫の加護
     if (checkBuffExist(unit.buff_list, BUFF_DIVA_BLESS)) {
         // 絶唱
-        if (checkAbilityExist(unit.ability_other, 1522)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1522)) {
             sp_cost_down = 2;
         }
     }
@@ -1049,7 +1050,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
             let field_turn = buff_info.effect_count;
             if (field_turn > 0) {
                 // 天長地久
-                if (checkAbilityExist(use_unit_data.ability_other, 603)) {
+                if (checkAbilityExist(use_unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 603)) {
                     field_turn = 0;
                 }
                 // メディテーション
@@ -1057,6 +1058,8 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                     field_turn = 0;
                 }
             }
+            // フィールド展開アビリティ
+            abilityAction(ABILIRY_TIMING.FIELD_DEPLOY, turn_data);
             turn_data.field_turn = field_turn;
             break;
         case BUFF_DISPEL: // ディスペル
@@ -1093,11 +1096,11 @@ function skillHealSp(turn_data, target_no, add_sp, limit_sp, use_place_no, is_re
 
     if (!is_recursion) {
         // 愛嬌
-        if (checkAbilityExist(unit_data.ability_other, 1605) && target_no != use_place_no) {
+        if (checkAbilityExist(unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 1605) && target_no != use_place_no) {
             skillHealSp(turn_data, target_no, 3, 30, null, true, 0)
         }
         // お裾分け
-        if (checkAbilityExist(unit_data.ability_other, 1606) && target_no != use_place_no) {
+        if (checkAbilityExist(unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 1606) && target_no != use_place_no) {
             let target_list = getTargetList(turn_data, RANGE_ALLY_ALL, 0, target_no, null);
             $.each(target_list, function (index, target_no) {
                 skillHealSp(turn_data, target_no, 2, 30, null, true, 0)
@@ -1124,7 +1127,7 @@ function createBuffData(buff_info, use_unit_data) {
         case BUFF_FRAGILE: // 脆弱
         case BUFF_DEFENSEDP: // DP防御力ダウン 
             // ダブルリフト
-            if (checkAbilityExist(use_unit_data.ability_other, 1516)) {
+            if (checkAbilityExist(use_unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 1516)) {
                 buff.rest_turn++;
             }
             break;
@@ -1390,7 +1393,8 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
         default:
             break;
     }
-    if (target_element != 0) {
+    // パッシブに属性未対応
+    if (target_element && target_element != 0) {
         for (let i = target_list.length - 1; i >= 0; i--) {
             let unit = getUnitData(turn_data, target_list[i]);
             if (unit.blank || (unit.style.style_info.element != target_element && unit.style.style_info.element2 != target_element)) {

@@ -29,6 +29,12 @@ const UnitSp = ({ unit }) => {
 }
 
 const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_id, trigger_over_drive, chengeSkill, isCapturing }) => {
+    if (unit.blank) {
+        return (
+            <select className={"unit_skill invisible"} >
+            </select>
+        );
+    }
     let skill_list = unit.skill_list
     if (place_no < 3) {
         skill_list = skill_list.filter(skill => {
@@ -117,10 +123,8 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
 
 const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit, hideMode, isCapturing, clickBuffIcon }) => {
     const filterUnit = turn.unit_list.filter(unit => unit.place_no === place_no);
-    if (filterUnit.size === 0) {
-        return null;
-    }
     const unit = filterUnit[0];
+
     let icon = "img/cross.png";
     if (unit?.style?.style_info?.image_url) {
         icon = "icon/" + unit.style.style_info.image_url;

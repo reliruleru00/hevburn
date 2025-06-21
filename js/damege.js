@@ -306,15 +306,16 @@ function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     }
 }
 
-function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap, abilitySettingMap, otherSetting) {
+function getDamageResult(attackInfo, styleList, state, selectSKillLv,
+    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting) {
     if (!attackInfo) {
         return null;
     }
-    let enemyInfo = state.enemy_info;
     let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
     if (!attackMemberInfo) {
         return null;
     }
+    let enemyInfo = state.enemy_info;
 
     // // グレード
     // let grade_sum = getGradeSum();
@@ -339,16 +340,16 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
     let enemyStatDown = 0;
 
     let skillPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, enemyStatDown);
-    let buff = getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, otherSetting);
+    let buff = getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
     // let mindeye_buff = getSumEffectSize("mindeye") + getSumEffectSize("servant");
     let mindeye = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE]) / 100;
-    let debuff = getSumDebuffEffectSize(selectBuffKeyMap, buffSettingMap, abilitySettingMap);
+    let debuff = getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
     let debuffDp = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DEFENSEDP]) / 100;
 
     let fragile = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FRAGILE]) / 100;
 
-    let damageRateUp = getDamagerateEffectSize(selectBuffKeyMap, buffSettingMap, abilitySettingMap, otherSetting, attackInfo.hit_count);
-    let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap);
+    let damageRateUp = getDamagerateEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, attackInfo.hit_count);
+    let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap);
 
     // let token = getSumTokenEffectSize(attack_info, member_info);
     let field = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FIELD]) / 100;
@@ -392,8 +393,8 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuff
     // }
 
     let criticalPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, 50);
-    let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap);
-    let criticalBuff = getCriticalBuff(selectBuffKeyMap, buffSettingMap, abilitySettingMap);
+    let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
+    let criticalBuff = getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
 
     let token = 1;
     let enemy_defence_rate = 1;
@@ -601,12 +602,12 @@ function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
 }
 
 // 合計バフ効果量取得
-function getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, otherSetting) {
+function getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting) {
     // スキルバフ合計
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
         [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE]);
     // 攻撃力アップアビリティ
-    sumBuff += getSumAbilityEffectSize(abilitySettingMap, EFFECT.ATTACKUP);
+    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.ATTACKUP, attackMemberInfo.style_info.chara_id);
     // 属性リング(0%-10%)
     sumBuff += Number(otherSetting.ring);
     // オーバードライブ10%
@@ -632,12 +633,12 @@ function getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap
 }
 
 // 合計デバフ効果量取得
-function getSumDebuffEffectSize(selectBuffKeyMap, buffSettingMap, abilitySettingMap) {
+function getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap) {
     // スキルデバフ合計
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
         [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]);
     // // 防御ダウンアビリティ
-    sumBuff += getSumAbilityEffectSize(abilitySettingMap, EFFECT.DEFFENCEDOWN);
+    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.DEFFENCEDOWN, attackMemberInfo.style_info.chara_id);
     // // 制圧戦
     // sum_debuff += getBikePartsEffectSize("debuff");
     return 1 + sumBuff / 100;
@@ -687,12 +688,14 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
 }
 
 // 破壊率上昇
-function getDamagerateEffectSize(selectBuffKeyMap, buffSettingMap, abilitySettingMap, otherSetting, hit_count) {
+function getDamagerateEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, hitCount, charaId) {
     let destructionEffectSize = 100;
     destructionEffectSize += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DAMAGERATEUP]);
-    destructionEffectSize += getSumAbilityEffectSize(abilitySettingMap, EFFECT.DAMAGERATEUP);
+    destructionEffectSize += getSumAbilityEffectSize(
+        abilitySettingMap, passiveSettingMap, EFFECT.DAMAGERATEUP,
+        attackMemberInfo.style_info.chara_id);
     // destruction_effect_size += getSumTokenAbilirySize(EFFECT_TOKEN_DAMAGERATEUP)
-    destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 10 - hit_count);
+    destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 10 - hitCount);
     // // 制圧戦
     // destruction_effect_size += getBikePartsEffectSize("destruction_rate");
     // let grade_sum = getGradeSum();
@@ -701,13 +704,13 @@ function getDamagerateEffectSize(selectBuffKeyMap, buffSettingMap, abilitySettin
 }
 
 // クリティカル率取得
-function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap) {
+function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap) {
     let criticalRate = 1.5;
     let diff = (attackMemberInfo.luk - enemyInfo.enemy_stat);
     criticalRate += diff > 0 ? diff * 0.04 : 0;
     criticalRate = criticalRate > 15 ? 15 : criticalRate;
     criticalRate += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
-    criticalRate += getSumAbilityEffectSize(abilitySettingMap, EFFECT.CRITICALRATEUP);
+    criticalRate += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALRATEUP, attackMemberInfo.style_info.charaId);
     // critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
     // let grade_sum = getGradeSum();
     // critical_rate -= grade_sum.critical;
@@ -720,10 +723,11 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
 }
 
 // クリティカルバフ取得
-function getCriticalBuff(selectBuffKeyMap, buffSettingMap, abilitySettingMap) {
+function getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap) {
     let criticalBuff = 50;
-    criticalBuff += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALDAMAGEUP]);
-    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, EFFECT.CRITICALDAMAGEUP);
+    criticalBuff += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALDAMAGEUP],
+        attackMemberInfo.style_info.charaId);
+    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALDAMAGEUP);
     // // 制圧戦
     // critical_buff += getBikePartsEffectSize("critical_buff");
     // // セラフ遭遇戦
@@ -831,7 +835,7 @@ function getBikePartsEffectSize(buff_kind) {
 }
 
 // アビリティ効果量合計取得
-function getSumAbilityEffectSize(abilitySettingMap, effect_type) {
+function getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, effectType, targetCharaId) {
     let abilityEffectSize = 0;
     let sumNoneEffectSize = 0;
     let sumPhysicalEffectSize = 0;
@@ -852,7 +856,14 @@ function getSumAbilityEffectSize(abilitySettingMap, effect_type) {
         if (data.checked) {
             let abilityId = Number(data.ability_id)
             let abilityInfo = getAbilityInfo(abilityId);
-            if (abilityInfo.effect_type == effect_type) {
+            if (abilityInfo.effect_type == effectType) {
+                //     if (ability_id == 602) {
+                //         // キレアジ
+                //         let attack_info = getAttackInfo();
+                //         if (attack_info.sp_cost - sp_cost_down > 8) {
+                //             return true;
+                //         }
+                //     }
                 let effectSize = abilityInfo.effect_size;
                 if (ALONE_ACTIVATION_ABILITY_LIST.includes(abilityId)) {
                     if (abilityInfo.element != 0) {
@@ -874,65 +885,49 @@ function getSumAbilityEffectSize(abilitySettingMap, effect_type) {
             }
         }
     })
-    // $("input[type=checkbox].ability:checked").each(function (index, value) {
-    //     let ability_id = Number($(value).data("ability_id"));
-    //     if (ability_id == 602) {
-    //         // キレアジ
-    //         let attack_info = getAttackInfo();
-    //         if (attack_info.sp_cost - sp_cost_down > 8) {
-    //             return true;
-    //         }
-    //     }
-    //     let ability_info = getAbilityInfo(ability_id);
-    //     let effect_size = 0;
-    //     if (ability_info.effect_type == effect_type) {
-    //         effect_size = Number($(value).data("effect_size"));
-    //     }
-    //     if ($(value).parent().find("select").length > 0) {
-    //         effect_size *= Number($(value).parent().find("select").val());
-    //     }
-    //     if (ALONE_ACTIVATION_ABILITY_LIST.includes(ability_id)) {
-    //         if (ability_info.element != 0) {
-    //             activationElementEffectSize = Math.max(activationElementEffectSize, effect_size);
-    //         } else if (ability_info.physical != 0) {
-    //             activationPhysicalEffectSize = Math.max(activationPhysicalEffectSize, effect_size);
-    //         } else {
-    //             activationNoneEffectSize = Math.max(activationNoneEffectSize, effect_size);
-    //         }
-    //     } else {
-    //         if (ability_info.element != 0) {
-    //             sum_element_effect_size += effect_size;
-    //         } else if (ability_info.physical != 0) {
-    //             sumPhysicalEffectSize += effect_size;
-    //         } else {
-    //             sumNoneEffectSize += effect_size;
-    //         }
-    //     }
-    // });
     abilityEffectSize += activationNoneEffectSize + sumNoneEffectSize
         + activationPhysicalEffectSize + sumPhysicalEffectSize
         + activationElementEffectSize + sumElementEffectSize;
-    // $("input[type=checkbox].passive:checked").each(function (index, value) {
-    //     let select = $(value).parent();
-    //     if (chara_id) {
-    //         if (!select.hasClass((is_select ? "passive_chara_id-" : "passive_sub_chara_id-") + chara_id)) {
-    //             return true;
-    //         }
-    //     }
-    //     let skill_id = Number($(value).data("skill_id"));
-    //     let passive_info = getPassiveInfo(skill_id);
-    //     let effect_size = 0;
-    //     if (passive_info.effect_type == effect_type) {
-    //         effect_size = Number($(value).data("effect_size"));
-    //     }
-    //     // ハイブースト状態
-    //     if (skill_id == 635 && effect_type == EFFECT.ATTACKUP) {
-    //         ability_effect_size += 180;
-    //     } else {
-    //         ability_effect_size += effect_size;
-    //     }
-    // });
+
+    Object.keys(passiveSettingMap).forEach(function (key) {
+        let data = passiveSettingMap[key];
+        if (data.checked) {
+            let skillId = Number(data.skill_id)
+            let passiveInfo = getPassiveInfo(skillId);
+            let effectSize = 0;
+            if (passiveInfo.effect_type == effectType) {
+                if (isRangeAreaInclude(passiveInfo.range_area, targetCharaId)) {
+                    effectSize = passiveInfo.effect_size;
+                }
+            }
+            // ハイブースト状態
+            if (skillId == 635 && passiveInfo.effect_type == EFFECT.ATTACKUP) {
+                abilityEffectSize += 180;
+            } else {
+                abilityEffectSize += effectSize;
+            }
+        }
+    });
     return abilityEffectSize;
+}
+
+// 対象範囲判定
+function isRangeAreaInclude(rangeArea, targetCharaId) {
+    switch (rangeArea) {
+        case RANGE.SELF:
+            return charaId == targetCharaId;
+        case RANGE.ALLY_ALL:
+            return true;
+        case RANGE.MEMBER_31C:
+            return CHARA_ID.MEMBER_31C.includes(targetCharaId);
+        case RANGE.MEMBER_31E:
+            return CHARA_ID.MEMBER_31E.includes(targetCharaId);
+        case RANGE.MARUYAMA_MEMBER:
+            return CHARA_ID.MEMBER_31E.includes(targetCharaId);
+        case RANGE.RUKA_SHARO:
+            return CHARA_ID.RUKA_SHARO.includes(targetCharaId);
+    }
+    return true;
 }
 
 // アビリティ情報取得

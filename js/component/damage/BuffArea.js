@@ -62,7 +62,8 @@ const chargeKey = `charge-${BUFF.CHARGE}`
 const BuffArea = ({ attackInfo, state, dispatch,
     selectBuffKeyMap, setSelectBuffKeyMap,
     buffSettingMap, setBuffSettingMap,
-    abilitySettingMap, setAbilitySettingMap }) => {
+    abilitySettingMap, setAbilitySettingMap,
+    passiveSettingMap, setPassiveSettingMap }) => {
 
     const { styleList } = useStyleList();
     const [checkUpdate, setCheckUpdate] = React.useState(true);
@@ -260,6 +261,20 @@ const BuffArea = ({ attackInfo, state, dispatch,
         setAbilitySettingMap(initialMap);
     }, [abilityList]);
 
+    React.useEffect(() => {
+        const initialMap = {};
+        passiveList.forEach(passive => {
+            const key = passive.key;
+            initialMap[key] = {
+                key: passive.key,
+                skill_id: passive.skill_id,
+                checked: true,
+                name: passive.chara_name,
+            }
+        });
+        setPassiveSettingMap(initialMap);
+    }, [passiveList]);
+
     let isElement = false;
     let isWeak = false;
     if (attackInfo) {
@@ -320,7 +335,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
             [buffKey]: newSetting
         }));
     };
-
 
     const handleSelectChange = (buffKey, newSelect) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
@@ -587,7 +601,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                         <tr>
                             <td className="kind pc_only">パッシブ</td>
                             <td className="text-left" colSpan="4" id="skill_passive">
-                                <PassiveCheckbox attackInfo={attackInfo} passiveList={passiveList} />
+                                <PassiveCheckbox passiveList={passiveList}
+                                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
                             </td>
                         </tr>
                     </tbody>

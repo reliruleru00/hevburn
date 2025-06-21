@@ -332,6 +332,7 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
 
     const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState({});
     const [abilitySettingMap, setAbilitySettingMap] = React.useState([]);
+    const [passiveSettingMap, setPassiveSettingMap] = React.useState([]);
 
     const [otherSetting, setOtherSetting] = React.useState({
         ring: "0",
@@ -340,8 +341,8 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
         overdrive: false,
     });
 
-    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, 
-        selectBuffKeyMap, buffSettingMap, abilitySettingMap,otherSetting);
+    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv,
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
 
     return (
         <>
@@ -361,7 +362,8 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
                 <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
                     selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap}
                     buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
-                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}/>
+                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}
+                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
             </div>
             <DamageResult damageResult={damageResult} enemyInfo={state.enemy_info} dispatch={dispatch} />
         </>

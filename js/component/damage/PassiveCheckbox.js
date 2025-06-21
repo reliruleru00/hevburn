@@ -1,23 +1,21 @@
-const PassiveCheckbox = ({ attackInfo, passiveList }) => {
-    if (!attackInfo) return null;
-   
-    let attackCharaId = attackInfo.chara_id;
+const PassiveCheckbox = ({ passiveList, passiveSettingMap, setPassiveSettingMap }) => {
     return (
         <>
             {passiveList.map(passive => {
-                const key = `passive-${passive.skill_id}-${passive.chara_id}`
+                const key = passive.key;
+                if (passiveSettingMap[key] === undefined) {
+                    return null;
+                }
                 const name = passive.chara_name;
-                let checked = true;
-
                 return (
                     <div key={key}>
-                        <input
-                            type="checkbox"
-                            className="passive"
-                            id={key}
-                            defaultChecked={checked}
-                            data-effect_size={passive.effect_size}
-                            data-skill_id={passive.skill_id}
+                        <input type="checkbox" className="passive"
+                            id={key} checked={passiveSettingMap[key].checked}
+                            onChange={e => {
+                                const newPassiveSettingMap = { ...passiveSettingMap };
+                                newPassiveSettingMap[key].checked = e.target.checked;
+                                setPassiveSettingMap(newPassiveSettingMap);
+                            }}
                         />
                         <label htmlFor={key}
                             className="checkbox01">

@@ -140,7 +140,7 @@ const EFFECT_HEALEP = 52; // EP回復
 const EFFECT = {
     ATTACKUP: 1, // 攻撃力アップ
     DEFFENCEDOWN: 2, // 防御力ダウン
-    CRITICAL_UP: 3, // クリティカル率アップ
+    CRITICALRATEUP: 3, // クリティカル率アップ
     CRITICAL_DAMAGE_UP: 4, // クリティカルダメージアップ
     DAMAGERATEUP: 5, // 破壊率上昇量アップ
     FUNNEL: 6, // 連撃数アップ

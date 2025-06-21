@@ -6,7 +6,7 @@ const BuffDetailLabelComponent = ({ buff }) => {
     let buff_kind_name = getBuffKindName(buff);
     let buff_text = buff.buff_name;
     switch (buff.buff_kind) {
-        case BUFF_MORALE: // 士気
+        case BUFF.MORALE: // 士気
             buff_text += `(Lv${buff.lv})`;
             break;
         default:

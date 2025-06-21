@@ -1,13 +1,8 @@
-const AbilityCheckbox = ({ attackInfo, abilityList, rengeArea }) => {
+const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, setAbilitySettingMap, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
         switch (ability.range_area) {
-            case RANGE.FIELD:
-                return false;
             case RANGE.SELF:
-                if (attackInfo && attackInfo.chara_id !== ability.chara_id) {
-                    return false;
-                }
                 if (rengeArea !== 0) {
                     return false;
                 }
@@ -37,66 +32,27 @@ const AbilityCheckbox = ({ attackInfo, abilityList, rengeArea }) => {
                 }
                 break;
         }
-        if (ability.element !== 0 && ability.element !== attackInfo.attack_element) {
-            return false;
-        }
-        if (ability.physical !== 0 && ability.physical !== attackInfo.attack_physical) {
-            return false;
-        }
-
         return true;
     });
 
-    let attackCharaId = attackInfo.chara_id;
     return (
         <>
             {kindAbilityList.map(ability => {
-                const key = `ability-${ability.ability_id}-${ability.chara_id}`
-                const name = ability.chara_name;
-                let checked = true;
-                let disabled = !ability.conditions;
-                let limit_border = ability.limit_border;
-                let limit_count = ability.limit_count
-                switch (ability.range_area) {
-                    case RANGE.SELF:	// 自分
-                        disabled = limit_count < limit_border || (ability.chara_id === attackCharaId && disabled);
-                        checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
-                        break
-                    case RANGE.ALLY_FRONT:	// 味方前衛
-                    case RANGE.ALLY_BACK:	// 味方後衛
-                        // 前衛または後衛かつ、本人以外
-                        if ((ability.activation_place == 1 || ability.activation_place == 2) && !ability.chara_id !== attackCharaId || !disabled) {
-                            disabled = false;
-                        } else {
-                            disabled = true;
-                        }
-                        checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
-                        break
-                    case RANGE.ALLY_ALL:	// 味方全体
-                    case RANGE.ENEMY_ALL:	// 敵全体
-                    case RANGE.OTHER:	    // その他
-                        // 前衛または後衛かつ、本人以外
-                        if ((ability.activation_place == 1 || ability.activation_place == 2) && ability.chara_id !== attackCharaId || !disabled) {
-                            disabled = false;
-                        } else {
-                            disabled = true;
-                        }
-                        if (limit_count < limit_border) {
-                            disabled = true;
-                            checked = false;
-                        }
-                        break;
+                const key = `${ability.ability_id}-${ability.chara_id}`
+                if (abilitySettingMap[key] === undefined) {
+                    return null;
                 }
+                const checked = abilitySettingMap[key].checked;
+                const disabled = abilitySettingMap[key].disabled;
+                const name = abilitySettingMap[key].name;
                 return (
                     <div key={key}>
-                        <input
-                            type="checkbox"
-                            className="ability"
-                            id={key}
-                            disabled={disabled}
-                            defaultChecked={checked}
-                            data-effect_size={ability.effect_size}
-                            data-ability_id={ability.ability_id}
+                        <input type="checkbox" className="ability" id={key} disabled={disabled} checked={checked}
+                            onChange={e => {
+                                const newAbilitySettingMap = { ...abilitySettingMap };
+                                newAbilitySettingMap[key].checked = e.target.checked;
+                                setAbilitySettingMap(newAbilitySettingMap);
+                            }}
                         />
                         <label htmlFor={key}
                             className="checkbox01">

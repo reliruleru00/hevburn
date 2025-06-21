@@ -25,7 +25,6 @@ const initialMember = {
     bracelet: 1,
     chain: 3,
     init_sp: 1,
-    passive_skill_list: [],
     exclusion_skill_list: [],
 };
 

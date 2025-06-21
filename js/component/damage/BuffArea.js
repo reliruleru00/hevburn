@@ -20,7 +20,7 @@ const BUFF_KBN = {
     3: "defense_down",
     4: "element_down",
     5: "fragile",
-    6: "critical_up",
+    6: "critical_rate_up",
     7: "critical_damege",
     8: "critical_element",
     9: "critical_damege_element",
@@ -41,7 +41,7 @@ const BUFF_KBN = {
 const TARGET_KIND = [
     EFFECT.ATTACKUP, // 攻撃力アップ
     EFFECT.DAMAGERATEUP, // 破壊率上昇
-    EFFECT.CRITICAL_UP, // クリティカル率アップ
+    EFFECT.CRITICALRATEUP, // クリティカル率アップ
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開
     EFFECT.STATUSUP_VALUE, // 能力固定上昇
     EFFECT.STATUSUP_RATE, // 能力%上昇
@@ -56,13 +56,18 @@ const SUB_TARGET_KIND = [
     EFFECT.BUFF_STRENGTHEN, // バフ強化
 ]
 
+const filedKey = `field-${BUFF.FIELD}`
+const chargeKey = `charge-${BUFF.CHARGE}`
+
 const BuffArea = ({ attackInfo, state, dispatch,
-    selectBuffKeyMap, setSelectBuffKeyMap, buffKeyList, 
+    selectBuffKeyMap, setSelectBuffKeyMap,
     buffSettingMap, setBuffSettingMap,
-    attackUpBuffs, defDownBuffs, criticalBuffs }) => {
+    abilitySettingMap, setAbilitySettingMap }) => {
 
     const { styleList } = useStyleList();
     const [checkUpdate, setCheckUpdate] = React.useState(true);
+
+    let attackCharaId = attackInfo?.chara_id;
 
     const { buffList, abilityList, passiveList } = React.useMemo(() => {
         let buffList = [];
@@ -134,22 +139,36 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 // }
 
                 let abilityInfo = getAbilityInfo(abilityId);
-                if (abilityInfo.range_area == RANGE.FIELD) {
-                    let buff = createFieldBuff(
-                        `ability-${abilityId}_${charaId}`,
-                        abilityInfo.ability_name,
-                        abilityInfo.element,
-                        abilityInfo.effect_size)
-                    buffList.push(buff);
-                } else {
-                    const newAbility = JSON.parse(JSON.stringify(abilityInfo));
-                    newAbility.key = `${abilityId}_${charaId}`;
-                    newAbility.limit_count = limitCount;
-                    newAbility.limit_border = Number(key);
-                    newAbility.chara_id = charaId;
-                    newAbility.chara_name = charaName;
-                    abilityList.push(newAbility)
+                switch (abilityInfo.range_area) {
+                    case RANGE.FIELD:
+                        let buff = createFieldBuff(
+                            `${abilityId}_${charaId}`,
+                            abilityInfo.ability_name,
+                            abilityInfo.element,
+                            abilityInfo.effect_size)
+                        buffList.push(buff);
+                        return;
+                    case RANGE.SELF:
+                        if (charaId !== attackCharaId) {
+                            return;
+                        }
+                        break;
                 }
+                if (attackInfo) {
+                    if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) {
+                        return;
+                    }
+                    if (abilityInfo.physical !== 0 && abilityInfo.physical !== attackInfo.attack_physical) {
+                        return;
+                    }
+                }
+                const newAbility = JSON.parse(JSON.stringify(abilityInfo));
+                newAbility.key = `${abilityId}_${charaId}`;
+                newAbility.limit_count = limitCount;
+                newAbility.limit_border = Number(key);
+                newAbility.chara_id = charaId;
+                newAbility.chara_name = charaName;
+                abilityList.push(newAbility)
             })
 
             let stylePassiveList = skill_list.filter(obj =>
@@ -180,7 +199,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
         return { buffList, abilityList, passiveList };
     }, [attackInfo, state.enemy_info, styleList]);
 
-
     React.useEffect(() => {
         const initialMap = {};
         buffList.forEach(buff => {
@@ -193,6 +211,105 @@ const BuffArea = ({ attackInfo, state, dispatch,
         setBuffSettingMap(initialMap);
     }, [buffList]);
 
+    React.useEffect(() => {
+        const initialMap = {};
+        abilityList.forEach(ability => {
+            const key = `${ability.ability_id}-${ability.chara_id}`
+            let checked = true;
+            let disabled = !ability.conditions;
+            let limit_border = ability.limit_border;
+            let limit_count = ability.limit_count
+            switch (ability.range_area) {
+                case RANGE.SELF:	// 自分
+                    disabled = limit_count < limit_border || (ability.chara_id === attackCharaId && disabled);
+                    checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
+                    break
+                case RANGE.ALLY_FRONT:	// 味方前衛
+                case RANGE.ALLY_BACK:	// 味方後衛
+                    // 前衛または後衛かつ、本人以外
+                    if ((ability.activation_place == 1 || ability.activation_place == 2) && !ability.chara_id !== attackCharaId || !disabled) {
+                        disabled = false;
+                    } else {
+                        disabled = true;
+                    }
+                    checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
+                    break
+                case RANGE.ALLY_ALL:	// 味方全体
+                case RANGE.ENEMY_ALL:	// 敵全体
+                case RANGE.OTHER:	    // その他
+                    // 前衛または後衛かつ、本人以外
+                    if ((ability.activation_place == 1 || ability.activation_place == 2) && ability.chara_id !== attackCharaId || !disabled) {
+                        disabled = false;
+                    } else {
+                        disabled = true;
+                    }
+                    if (limit_count < limit_border) {
+                        disabled = true;
+                        checked = false;
+                    }
+                    break;
+            }
+            initialMap[key] = {
+                key: key,
+                ability_id: ability.ability_id,
+                checked: checked,
+                disabled: disabled,
+                name: ability.chara_name,
+            }
+        });
+        setAbilitySettingMap(initialMap);
+    }, [abilityList]);
+
+    let isElement = false;
+    let isWeak = false;
+    if (attackInfo) {
+        isElement = attackInfo.attack_element;
+        const [physicalResist, elementResist] = getEnemyResist(attackInfo, state);
+        isWeak = physicalResist * elementResist > 10000;
+    }
+
+    let isDp = Number(state.dpRate[0]) !== 0;
+
+    const attackUpBuffs = [
+        { name: "攻撃力UP", kind: BUFF.ATTACKUP },
+        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP },] : []),
+        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE },] : []),
+        { name: "連撃", kind: BUFF.FUNNEL },
+        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP },
+    ];
+
+    const defDownBuffs = [
+        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN },
+        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP },] : []),
+        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN },] : []),
+        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN },
+        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN },] : []),
+        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE },] : []),
+        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN },] : []),
+    ];
+
+    const criticalBuffs = [
+        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP },
+        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP },
+        ...(isElement ? [
+            { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP },
+            { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP },
+        ] : []),
+    ];
+
+    let buffKeyList = {};
+    attackUpBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+    defDownBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+    criticalBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+    buffKeyList[filedKey] = [];
+    buffKeyList[chargeKey] = [];
+
     const handleChangeSkillLv = (buffKey, lv) => {
         let buff = buffList.filter(buff => buff.key === buffKey)[0];
         const newSetting = buffSettingMap[buffKey]
@@ -204,15 +321,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
         }));
     };
 
-    // const getBuffKindEffectSize = (buffKind) => {
-    //     const totalEffectSize = Object.keys(selectBuffKeyMap)
-    //         .filter((buffKey) => buffKey.startsWith(`${BUFF_KBN[buffKind]}-${buffKind}`))
-    //         .reduce((sum, buffKey) => {
-    //             const buff = buffSettingMap[selectBuffKeyMap[buffKey]];
-    //             return sum + (buff ? buff.effect_size : 0);
-    //         }, 0);
-    //     return totalEffectSize;
-    // }
 
     const handleSelectChange = (buffKey, newSelect) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
@@ -231,7 +339,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
             let buffKind = Number(buffKey.split('-')[1]);
             let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo, false);
             const buffItemList = [
-                ...kindBuffList,
+                ...kindBuffList.filter(buffInfo =>
+                    !(isOnlyUse(attackInfo, buffInfo))
+                ),
                 ...kindBuffList.filter(buffInfo =>
                     !(isAloneActivation(buffInfo) || isOnlyBuff(attackInfo, buffInfo) || isOnlyUse(attackInfo, buffInfo))
                 ),
@@ -311,7 +421,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 </div>
             </div>
             <div className="text-center">
-                <table>
+                <table className="buff_table">
                     <colgroup>
                         <col className="title_column pc_only" />
                         <col className="type_column" />
@@ -433,16 +543,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 handleSelectChange={handleSelectChange}
                             />
                         </tr>
-                    </tbody>
-                </table>
-                <table>
-                    <colgroup>
-                        <col className="title_column pc_only" />
-                        <col className="type1_column" />
-                    </colgroup>
-                    <tbody>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="3">
+                            <td className="kind" colSpan="5">
                                 アビリティ
                             </td>
                         </tr>
@@ -451,36 +553,40 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 アビリティ
                             </td>
                             <td>攻撃者</td>
-                            <td className="text-left">
-                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={0} />
+                            <td className="text-left" colSpan="3">
+                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={0}
+                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
                             </td>
                         </tr>
                         <tr>
                             <td>前衛</td>
-                            <td className="text-left">
-                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={1} />
+                            <td className="text-left" colSpan="3">
+                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={1}
+                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
                             </td>
                         </tr>
                         <tr>
                             <td>後衛</td>
-                            <td className="text-left">
-                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={2} />
+                            <td className="text-left" colSpan="3">
+                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={2}
+                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
                             </td>
                         </tr>
                         <tr>
                             <td>全体</td>
-                            <td className="text-left">
-                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={3} />
+                            <td className="text-left" colSpan="3">
+                                <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={3}
+                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
                             </td>
                         </tr>
                         <tr className="sp_only">
-                            <td className="kind" colSpan="3">
+                            <td className="kind" colSpan="5">
                                 パッシブ
                             </td>
                         </tr>
                         <tr>
                             <td className="kind pc_only">パッシブ</td>
-                            <td className="text-left" colSpan="2" id="skill_passive">
+                            <td className="text-left" colSpan="4" id="skill_passive">
                                 <PassiveCheckbox attackInfo={attackInfo} passiveList={passiveList} />
                             </td>
                         </tr>

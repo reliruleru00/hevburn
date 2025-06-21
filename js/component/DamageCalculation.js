@@ -26,7 +26,6 @@ const initialMember = {
     bracelet: 1,
     chain: 3,
     init_sp: 1,
-    passive_skill_list: [],
     exclusion_skill_list: [],
 };
 
@@ -276,9 +275,6 @@ const reducer = (state, action) => {
     }
 };
 
-const filedKey = `field-${BUFF.FIELD}`
-const chargeKey = `charge-${BUFF.CHARGE}`
-
 const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
     const { styleList } = useStyleList();
     const [attackInfo, setAttackInfo] = React.useState(undefined);
@@ -334,56 +330,8 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
-    let isElement = false;
-    let isWeak = false;
-    if (attackInfo) {
-        isElement = attackInfo.attack_element;
-        const [physicalResist, elementResist] = getEnemyResist(attackInfo, state);
-        isWeak = physicalResist * elementResist > 10000;
-    }
-
-    let isDp = Number(state.dpRate[0]) !== 0;
-
-    const attackUpBuffs = [
-        { name: "攻撃力UP", kind: BUFF.ATTACKUP },
-        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP },] : []),
-        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE },] : []),
-        { name: "連撃", kind: BUFF.FUNNEL },
-        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP },
-    ];
-
-    const defDownBuffs = [
-        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN },
-        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP },] : []),
-        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN },] : []),
-        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN },
-        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN },] : []),
-        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE },] : []),
-        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN },] : []),
-    ];
-
-    const criticalBuffs = [
-        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP },
-        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP },
-        ...(isElement ? [
-            { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP },
-            { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP },
-        ] : []),
-    ];
-
-    let buffKeyList = {};
-    attackUpBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-    defDownBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-    criticalBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-    buffKeyList[filedKey] = [];
-    buffKeyList[chargeKey] = [];
-    const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState(buffKeyList);
+    const [selectBuffKeyMap, setSelectBuffKeyMap] = React.useState({});
+    const [abilitySettingMap, setAbilitySettingMap] = React.useState([]);
 
     const [otherSetting, setOtherSetting] = React.useState({
         ring: "0",
@@ -392,7 +340,8 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
         overdrive: false,
     });
 
-    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, selectBuffKeyMap, buffSettingMap, otherSetting);
+    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv, 
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap,otherSetting);
 
     return (
         <>
@@ -410,9 +359,9 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
                     }
                 </div>
                 <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
-                    selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap} buffKeyList={buffKeyList}
+                    selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap}
                     buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
-                    attackUpBuffs={attackUpBuffs} defDownBuffs={defDownBuffs} criticalBuffs={criticalBuffs} />
+                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}/>
             </div>
             <DamageResult damageResult={damageResult} enemyInfo={state.enemy_info} dispatch={dispatch} />
         </>

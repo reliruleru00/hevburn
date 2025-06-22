@@ -192,6 +192,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 } else {
                     passive.key = `${passive.skill_id}_${charaId}`;
                     passive.member_info = member_info;
+                    passive.chara_id = charaId;
                     passive.chara_name = charaName;
                     passiveList.push(passive);
                 }
@@ -206,7 +207,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[buff.key] = {
                 buff_id: buff.buff_id,
                 skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff, buff.max_lv, state)
+                effect_size: getEffectSize(buff, buff.max_lv, state, abilitySettingMap, passiveSettingMap),
             };
         });
         setBuffSettingMap(initialMap);
@@ -268,8 +269,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[key] = {
                 key: passive.key,
                 skill_id: passive.skill_id,
-                checked: true,
+                chara_id: passive.chara_id,
                 name: passive.chara_name,
+                checked: true,
             }
         });
         setPassiveSettingMap(initialMap);
@@ -329,7 +331,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         let buff = buffList.filter(buff => buff.key === buffKey)[0];
         const newSetting = buffSettingMap[buffKey]
         newSetting.skill_lv = lv;
-        newSetting.effect_size = getEffectSize(buff, lv, state);
+        newSetting.effect_size = getEffectSize(buff, lv, state, abilitySettingMap, passiveSettingMap);
         setBuffSettingMap(prev => ({
             ...prev,
             [buffKey]: newSetting
@@ -338,6 +340,59 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     const handleSelectChange = (buffKey, newSelect) => {
         setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelect }));
+    };
+
+    const handleAbilityChange = (e, key) => {
+        const newAbilitySettingMap = { ...abilitySettingMap };
+        newAbilitySettingMap[key].checked = e.target.checked;
+        setAbilitySettingMap(newAbilitySettingMap);
+
+        // buffList.forEach(buff => {
+        //     const buffKey = buff.key
+        //     const newSetting = buffSettingMap[buffKey]
+        //     newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
+        //     setBuffSettingMap(prev => ({
+        //         ...prev,
+        //         [buffKey]: newSetting
+        //     }));
+        // })
+    };
+
+    const handlePassiveChange = (e, key) => {
+        const newPassiveSettingMap = { ...passiveSettingMap };
+        newPassiveSettingMap[key].checked = e.target.checked;
+        setPassiveSettingMap(newPassiveSettingMap);
+
+        let skillId = newPassiveSettingMap[key].skill_id;
+        let passiveInfo = getPassiveInfo(skillId);
+        let targetCharaList = [];
+        switch (passiveInfo.range_area) {
+            case RANGE.SELF:
+                targetCharaList.push(targetCharaId);
+                break;
+            case RANGE.MEMBER_31C:
+                targetCharaList= CHARA_ID.MEMBER_31C;
+                break;
+            case RANGE.MEMBER_31E:
+                targetCharaList= CHARA_ID.MEMBER_31E;
+                break;
+            case RANGE.MARUYAMA_MEMBER:
+                targetCharaList= CHARA_ID.MEMBER_31E;
+                break;
+            case RANGE.RUKA_SHARO:
+                targetCharaList= CHARA_ID.RUKA_SHARO;
+                break;
+        }
+
+        buffList.filter(buff => targetCharaList.includes(buff.chara_id)).forEach(buff => {
+            const buffKey = buff.key
+            const newSetting = buffSettingMap[buffKey]
+            newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
+            setBuffSettingMap(prev => ({
+                ...prev,
+                [buffKey]: newSetting
+            }));
+        })
     };
 
     // 全て外す
@@ -569,28 +624,28 @@ const BuffArea = ({ attackInfo, state, dispatch,
                             <td>攻撃者</td>
                             <td className="text-left" colSpan="3">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={0}
-                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
+                                    abilitySettingMap={abilitySettingMap} handleAbilityChange={handleAbilityChange} />
                             </td>
                         </tr>
                         <tr>
                             <td>前衛</td>
                             <td className="text-left" colSpan="3">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={1}
-                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
+                                    abilitySettingMap={abilitySettingMap} handleAbilityChange={handleAbilityChange} />
                             </td>
                         </tr>
                         <tr>
                             <td>後衛</td>
                             <td className="text-left" colSpan="3">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={2}
-                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
+                                    abilitySettingMap={abilitySettingMap} handleAbilityChange={handleAbilityChange} />
                             </td>
                         </tr>
                         <tr>
                             <td>全体</td>
                             <td className="text-left" colSpan="3">
                                 <AbilityCheckbox attackInfo={attackInfo} abilityList={abilityList} rengeArea={3}
-                                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap} />
+                                    abilitySettingMap={abilitySettingMap} handleAbilityChange={handleAbilityChange} />
                             </td>
                         </tr>
                         <tr className="sp_only">
@@ -602,7 +657,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                             <td className="kind pc_only">パッシブ</td>
                             <td className="text-left" colSpan="4" id="skill_passive">
                                 <PassiveCheckbox passiveList={passiveList}
-                                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
+                                    passiveSettingMap={passiveSettingMap} handlePassiveChange={handlePassiveChange} />
                             </td>
                         </tr>
                     </tbody>

@@ -1,4 +1,4 @@
-const PassiveCheckbox = ({ passiveList, passiveSettingMap, setPassiveSettingMap }) => {
+const PassiveCheckbox = ({ passiveList, passiveSettingMap, handlePassiveChange }) => {
     return (
         <>
             {passiveList.map(passive => {
@@ -11,11 +11,7 @@ const PassiveCheckbox = ({ passiveList, passiveSettingMap, setPassiveSettingMap 
                     <div key={key}>
                         <input type="checkbox" className="passive"
                             id={key} checked={passiveSettingMap[key].checked}
-                            onChange={e => {
-                                const newPassiveSettingMap = { ...passiveSettingMap };
-                                newPassiveSettingMap[key].checked = e.target.checked;
-                                setPassiveSettingMap(newPassiveSettingMap);
-                            }}
+                            onChange={e => handlePassiveChange(e, key)}
                         />
                         <label htmlFor={key}
                             className="checkbox01">

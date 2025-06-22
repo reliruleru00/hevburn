@@ -1,4 +1,4 @@
-const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, setAbilitySettingMap, rengeArea }) => {
+const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbilityChange, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
         switch (ability.range_area) {
@@ -48,11 +48,7 @@ const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, setAbilit
                 return (
                     <div key={key}>
                         <input type="checkbox" className="ability" id={key} disabled={disabled} checked={checked}
-                            onChange={e => {
-                                const newAbilitySettingMap = { ...abilitySettingMap };
-                                newAbilitySettingMap[key].checked = e.target.checked;
-                                setAbilitySettingMap(newAbilitySettingMap);
-                            }}
+                            onChange={e => handleAbilityChange(e, key)}
                         />
                         <label htmlFor={key}
                             className="checkbox01">

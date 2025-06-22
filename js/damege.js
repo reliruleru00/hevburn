@@ -174,7 +174,7 @@ const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
 }
 
 // 効果量取得
-function getEffectSize(buff, skillLv, state) {
+function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap) {
     let effectSize = 0;
     switch (buff.buff_kind) {
         case BUFF_ATTACKUP: // 攻撃力アップ
@@ -185,11 +185,11 @@ function getEffectSize(buff, skillLv, state) {
         case BUFF_CHARGE: // チャージ
         case BUFF_DAMAGERATEUP: // 破壊率アップ
         case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-            effectSize = getBuffEffectSize(buff, skillLv, "3");
+            effectSize = getBuffEffectSize(buff, skillLv, "3", abilitySettingMap, passiveSettingMap);
             break;
         case BUFF_CRITICALRATEUP:	// クリティカル率アップ
         case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-            effectSize = getBuffEffectSize(buff, skillLv, "5");
+            effectSize = getBuffEffectSize(buff, skillLv, "5", abilitySettingMap, passiveSettingMap);
             break;
         case BUFF_DEFENSEDOWN: // 防御力ダウン
         case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
@@ -198,7 +198,7 @@ function getEffectSize(buff, skillLv, state) {
         case BUFF_RESISTDOWN: // 耐性ダウン
         case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
         case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-            effectSize = getDebuffEffectSize(buff, skillLv, state);
+            effectSize = getDebuffEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap);
             break;
         case BUFF_FUNNEL: // 連撃
             effectSize = getFunnelEffectSize(buff);
@@ -331,8 +331,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
 
     // // 士気
     let morale = attackMemberInfo.morale ? attackMemberInfo.morale * 5 : 0;
-    // let stat_up = getStatUp(member_info)
-    let statUp = morale;
+    let statUp = getStatUp(attackMemberInfo, abilitySettingMap, passiveSettingMap);
     // // 闘志or士気
     // stat_up += (morale > fightingspirit ? morale : fightingspirit);
     // // 厄orハッキング
@@ -441,7 +440,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         fragile: convertToPercentage(fragile),
         field: convertToPercentage(field),
         damageRate: state.damageRate + "%",
-        criticalRate: criticalRate,
+        criticalRate: convertToPercentage(criticalRate / 100),
         criticalBuff: convertToPercentage(criticalBuff),
     }
 }
@@ -727,7 +726,7 @@ function getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abi
     let criticalBuff = 50;
     criticalBuff += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALDAMAGEUP],
         attackMemberInfo.style_info.charaId);
-    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALDAMAGEUP);
+    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALDAMAGEUP, attackMemberInfo.style_info.charaId);
     // // 制圧戦
     // critical_buff += getBikePartsEffectSize("critical_buff");
     // // セラフ遭遇戦
@@ -896,7 +895,7 @@ function getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, effectTyp
             let passiveInfo = getPassiveInfo(skillId);
             let effectSize = 0;
             if (passiveInfo.effect_type == effectType) {
-                if (isRangeAreaInclude(passiveInfo.range_area, targetCharaId)) {
+                if (isRangeAreaInclude(data.chara_id, passiveInfo.range_area, targetCharaId)) {
                     effectSize = passiveInfo.effect_size;
                 }
             }
@@ -912,7 +911,7 @@ function getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, effectTyp
 }
 
 // 対象範囲判定
-function isRangeAreaInclude(rangeArea, targetCharaId) {
+function isRangeAreaInclude(charaId, rangeArea, targetCharaId) {
     switch (rangeArea) {
         case RANGE.SELF:
             return charaId == targetCharaId;
@@ -959,19 +958,8 @@ function getCharaIdToMember(chara_id) {
     return member;
 }
 
-// 敵情報取得
-function getEnemyInfo() {
-    const enemy_class = Number($("#enemy_class option:selected").val());
-    const enemy_class_no = Number($("#enemy_list option:selected").val());
-    const filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
-    return filtered_enemy.length > 0 ? filtered_enemy[0] : undefined;
-}
-
 // グレード情報取得
 function getGradeSum(enemy_info) {
-    if (!enemy_info) {
-        enemy_info = getEnemyInfo();
-    }
     let grade_sum = {
         "score_attack_no": 0, "half": 0, "grade_no": 0, "grade_rate": 0, "grade_none": 0,
         "step_turn": 0, "defense_rate": 0, "dp_rate": 0, "hp_rate": 0, "physical_1": 0, "physical_2": 0, "physical_3": 0,
@@ -1133,11 +1121,11 @@ function getBuffIdToBuff(buff_id) {
 }
 
 // バフ効果量
-function getBuffEffectSize(buffInfo, skill_lv, target_jewel_type) {
+function getBuffEffectSize(buffInfo, skill_lv, targetJewelType, abilitySettingMap, passiveSettingMap) {
     const NOT_JEWEL_TYPE = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP];
     let jewelLv = 0;
     let memberInfo = buffInfo.member_info;
-    if (memberInfo.style_info && memberInfo.style_info.jewel_type == target_jewel_type) {
+    if (memberInfo.style_info && memberInfo.style_info.jewel_type == targetJewelType) {
         jewelLv = memberInfo.jewel_lv;
     }
     if (skill_lv > buffInfo.max_lv) {
@@ -1147,10 +1135,8 @@ function getBuffEffectSize(buffInfo, skill_lv, target_jewel_type) {
     if (status_kbn[buffInfo.ref_status_1] == 0) {
         return buffInfo.min_power;
     }
-    // 士気
-    let morale = memberInfo.morale ? memberInfo.morale * 5 : 0;
-    // let stat_up = getStatUp(member_info) + morale;
-    let statUp = morale;
+    // ステータス
+    let statUp = getStatUp(memberInfo, abilitySettingMap, passiveSettingMap);
     let status = memberInfo[status_kbn[buffInfo.ref_status_1]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.03 * (skill_lv - 1));
     let maxPower = buffInfo.max_power * (1 + 0.02 * (skill_lv - 1));
@@ -1179,13 +1165,13 @@ function getBuffEffectSize(buffInfo, skill_lv, target_jewel_type) {
 }
 
 // デバフ効果量
-function getDebuffEffectSize(buffInfo, skillLv, state) {
+function getDebuffEffectSize(buffInfo, skillLv, state, abilitySettingMap, passiveSettingMap) {
     if (!state) {
         return 0;
     }
     let jewelLv = 0;
     let memberInfo = buffInfo.member_info;
-    if (memberInfo.style_info && memberInfo.style_info.jewel_type == "4") {
+    if (memberInfo.style_info && memberInfo.style_info.targetJewelType == "4") {
         jewelLv = memberInfo.jewel_lv;
     }
     let enemyInfo = state.enemy_info;
@@ -1196,10 +1182,8 @@ function getDebuffEffectSize(buffInfo, skillLv, state) {
     if (skillLv > buffInfo.max_lv) {
         skillLv = buffInfo.max_lv;
     }
-    // 士気
-    let morale = memberInfo.morale ? memberInfo.morale * 5 : 0;
-    // let stat_up = getStatUp(member_info) + morale;
-    let statUp = morale;
+    // ステータス
+    let statUp = getStatUp(memberInfo, abilitySettingMap, passiveSettingMap);
     let status1 = memberInfo[status_kbn[buffInfo.ref_status_1]] + statUp;
     let status2 = memberInfo[status_kbn[buffInfo.ref_status_2]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
@@ -1272,59 +1256,22 @@ function getEnemyDefenceRate(grade_sum) {
 }
 
 // ステータスアップ取得
-function getStatUp(member_info) {
+function getStatUp(memberInfo, abilitySettingMap, passiveSettingMap) {
     let tears_of_dreams = 0;
-    // 夢の泪
-    if ($("#enemy_class").val() == ENEMY_CLASS_HARD_LAYER) {
-        tears_of_dreams = Number($("#tears_of_dreams").val());
-    }
-    // メンバー全能力アップ
-    let all_status_up = 0;
-    if ($("#enemy_class").val() == ENEMY_CLASS_CONTROL_BATTLE) {
-        all_status_up = Number($("#all_status_up").val());
-    }
-    // スコアタボーナス
+    // // 夢の泪
+    // if ($("#enemy_class").val() == ENEMY_CLASS_HARD_LAYER) {
+    //     tears_of_dreams = Number($("#tears_of_dreams").val());
+    // }
+    // // スコアタボーナス
     let score_bonus = 0;
-    if ($("#enemy_class").val() == ENEMY_CLASS_SCORE_ATTACK) {
-        score_bonus = getScoreAttackBonus("STAT_UP", member_info);
-    }
+    // if ($("#enemy_class").val() == ENEMY_CLASS_SCORE_ATTACK) {
+    //     score_bonus = getScoreAttackBonus("STAT_UP", member_info);
+    // }
+    // // 士気
+    let morale = memberInfo.morale ? memberInfo.morale * 5 : 0;
     // パッシブ(能力固定上昇)
-    let passive_status_up = getSumAbilityEffectSize(25, member_info.is_select, member_info.style_info.chara_id);
-    return tears_of_dreams + all_status_up + score_bonus + passive_status_up;
-}
-
-// スコアタボーナス取得
-function getScoreAttackBonus(kind, member_info) {
-    let element = member_info.style_info.element;
-    let element2 = member_info.style_info.element2;
-    let physical = getCharaData(member_info.style_info.chara_id).physical;
-    let enemy_info = getEnemyInfo();
-    let effect_max = 0;
-    let num = $("input[name='rule_tab']:checked").attr("id").split("_")[2];
-    bonus_list.filter((obj) =>
-        obj.score_attack_no == enemy_info.sub_no &&
-        (obj.half == 0 || obj.half == num) &&
-        obj.effect_kind == kind
-    ).forEach((obj) => {
-        let conditions = obj.conditions.split("_");
-        switch (conditions[0]) {
-            case "element":
-                if (conditions[1] == element || conditions[1] == element2) {
-                    if (effect_max < obj.effect_size) {
-                        effect_max = obj.effect_size;
-                    }
-                }
-                break;
-            case "physical":
-                if (conditions[1] == physical) {
-                    if (effect_max < obj.effect_size) {
-                        effect_max = obj.effect_size;
-                    }
-                }
-                break;
-        }
-    })
-    return effect_max;
+    let passiveStatusUp = getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.STATUSUP_VALUE, memberInfo.style_info.chara_id);
+    return tears_of_dreams + score_bonus + morale + passiveStatusUp;
 }
 
 // カンマ削除

@@ -178,7 +178,7 @@ const DamageResult = ({ damageResult, enemyInfo, dispatch }) => {
                         <div className="mt-2 damage-flex">
                             <div>
                                 <label className="damage_label">クリティカル</label>
-                                <label className="damage_label">{`(発生率${damageResult.criticalRate}%)`}</label>
+                                <label className="damage_label">{`(発生率${damageResult.criticalRate})`}</label>
                             </div>
                             <div>
                                 <label className="damage_label">最終破壊率</label>

@@ -211,7 +211,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             };
         });
         setBuffSettingMap(initialMap);
-    }, [buffList]);
+    }, [buffList, abilitySettingMap, passiveSettingMap, passiveList]);
 
     React.useEffect(() => {
         const initialMap = {};
@@ -254,6 +254,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[key] = {
                 key: key,
                 ability_id: ability.ability_id,
+                chara_id: ability.chara_id,
                 checked: checked,
                 disabled: disabled,
                 name: ability.chara_name,
@@ -327,9 +328,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
     buffKeyList[filedKey] = [];
     buffKeyList[chargeKey] = [];
 
-    const handleChangeSkillLv = (buffKey, lv) => {
-        let buff = buffList.filter(buff => buff.key === buffKey)[0];
-        const newSetting = buffSettingMap[buffKey]
+    const handleChangeSkillLv = (buffKey, lv, index) => {
+        let buff = buffList.filter(buff => buff.key === buffKey[index])[0];
+        const newSetting = buffSettingMap[buffKey[index]]
         newSetting.skill_lv = lv;
         newSetting.effect_size = getEffectSize(buff, lv, state, abilitySettingMap, passiveSettingMap);
         setBuffSettingMap(prev => ({
@@ -371,16 +372,16 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 targetCharaList.push(targetCharaId);
                 break;
             case RANGE.MEMBER_31C:
-                targetCharaList= CHARA_ID.MEMBER_31C;
+                targetCharaList = CHARA_ID.MEMBER_31C;
                 break;
             case RANGE.MEMBER_31E:
-                targetCharaList= CHARA_ID.MEMBER_31E;
+                targetCharaList = CHARA_ID.MEMBER_31E;
                 break;
             case RANGE.MARUYAMA_MEMBER:
-                targetCharaList= CHARA_ID.MEMBER_31E;
+                targetCharaList = CHARA_ID.MEMBER_31E;
                 break;
             case RANGE.RUKA_SHARO:
-                targetCharaList= CHARA_ID.RUKA_SHARO;
+                targetCharaList = CHARA_ID.RUKA_SHARO;
                 break;
         }
 

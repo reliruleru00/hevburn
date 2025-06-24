@@ -48,89 +48,6 @@ function getChainEffectSize(otherSetting, type) {
     return 0;
 }
 
-// バフ強化効果量取得
-function getStrengthen(member_info, skill_buff) {
-    let sp_cost_down = 0;
-    // 蒼天
-    if ($("#ability_all72").prop("checked")) {
-        sp_cost_down = 1;
-    }
-    // ハイブースト状態
-    if ($("#skill_passive635").prop("checked")) {
-        sp_cost_down = -2;
-    }
-
-    let strengthen = 0;
-    // 攻撃力アップ/属性攻撃力アップ
-    let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
-    if (attack_up.includes(skill_buff.buff_kind)) {
-        let ability_list = [member_info.style_info.ability0, member_info.style_info.ability00, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
-        // 機転
-        if (ability_list.includes(501) && member_info.limit_count >= 3) {
-            strengthen += 25;
-        }
-        // 増幅
-        if (ability_list.includes(503)) {
-            strengthen += 10;
-        }
-        // エクシード(菅原専用)
-        if (ability_list.includes(505) && $("#ability_all463").prop("checked")) {
-            strengthen += 30;
-        }
-        // 自慢のフロートバイク
-        if (ability_list.includes(509) && $("#ability_all910").prop("checked")) {
-            strengthen += 25;
-        }
-        // ハイブースト状態
-        if ($("#skill_passive635").prop("checked")) {
-            strengthen += 20;
-        }
-    }
-    // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
-    let defense_down = [BUFF_DEFENSEDOWN, BUFF_ELEMENT_DEFENSEDOWN,
-        BUFF_DEFENSEDP, BUFF_ETERNAL_DEFENSEDOWN, BUFF_ELEMENT_ETERNAL_DEFENSEDOWN];
-    if (defense_down.includes(skill_buff.buff_kind)) {
-        let ability_list = [member_info.style_info.ability0, member_info.style_info.ability00, member_info.style_info.ability1, member_info.style_info.ability3, member_info.style_info.ability5, member_info.style_info.ability10];
-        // 侵食
-        if (ability_list.includes(502) && member_info.limit_count >= 3) {
-            strengthen += 25;
-        }
-        // 減退
-        if (ability_list.includes(504)) {
-            strengthen += 10;
-        }
-        // モロイウオ
-        if (ability_list.includes(506) && $("#ability_all243").prop("checked") && (skill_buff.sp_cost - sp_cost_down) <= 8) {
-            strengthen += 30;
-        }
-        // 王の眼差し
-        if (ability_list.includes(507) && $("#ability_all11").prop("checked")) {
-            strengthen += 25;
-        }
-        // 思考加速
-        if (ability_list.includes(508) && $("#ability_all190").prop("checked")) {
-            strengthen += 15;
-        }
-        // 水光のゆらめき(あいな専用)
-        if (member_info.style_info.chara_id == 24 && $("#skill_passive559").prop("checked")) {
-            strengthen += 10;
-        }
-        // ハイブースト状態
-        if ($("#skill_passive635").prop("checked")) {
-            strengthen += 20;
-        }
-    }
-    // 防御ダウン以外のデバフスキル
-    let other_debuff = [BUFF.FRAGILE, BUFF.RESISTDOWN];
-    if (other_debuff.includes(skill_buff.buff_kind)) {
-        // ハイブースト状態
-        if ($("#skill_passive635").prop("checked")) {
-            strengthen += 20;
-        }
-    }
-    return strengthen;
-}
-
 // 耐性判定
 function getEnemyResist(attackInfo, state) {
     const enemyInfo = state.enemy_info;
@@ -175,41 +92,178 @@ const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
 
 // 効果量取得
 function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap) {
+    // バフ強化
+    let strengthen = getStrengthen(buff, abilitySettingMap, passiveSettingMap);
+
     let effectSize = 0;
     switch (buff.buff_kind) {
-        case BUFF_ATTACKUP: // 攻撃力アップ
-        case BUFF_ELEMENT_ATTACKUP: // 属性攻撃力アップ
-        case BUFF_MINDEYE: // 心眼
-        case BUFF_CRITICALDAMAGEUP:	// クリティカルダメージアップ
-        case BUFF_ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-        case BUFF_CHARGE: // チャージ
-        case BUFF_DAMAGERATEUP: // 破壊率アップ
+        case BUFF.ATTACKUP: // 攻撃力アップ
+        case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
+        case BUFF.MINDEYE: // 心眼
+        case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
+        case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+        case BUFF.CHARGE: // チャージ
+        case BUFF.DAMAGERATEUP: // 破壊率アップ
         case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
             effectSize = getBuffEffectSize(buff, skillLv, "3", abilitySettingMap, passiveSettingMap);
             break;
-        case BUFF_CRITICALRATEUP:	// クリティカル率アップ
-        case BUFF_ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+        case BUFF.CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
             effectSize = getBuffEffectSize(buff, skillLv, "5", abilitySettingMap, passiveSettingMap);
             break;
-        case BUFF_DEFENSEDOWN: // 防御力ダウン
-        case BUFF_ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-        case BUFF_FRAGILE: // 脆弱
-        case BUFF_DEFENSEDP: // DP防御力ダウン
-        case BUFF_RESISTDOWN: // 耐性ダウン
-        case BUFF_ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-        case BUFF_ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+        case BUFF.DEFENSEDOWN: // 防御力ダウン
+        case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+        case BUFF.FRAGILE: // 脆弱
+        case BUFF.DEFENSEDP: // DP防御力ダウン
+        case BUFF.RESISTDOWN: // 耐性ダウン
+        case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+        case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
             effectSize = getDebuffEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap);
             break;
-        case BUFF_FUNNEL: // 連撃
+        case BUFF.FUNNEL: // 連撃
             effectSize = getFunnelEffectSize(buff);
             break;
-        case BUFF_FIELD: // フィールド
-            effectSize = buff.max_power;
-            break;
+        case BUFF.FIELD: // フィールド
+            return buff.max_power + strengthen;
         default:
             break;
     }
-    return effectSize;
+    return effectSize * (1 + strengthen / 100);
+}
+
+// バフ強化効果量取得
+function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
+    let sp_cost_down = 0;
+    // // 蒼天
+    // if ($("#ability_all72").prop("checked")) {
+    //     sp_cost_down = 1;
+    // }
+    // // ハイブースト状態
+    // if ($("#skill_passive635").prop("checked")) {
+    //     sp_cost_down = -2;
+    // }
+    let memberInfo = buff.member_info;
+    let charaId = memberInfo.style_info.chara_id;
+    let strengthen = 0;
+    // 攻撃力アップ/属性攻撃力アップ
+    let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
+    if (attack_up.includes(buff.buff_kind)) {
+        Object.values(abilitySettingMap)
+            .filter(ability => ability.effect_type == EFFECT.GIVEATTACKBUFFUP)
+            .filter(ability => ability.chara_id == charaId)
+            .filter(ability => ability.checked)
+            .forEach((ability) => {
+                let abilityInfo = getAbilityInfo(ability.ability_id);
+                if (abilityInfo.effect_type == EFFECT.GIVEDEBUFFUP) {
+                    strengthen += abilityInfo.effect_size;
+
+                }
+                // switch (ability.ability_id) {
+                //     case 501: // 機転
+                //         strengthen += 10;
+                //         break;
+                //     case 503: // 増幅
+                //         strengthen += 5;
+                //         break;
+                //     case 505: // エクシード(菅原専用)
+                //         strengthen += 15;
+                //         break;
+                //     case 509: // 自慢のフロートバイク
+                //         strengthen += 10;
+                //         break;
+                // }
+            })
+        Object.values(passiveSettingMap)
+            .filter(passive => passive.checked)
+            .forEach((passive) => {
+                switch (passive.passive_id) {
+                    case 635: // ハイブースト状態
+                        strengthen += 20;
+                        break;
+                }
+            })
+    }
+    // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
+    let defense_down = [BUFF_DEFENSEDOWN, BUFF_ELEMENT_DEFENSEDOWN,
+        BUFF_DEFENSEDP, BUFF_ETERNAL_DEFENSEDOWN, BUFF_ELEMENT_ETERNAL_DEFENSEDOWN];
+    if (defense_down.includes(buff.buff_kind)) {
+        Object.values(abilitySettingMap)
+            .filter(ability => ability.chara_id == charaId)
+            .filter(ability => ability.checked)
+            .forEach((ability) => {
+                let abilityInfo = getAbilityInfo(ability.ability_id);
+                if (abilityInfo.effect_type == EFFECT.GIVEDEFFENCEDEBUFFUP) {
+                    strengthen += abilityInfo.effect_size;
+                }
+                // switch (ability.ability_id) {
+                //     case 502: // 侵食
+                //         strengthen += 25;
+                //         break;
+                //     case 504: // 減退
+                //         strengthen += 10;
+                //         break;
+                //     case 506: // モロイウオ
+                //         strengthen += 30;
+                //         break;
+                //     case 507: // 王の眼差し
+                //         strengthen += 25;
+                //         break;
+                //     case 508: // 思考加速
+                //         strengthen += 15;
+                //         break;
+                // }
+            })
+        Object.values(passiveSettingMap)
+            .filter(passive => passive.checked)
+            .forEach((passive) => {
+                switch (passive.passive_id) {
+                    case 508: // 水光のゆらめき(あいな専用)
+                        if (passive.chara_id == charaId) {
+                            strengthen += 10;
+                        }
+                        break;
+                    case 635: // ハイブースト状態
+                        strengthen += 20;
+                        break;
+                }
+            })
+    }
+    // 防御ダウン以外のデバフスキル
+    let other_debuff = [BUFF.FRAGILE, BUFF.RESISTDOWN];
+    if (other_debuff.includes(buff.buff_kind)) {
+        // ハイブースト状態
+        // if ($("#skill_passive635").prop("checked")) {
+        //     strengthen += 20;
+        // }
+    }
+
+    // フィールド強化
+    if (BUFF.FIELD == buff.buff_kind) {
+        Object.values(abilitySettingMap)
+            .filter(ability => ability.chara_id == charaId)
+            .filter(ability => ability.checked)
+            .forEach((ability) => {
+                let abilityInfo = getAbilityInfo(ability.ability_id);
+                if (abilityInfo.effect_type == EFFECT.FIELD_STRENGTHEN) {
+                    strengthen += abilityInfo.effect_size;
+                }
+            })
+        // Object.values(passiveSettingMap)
+        //     .filter(passive => passive.checked)
+        //     .forEach((passive) => {
+        //         switch (passive.passive_id) {
+        //             case 508: // 水光のゆらめき(あいな専用)
+        //                 if (passive.chara_id == charaId) {
+        //                     strengthen += 10;
+        //                 }
+        //                 break;
+        //             case 635: // ハイブースト状態
+        //                 strengthen += 20;
+        //                 break;
+        //         }
+        //     })
+    }
+    return strengthen;
 }
 
 function getBuffKey(buffKind) {
@@ -247,11 +301,14 @@ function isOnlyUse(attackInfo, buffInfo) {
         return false;
     }
     const attackId = attackInfo.attack_id;
+    const ATTACK_BUFF_LIST = [
+        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
+        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
     const match = [buffInfo.skill_attack1, buffInfo.skill_attack2].some(id => {
         const numId = Number(id);
-        return numId === 999 || attackId === numId;
+        return ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) && (numId === 999 || attackId === numId);
     });
-    return !match;
+    return match;
 }
 
 // 単独発動判定
@@ -1044,68 +1101,6 @@ function updateSeraphEncounter(enemy_info, selectedList) {
         }
     })
     // setEnemyStatus(new_enemy_info)
-}
-
-// // ダメージボーナス算出
-// function getDamageBonus(damage, num, score_attack) {
-//     damage *= Number($("#socre_enemy_unit").val());
-//     // ダメージ上限
-//     damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
-//     let damage_bonus;
-//     let damage_limit_value;
-//     if (score_attack.enemy_count == 1) {
-//         damage_limit_value = damage_limit1[num];
-//     } else {
-//         damage_limit_value = damage_limit2[num];
-//     }
-//     if (damage <= damage_limit_value) {
-//         damage_bonus = damage;
-//     } else {
-//         damage_bonus = damage_limit_value * (1 + Math.log(damage / damage_limit_value));
-//     }
-//     return Math.floor(damage_bonus * score_attack.max_damage_rate / 100);
-// }
-
-// 効果量ソート
-// function sortEffectSize(selecter) {
-//     // 初期選択を保存
-//     var selected = selecter.val();
-//     var item = selecter.children().sort(function (a, b) {
-//         var effectA = Number($(a).data("effect_size"));
-//         var effectB = Number($(b).data("effect_size"));
-//         if (effectA < effectB) {
-//             return 1;
-//         } else if (effectA > effectB) {
-//             return -1;
-//         } else {
-//             var valueA = Number($(a).val());
-//             var valueB = Number($(b).val());
-//             if (valueA > valueB) {
-//                 return 1;
-//             } else if (valueA < valueB) {
-//                 return -1;
-//             }
-//             return 0;
-//         }
-//     });
-//     selecter.append(item);
-//     // 初期選択を再選択
-//     selecter.val(selected);
-// }
-
-// 攻撃情報取得
-function getAttackInfo() {
-    const attack_id = Number($("#attack_list option:selected").val());
-    const chara_id = Number($("#attack_list option:selected").data("chara_id"));
-    const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
-    let attack_info = filtered_attack.length > 0 ? filtered_attack[0] : undefined;
-    if (attack_info) {
-        attack_info.attack_physical = getCharaData(attack_info.chara_id).physical;
-        let member_info = getCharaIdToMember(chara_id);
-        attack_info.style_element = member_info.style_info.element;
-        attack_info.style_element2 = member_info.style_info.element2;
-    }
-    return attack_info;
 }
 
 // スキルデータ取得

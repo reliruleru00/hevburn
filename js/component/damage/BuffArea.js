@@ -448,6 +448,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
         }
     }, [state.enemy_info, attackInfo, resistDownEffectSize]);
 
+    let selectList = styleList.selectStyleList.map(style => 
+        style?.style_info.style_id,
+    ).join(',');
     React.useEffect(() => {
         if (checkUpdate) {
             setSelectBuffKeyMap(buffKeyList);
@@ -455,7 +458,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 selectBestBuff();
             }
         }
-    }, [buffSettingMap, attackInfo]);
+    }, [selectList, attackInfo, state.enemy_info]);
 
     const [modal, setModal] = React.useState({
         isOpen: false,
@@ -518,7 +521,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
-                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
                                 />
                             )
@@ -541,7 +544,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
-                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
                                 />
                             )
@@ -564,7 +567,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
-                                    selectedKey={selectBuffKeyMap[buffKey] || ""}
+                                    selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
                                 />
                             )

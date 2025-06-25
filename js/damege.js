@@ -158,20 +158,6 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     strengthen += abilityInfo.effect_size;
 
                 }
-                // switch (ability.ability_id) {
-                //     case 501: // 機転
-                //         strengthen += 10;
-                //         break;
-                //     case 503: // 増幅
-                //         strengthen += 5;
-                //         break;
-                //     case 505: // エクシード(菅原専用)
-                //         strengthen += 15;
-                //         break;
-                //     case 509: // 自慢のフロートバイク
-                //         strengthen += 10;
-                //         break;
-                // }
             })
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
@@ -195,23 +181,6 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                 if (abilityInfo.effect_type == EFFECT.GIVEDEFFENCEDEBUFFUP) {
                     strengthen += abilityInfo.effect_size;
                 }
-                // switch (ability.ability_id) {
-                //     case 502: // 侵食
-                //         strengthen += 25;
-                //         break;
-                //     case 504: // 減退
-                //         strengthen += 10;
-                //         break;
-                //     case 506: // モロイウオ
-                //         strengthen += 30;
-                //         break;
-                //     case 507: // 王の眼差し
-                //         strengthen += 25;
-                //         break;
-                //     case 508: // 思考加速
-                //         strengthen += 15;
-                //         break;
-                // }
             })
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
@@ -356,7 +325,7 @@ function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     }
 
     // 比較して大きい方を返す
-    if (maxAloneBuff && buffSettingMap[maxAloneBuff.key].effect_size >= combinedScore) {
+    if (maxAloneBuff && buffSettingMap[maxAloneBuff.key]?.effect_size >= combinedScore) {
         return [maxAloneBuff.key];
     } else {
         return combinedKeys;
@@ -368,16 +337,12 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     if (!attackInfo) {
         return null;
     }
-    let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
+    let attackMemberInfo = getCharaIdToMember(styleList.selectStyleList, attackInfo.chara_id);
+    // let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
     if (!attackMemberInfo) {
         return null;
     }
     let enemyInfo = state.enemy_info;
-
-    // // グレード
-    // let grade_sum = getGradeSum();
-    // // メンバー
-    // let chara_id = $("#attack_list option:selected").data("chara_id");
 
     // // 闘志
     // let fightingspirit = $("#fightingspirit").prop("checked") ? 20 : 0;
@@ -396,21 +361,23 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let enemyStatDown = 0;
 
     let skillPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, enemyStatDown);
-    let buff = getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
+    let buff = getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state);
     // let mindeye_buff = getSumEffectSize("mindeye") + getSumEffectSize("servant");
     let mindeye = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE]) / 100;
-    let debuff = getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
+    let debuff = getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, state);
     let debuffDp = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DEFENSEDP]) / 100;
 
     let fragile = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FRAGILE]) / 100;
 
-    let damageRateUp = getDamagerateEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, attackInfo.hit_count);
+    let damageRateUp = getDamagerateEffectSize(attackMemberInfo, styleList,
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state, attackInfo.hit_count);
     let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap);
 
-    // let token = getSumTokenEffectSize(attack_info, member_info);
+    let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
     let field = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FIELD]) / 100;
     let [physical, element] = getEnemyResist(attackInfo, state);
-    // let enemy_defence_rate = getEnemyDefenceRate(grade_sum);
+    let enemyDefenceRate = getEnemyDefenceRate(state);
 
     // 表示用
     let funnel = 1 + funnelList.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
@@ -452,10 +419,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
     let criticalBuff = getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
 
-    let token = 1;
-    let enemy_defence_rate = 1;
-
-    let fixed = mindeye * fragile * token * field * physical / 100 * element / 100 * enemy_defence_rate * skill_unique_rate;
+    let fixed = mindeye * fragile * token * field * physical / 100 * element / 100 * enemyDefenceRate * skill_unique_rate;
     const normalAvgResult =
         calculateDamage(state, skillPower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
     const normalMinResult =
@@ -658,7 +622,8 @@ function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
 }
 
 // 合計バフ効果量取得
-function getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting) {
+function getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
+    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state) {
     // スキルバフ合計
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
         [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE]);
@@ -672,24 +637,27 @@ function getSumBuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap
     }
     sumBuff += getChainEffectSize(otherSetting, "skill");
     // // トークン
-    // sum_buff += getSumTokenAbilirySize(EFFECT_TOKEN_ATTACKUP);
+    sumBuff += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_ATTACKUP);
     // 士気
     sumBuff += attackMemberInfo.morale ? attackMemberInfo.morale * 5 : 0;
     // // 永遠なる誓い
     // sum_buff += $("#eternal_vows").prop("checked") ? 50 : 0;
     // // オギャり
     // sum_buff += $("#babied").prop("checked") ? 30 : 0;
-    // // スコアタグレード
-    // if (grade_sum.power_up) {
-    //     sum_buff += grade_sum.power_up;
-    // }
+    // スコアタグレード
+    if (state.correction.power_up) {
+        sumBuff += state.correction.power_up;
+    }
+    if (state.correction[`element_power_up_${attackInfo.attack_element}`]) {
+        sumBuff += state.correction[`element_power_up_${attackInfo.attack_element}`];
+    }
     // // 制圧戦
     // sum_buff += getBikePartsEffectSize("buff");
     return 1 + sumBuff / 100;
 }
 
 // 合計デバフ効果量取得
-function getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap) {
+function getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, state) {
     // スキルデバフ合計
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
         [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]);
@@ -744,18 +712,21 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
 }
 
 // 破壊率上昇
-function getDamagerateEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, hitCount, charaId) {
+function getDamagerateEffectSize(attackMemberInfo, styleList,
+    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state, hitCount) {
     let destructionEffectSize = 100;
     destructionEffectSize += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DAMAGERATEUP]);
     destructionEffectSize += getSumAbilityEffectSize(
         abilitySettingMap, passiveSettingMap, EFFECT.DAMAGERATEUP,
         attackMemberInfo.style_info.chara_id);
-    // destruction_effect_size += getSumTokenAbilirySize(EFFECT_TOKEN_DAMAGERATEUP)
+    destructionEffectSize += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_DAMAGERATEUP)
     destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 10 - hitCount);
     // // 制圧戦
     // destruction_effect_size += getBikePartsEffectSize("destruction_rate");
-    // let grade_sum = getGradeSum();
-    // destruction_effect_size += grade_sum.destruction;
+    // スコアタグレード
+    if (state.correction.destruction) {
+        destructionEffectSize += state.correction.destruction;
+    }
     return destructionEffectSize / 100;
 }
 
@@ -767,10 +738,8 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
     criticalRate = criticalRate > 15 ? 15 : criticalRate;
     criticalRate += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
     criticalRate += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALRATEUP, attackMemberInfo.style_info.charaId);
+    // チャージ
     // critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
-    // let grade_sum = getGradeSum();
-    // critical_rate -= grade_sum.critical;
-    // critical_rate = critical_rate < 0 ? 0 : critical_rate;
     // // 永遠なる誓い
     // critical_rate += $("#eternal_vows").prop("checked") ? 50 : 0;
     // // 制圧戦
@@ -793,32 +762,29 @@ function getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abi
     return 1 + criticalBuff / 100;
 }
 // トークン効果量
-function getSumTokenEffectSize(attack_info, member_info) {
+function getSumTokenEffectSize(attackInfo, attackMemberInfo) {
     // トークン
-    let token_count = member_info.token ? member_info.token : 0;
-    if (attack_info.token_power_up == 1) {
+    let token_count = attackMemberInfo.token ? attackMemberInfo.token : 0;
+    if (attackInfo.token_power_up == 1) {
         return 1 + token_count * 16 / 100;
     }
     return 1;
 }
 
 // トークンアビリティ取得
-function getSumTokenAbilirySize(effect_type) {
+function getSumTokenAbilirySize(styleList, abilitySettingMap, effectType) {
     let sum = 0;
-    $("input[type=checkbox].ability:checked").each(function (index, value) {
-        if ($(value).parent().css("display") === "none") {
-            return true;
-        }
-        let ability_info = getAbilityInfo(Number($(value).data("ability_id")));
-        if (ability_info.effect_type == effect_type) {
-            let size = ability_info.effect_size;
-            let chara_id = Number($(value).data("chara_id"));
-            let token_count = Number($(`#token_${chara_id}`).val());
-            if (!isNaN(token_count)) {
-                sum += token_count * size;
+    Object.keys(abilitySettingMap).forEach(function (key) {
+        let data = abilitySettingMap[key];
+        if (data.checked) {
+            let abilityId = data.ability_id;
+            let memberInfo = getCharaIdToMember(styleList.selectStyleList, data.chara_id);
+            let abilityInfo = getAbilityInfo(abilityId);
+            if (abilityInfo.effect_type == effectType) {
+                sum = abilityInfo.effect_size * (memberInfo.token ? memberInfo.token : 0);
             }
         }
-    });
+    })
     return sum;
 }
 
@@ -999,75 +965,20 @@ function getPassiveInfo(skill_id) {
 }
 
 // キャラIDからメンバー情報取得
-function getCharaIdToMember(chara_id) {
-    const filtered_member = (style_list) => {
-        const filter_list = style_list.filter((obj) => obj?.style_info?.chara_id == chara_id);
-        return filter_list.length > 0 ? filter_list[0] : undefined;
+function getCharaIdToMember(styleList, charaId) {
+    const filteredMember = (styleList) => {
+        const filterList = styleList.filter((obj) => obj?.style_info?.chara_id == charaId);
+        return filterList.length > 0 ? filterList[0] : undefined;
     }
     let member;
-    member = filtered_member(select_style_list)
-    if (!member) {
-        member = filtered_member(sub_style_list)
-    }
-    if (!member) {
-        member = filtered_member(support_style_list)
-    }
+    member = filteredMember(styleList)
+    // if (!member) {
+    //     member = filtered_member(sub_style_list)
+    // }
+    // if (!member) {
+    //     member = filtered_member(support_style_list)
+    // }
     return member;
-}
-
-// グレード情報取得
-function getGradeSum(enemy_info) {
-    let grade_sum = {
-        "score_attack_no": 0, "half": 0, "grade_no": 0, "grade_rate": 0, "grade_none": 0,
-        "step_turn": 0, "defense_rate": 0, "dp_rate": 0, "hp_rate": 0, "physical_1": 0, "physical_2": 0, "physical_3": 0,
-        "element_0": 0, "element_1": 0, "element_2": 0, "element_3": 0, "element_4": 0, "element_5": 0, "destruction": 0, "critical": 0
-    };
-    if (enemy_info == undefined || enemy_info.enemy_class != ENEMY_CLASS_SCORE_ATTACK) {
-        // スコアタ以外の場合は、基本値
-        return grade_sum;
-    }
-    let checked_id = $('input[name="rule_tab"]:checked').attr('id');
-    $("." + checked_id + ":checked").each(function (index, value) {
-        let grade_no = Number($(value).data("grade_no"));
-        let half = Number(checked_id.match(/\d+/g));
-        grade_list.filter((obj) => obj.score_attack_no == enemy_info.sub_no && obj.half == half && obj.grade_no == grade_no).forEach(grade => {
-            grade_sum["grade_rate"] += grade["grade_rate"];
-            if (grade.grade_none == 1) {
-                return true;
-            }
-            [1, 2, 3, 4].forEach(index => {
-                let kind = grade["effect_kind" + index];
-                if (kind == "") {
-                    return;
-                }
-                let turn_count = 1;
-                let conditions = grade["conditions" + index];
-                if (conditions.includes("step_turn")) {
-                    let step_turn = Number(conditions.replace("step_turn", ""));
-                    turn_count = Math.floor(Number($("#turn_count").val()) / step_turn);
-                } else if (conditions) {
-                    if (!judgeConditions(conditions)) {
-                        return
-                    }
-                }
-                grade_sum[kind] = grade["effect_size" + index];
-                grade_sum["effect_count"] = turn_count;
-            });
-        });
-    });
-    return grade_sum;
-}
-
-// 条件判定
-function judgeConditions(conditions) {
-    switch (conditions) {
-        case "token":
-            let attack_info = getAttackInfo();
-            // トークン
-            let token_count = Number($(`#token_${attack_info.chara_id}`).val());
-            return token_count > 0;
-    }
-    return false;
 }
 
 // 敵ステータス更新
@@ -1230,24 +1141,24 @@ function getFunnelEffectSize(buff_info) {
 }
 
 // 敵防御力取得
-function getEnemyDefenceRate(grade_sum) {
-    let enemy_defence_rate = 1;
-    if (grade_sum.defense_rate) {
-        enemy_defence_rate = 1 - grade_sum.defense_rate / 100;
+function getEnemyDefenceRate(state) {
+    let enemyDefenceRate = 1;
+    if (state.correction.defense_rate) {
+        enemyDefenceRate = 1 - state.correction.defense_rate / 100;
     }
-    let count = 1;
-    if (grade_sum.effect_count !== undefined) {
-        count = grade_sum.effect_count;
-    }
-    if ($("#skull_feather_1st_defense").is(':visible')) {
-        defence_rate = 5 / 100;
-        count = Number($("#skull_feather_1st_defense").val())
-        enemy_defence_rate = (1 - defence_rate) ** count;
-    }
-    if ($("#enemy_class").val() == ENEMY_CLASS.SERAPH_ENCOUNTER) {
-        enemy_defence_rate = getCardEffect("ATTACK_DOWN");
-    }
-    return enemy_defence_rate;
+    // let count = 1;
+    // if (grade_sum.effect_count !== undefined) {
+    //     count = grade_sum.effect_count;
+    // }
+    // if ($("#skull_feather_1st_defense").is(':visible')) {
+    //     defence_rate = 5 / 100;
+    //     count = Number($("#skull_feather_1st_defense").val())
+    //     enemy_defence_rate = (1 - defence_rate) ** count;
+    // }
+    // if ($("#enemy_class").val() == ENEMY_CLASS.SERAPH_ENCOUNTER) {
+    //     enemy_defence_rate = getCardEffect("ATTACK_DOWN");
+    // }
+    return enemyDefenceRate;
 }
 
 // ステータスアップ取得

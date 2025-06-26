@@ -609,7 +609,7 @@ input[type="button"].durability_reflection {
 }
 
 #score_turn {
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 #half_tab>input[type="radio"] {
@@ -620,7 +620,7 @@ input[type="button"].durability_reflection {
     margin-top: 10px;
     display: inline-block;
     background-color: #eee;
-    padding: 0.1rem 2rem;
+    padding: 0.1rem 1rem;
     border-radius: 0.5rem 0.5rem 0 0;
 }
 

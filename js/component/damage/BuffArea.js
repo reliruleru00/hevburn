@@ -46,14 +46,17 @@ const TARGET_KIND = [
     EFFECT.STATUSUP_VALUE, // 能力固定上昇
     EFFECT.STATUSUP_RATE, // 能力%上昇
     EFFECT.FIELD_STRENGTHEN, // フィールド強化
-    EFFECT.BUFF_STRENGTHEN, // バフ強化
+    EFFECT.GIVEATTACKBUFFUP, // 攻撃力バフ強化
+    EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
+    EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
 const SUB_TARGET_KIND = [
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開
     EFFECT.STATUSUP_VALUE, // 能力固定上昇
     EFFECT.STATUSUP_RATE, // 能力%上昇
     EFFECT.FIELD_STRENGTHEN, // フィールド強化
-    EFFECT.BUFF_STRENGTHEN, // バフ強化
+    EFFECT.GIVEATTACKBUFFUP, // 攻撃力バフ強化
+    EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
 ]
 
 const filedKey = `field-${BUFF.FIELD}`
@@ -369,7 +372,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         let targetCharaList = [];
         switch (passiveInfo.range_area) {
             case RANGE.SELF:
-                targetCharaList.push(targetCharaId);
+                targetCharaList.push(passiveInfo.use_chara_id);
                 break;
             case RANGE.MEMBER_31C:
                 targetCharaList = CHARA_ID.MEMBER_31C;

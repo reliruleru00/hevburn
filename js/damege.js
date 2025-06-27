@@ -1,3 +1,5 @@
+const SKILL_ID_RUBY_PERFUME = 635;
+
 function setEventTrigger() {
     // プレイヤーDP変更
     $(".player_dp_range").on("input", function (event) {
@@ -142,8 +144,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
     // if ($("#skill_passive635").prop("checked")) {
     //     sp_cost_down = -2;
     // }
-    let memberInfo = buff.member_info;
-    let charaId = memberInfo.style_info.chara_id;
+    let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
     let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
@@ -162,8 +163,8 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
             .forEach((passive) => {
-                switch (passive.passive_id) {
-                    case 635: // ハイブースト状態
+                switch (passive.skill_id) {
+                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
                 }
@@ -185,13 +186,14 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
             .forEach((passive) => {
-                switch (passive.passive_id) {
-                    case 508: // 水光のゆらめき(あいな専用)
-                        if (passive.chara_id == charaId) {
-                            strengthen += 10;
-                        }
-                        break;
-                    case 635: // ハイブースト状態
+                if (passive.chara_id == charaId) {
+                    let passiveInfo = getPassiveInfo(passive.skill_id);
+                    if (passiveInfo.effect_type == EFFECT.GIVEDEFFENCEDEBUFFUP) {
+                        strengthen += passiveInfo.effect_size;
+                    }
+                }
+                switch (passive.skill_id) {
+                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
                 }
@@ -200,10 +202,15 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
     // 防御ダウン以外のデバフスキル
     let other_debuff = [BUFF.FRAGILE, BUFF.RESISTDOWN];
     if (other_debuff.includes(buff.buff_kind)) {
-        // ハイブースト状態
-        // if ($("#skill_passive635").prop("checked")) {
-        //     strengthen += 20;
-        // }
+        Object.values(passiveSettingMap)
+            .filter(passive => passive.checked)
+            .forEach((passive) => {
+                switch (passive.skill_id) {
+                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
+                        strengthen += 20;
+                        break;
+                }
+            })
     }
 
     // フィールド強化
@@ -217,20 +224,15 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     strengthen += abilityInfo.effect_size;
                 }
             })
-        // Object.values(passiveSettingMap)
-        //     .filter(passive => passive.checked)
-        //     .forEach((passive) => {
-        //         switch (passive.passive_id) {
-        //             case 508: // 水光のゆらめき(あいな専用)
-        //                 if (passive.chara_id == charaId) {
-        //                     strengthen += 10;
-        //                 }
-        //                 break;
-        //             case 635: // ハイブースト状態
-        //                 strengthen += 20;
-        //                 break;
-        //         }
-        //     })
+        Object.values(passiveSettingMap)
+            .filter(passive => passive.chara_id == charaId)
+            .filter(passive => passive.checked)
+            .forEach((passive) => {
+                let passiveInfo = getPassiveInfo(passive.skill_id);
+                if (passiveInfo.effect_type == EFFECT.FIELD_STRENGTHEN) {
+                    strengthen += passiveInfo.effect_size;
+                }
+            })
     }
     return strengthen;
 }
@@ -923,7 +925,7 @@ function getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, effectTyp
                 }
             }
             // ハイブースト状態
-            if (skillId == 635 && passiveInfo.effect_type == EFFECT.ATTACKUP) {
+            if (skillId == SKILL_ID_RUBY_PERFUME && effectType == EFFECT.ATTACKUP) {
                 abilityEffectSize += 180;
             } else {
                 abilityEffectSize += effectSize;

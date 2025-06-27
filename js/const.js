@@ -163,7 +163,6 @@ const EFFECT = {
     STATUSUP_VALUE: 25, // 能力上昇(固定)
     STATUSUP_RATE: 26, // 能力上昇(%)
     FIELD_STRENGTHEN: 27, // フィールド強化
-    BUFF_STRENGTHEN: 28, // バフ強化
     ADDITIONALTURN: 29, // 追加ターン
     TOKEN_UP: 30, // トークンアップ
     TOKEN_ATTACKUP: 31, // トークン1つにつき攻撃力アップ

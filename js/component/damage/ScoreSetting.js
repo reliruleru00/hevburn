@@ -1,5 +1,5 @@
 const ScoreSetting = ({ state, dispatch }) => {
-    const [selectHalf, setSelectHalf] = React.useState(1);
+    const selectHalf = state.score.half
     const [checkedGrades, setCheckedGrades] = React.useState({});
 
     let enemyInfo = state.enemy_info;
@@ -7,17 +7,16 @@ const ScoreSetting = ({ state, dispatch }) => {
         setCheckedGrades([]);
     }, [enemyInfo.sub_no]);
 
-    let filtered_grade = grade_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
-    const uniqueHalf = [...new Set(filtered_grade.map(item => item.half))];
-    let filtered_bonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no && (obj.half == 0 || obj.half == selectHalf));
+    let filteredGrade = grade_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
+    const uniqueHalf = [...new Set(filteredGrade.map(item => item.half))];
+    let filteredBonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no && (obj.half == 0 || obj.half == selectHalf));
 
-    let half_grade = filtered_grade.filter((obj) => obj.half == selectHalf);
+    let halfGrade = filteredGrade.filter((obj) => obj.half == selectHalf);
 
     // タブ変更
     const handleTabChange = (half) => {
-        setSelectHalf(half)
         setCheckedGrades([]);
-        dispatch({ type: "RESET_COLLECT" });
+        dispatch({ type: "RESET_COLLECT", half });
     }
 
     // ターン変更
@@ -40,7 +39,7 @@ const ScoreSetting = ({ state, dispatch }) => {
         setCheckedGrades(newCheckedGrades);
 
         // チェックされているgradeの合計を計算
-        const totalGradeRate = half_grade
+        const totalGradeRate = halfGrade
             .filter(g => newCheckedGrades[g.grade_no])
             .reduce((sum, g) => sum + g.grade_rate, 0);
 
@@ -117,13 +116,13 @@ const ScoreSetting = ({ state, dispatch }) => {
                     </select>
                 </span>
                 <div>
-                    {half_grade.map((grade, index) => (
+                    {halfGrade.map((grade, index) => (
                         <div key={`grade_${selectHalf}_${index}`}>
-                            <input className={`half_check half_tab_${selectHalf}`} type="checkbox" id={`half_grade${index}`}
+                            <input className={`half_check half_tab_${selectHalf}`} type="checkbox" id={`halfGrade${index}`}
                                 data-grade_no={grade.grade_no}
                                 checked={!!checkedGrades[grade.grade_no]}
                                 onChange={(e) => handleGradeChange(grade, e.target.checked)} />
-                            <label className="checkbox01" htmlFor={`half_grade${index}`}>
+                            <label className="checkbox01" htmlFor={`halfGrade${index}`}>
                                 {grade.grade_name}(グレード:{grade.grade_rate})
                             </label>
                         </div>
@@ -133,7 +132,7 @@ const ScoreSetting = ({ state, dispatch }) => {
             <div className="mt-1">
                 <label>ボーナス(ステータスは自動的に加算されます)</label>
                 <div className="flex flex-wrap">
-                    {filtered_bonus.map((bonus, index) => (
+                    {filteredBonus.map((bonus, index) => (
                         <div className="flex items-center" key={`bunus_${index}`}>
                             <img className="ml-1" src={getImg(bonus.conditions)} style={{ width: 20, height: 20 }} />
                             <label className="">{getStr(bonus)}</label>

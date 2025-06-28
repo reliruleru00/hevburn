@@ -251,11 +251,14 @@ const reducer = (state, action) => {
         case "SET_SCORE_TURN":
             return { ...state, score: { ...state.score, turnCount: action.turn } };
 
+        case "SET_SCORE_HALF":
+            return { ...state, score: { ...state.score, half: action.half } };
+
         case "RESET_COLLECT":
             return {
                 ...state,
                 correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
-                score: { ...state.score, totalGradeRate: 0 }
+                score: { ...state.score, totalGradeRate: 0, half: action.half },
             };
 
         case "SET_COLLECT": {
@@ -310,6 +313,7 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
             lv: 150,
             turnCount: 1,
             totalGradeRate: 0,
+            half: 1,
         },
         correction: {
             physical_1: 0,

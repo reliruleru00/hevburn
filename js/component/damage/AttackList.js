@@ -1,4 +1,4 @@
-const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv}) => {
+const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv }) => {
     const { styleList } = useStyleList();
 
     const TYPE_PHYSICAL = ["none", "slash", "stab", "strike"];
@@ -108,7 +108,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
                         EXスキル以外を非表示にする
                     </label>
                 </div>
-                <SkillUnique attackInfo={attackInfo} />
+                <SkillUnique attackInfo={attackInfo} setAttackInfo={setAttackInfo} />
             </div>
         </div >
     )
@@ -117,7 +117,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
 const DP_LIST = [115, 136, 187, 2167, 166];
 const SP_LIST = [154, 155, 2162];
 
-function SkillUnique({ attackInfo }) {
+function SkillUnique({ attackInfo, setAttackInfo }) {
     if (!attackInfo) return null;
 
     const { attack_id, chara_id } = attackInfo;
@@ -137,59 +137,36 @@ function SkillUnique({ attackInfo }) {
         );
     }
 
-    if (DP_LIST.includes(attack_id)) {
+    if (attackInfo.rest_dp) {
+        let dpRate = attackInfo.dp_rate ? attackInfo.dp_rate : 100;
+        let background = getApplyGradient("#4F7C8B", dpRate / 1.5);
         return (
             <div className="skill_unique">
                 <div className="flex">
                     自身のDP
                     <div className="dp_gauge">
-                        <input type="range" className="player_dp_range dp_range w-[160px]" defaultValue="100" id="skill_unique_dp_rate" max="150" min="0" step="1"
-                            style={{
-                                background:
-                                    "linear-gradient(to right, rgb(79, 124, 139) 0%, rgb(196, 211, 216) 66.6667%, rgb(255, 255, 255) 66.6667%)",
-                            }}
+                        <input type="range" className="player_dp_range dp_range w-[160px]"
+                            value={dpRate} max="150" min="0" step="1" style={{ background: background }}
+                            onChange={e => { setAttackInfo({ ...attackInfo, dp_rate: e.target.value }); }}
                         />
-                        <output className="gauge_rate" id="player_dp_rate">
-                            100%
-                        </output>
+                        <output className="gauge_rate">{dpRate}%</output>
                     </div>
                 </div>
             </div>
         );
     }
 
-    if (SP_LIST.includes(attack_id)) {
+    if (attackInfo.rest_sp) {
+        let costSp = attackInfo.cost_sp ? attackInfo.cost_sp : 30;
         return (
             <div className="skill_unique">
                 <div className="flex">
                     残りSP
-                    <input className="ml-2 w-12" defaultValue="30" max="30" mix="0" id="skill_unique_sp" type="number" />
+                    <input type="number" className="ml-2 w-12" max="30" min="0" id="skill_unique_sp" value={costSp}
+                        onChange={e => setAttackInfo({ ...attackInfo, cost_sp: e.target.value })} />
                 </div>
             </div>
         );
     }
-
-    if (chara_id === 45) {
-        return (
-            <div className="skill_unique">
-                <input id="skill_unique_cherry_blossoms" type="checkbox" />
-                <label className="checkbox01" htmlFor="skill_unique_cherry_blossoms">
-                    桜花の矢
-                </label>
-            </div>
-        );
-    }
-
-    if (chara_id === 17 || chara_id === 18) {
-        return (
-            <div className="skill_unique">
-                <input id="skill_unique_shadow_clone" type="checkbox" />
-                <label className="checkbox01" htmlFor="skill_unique_shadow_clone">
-                    影分身
-                </label>
-            </div>
-        );
-    }
-
-    return null;
+   return null;
 }

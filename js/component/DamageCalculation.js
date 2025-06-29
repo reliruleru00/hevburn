@@ -174,9 +174,9 @@ const setEnemy = (state, action) => {
         dpRate: Array(enemy.max_dp.split(",").length).fill(0),
         damageRate: enemy.destruction_limit,
         maxDamageRate: enemy.destruction_limit,
-        strong_break: false,
+        strongBreak: false,
         correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
-        resist_down: [0, 0, 0, 0, 0, 0],
+        resistDown: [0, 0, 0, 0, 0, 0],
     };
 };
 
@@ -204,7 +204,7 @@ const setCollect = (state, action) => {
             const size = action.grade[`effect_size${i}`];
             updated[kind] = action.checked ? size : 0;
             if (kind === "destruction_limit") {
-                newMaxDamageRate = state.enemy_info.destruction_limit + updated.destruction_limit + (state.strong_break ? 300 : 0);
+                newMaxDamageRate = state.enemy_info.destruction_limit + updated.destruction_limit + (state.strongBreak ? 300 : 0);
             }
         }
     }
@@ -239,7 +239,7 @@ const reducer = (state, action) => {
             const limit = base + correction + bonus;
             return {
                 ...state,
-                strong_break: action.checked,
+                strongBreak: action.checked,
                 maxDamageRate: limit,
                 damageRate: limit,
                 dpRate: Array(state.enemy_info.max_dp.split(",").length).fill(0),
@@ -265,12 +265,24 @@ const reducer = (state, action) => {
             return setCollect(state, action)
         }
 
+        case "SET_TEARS_OF_DREAMS":
+            return {
+                ...state,
+                hard: { ...state.hard, tearsOfDreams: action.value }
+            };
+
+        case "SET_SKULL_FEATHER_DEFFENSE_DOWN":
+            return {
+                ...state,
+                hard: { ...state.hard, skullFeatherDeffense: action.value }
+            };
+
         case "SET_RRGIST_DOWN": {
             const newResist = [0, 0, 0, 0, 0, 0];
             newResist[action.element] = Number(action.value);
             return {
                 ...state,
-                resist_down: newResist,
+                resistDown: newResist,
             };
         }
 
@@ -308,7 +320,7 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
         dpRate: Array(initEnemyInfo.max_dp.split(",").length).fill(0),
         damageRate: initEnemyInfo.destruction_limit,
         maxDamageRate: initEnemyInfo.destruction_limit,
-        strong_break: false,
+        strongBreak: false,
         score: {
             lv: 150,
             turnCount: 1,
@@ -330,7 +342,11 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
             destruction_limit: 0,
             destruction_resist: 0,
         },
-        resist_down: [0, 0, 0, 0, 0, 0],
+        hard: {
+            tearsOfDreams: 0,
+            skullFeatherDeffense: 0,
+        },
+        resistDown: [0, 0, 0, 0, 0, 0],
     };
     const [state, dispatch] = React.useReducer(reducer, initialState);
 

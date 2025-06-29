@@ -82,7 +82,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                     <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.damageRate}
                         onChange={(e) => handleEnemyDamageRateChange(e.target.value)} />
                     <div className="text-right col-span-2 ml-14">
-                        <input type="checkbox" id="strong_break" onChange={(e) => handleCheckStrongBreak(e.target.checked)} checked={state.strong_break} />
+                        <input type="checkbox" id="strong_break" onChange={(e) => handleCheckStrongBreak(e.target.checked)} checked={state.strongBreak} />
                         <label className="checkbox01 text-xs font-bold" htmlFor="strong_break">強ブレイク</label>
                     </div>
                     <div className="text-right enemy_label">破壊係数</div>
@@ -173,10 +173,10 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         let val = enemy_info[id]
                         if (!focus) {
                             // 属性打ち消し
-                            if (val < 100 && state.resist_down[key] > 0) {
+                            if (val < 100 && state.resistDown[key] > 0) {
                                 val = 100;
                             }
-                            val -= correction - state.resist_down[key];
+                            val -= correction - state.resistDown[key];
                             if (attackInfo?.penetration && key == 0) {
                                 // 貫通クリティカル
                                 val = 100;

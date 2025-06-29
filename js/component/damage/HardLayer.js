@@ -1,7 +1,7 @@
-const HardLayerComponent = ({ enemy_info }) => {
+const HardLayer = ({ state, dispatch }) => {
 
-    const tears_of_dreams_list = [0, 12, 12, 12, 12, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20]
-    if (enemy_info === undefined || enemy_info.enemy_class != ENEMY_CLASS_HARD_LAYER) {
+    const enemyInfo = state.enemy_info;
+    if (enemyInfo === undefined || enemyInfo.enemy_class != ENEMY_CLASS_HARD_LAYER) {
         return null;
     }
 
@@ -10,11 +10,14 @@ const HardLayerComponent = ({ enemy_info }) => {
         loadSubTroopsList(sub_troops);
     }
     // 夢の泪変更
-    const handleTearsOfDreamsChange = () => {
-        // updateVariableEffectSize();
+    const handleTearsOfDreamsChange = (e) => {
+        dispatch({ type: "SET_TEARS_OF_DREAMS", value: e.target.value });
     }
 
-    let traars_value = tears_of_dreams_list[enemy_info.enemy_class_no]
+    // スカルフェザー防御ダウン変更
+    const handleScarletFeverDefenseDownChange = (e) => {
+        dispatch({ type: "SET_SKULL_FEATHER_DEFFENSE_DOWN", value: e.target.value });
+    }
 
     return (
         <div className="hard_layer adjust_width">
@@ -40,15 +43,17 @@ const HardLayerComponent = ({ enemy_info }) => {
             </div>
             <div>
                 <div className="flex ml-6 leading-6">夢の泪
-                    <select className="ml-2 w-12 text-center h-6" defaultValue="0" id="tears_of_dreams" type="number" onChange={handleTearsOfDreamsChange}>
+                    <select className="ml-2 w-12 text-center h-6" value={state.hard.tearsOfDreams} type="number" onChange={handleTearsOfDreamsChange}>
                         {Array.from({ length: 6 }, (_, i) => (
-                            <option value={i * traars_value} key={`tear_${i}`}>{i}</option>
+                            <option value={i} key={`tear_${i}`}>{i}</option>
                         ))}
                     </select>
-                    {enemy_info.enemy_class_no == 12 || enemy_info.enemy_class_no == 13 ?
-                        <div className="ml-2" id="skull_feather_1st">
+                    {enemyInfo.enemy_class_no == 12 || enemyInfo.enemy_class_no == 13 ?
+                        <div className="ml-2">
                             防御力アップ×
-                            <input className="text-center h-6" defaultValue="0" id="skull_feather_1st_defense" max="20" min="0" type="number" />
+                            <input type="number" className="text-center h-6" max="20" min="0"
+                                value={state.hard.skullFeatherDeffense} onChange={handleScarletFeverDefenseDownChange}
+                            />
                         </div>
                         : null}
                 </div>

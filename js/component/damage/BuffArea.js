@@ -204,6 +204,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
         return { buffList, abilityList, passiveList };
     }, [attackInfo, state.enemy_info, styleList]);
 
+    const hasInitialized = React.useRef(false); // 初期化済みフラグ
+    // バフ初期化
     React.useEffect(() => {
         const initialMap = {};
         buffList.forEach(buff => {
@@ -214,7 +216,22 @@ const BuffArea = ({ attackInfo, state, dispatch,
             };
         });
         setBuffSettingMap(initialMap);
-    }, [buffList, abilitySettingMap, passiveSettingMap, passiveList]);
+        setTimeout(() => { hasInitialized.current = true }, 0);
+    }, [buffList]);
+
+    // バフ効果量更新
+    React.useEffect(() => {
+        if (!hasInitialized.current) return;
+        const updateMap = { ...buffSettingMap };
+        buffList.forEach(buff => {
+            const key = buff.key;
+            const buffSetting = updateMap[key];
+            if (buff && buffSetting) {
+                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
+            }
+        })
+        setBuffSettingMap(updateMap);
+    }, [state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
 
     React.useEffect(() => {
         const initialMap = {};
@@ -449,9 +466,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
         if (attackInfo) {
             dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });
         }
-    }, [state.enemy_info, attackInfo, resistDownEffectSize]);
+    }, [state.enemy_info, attackInfo?.attack_id, resistDownEffectSize]);
 
-    let selectList = styleList.selectStyleList.map(style => 
+    let selectList = styleList.selectStyleList.map(style =>
         style?.style_info.style_id,
     ).join(',');
     React.useEffect(() => {
@@ -461,7 +478,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 selectBestBuff();
             }
         }
-    }, [selectList, attackInfo, state.enemy_info]);
+    }, [selectList, attackInfo?.attack_id, state.enemy_info]);
 
     const [modal, setModal] = React.useState({
         isOpen: false,

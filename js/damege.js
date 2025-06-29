@@ -17,13 +17,13 @@ function convertToPercentage(value) {
 }
 
 // ピアス効果量取得
-function getEarringEffectSize(otherSetting, type, hit_count) {
-    hit_count = hit_count < 1 ? 1 : hit_count;
+function getEarringEffectSize(otherSetting, type, hitCount) {
+    hitCount = hitCount < 1 ? 1 : hitCount;
     let earring = otherSetting.earring.split("_");
     if (earring.length === 2) {
         if (earring[0] === type) {
-            let effect_size = Number(earring[1]);
-            return (effect_size - (10 / 9 * (hit_count - 1)));
+            let effectSize = Number(earring[1]);
+            return (effectSize - (10 / 9 * (hitCount - 1)));
         }
     }
     return 0;
@@ -56,7 +56,7 @@ function getEnemyResist(attackInfo, state) {
     const correction = state.correction;
     let physical_resist = enemyInfo[`physical_${attackInfo.attack_physical}`];
     let element_resist = enemyInfo[`element_${attackInfo.attack_element}`]
-        - correction[`element_${attackInfo.attack_element}`] + state.resist_down[attackInfo.attack_element];
+        - correction[`element_${attackInfo.attack_element}`] + state.resistDown[attackInfo.attack_element];
     if (attackInfo.penetration) {
         physical_resist = attackInfo.penetration;
         element_resist = 100;
@@ -478,14 +478,14 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
     let destruction = Number(enemyInfo.destruction);
     let dpPenetration = state.dpRate.length == 1 || state.dpRate[1] == 0;
     let restDp = Array(state.dpRate.length).fill(0);
-    let dp_no = -1;  // 現在の使用DPゲージ番号を取得
+    let dpNo = -1;  // 現在の使用DPゲージ番号を取得
     for (let i = 0; i < state.dpRate.length; i++) {
         restDp[i] = 0;
         if (state.dpRate[i] > 0) {
             restDp[i] = Number(enemyInfo.max_dp.split(",")[i]) * state.dpRate[i] / 100;
         }
         if (restDp[i] > 0) {
-            dp_no = i;
+            dpNo = i;
         }
     }
     let restHp = enemyInfo.max_hp * state.hpRate / 100;
@@ -509,10 +509,10 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
         }
         let hitDamage = Math.floor(power * (buff + addBuff) * (debuff + addDebuff) * fixed * special * damageRate / 100);
 
-        if (restDp[dp_no] > 0) {
-            restDp[dp_no] -= hitDamage;
-        } else if (dp_no >= 1) {
-            restDp[dp_no - 1] -= hitDamage;
+        if (restDp[dpNo] > 0) {
+            restDp[dpNo] -= hitDamage;
+        } else if (dpNo >= 1) {
+            restDp[dpNo - 1] -= hitDamage;
         } else {
             restHp -= hitDamage;
         }
@@ -1147,19 +1147,16 @@ function getFunnelEffectSize(buff_info) {
 
 // 敵防御力取得
 function getEnemyDefenceRate(state) {
+    let enemyInfo = state.enemy_info;
     let enemyDefenceRate = 1;
     if (state.correction.defense_rate) {
         enemyDefenceRate = 1 - state.correction.defense_rate / 100;
     }
-    // let count = 1;
-    // if (grade_sum.effect_count !== undefined) {
-    //     count = grade_sum.effect_count;
-    // }
-    // if ($("#skull_feather_1st_defense").is(':visible')) {
-    //     defence_rate = 5 / 100;
-    //     count = Number($("#skull_feather_1st_defense").val())
-    //     enemy_defence_rate = (1 - defence_rate) ** count;
-    // }
+    if (enemyInfo.enemy_class == ENEMY_CLASS.HARD_LAYER &&
+        (enemyInfo.enemy_class_no == 12 || enemyInfo.enemy_class_no == 13)) {
+        const defenceRate = 5 / 100;
+        enemyDefenceRate = (1 - defenceRate) ** state.hard.skullFeatherDeffense;
+    }
     // if ($("#enemy_class").val() == ENEMY_CLASS.SERAPH_ENCOUNTER) {
     //     enemy_defence_rate = getCardEffect("ATTACK_DOWN");
     // }
@@ -1170,12 +1167,13 @@ function getEnemyDefenceRate(state) {
 function getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap) {
     let enemyInfo = state.enemy_info;
 
-    let tears_of_dreams = 0;
+    let tearsOfDreams = 0;
     // // 夢の泪
-    // if ($("#enemy_class").val() == ENEMY_CLASS_HARD_LAYER) {
-    //     tears_of_dreams = Number($("#tears_of_dreams").val());
-    // }
-    // // スコアタボーナス
+    if (enemyInfo.enemy_class == ENEMY_CLASS.HARD_LAYER) {
+        const tearsOfDreamsList = [0, 12, 12, 12, 12, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20]
+        tearsOfDreams = tearsOfDreamsList[enemyInfo.enemy_class_no] * Number(state.hard.tearsOfDreams);
+    }
+    // スコアタボーナス
     let scoreBonus = 0;
     if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
         const selectHalf = state.score.half
@@ -1197,7 +1195,7 @@ function getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap) {
     let morale = memberInfo.morale ? memberInfo.morale * 5 : 0;
     // パッシブ(能力固定上昇)
     let passiveStatusUp = getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.STATUSUP_VALUE, memberInfo.style_info.chara_id);
-    return tears_of_dreams + scoreBonus + morale + passiveStatusUp;
+    return tearsOfDreams + scoreBonus + morale + passiveStatusUp;
 }
 
 // カンマ削除

@@ -35,7 +35,11 @@ const BUFF_KBN = {
     20: "resist_down",
     21: "permanent_defense_down",
     22: "permanent_element_down",
-    39: "servant"
+    30: "arrow_cherry_blossoms",
+    31: "eternal_ourh",
+    33: "babied",
+    39: "servant",
+    41: "shadow_clone",
 };
 
 const TARGET_KIND = [
@@ -95,21 +99,22 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 buff.member_info = member_info;
                 buff.chara_name = charaName;
                 buff.use_chara_id = charaId;
+                buff.kbn = "buff";
             });
-
             buffList.push(...newStyleBuffList);
 
-            const createFieldBuff = (key, skillName, fieldElement, effectSize) => {
+            const createFieldBuff = (key, skillName, buffKind, fieldElement, effectSize) => {
                 let fieldBuff = {
                     key: key,
+                    buff_id: key,
                     use_chara_id: charaId,
-                    buff_kind: BUFF.FIELD,
+                    buff_kind: buffKind,
                     buff_name: skillName,
                     buff_element: fieldElement,
-                    buff_id: key,
                     chara_name: charaName,
                     max_power: effectSize,
                     max_lv: 1,
+                    kbn: "ability"
                 };
                 return fieldBuff;
             }
@@ -129,11 +134,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
             Object.keys(styleAbility).forEach(key => {
                 let abilityId = styleAbility[key];
-                if (abilityId == null || abilityId > 1000) {
-                    const servant_list = [1019, 1020, 1021];
-                    if (servant_list.includes(abilityId)) {
-                        let name = getCharaData(charaId).chara_short_name;
-                    }
+                if (!abilityId || abilityId > 1000 || Number(key) > member_info.limit_count) {
                     // 1000番以降は不要
                     return;
                 }
@@ -145,12 +146,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 let abilityInfo = getAbilityInfo(abilityId);
                 switch (abilityInfo.range_area) {
                     case RANGE.FIELD:
-                        let buff = createFieldBuff(
-                            `${abilityId}_${charaId}`,
-                            abilityInfo.ability_name,
-                            abilityInfo.element,
-                            abilityInfo.effect_size)
-                        buffList.push(buff);
+                        buffList.push(createFieldBuff(
+                            `${abilityId}-${charaId}`, abilityInfo.ability_name, BUFF.FIELD,
+                            abilityInfo.element, abilityInfo.effect_size));
                         return;
                     case RANGE.SELF:
                         if (charaId !== attackCharaId) {
@@ -158,6 +156,24 @@ const BuffArea = ({ attackInfo, state, dispatch,
                         }
                         break;
                 }
+                switch (abilityInfo.effect_type) {
+                    case EFFECT.CHARGE:
+                        buffList.push(createFieldBuff(
+                            `${abilityId}-${charaId}`, abilityInfo.ability_name, BUFF.CHARGE,
+                            abilityInfo.element, abilityInfo.effect_size));
+                        return;
+                    case EFFECT.SHADOW_CLONE:
+                        buffList.push(createFieldBuff(
+                            `${abilityId}-${charaId}`, abilityInfo.ability_name, BUFF.SHADOW_CLONE,
+                            abilityInfo.element, abilityInfo.effect_size));
+                        return;
+                    case EFFECT.YAMAWAKI_SERVANT:
+                        buffList.push(createFieldBuff(
+                            `${abilityId}-${charaId}`, abilityInfo.ability_name, BUFF.YAMAWAKI_SERVANT,
+                            abilityInfo.element, abilityInfo.effect_size));
+                        return;
+                }
+
                 if (attackInfo) {
                     if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) {
                         return;
@@ -190,7 +206,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 //     return true;
                 // }
                 if (passive.range_area === RANGE.FIELD) {
-                    let buff = createFieldBuff(`passive-${passive.skill_id}_${charaId}`, passive.passive_name, 0, passive.effect_size)
+                    let buff = createFieldBuff(
+                        `passive-${passive.skill_id}_${charaId}`, passive.passive_name, BUFF.FIELD, 0, passive.effect_size)
                     buffList.push(buff);
                 } else {
                     passive.key = `${passive.skill_id}_${charaId}`;
@@ -212,10 +229,11 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[buff.key] = {
                 buff_id: buff.buff_id,
                 skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff, buff.max_lv, state, abilitySettingMap, passiveSettingMap),
+                effect_size: getEffectSize(buff, buff.max_lv, state, abilitySettingMap, passiveSettingMap, buff.kbn),
             };
         });
         setBuffSettingMap(initialMap);
+        hasInitialized.current = false;
         setTimeout(() => { hasInitialized.current = true }, 0);
     }, [buffList]);
 
@@ -227,7 +245,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             const key = buff.key;
             const buffSetting = updateMap[key];
             if (buff && buffSetting) {
-                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
+                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, state, abilitySettingMap, passiveSettingMap, buff.kbn);
             }
         })
         setBuffSettingMap(updateMap);
@@ -308,32 +326,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     let isDp = Number(state.dpRate[0]) !== 0;
 
-    const attackUpBuffs = [
-        { name: "攻撃力UP", kind: BUFF.ATTACKUP },
-        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP },] : []),
-        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE },] : []),
-        { name: "連撃", kind: BUFF.FUNNEL },
-        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP },
-    ];
-
-    const defDownBuffs = [
-        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN },
-        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP },] : []),
-        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN },] : []),
-        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN },
-        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN },] : []),
-        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE },] : []),
-        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN },] : []),
-    ];
-
-    const criticalBuffs = [
-        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP },
-        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP },
-        ...(isElement ? [
-            { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP },
-            { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP },
-        ] : []),
-    ];
+    const attackUpBuffs = getAttackUpBuffs(isElement, isWeak, attackInfo, styleList.selectStyleList);
+    const defDownBuffs = getDefenseDownBuffs(isElement, isWeak, isDp);
+    const criticalBuffs = getCriticalBuffs(isElement);
 
     let buffKeyList = {};
     attackUpBuffs.forEach(buff => {
@@ -528,17 +523,19 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 バフ
                             </td>
                         </tr>
-                        {attackUpBuffs.map((buff, index) => {
-                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
+                        {attackUpBuffs.map((buffDef, index) => {
+                            const buffKey = `${BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
+                            const totalRowCount = attackUpBuffs.reduce((sum, buff) => {
+                                return sum + (buff.overlap ? 2 : 1);
+                            }, 0);
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
-                                    rowSpan={attackUpBuffs.length * 2}
-                                    buffName={buff.name}
+                                    buffDef={buffDef}
+                                    rowSpan={totalRowCount}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
                                     buffList={buffList}
-                                    buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
@@ -551,17 +548,16 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 デバフ
                             </td>
                         </tr>
-                        {defDownBuffs.map((buff, index) => {
-                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
+                        {defDownBuffs.map((buffDef, index) => {
+                            const buffKey = `${BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
                                     rowSpan={defDownBuffs.length * 2}
-                                    buffName={buff.name}
+                                    buffDef={buffDef}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
                                     buffList={buffList}
-                                    buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
@@ -574,17 +570,16 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 クリティカル
                             </td>
                         </tr>
-                        {criticalBuffs.map((buff, index) => {
-                            const buffKey = `${BUFF_KBN[buff.kind]}-${buff.kind}`
+                        {criticalBuffs.map((buffDef, index) => {
+                            const buffKey = `${BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
                                     rowSpan={criticalBuffs.length * 2}
-                                    buffName={buff.name}
+                                    buffDef={buffDef}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
                                     buffList={buffList}
-                                    buffKind={buff.kind}
                                     buffSettingMap={buffSettingMap}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
@@ -715,3 +710,49 @@ const BuffArea = ({ attackInfo, state, dispatch,
         </div >
     )
 };
+
+const getAttackUpBuffs = function (isElement, isWeak, attackInfo, selectStyleList) {
+    const isShadowClone = [17, 18].includes(attackInfo?.chara_id);
+    const isSharo = selectStyleList.some(
+        (member_info) => member_info?.style_info.style_id === 123
+    );
+    const isRisa = selectStyleList.some(
+        (member_info) => member_info?.style_info.chara_id === 22
+    );
+    const isServant = [162, 163].includes(attackInfo?.style_id) || selectStyleList.some(
+        (member_info) => member_info?.style_info.style_id === 161
+    );
+    return [
+        { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },
+        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP, overlap: true },] : []),
+        ...(isShadowClone ? [{ name: "影分身", kind: BUFF.SHADOW_CLONE, overlap: false },] : []),
+        ...(isSharo ? [{ name: "永遠なる誓い", kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
+        ...(isRisa ? [{ name: "オギャり", kind: BUFF.BABIED, overlap: false },] : []),
+        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE, overlap: true },] : []),
+        ...(isWeak && isServant ? [{ name: "山脇様のしもべ ", kind: BUFF.YAMAWAKI_SERVANT, overlap: false },] : []),
+        { name: "連撃", kind: BUFF.FUNNEL, overlap: true },
+        { name: "破壊率UP", kind: BUFF.DAMAGERATEUP, overlap: true },
+    ];
+}
+
+const getDefenseDownBuffs = function (isElement, isWeak, isDp) {
+    return [
+        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN, overlap: true },
+        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP, overlap: true },] : []),
+        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN, overlap: true },] : []),
+        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN, overlap: true },
+        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, overlap: true },] : []),
+        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE, overlap: true },] : []),
+        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN, overlap: true },] : []),
+    ];
+}
+const getCriticalBuffs = function (isElement) {
+    return [
+        { name: "クリティカル率UP", kind: BUFF.CRITICALRATEUP, overlap: true },
+        { name: "クリダメUP", kind: BUFF.CRITICALDAMAGEUP, overlap: true },
+        ...(isElement ? [
+            { name: "属性クリ率UP", kind: BUFF.ELEMENT_CRITICALRATEUP, overlap: true },
+            { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP, overlap: true },
+        ] : []),
+    ]
+}

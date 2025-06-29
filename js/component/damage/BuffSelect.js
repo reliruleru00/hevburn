@@ -1,7 +1,7 @@
 
 
-const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
-    buffList, buffKind, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange }) => {
+const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
+    buffList, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange }) => {
 
     let isAlone = false;
     if (selectedKey[0]) {
@@ -9,6 +9,8 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
         let buffInfo = getBuffIdToBuff(buffId);
         isAlone = isAloneActivation(buffInfo);
     }
+    const buffName = buffDef.name;
+    const buffKind = buffDef.kind;
 
     return (
         <>
@@ -18,7 +20,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
                         {buffKind == BUFF.ATTACKUP ? "バフ" : buffKind == BUFF.DEFENSEDOWN ? "デバフ" : "クリティカル"}
                     </td>
                 )}
-                <td rowSpan="2">{buffName}</td>
+                <td rowSpan={buffDef.overlap ? 2 : 1}>{buffName}</td>
                 <BuffSelect
                     attackInfo={attackInfo}
                     buffList={buffList}
@@ -31,32 +33,34 @@ const BuffField = ({ buffKey, index, rowSpan, buffName, attackInfo,
                     handleSelectChange={handleSelectChange}
                 />
             </tr>
-            <tr>
-                {isAlone ?
-                    <>
-                        <td>
-                            <select className="buff" disabled>
-                                <option value={""}>使用不可</option>
-                            </select>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </>
-                    :
-                    <BuffSelect
-                        attackInfo={attackInfo}
-                        buffList={buffList}
-                        buffKind={buffKind}
-                        buffKey={buffKey}
-                        buffSettingMap={buffSettingMap}
-                        handleChangeSkillLv={handleChangeSkillLv}
-                        selectedKey={selectedKey}
-                        index={1}
-                        handleSelectChange={handleSelectChange}
-                    />
-                }
+            {buffDef.overlap &&
+                <tr>
+                    {isAlone ?
+                        <>
+                            <td>
+                                <select className="buff" disabled>
+                                    <option value={""}>使用不可</option>
+                                </select>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </>
+                        :
+                        <BuffSelect
+                            attackInfo={attackInfo}
+                            buffList={buffList}
+                            buffKind={buffKind}
+                            buffKey={buffKey}
+                            buffSettingMap={buffSettingMap}
+                            handleChangeSkillLv={handleChangeSkillLv}
+                            selectedKey={selectedKey}
+                            index={1}
+                            handleSelectChange={handleSelectChange}
+                        />
+                    }
 
-            </tr>
+                </tr>
+            }
         </>
     )
 }

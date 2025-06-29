@@ -93,42 +93,66 @@ const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
 }
 
 // 効果量取得
-function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap) {
+function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap, kbn) {
     // バフ強化
     let strengthen = getStrengthen(buff, abilitySettingMap, passiveSettingMap);
-
     let effectSize = 0;
-    switch (buff.buff_kind) {
-        case BUFF.ATTACKUP: // 攻撃力アップ
-        case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-        case BUFF.MINDEYE: // 心眼
-        case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
-        case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-        case BUFF.CHARGE: // チャージ
-        case BUFF.DAMAGERATEUP: // 破壊率アップ
-        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-            effectSize = getBuffEffectSize(buff, skillLv, state, "3", abilitySettingMap, passiveSettingMap);
-            break;
-        case BUFF.CRITICALRATEUP:	// クリティカル率アップ
-        case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-            effectSize = getBuffEffectSize(buff, skillLv, state, "5", abilitySettingMap, passiveSettingMap);
-            break;
-        case BUFF.DEFENSEDOWN: // 防御力ダウン
-        case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-        case BUFF.FRAGILE: // 脆弱
-        case BUFF.DEFENSEDP: // DP防御力ダウン
-        case BUFF.RESISTDOWN: // 耐性ダウン
-        case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-        case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-            effectSize = getDebuffEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap);
-            break;
-        case BUFF.FUNNEL: // 連撃
-            effectSize = getFunnelEffectSize(buff);
-            break;
-        case BUFF.FIELD: // フィールド
-            return buff.max_power + strengthen;
-        default:
-            break;
+    if (kbn === "buff") {
+        // バフ
+        switch (buff.buff_kind) {
+            case BUFF.ATTACKUP: // 攻撃力アップ
+            case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
+            case BUFF.MINDEYE: // 心眼
+            case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
+            case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
+            case BUFF.CHARGE: // チャージ
+            case BUFF.DAMAGERATEUP: // 破壊率アップ
+            case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
+                effectSize = getBuffEffectSize(buff, skillLv, state, "3", abilitySettingMap, passiveSettingMap);
+                break;
+            case BUFF.CRITICALRATEUP:	// クリティカル率アップ
+            case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+                effectSize = getBuffEffectSize(buff, skillLv, state, "5", abilitySettingMap, passiveSettingMap);
+                break;
+            case BUFF.DEFENSEDOWN: // 防御力ダウン
+            case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
+            case BUFF.FRAGILE: // 脆弱
+            case BUFF.DEFENSEDP: // DP防御力ダウン
+            case BUFF.RESISTDOWN: // 耐性ダウン
+            case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
+            case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
+                effectSize = getDebuffEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap);
+                break;
+            case BUFF.FUNNEL: // 連撃
+                effectSize = getFunnelEffectSize(buff);
+                break;
+            case BUFF.FIELD: // フィールド
+                return buff.max_power + strengthen;
+            case BUFF.BABIED: // オギャり
+                return 30;
+            case BUFF.ETERNAL_OARH: // 永遠なる誓い
+                return 50;
+            case BUFF.SHADOW_CLONE: // 影分身
+                return 30;
+            default:
+                break;
+        }
+    } else {
+        // アビリティ
+        switch (buff.buff_kind) {
+            case BUFF.CHARGE: // チャージ
+                return 30;
+            case BUFF.FIELD: // フィールド
+                return buff.max_power + strengthen;
+            case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
+                return 50;
+            case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
+                return 30;
+            case BUFF.SHADOW_CLONE: // 影分身
+                return 30;
+            default:
+                break;
+        }
     }
     return effectSize * (1 + strengthen / 100);
 }
@@ -318,7 +342,9 @@ function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     const top1 = sortedNormalBuffs[0];
     const top2 = sortedNormalBuffs[1];
 
-    if (top1 && top2 && ![BUFF.CHARGE, BUFF.FIELD].includes(buffKind)) {
+    if (top1 && top2 &&
+        ![BUFF.CHARGE, BUFF.FIELD, BUFF.ETERNAL_OARH, BUFF.YAMAWAKI_SERVANT,
+        BUFF.ARROWCHERRYBLOSSOMS, BUFF.BABIED, BUFF.SHADOW_CLONE].includes(buffKind)) {
         combinedScore = buffSettingMap[top1.key]?.effect_size + buffSettingMap[top2.key]?.effect_size;
         combinedKeys = [top1.key, top2.key];
     } else if (top1) {
@@ -365,8 +391,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let skillPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, enemyStatDown);
     let buff = getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state);
-    // let mindeye_buff = getSumEffectSize("mindeye") + getSumEffectSize("servant");
-    let mindeye = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE]) / 100;
+    let mindeye = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE, BUFF.YAMAWAKI_SERVANT]) / 100;
     let debuff = getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, state);
     let debuffDp = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DEFENSEDP]) / 100;
 
@@ -406,18 +431,6 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         let sp = attackInfo.cost_sp;
         skillUniqueRate = (sp > 30 ? 30 : sp) / 30;
     }
-    // // 桜花の矢
-    // if (attack_info.chara_id == 45 && $("#skill_unique_cherry_blossoms").prop("checked")) {
-    //     buff += 0.5
-    // }
-    // // 影分身(アーデルハイト)
-    // if (attack_info.chara_id == 17 && $("#skill_unique_shadow_clone").prop("checked")) {
-    //     buff += 0.3;
-    // }
-    // // 影分身(マリー)
-    // if (attack_info.chara_id == 18 && $("#skill_unique_shadow_clone").prop("checked")) {
-    //     buff += 0.3;
-    // }
 
     let criticalPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, 50);
     let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
@@ -631,7 +644,8 @@ function getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
     selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state) {
     // スキルバフ合計
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
-        [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE]);
+        [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE, BUFF.ARROWCHERRYBLOSSOMS,
+        BUFF.ETERNAL_OARH, BUFF.BABIED, BUFF.SHADOW_CLONE]);
     // 攻撃力アップアビリティ
     sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.ATTACKUP, attackMemberInfo.style_info.chara_id);
     // 属性リング(0%-10%)
@@ -645,10 +659,6 @@ function getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
     sumBuff += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_ATTACKUP);
     // 士気
     sumBuff += attackMemberInfo.morale ? attackMemberInfo.morale * 5 : 0;
-    // // 永遠なる誓い
-    // sum_buff += $("#eternal_vows").prop("checked") ? 50 : 0;
-    // // オギャり
-    // sum_buff += $("#babied").prop("checked") ? 30 : 0;
     // スコアタグレード
     if (state.correction.power_up) {
         sumBuff += state.correction.power_up;

@@ -114,20 +114,32 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
     )
 };
 
-const DP_LIST = [115, 136, 187, 2167, 166];
-const SP_LIST = [154, 155, 2162];
-
 function SkillUnique({ attackInfo, setAttackInfo }) {
     if (!attackInfo) return null;
 
-    const { attack_id, chara_id } = attackInfo;
+    const { skill_id } = attackInfo;
 
-    if (attack_id === 190) {
+    const [servantCount, setServantCount] = React.useState(6);
+    const handleChangeServantCount = (servantCount) => {
+        let val = 0;
+        if (servantCount < 2) {
+            val = 300;
+        } else if (servantCount < 4) {
+            val = 350;
+        } else {
+            val = 400;
+        }
+        setServantCount(servantCount);
+        const newAttackInfo = { ...attackInfo, servant_count: servantCount, penetration: val };
+        setAttackInfo(newAttackInfo);
+    }
+
+    if (skill_id === SKILL_ID_MEGA_DESTROYER) {
         return (
             <div className="skill_unique">
                 <div className="flex">
                     山脇様のしもべ
-                    <select id="servant_count">
+                    <select value={servantCount} onChange={e => handleChangeServantCount(Number(e.target.value))} >
                         {[1, 2, 3, 4, 5, 6].map(num => (
                             <option key={num} value={num}>{num}人</option>
                         ))}
@@ -168,5 +180,5 @@ function SkillUnique({ attackInfo, setAttackInfo }) {
             </div>
         );
     }
-   return null;
+    return null;
 }

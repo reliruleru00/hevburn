@@ -1,13 +1,20 @@
-const SKILL_ID_RUBY_PERFUME = 635;
 
-function setEventTrigger() {
-    // プレイヤーDP変更
-    $(".player_dp_range").on("input", function (event) {
-        let val = $(this).val();
-        $("#player_dp_rate").val(val + '%');
-        applyGradient($(".player_dp_range"), "#4F7C8B", val / 1.5);
-    });
-}
+const CHARA_ID_SHADOW_CLONE = [17, 18];
+const CHARA_ID_BABIED = [22];
+
+const STYLE_ID_ONLY_MONN_LIGHT = 145;
+const STYLE_ID_WEDING_SHARO = 123;
+const STYLE_ID_UNISON_BUNGO = 161;
+const STYLE_ID_SERVANT = [162, 163];
+
+const SKILL_ID_RUBY_PERFUME = 635;
+const SKILL_ID_MEGA_DESTROYER = 623;
+
+const BUFF_ID_MOON_LIGHT = 2607;
+const BUFF_ID_MEGA_DESTROYER5 = 235;
+const BUFF_ID_MEGA_DESTROYER6 = 236;
+
+const ABILITY_ID_ADMIRAL_COMMON = 1004;
 
 // 倍率表示
 function convertToPercentage(value) {
@@ -67,6 +74,20 @@ function getEnemyResist(attackInfo, state) {
 // バフの絞り込み
 const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
     if (!attackInfo) return [];
+    const ELEMENT_KIND = [
+        BUFF.ELEMENT_ATTACKUP,
+        BUFF.ELEMENT_DEFENSEDOWN,
+        BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
+        BUFF.ELEMENT_CRITICALRATEUP,
+        BUFF.ELEMENT_CRITICALDAMAGEUP,
+        BUFF.RESISTDOWN
+    ]
+    const OTHER_ONLY_AREA = [
+        RANGE.ALLY_BACK,
+        RANGE.SELF_OTHER,
+        RANGE.FRONT_OTHER,
+        RANGE.OTHER_UNIT,
+    ]
     return buffList.filter(buff => {
         if (buffKind !== null && buff.buff_kind !== buffKind) {
             return false;
@@ -303,7 +324,7 @@ function isOnlyUse(attackInfo, buffInfo) {
         const numId = Number(id);
         return ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) && (numId === 999 || attackId === numId);
     });
-    return match;
+    return !match;
 }
 
 // 単独発動判定
@@ -1214,15 +1235,7 @@ function removeComma(value) {
     var newValue = "0" + value.replace(regex, '');
     return Number(newValue).toString()
 }
-// グラデーションを設定するメソッド
-function applyGradient($element, baseColor, percent) {
-    // generateGradientメソッドを呼び出してグラデーションカラーコードを取得
-    let gradientColor = generateGradient(baseColor, "#FFFFFF", percent);
-    // グラデーションのスタイルを組み立てる
-    let gradientStyle = "linear-gradient(to right, " + baseColor + " 0%, " + gradientColor + " " + percent + "%, #FFFFFF " + percent + "%)";
-    // 対象の要素にスタイルを設定
-    $element.css("background", gradientStyle);
-}
+
 // グラデーションを取得するメソッド
 function getApplyGradient(baseColor, percent) {
     // generateGradientメソッドを呼び出してグラデーションカラーコードを取得

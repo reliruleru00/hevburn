@@ -15,9 +15,11 @@ const HardLayer = ({ state, dispatch }) => {
     }
 
     // スカルフェザー防御ダウン変更
-    const handleScarletFeverDefenseDownChange = (e) => {
+    const handleSkullFeatherDefenseDownChange = (e) => {
         dispatch({ type: "SET_SKULL_FEATHER_DEFFENSE_DOWN", value: e.target.value });
     }
+
+    const ENEMY_CLASS_SKULL_FEATHER = [12, 13]
 
     return (
         <div className="hard_layer adjust_width">
@@ -48,11 +50,11 @@ const HardLayer = ({ state, dispatch }) => {
                             <option value={i} key={`tear_${i}`}>{i}</option>
                         ))}
                     </select>
-                    {enemyInfo.enemy_class_no == 12 || enemyInfo.enemy_class_no == 13 ?
+                    {ENEMY_CLASS_SKULL_FEATHER.includes(enemyInfo.enemy_class_no) ?
                         <div className="ml-2">
                             防御力アップ×
                             <input type="number" className="text-center h-6" max="20" min="0"
-                                value={state.hard.skullFeatherDeffense} onChange={handleScarletFeverDefenseDownChange}
+                                value={state.hard.skullFeatherDeffense} onChange={handleSkullFeatherDefenseDownChange}
                             />
                         </div>
                         : null}

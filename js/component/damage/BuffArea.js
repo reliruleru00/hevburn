@@ -1,17 +1,3 @@
-const ELEMENT_KIND = [
-    BUFF.ELEMENT_ATTACKUP,
-    BUFF.ELEMENT_DEFENSEDOWN,
-    BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
-    BUFF.ELEMENT_CRITICALRATEUP,
-    BUFF.ELEMENT_CRITICALDAMAGEUP,
-    BUFF.RESISTDOWN
-]
-const OTHER_ONLY_AREA = [
-    RANGE.ALLY_BACK,
-    RANGE.SELF_OTHER,
-    RANGE.FRONT_OTHER,
-    RANGE.OTHER_UNIT,
-]
 
 const BUFF_KBN = {
     0: "power_up",
@@ -89,9 +75,19 @@ const BuffArea = ({ attackInfo, state, dispatch,
             const styleBuffList = skill_buff.filter(buff =>
                 (buff.chara_id === charaId || buff.chara_id === 0) &&
                 (buff.style_id === member_info.style_info.style_id || buff.style_id === 0) &&
-                (BUFF_KBN[buff.buff_kind]) &&
-                (buff.buff_id != 2607 || member_info.style_info.style_id === 145) // 月光(歌姫の加護)
-            );
+                (BUFF_KBN[buff.buff_kind])
+            ).filter(buff => {
+                switch (buff.buff_id) {
+                    case BUFF_ID_MOON_LIGHT: // 月光(歌姫の加護)
+                        return (member_info.style_info.style_id === STYLE_ID_ONLY_MONN_LIGHT);
+                    case BUFF_ID_MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
+                        return (attackInfo?.servant_count >= 5);
+                    case BUFF_ID_MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
+                        return (attackInfo?.servant_count === 6);
+                    default:
+                        return true;
+                }
+            });
 
             const newStyleBuffList = JSON.parse(JSON.stringify(styleBuffList));
             newStyleBuffList.forEach(buff => {
@@ -130,7 +126,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 "10": member_info.style_info.ability10
             };
             if (member_info.style_info.role == ROLE.ADMIRAL) {
-                styleAbility["00"] = 299;
+                styleAbility["00"] = ABILITY_ID_ADMIRAL_COMMON;
             }
             Object.keys(styleAbility).forEach(key => {
                 let abilityId = styleAbility[key];
@@ -473,7 +469,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 selectBestBuff();
             }
         }
-    }, [selectList, attackInfo?.attack_id, state.enemy_info]);
+    }, [selectList, attackInfo?.attack_id, state.enemy_info, hasInitialized]);
 
     const [modal, setModal] = React.useState({
         isOpen: false,
@@ -712,21 +708,21 @@ const BuffArea = ({ attackInfo, state, dispatch,
 };
 
 const getAttackUpBuffs = function (isElement, isWeak, attackInfo, selectStyleList) {
-    const isShadowClone = [17, 18].includes(attackInfo?.chara_id);
-    const isSharo = selectStyleList.some(
-        (member_info) => member_info?.style_info.style_id === 123
+    const isShadowClone = CHARA_ID_SHADOW_CLONE.includes(attackInfo?.chara_id);
+    const isWedingSharo = selectStyleList.some(
+        (member_info) => member_info?.style_info.style_id === STYLE_ID_WEDING_SHARO
     );
     const isRisa = selectStyleList.some(
-        (member_info) => member_info?.style_info.chara_id === 22
+        (member_info) => member_info?.style_info.chara_id === CHARA_ID_BABIED
     );
-    const isServant = [162, 163].includes(attackInfo?.style_id) || selectStyleList.some(
-        (member_info) => member_info?.style_info.style_id === 161
+    const isServant = STYLE_ID_SERVANT.includes(attackInfo?.style_id) || selectStyleList.some(
+        (member_info) => member_info?.style_info.style_id === STYLE_ID_UNISON_BUNGO
     );
     return [
         { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },
         ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP, overlap: true },] : []),
         ...(isShadowClone ? [{ name: "影分身", kind: BUFF.SHADOW_CLONE, overlap: false },] : []),
-        ...(isSharo ? [{ name: "永遠なる誓い", kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
+        ...(isWedingSharo ? [{ name: "永遠なる誓い", kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
         ...(isRisa ? [{ name: "オギャり", kind: BUFF.BABIED, overlap: false },] : []),
         ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE, overlap: true },] : []),
         ...(isWeak && isServant ? [{ name: "山脇様のしもべ ", kind: BUFF.YAMAWAKI_SERVANT, overlap: false },] : []),

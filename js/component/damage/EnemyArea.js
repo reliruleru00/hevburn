@@ -143,17 +143,6 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         if (attackInfo?.penetration && key == attackInfo?.attack_physical) {
                             // 貫通クリティカル
                             val = 100 + Number(attackInfo.penetration);
-                            if (attackInfo.attack_id == 190) {
-                                // メガデストロイヤー
-                                let servant = Number($("#servant_count").val());
-                                if (servant < 2) {
-                                    val = 400;
-                                } else if (servant < 4) {
-                                    val = 450;
-                                } else {
-                                    val = 500;
-                                }
-                            }
                         }
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
                         let select = attackInfo?.attack_physical == key ? " selected" : "";

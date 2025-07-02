@@ -116,7 +116,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 });
             }
 
-            const limitCount = member_info.limit_count;
             // ロールアビリティ
             let styleAbility = {
                 "0": member_info.style_info.ability0,
@@ -131,7 +130,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
             Object.keys(styleAbility).forEach(key => {
                 let abilityId = styleAbility[key];
-                if (!abilityId || abilityId > 1000 || Number(key) > member_info.limit_count) {
+                if (!abilityId || abilityId > 1000) {
                     // 1000番以降は不要
                     return;
                 }
@@ -172,7 +171,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
                 const newAbility = JSON.parse(JSON.stringify(abilityInfo));
                 newAbility.key = `${abilityId}_${charaId}`;
-                newAbility.limit_count = limitCount;
                 newAbility.limit_border = Number(key);
                 newAbility.chara_id = charaId;
                 newAbility.chara_name = charaName;
@@ -208,7 +206,10 @@ const BuffArea = ({ attackInfo, state, dispatch,
         return { buffList, abilityList, passiveList };
     }, [attackInfo, state.enemy_info, selectList]);
 
-    const refBuffSettingMap = React.useRef(buffSettingMap); // 初期化済みフラグ
+    const refBuffSettingMap = React.useRef(buffSettingMap);
+    const refAbilitySettingMap = React.useRef(abilitySettingMap);
+    const refPassiveSettingMap = React.useRef(passiveSettingMap);
+
     // バフ初期化
     React.useEffect(() => {
         const initialMap = {};
@@ -224,21 +225,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         refBuffSettingMap.current = initialMap;
     }, [buffList]);
 
-    // バフ効果量更新
-    React.useEffect(() => {
-        const updateMap = { ...refBuffSettingMap.current };
-        buffList.forEach(buff => {
-            const key = buff.key;
-            const buffSetting = updateMap[key];
-            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
-            if (buff && buffSetting) {
-                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, abilitySettingMap, passiveSettingMap, buff.kbn);
-            }
-        })
-        setBuffSettingMap(updateMap);
-        refBuffSettingMap.current = updateMap;
-    }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
-
+    // アビリティ初期化   
     React.useEffect(() => {
         const initialMap = {};
         abilityList.forEach(ability => {
@@ -246,7 +233,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
             let checked = true;
             let disabled = !ability.conditions;
             let limit_border = ability.limit_border;
-            let limit_count = ability.limit_count
+            let memberInfo = getCharaIdToMember(styleList, ability.chara_id);
+            let limit_count = memberInfo.limit_count;
             switch (ability.range_area) {
                 case RANGE.SELF:	// 自分
                     disabled = limit_count < limit_border || (ability.chara_id === attackCharaId && disabled);
@@ -286,8 +274,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 name: ability.chara_name,
             }
         });
+        refAbilitySettingMap.current = initialMap;
         setAbilitySettingMap(initialMap);
-    }, [abilityList]);
+    }, [styleList, abilityList]);
 
     React.useEffect(() => {
         const initialMap = {};
@@ -301,8 +290,24 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 checked: true,
             }
         });
+        refPassiveSettingMap.current = initialMap;
         setPassiveSettingMap(initialMap);
     }, [passiveList]);
+
+    // バフ効果量更新
+    React.useEffect(() => {
+        const updateMap = { ...refBuffSettingMap.current };
+        const newAbilitySettingMap = { ...refAbilitySettingMap.current };
+        const newPassiveSettingMap = { ...refPassiveSettingMap.current };
+        buffList.forEach(buff => {
+            const key = buff.key;
+            const buffSetting = updateMap[key];
+            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
+            updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap, buff.kbn);
+        })
+        setBuffSettingMap(updateMap);
+        refBuffSettingMap.current = updateMap;
+    }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
 
     let isElement = false;
     let isWeak = false;

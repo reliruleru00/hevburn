@@ -14,7 +14,7 @@ const BUFF_ID_MOON_LIGHT = 2607;
 const BUFF_ID_MEGA_DESTROYER5 = 235;
 const BUFF_ID_MEGA_DESTROYER6 = 236;
 
-const ABILITY_ID_ADMIRAL_COMMON = 1004;
+const ABILITY_ID_ADMIRAL_COMMON = 299;
 
 // 倍率表示
 function convertToPercentage(value) {

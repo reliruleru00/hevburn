@@ -180,7 +180,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                     for (const [key, values] of Object.entries(selectBuffKeyMap)) {
                         let tempCount = {};
                         for (const entry of values) {
-                            const [buffId, useCharaId] = entry.split("-");
+                            const [kind, buffId, useCharaId] = entry.split("_");
                             if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
                             if (!buffInfo) return;

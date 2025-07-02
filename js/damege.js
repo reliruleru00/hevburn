@@ -114,11 +114,11 @@ const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
 }
 
 // 効果量取得
-function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap, kbn) {
+function getEffectSize(buff, skillLv, memberInfo, state, abilitySettingMap, passiveSettingMap, kbn) {
     // バフ強化
     let strengthen = getStrengthen(buff, abilitySettingMap, passiveSettingMap);
     let effectSize = 0;
-    if (kbn === "buff") {
+    if (buff.kbn === "buff") {
         // バフ
         switch (buff.buff_kind) {
             case BUFF.ATTACKUP: // 攻撃力アップ
@@ -129,11 +129,11 @@ function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMa
             case BUFF.CHARGE: // チャージ
             case BUFF.DAMAGERATEUP: // 破壊率アップ
             case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                effectSize = getBuffEffectSize(buff, skillLv, state, "3", abilitySettingMap, passiveSettingMap);
+                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, "3", abilitySettingMap, passiveSettingMap);
                 break;
             case BUFF.CRITICALRATEUP:	// クリティカル率アップ
             case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-                effectSize = getBuffEffectSize(buff, skillLv, state, "5", abilitySettingMap, passiveSettingMap);
+                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, "5", abilitySettingMap, passiveSettingMap);
                 break;
             case BUFF.DEFENSEDOWN: // 防御力ダウン
             case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
@@ -142,10 +142,10 @@ function getEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMa
             case BUFF.RESISTDOWN: // 耐性ダウン
             case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
             case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-                effectSize = getDebuffEffectSize(buff, skillLv, state, abilitySettingMap, passiveSettingMap);
+                effectSize = getDebuffEffectSize(buff, skillLv, memberInfo, state, abilitySettingMap, passiveSettingMap);
                 break;
             case BUFF.FUNNEL: // 連撃
-                effectSize = getFunnelEffectSize(buff);
+                effectSize = getFunnelEffectSize(buff, memberInfo);
                 break;
             case BUFF.FIELD: // フィールド
                 return buff.max_power + strengthen;
@@ -195,12 +195,11 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
     let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
     if (attack_up.includes(buff.buff_kind)) {
         Object.values(abilitySettingMap)
-            .filter(ability => ability.effect_type == EFFECT.GIVEATTACKBUFFUP)
             .filter(ability => ability.chara_id == charaId)
             .filter(ability => ability.checked)
             .forEach((ability) => {
                 let abilityInfo = getAbilityInfo(ability.ability_id);
-                if (abilityInfo.effect_type == EFFECT.GIVEDEBUFFUP) {
+                if (abilityInfo.effect_type == EFFECT.GIVEATTACKBUFFUP) {
                     strengthen += abilityInfo.effect_size;
 
                 }
@@ -310,19 +309,21 @@ function isOnlyBuff(attackInfo, buffInfo) {
 
 // 他スキルに使用出来ない攻撃バフ
 function isOnlyUse(attackInfo, buffInfo) {
-    if (!buffInfo) {
+    const ATTACK_BUFF_LIST = [
+        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
+        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
+
+    if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_kind)) {
         return false;
     }
+
     if (!buffInfo.skill_attack1 || buffInfo.chara_id !== attackInfo.chara_id) {
         return false;
     }
     const attackId = attackInfo.attack_id;
-    const ATTACK_BUFF_LIST = [
-        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
-        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
     const match = [buffInfo.skill_attack1, buffInfo.skill_attack2].some(id => {
         const numId = Number(id);
-        return ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) && (numId === 999 || attackId === numId);
+        return (numId === 999 || attackId === numId);
     });
     return !match;
 }
@@ -386,7 +387,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     if (!attackInfo) {
         return null;
     }
-    let attackMemberInfo = getCharaIdToMember(styleList.selectStyleList, attackInfo.chara_id);
+    let attackMemberInfo = getCharaIdToMember(styleList, attackInfo.chara_id);
     // let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
     if (!attackMemberInfo) {
         return null;
@@ -713,7 +714,7 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
     const selectedKey = selectBuffKeyMap[funnelKey];
     if (selectedKey) {
         selectedKey.forEach(selectedKey => {
-            let buffId = Number(selectedKey.split('-')[0]);
+            let buffId = Number(selectedKey.split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
             if (buffInfo) {
                 let loop = buffInfo.max_power;
@@ -757,6 +758,8 @@ function getDamagerateEffectSize(attackMemberInfo, styleList,
         attackMemberInfo.style_info.chara_id);
     destructionEffectSize += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_DAMAGERATEUP)
     destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 10 - hitCount);
+    destructionEffectSize += getChainEffectSize(otherSetting, "skill");
+
     // // 制圧戦
     // destruction_effect_size += getBikePartsEffectSize("destruction_rate");
     // スコアタグレード
@@ -814,7 +817,7 @@ function getSumTokenAbilirySize(styleList, abilitySettingMap, effectType) {
         let data = abilitySettingMap[key];
         if (data.checked) {
             let abilityId = data.ability_id;
-            let memberInfo = getCharaIdToMember(styleList.selectStyleList, data.chara_id);
+            let memberInfo = getCharaIdToMember(styleList, data.chara_id);
             let abilityInfo = getAbilityInfo(abilityId);
             if (abilityInfo.effect_type == effectType) {
                 sum = abilityInfo.effect_size * (memberInfo.token ? memberInfo.token : 0);
@@ -1007,7 +1010,7 @@ function getCharaIdToMember(styleList, charaId) {
         return filterList.length > 0 ? filterList[0] : undefined;
     }
     let member;
-    member = filteredMember(styleList)
+    member = filteredMember(styleList.selectStyleList);
     // if (!member) {
     //     member = filtered_member(sub_style_list)
     // }
@@ -1063,10 +1066,9 @@ function getBuffIdToBuff(buff_id) {
 }
 
 // バフ効果量
-function getBuffEffectSize(buffInfo, skill_lv, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
+function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
     const NOT_JEWEL_TYPE = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP];
     let jewelLv = 0;
-    let memberInfo = buffInfo.member_info;
     if (memberInfo.style_info && memberInfo.style_info.jewel_type == targetJewelType) {
         jewelLv = memberInfo.jewel_lv;
     }
@@ -1107,13 +1109,12 @@ function getBuffEffectSize(buffInfo, skill_lv, state, targetJewelType, abilitySe
 }
 
 // デバフ効果量
-function getDebuffEffectSize(buffInfo, skillLv, state, abilitySettingMap, passiveSettingMap) {
+function getDebuffEffectSize(buffInfo, skillLv, memberInfo, state, abilitySettingMap, passiveSettingMap) {
     if (!state) {
         return 0;
     }
     let jewelLv = 0;
-    let memberInfo = buffInfo.member_info;
-    if (memberInfo.style_info && memberInfo.style_info.targetJewelType == "4") {
+    if (memberInfo.style_info && memberInfo.style_info.jewel_type == "4") {
         jewelLv = memberInfo.jewel_lv;
     }
     let enemyInfo = state.enemy_info;
@@ -1156,24 +1157,23 @@ function getDebuffEffectSize(buffInfo, skillLv, state, abilitySettingMap, passiv
 }
 
 // 連撃効果量
-function getFunnelEffectSize(buff_info) {
-    let funnel_power = buff_info.effect_size;
-    let effect_size;
-    let min_power = buff_info.min_power;
-    let max_power = buff_info.max_power;
-    if (min_power == max_power) {
-        effect_size = funnel_power * min_power;
+function getFunnelEffectSize(buffInfo, memberInfo) {
+    let funnel_power = buffInfo.effect_size;
+    let effectSize;
+    let minPower = buffInfo.min_power;
+    let maxPower = buffInfo.max_power;
+    if (minPower == maxPower) {
+        effectSize = funnel_power * minPower;
     } else {
-        let member_info = buff_info.member_info;
-        let status1 = member_info[status_kbn[buff_info.ref_status_1]];
-        if (buff_info.param_limit > status1) {
-            effect_size = funnel_power * min_power;
+        let status1 = memberInfo[status_kbn[buffInfo.ref_status_1]];
+        if (buffInfo.param_limit > status1) {
+            effectSize = funnel_power * minPower;
         } else {
-            effect_size = funnel_power * max_power;
+            effectSize = funnel_power * maxPower;
         }
     }
 
-    return effect_size;
+    return effectSize;
 }
 
 // 敵防御力取得

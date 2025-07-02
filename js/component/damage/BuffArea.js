@@ -62,6 +62,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
     const [checkUpdate, setCheckUpdate] = React.useState(true);
 
     let attackCharaId = attackInfo?.chara_id;
+    let selectList = styleList.selectStyleList.map(style =>
+        style?.style_info.style_id,
+    ).join(',');
 
     const { buffList, abilityList, passiveList } = React.useMemo(() => {
         let buffList = [];
@@ -92,7 +95,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
             const newStyleBuffList = JSON.parse(JSON.stringify(styleBuffList));
             newStyleBuffList.forEach(buff => {
                 buff.key = `buff_${buff.buff_id}_${charaId}`;
-                buff.member_info = member_info;
                 buff.chara_name = charaName;
                 buff.use_chara_id = charaId;
                 buff.kbn = "buff";
@@ -204,17 +206,18 @@ const BuffArea = ({ attackInfo, state, dispatch,
             });
         });
         return { buffList, abilityList, passiveList };
-    }, [attackInfo, state.enemy_info, styleList]);
+    }, [attackInfo, state.enemy_info, selectList]);
 
     const refBuffSettingMap = React.useRef(buffSettingMap); // 初期化済みフラグ
     // バフ初期化
     React.useEffect(() => {
         const initialMap = {};
         buffList.forEach(buff => {
+            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
             initialMap[buff.key] = {
                 buff_id: buff.buff_id,
                 skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff, buff.max_lv, state, abilitySettingMap, passiveSettingMap, buff.kbn),
+                effect_size: getEffectSize(buff, buff.max_lv, memberInfo, state, abilitySettingMap, passiveSettingMap, buff.kbn),
             };
         });
         setBuffSettingMap(initialMap);
@@ -227,13 +230,14 @@ const BuffArea = ({ attackInfo, state, dispatch,
         buffList.forEach(buff => {
             const key = buff.key;
             const buffSetting = updateMap[key];
+            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
             if (buff && buffSetting) {
-                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, state, abilitySettingMap, passiveSettingMap, buff.kbn);
+                updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, abilitySettingMap, passiveSettingMap, buff.kbn);
             }
         })
         setBuffSettingMap(updateMap);
         refBuffSettingMap.current = updateMap;
-    }, [state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
+    }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
 
     React.useEffect(() => {
         const initialMap = {};
@@ -328,9 +332,10 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     const handleChangeSkillLv = (buffKey, lv, index) => {
         let buff = buffList.filter(buff => buff.key === buffKey[index])[0];
+        const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
         const newSetting = buffSettingMap[buffKey[index]]
         newSetting.skill_lv = lv;
-        newSetting.effect_size = getEffectSize(buff, lv, state, abilitySettingMap, passiveSettingMap);
+        newSetting.effect_size = getEffectSize(buff, lv, memberInfo, state, abilitySettingMap, passiveSettingMap);
         setBuffSettingMap(prev => ({
             ...prev,
             [buffKey]: newSetting
@@ -386,7 +391,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
         buffList.filter(buff => targetCharaList.includes(buff.chara_id)).forEach(buff => {
             const buffKey = buff.key
             const newSetting = buffSettingMap[buffKey]
-            newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
+            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
+            newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, memberInfo, state, abilitySettingMap, passiveSettingMap);
             setBuffSettingMap(prev => ({
                 ...prev,
                 [buffKey]: newSetting
@@ -451,9 +457,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
         }
     }, [state.enemy_info, attackInfo?.attack_id, resistDownEffectSize]);
 
-    let selectList = styleList.selectStyleList.map(style =>
-        style?.style_info.style_id,
-    ).join(',');
     React.useEffect(() => {
         if (checkUpdate) {
             setSelectBuffKeyMap(buffKeyList);

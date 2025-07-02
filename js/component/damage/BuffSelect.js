@@ -5,7 +5,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
 
     let isAlone = false;
     if (selectedKey[0]) {
-        let buffId = Number(selectedKey[0].split('-')[0]);
+        let buffId = Number(selectedKey[0].split('_')[1]);
         let buffInfo = getBuffIdToBuff(buffId);
         isAlone = isAloneActivation(buffInfo);
     }
@@ -74,7 +74,7 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
     const onChangeBuff = (value) => {
         selectedKey[index] = value;
         if (value) {
-            const buffId = Number(value.split('-')[0]);
+            const buffId = Number(value.split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
             if (isOnlyBuff(attackInfo, buffInfo, buffSettingMap) && selectedKey[index ^ 1] == value) {
                 if (!confirm(buffInfo.buff_name + "は\r\n通常、複数付与出来ませんが、設定してよろしいですか？")) {

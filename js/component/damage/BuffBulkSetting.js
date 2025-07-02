@@ -1,4 +1,4 @@
-const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff}) => {
+const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
     const { styleList } = useStyleList();
     const [settingBuffList, setSettingBuffList] = React.useState({});
     const [orb, setOrb] = React.useState(false);
@@ -35,7 +35,7 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff}) => {
     return (
         <div className="container_multi_buff">
             <div className="multi_inner_headline">
-                <div className="buff_container">
+                <div className="buff_title">
                     <div className="mx-auto">一括設定</div>
                     <input
                         className="text-center"
@@ -71,10 +71,21 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff}) => {
                 return (
                     <div key={member.style_info.chara_id}>
                         <span className="chara_name">{charaName}</span>
-                        {uniqueBuffList.map(buff => (
-                            <div key={buff.key}>
+                        {uniqueBuffList.map(buff => {
+                            let skillName = "";
+                            let isSecond = true;
+                            if (buff.kbn === 'ability') {
+                                skillName = getAbilityInfo(buff.skill_id).ability_name;
+                                isSecond = false;
+                            } else {
+                                skillName = getSkillData(buff.skill_id).skill_name;
+                                if (buff.kbn === 'passive') {
+                                    isSecond = false;
+                                }
+                            }
+                            return (<div key={buff.key}>
                                 <div className="buff_container">
-                                    <div>{buff.buff_name}</div>
+                                    <div>{skillName}</div>
                                     <div className="multi-way-choice">
                                         {[0, 1, 2].map(index => (
                                             <React.Fragment key={`${buff.key}_${index}`}>
@@ -87,13 +98,16 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff}) => {
                                                     name={buff.key}
                                                     type="radio"
                                                 />
-                                                <label htmlFor={`${buff.key}_${index}`}>{index}</label>
+                                                <label htmlFor={`${buff.key}_${index}`}
+                                                    className={((index == 2 && !isSecond) ? "invisible" : "")}
+                                                >{index}</label>
                                             </React.Fragment>
                                         ))}
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 );
             })}

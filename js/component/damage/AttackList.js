@@ -114,39 +114,13 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
     )
 };
 
-function SkillUnique({ attackInfo, setAttackInfo }) {
+const SkillUnique = ({ attackInfo, setAttackInfo }) => {
     if (!attackInfo) return null;
 
     const { skill_id } = attackInfo;
 
-    const [servantCount, setServantCount] = React.useState(6);
-    const handleChangeServantCount = (servantCount) => {
-        let val = 0;
-        if (servantCount < 2) {
-            val = 300;
-        } else if (servantCount < 4) {
-            val = 350;
-        } else {
-            val = 400;
-        }
-        setServantCount(servantCount);
-        const newAttackInfo = { ...attackInfo, servant_count: servantCount, penetration: val };
-        setAttackInfo(newAttackInfo);
-    }
-
     if (skill_id === SKILL_ID_MEGA_DESTROYER) {
-        return (
-            <div className="skill_unique">
-                <div className="flex">
-                    山脇様のしもべ
-                    <select value={servantCount} onChange={e => handleChangeServantCount(Number(e.target.value))} >
-                        {[1, 2, 3, 4, 5, 6].map(num => (
-                            <option key={num} value={num}>{num}人</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-        );
+        return <YamawakiServant attackInfo={attackInfo} setAttackInfo={setAttackInfo} />;
     }
 
     if (attackInfo.rest_dp) {
@@ -181,4 +155,34 @@ function SkillUnique({ attackInfo, setAttackInfo }) {
         );
     }
     return null;
+}
+
+const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
+    const [servantCount, setServantCount] = React.useState(1);
+    const handleChangeServantCount = (servantCount) => {
+        let val = 0;
+        if (servantCount < 2) {
+            val = 300;
+        } else if (servantCount < 4) {
+            val = 350;
+        } else {
+            val = 400;
+        }
+        setServantCount(servantCount);
+        const newAttackInfo = { ...attackInfo, servant_count: servantCount, penetration: val };
+        setAttackInfo(newAttackInfo);
+    }
+
+    return (
+        <div className="skill_unique">
+            <div className="flex">
+                山脇様のしもべ
+                <select value={servantCount} onChange={e => handleChangeServantCount(Number(e.target.value))} >
+                    {[1, 2, 3, 4, 5, 6].map(num => (
+                        <option key={num} value={num}>{num}人</option>
+                    ))}
+                </select>
+            </div>
+        </div>
+    );
 }

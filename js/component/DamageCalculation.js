@@ -116,9 +116,11 @@ const removeStyleMember = (selectStyleList, index) => {
 }
 
 // Providerコンポーネントを作成
-const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
+const StyleListProvider = ({ children }) => {
+    let selectTroops = localStorage.getItem('select_troops');
+    selectTroops = selectTroops ? Number(selectTroops) : 0;
     const [styleList, setStyleList] = React.useState({
-        selectStyleList,
+        selectStyleList: loadTroopsList(selectTroops),
         selectTroops,
         subStyleList: Array(6).fill(undefined),
         subTroops: "-1",
@@ -166,8 +168,10 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
     }, [styleList, lastUpdatedIndex]);
 
     return (
-        <StyleListContext.Provider value={{ styleList, 
-        setStyleList, loadMember, loadSubMember, setMember, removeMember, saveMember, setStyle, setLastUpdatedIndex }}>
+        <StyleListContext.Provider value={{
+            styleList,
+            setStyleList, loadMember, loadSubMember, setMember, removeMember, saveMember, setStyle, setLastUpdatedIndex
+        }}>
             {children}
         </StyleListContext.Provider>
     );
@@ -299,7 +303,7 @@ const reducer = (state, action) => {
     }
 };
 
-const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
+const DamageCalculation = () => {
     const { styleList } = useStyleList();
     const [attackInfo, setAttackInfo] = React.useState(undefined);
     const [selectSKillLv, setSelectSKillLv] = React.useState(undefined);
@@ -377,7 +381,7 @@ const DamageCalculation = ({ selectTroops, setSelectTroops }) => {
         <>
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
-                    <CharaStatus attackInfo={attackInfo} selectTroops={selectTroops} setSelectTroops={setSelectTroops} selectBuffKeyMap={selectBuffKeyMap} />
+                    <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />
                     <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv} />
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
@@ -402,11 +406,6 @@ const RootComponent = () => {
     // モーダル
     ReactModal.setAppElement("#root");
 
-    const [selectTroops, setSelectTroops] = React.useState(() => {
-        let selectTroops = localStorage.getItem('select_troops');
-        return selectTroops ? Number(selectTroops) : 0;
-    });
-
     // 自由入力取得
     React.useEffect(() => {
         for (let i = 0; i < 10; i++) {
@@ -417,8 +416,8 @@ const RootComponent = () => {
         }
     })
     return (
-        <StyleListProvider selectStyleList={loadTroopsList(selectTroops)} selectTroops={selectTroops}>
-            <DamageCalculation selectTroops={selectTroops} setSelectTroops={setSelectTroops} />
+        <StyleListProvider>
+            <DamageCalculation />
         </StyleListProvider>
     );
 }

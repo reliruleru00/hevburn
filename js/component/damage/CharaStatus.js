@@ -1,6 +1,6 @@
 const { DragDropContext, Droppable, Draggable } = window["ReactBeautifulDnd"];
 
-const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyMap }) => {
+const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
     const { styleList, setStyleList, saveMember, loadMember, removeMember, setLastUpdatedIndex } = useStyleList();
 
     // 設定変更
@@ -35,7 +35,6 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
         let selectTroops = e.target.value;
         localStorage.setItem('select_troops', selectTroops);
         loadMember(selectTroops);
-        setSelectTroops(selectTroops);
     }
 
     // メンバー入れ替え
@@ -82,7 +81,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                 <label className="mt-3 mb-3 small_font">部隊選択</label>
                 <div className="col-span-6 flex">
                     {Array.from({ length: 9 }, (_, i) => {
-                        let className = "troops_btn " + (i === Number(selectTroops) ? "selected_troops" : "")
+                        let className = "troops_btn " + (i === Number(styleList.selectTroops) ? "selected_troops" : "")
                         return (
                             <input key={i}
                                 className={className}

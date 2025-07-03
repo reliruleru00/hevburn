@@ -183,7 +183,7 @@ const CharaStatus = ({ attackInfo, selectTroops, setSelectTroops, selectBuffKeyM
                             const [kind, buffId, useCharaId] = entry.split("_");
                             if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
-                            if (!buffInfo) return;
+                            if (!buffInfo) continue;
 
                             tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + 1;
 

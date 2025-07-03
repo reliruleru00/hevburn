@@ -1,14 +1,13 @@
 const HardLayer = ({ state, dispatch }) => {
 
     const enemyInfo = state.enemy_info;
-    if (enemyInfo === undefined || enemyInfo.enemy_class != ENEMY_CLASS_HARD_LAYER) {
-        return null;
+    const { styleList, loadSubMember } = useStyleList();
+
+    // サブメンバー呼び出し
+    const changeSubTroops = (subTroops) => {
+        loadSubMember(subTroops);
     }
 
-    //  サブメンバー呼び出し
-    const changeSubTroops = (sub_troops) => {
-        loadSubTroopsList(sub_troops);
-    }
     // 夢の泪変更
     const handleTearsOfDreamsChange = (e) => {
         dispatch({ type: "SET_TEARS_OF_DREAMS", value: e.target.value });
@@ -24,24 +23,25 @@ const HardLayer = ({ state, dispatch }) => {
     return (
         <div className="hard_layer adjust_width">
             <div className="flex ml-0 mt-2">
-                <label className="mt-3">他部隊選択</label>
-                <select className="mt-3" id="sub_troops" onChange={(e) => changeSubTroops(e.target.value)}>
+                <div className="mt-3">他部隊選択</div>
+                <select className="mt-3" value={styleList.subTroops} onChange={(e) => changeSubTroops(e.target.value)}>
                     <option value="-1">なし</option>
-                    <option value="0">部隊0</option>
-                    <option value="1">部隊1</option>
-                    <option value="2">部隊2</option>
-                    <option value="3">部隊3</option>
-                    <option value="4">部隊4</option>
-                    <option value="5">部隊5</option>
-                    <option value="6">部隊6</option>
-                    <option value="7">部隊7</option>
-                    <option value="8">部隊8</option>
+                    {Array.from({ length: 9 }, (_, i) => i)
+                        .filter(i => String(i) !== String(styleList.selectTroops)) // 不一致のみ表示
+                        .map(i => (
+                            <option key={i} value={i}>部隊{i}</option>
+                        ))
+                    }
                 </select>
-                {Array.from({ length: 6 }, (_, i) => (
-                    <div id={`sub_chara_container_${i}`} key={`chara_${i}`}>
-                        <img className="sub_style" data-chara_no={i} id={`sub_chara_${i}`} src="img/cross.png" />
+                {styleList.subStyleList.map((member, index) =>
+                    <div key={`chara_${index}`}>
+                        {member ?
+                            <img className="sub_style" src={`icon/${member?.style_info.image_url}`} />
+                            :
+                            <img className="sub_style" src="img/cross.png" />
+                        }
                     </div>
-                ))}
+                )}
             </div>
             <div>
                 <div className="flex ml-6 leading-6">夢の泪

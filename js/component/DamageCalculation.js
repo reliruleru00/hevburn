@@ -4,6 +4,7 @@ const StyleListContext = React.createContext({
     selectTroops: 0,
     styleList: defaultSelectStyleList,
     loadMember: () => { },
+    loadSubMember: () => { },
     setMember: () => { },
     removeMember: () => { },
     setStyle: () => { },
@@ -75,14 +76,14 @@ const loadStyle = (member_info, style_info) => {
 
 // 部隊リストの呼び出し
 const loadTroopsList = (troops_no) => {
-    let styleList = Array(6).fill(undefined);
+    let selectStyleList = Array(6).fill(undefined);
     for (let i = 0; i < 6; i++) {
         const style_id = localStorage.getItem(`troops_${troops_no}_${i}`);
         if (!isNaN(style_id) && Number(style_id) !== 0) {
-            setStyleMember(styleList, troops_no, i, Number(style_id));
+            setStyleMember(selectStyleList, troops_no, i, Number(style_id));
         }
     }
-    return styleList;
+    return selectStyleList;
 }
 
 // メンバーを設定する。
@@ -119,11 +120,18 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
     const [styleList, setStyleList] = React.useState({
         selectStyleList,
         selectTroops,
+        subStyleList: Array(6).fill(undefined),
+        subTroops: "-1",
     });
 
     const loadMember = (selectTroops) => {
         const updatedStyleList = loadTroopsList(selectTroops);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList, selectTroops: selectTroops });
+    }
+
+    const loadSubMember = (subTroops) => {
+        const updatedStyleList = loadTroopsList(subTroops);
+        setStyleList({ ...styleList, subStyleList: updatedStyleList, subTroops: subTroops });
     }
 
     const setMember = (index, style_id) => {
@@ -158,7 +166,8 @@ const StyleListProvider = ({ selectStyleList, selectTroops, children }) => {
     }, [styleList, lastUpdatedIndex]);
 
     return (
-        <StyleListContext.Provider value={{ styleList, setStyleList, loadMember, setMember, removeMember, saveMember, setStyle, setLastUpdatedIndex }}>
+        <StyleListContext.Provider value={{ styleList, 
+        setStyleList, loadMember, loadSubMember, setMember, removeMember, saveMember, setStyle, setLastUpdatedIndex }}>
             {children}
         </StyleListContext.Provider>
     );

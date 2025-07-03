@@ -13,10 +13,11 @@ const ContentsArea = ({ attackInfo, enemyInfo, enemyClass, enemySelect, setEnemy
             <div id="contents_area" className="surround_area adjust_width mx-auto mt-2">
                 <label className="area_title">コンテンツ情報</label>
                 <EnmeyListComponent enemyClass={enemyClass} enemySelect={enemySelect} handleChange={handleChange} isFreeInput={true} />
-                <HardLayer state={state} dispatch={dispatch} />
-                {enemyClass == ENEMY_CLASS.SCORE_ATTACK ?
+                {enemyClass == ENEMY_CLASS.HARD_LAYER &&
+                    <HardLayer state={state} dispatch={dispatch} />
+                }
+                {enemyClass == ENEMY_CLASS.SCORE_ATTACK &&
                     <ScoreSetting state={state} dispatch={dispatch} />
-                    : null
                 }
                 <BikePartsComponent enemy_info={enemyInfo} />
                 <SeraphCardList enemy_info={enemyInfo} />

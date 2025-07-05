@@ -1,4 +1,4 @@
-let status_kbn = ["", "str", "dex", "con", "mnd", "int", "luk"];
+
 
 class Member {
     constructor() {

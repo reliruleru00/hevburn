@@ -128,7 +128,13 @@ const StyleListProvider = ({ children }) => {
 
     const loadMember = (selectTroops) => {
         const updatedStyleList = loadTroopsList(selectTroops);
-        setStyleList({ ...styleList, selectStyleList: updatedStyleList, selectTroops: selectTroops });
+        setStyleList({
+            ...styleList,
+            selectStyleList: updatedStyleList,
+            selectTroops: selectTroops,
+            subStyleList: Array(6).fill(undefined),
+            subTroops: "-1",
+        });
     }
 
     const loadSubMember = (subTroops) => {

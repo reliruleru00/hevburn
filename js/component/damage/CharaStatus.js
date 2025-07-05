@@ -170,8 +170,8 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     let spCost = {};
                     if (attackInfo && attackInfo.chara_id == charaId) {
                         for (let i = 1; i <= 3; i++) {
-                            if (status_kbn[attackInfo["ref_status_" + i]]) {
-                                results.push(status_kbn[attackInfo["ref_status_" + i]]);
+                            if (STATUS_KBN[attackInfo["ref_status_" + i]]) {
+                                results.push(STATUS_KBN[attackInfo["ref_status_" + i]]);
                             }
                         }
                         spCost[attackInfo.skill_id] = 1;
@@ -188,8 +188,8 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
 
                             for (let i = 1; i <= 2; i++) {
                                 const statusKey = buffInfo[`ref_status_${i}`];
-                                if (status_kbn[statusKey] && buffInfo.min_power != buffInfo.max_power) {
-                                    results.push(status_kbn[statusKey]);
+                                if (STATUS_KBN[statusKey] && buffInfo.min_power != buffInfo.max_power) {
+                                    results.push(STATUS_KBN[statusKey]);
                                 }
                             }
                         }

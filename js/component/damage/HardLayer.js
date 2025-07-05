@@ -24,27 +24,33 @@ const HardLayer = ({ state, dispatch }) => {
         <div className="hard_layer adjust_width">
             <div className="flex ml-0 mt-2">
                 <div className="mt-3">他部隊選択</div>
-                <select className="mt-3" value={styleList.subTroops} onChange={(e) => changeSubTroops(e.target.value)}>
-                    <option value="-1">なし</option>
-                    {Array.from({ length: 9 }, (_, i) => i)
-                        .filter(i => String(i) !== String(styleList.selectTroops)) // 不一致のみ表示
-                        .map(i => (
-                            <option key={i} value={i}>部隊{i}</option>
-                        ))
-                    }
-                </select>
-                {styleList.subStyleList.map((member, index) =>
-                    <div key={`chara_${index}`}>
-                        {member ?
-                            <img className="sub_style" src={`icon/${member?.style_info.image_url}`} />
-                            :
-                            <img className="sub_style" src="img/cross.png" />
+                <div>
+                    <select className="mt-3" value={styleList.subTroops} onChange={(e) => changeSubTroops(e.target.value)}>
+                        <option value="-1">なし</option>
+                        {Array.from({ length: 9 }, (_, i) => i)
+                            .filter(i => String(i) !== String(styleList.selectTroops)) // 不一致のみ表示
+                            .map(i => (
+                                <option key={i} value={i}>{styleList.troopName ? styleList.troopName : `部隊${i}`}</option>
+                            ))
                         }
+                    </select>
+                    <div className="flex">
+                        {styleList.subStyleList.map((member, index) => {
+                            const charaId = member?.style_info.chara_id;
+                            return (<div key={`chara_${index}`} className={checkDuplicationChara(
+                                    styleList.selectStyleList, charaId) ? "ban_style" : ""}>
+                                {member ?
+                                    <img className="sub_style" src={`icon/${member?.style_info.image_url}`} />
+                                    :
+                                    <img className="sub_style" src="img/cross.png" />
+                                }
+                            </div>)
+                        })}
                     </div>
-                )}
+                </div>
             </div>
             <div>
-                <div className="flex ml-6 leading-6">夢の泪
+                <div className="flex ml-6 mt-1 leading-6">夢の泪
                     <select className="ml-2 w-12 text-center h-6" value={state.hard.tearsOfDreams} type="number" onChange={handleTearsOfDreamsChange}>
                         {Array.from({ length: 6 }, (_, i) => (
                             <option value={i} key={`tear_${i}`}>{i}</option>

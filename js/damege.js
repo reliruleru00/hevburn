@@ -16,6 +16,14 @@ const BUFF_ID_MEGA_DESTROYER6 = 236;
 
 const ABILITY_ID_ADMIRAL_COMMON = 299;
 
+const ATTACK_BUFF_LIST = [
+    BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
+    BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP];
+const DEBUFF_LIST = [
+    BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
+    BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN];
+const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
+
 // 倍率表示
 function convertToPercentage(value) {
     // 引数×100を計算し、小数点以下2桁目以降を四捨五入してパーセント記号を付ける
@@ -55,6 +63,14 @@ function getChainEffectSize(otherSetting, type) {
             break;
     }
     return 0;
+}
+
+// キャラ重複チェック
+function checkDuplicationChara(selectStyleList, searchCharaId) {
+    if (searchCharaId) {
+        return selectStyleList.some((member, i) => member?.style_info.chara_id === searchCharaId);
+    }
+    return false;
 }
 
 // 耐性判定
@@ -296,9 +312,6 @@ function isOnlyBuff(attackInfo, buffInfo) {
     }
 
     // 攻撃スキルに付与されているバフ
-    const ATTACK_BUFF_LIST = [
-        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
-        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
     if (ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) &&
         buffInfo.skill_attack1 &&
         buffInfo.chara_id === attackInfo.chara_id) {
@@ -309,9 +322,6 @@ function isOnlyBuff(attackInfo, buffInfo) {
 
 // 他スキルに使用出来ない攻撃バフ
 function isOnlyUse(attackInfo, buffInfo) {
-    const ATTACK_BUFF_LIST = [
-        BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
-        BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP]
 
     if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_kind)) {
         return false;
@@ -599,15 +609,15 @@ function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo,
     let molecule = 0;
     let denominator = 0;
     if (attackInfo.ref_status_1 != 0) {
-        molecule += (memberInfo[status_kbn[attackInfo.ref_status_1]] + statUp) * 2;
+        molecule += (memberInfo[STATUS_KBN[attackInfo.ref_status_1]] + statUp) * 2;
         denominator += 2;
     }
     if (attackInfo.ref_status_2 != 0) {
-        molecule += memberInfo[status_kbn[attackInfo.ref_status_2]] + statUp;
+        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_2]] + statUp;
         denominator += 1;
     }
     if (attackInfo.ref_status_3 != 0) {
-        molecule += memberInfo[status_kbn[attackInfo.ref_status_3]] + statUp;
+        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_3]] + statUp;
         denominator += 1;
     }
     let enemyStat = enemyInfo.enemy_stat - enemyStatDown;
@@ -1011,9 +1021,9 @@ function getCharaIdToMember(styleList, charaId) {
     }
     let member;
     member = filteredMember(styleList.selectStyleList);
-    // if (!member) {
-    //     member = filtered_member(sub_style_list)
-    // }
+    if (!member) {
+        member = filteredMember(styleList.subStyleList)
+    }
     // if (!member) {
     //     member = filtered_member(support_style_list)
     // }
@@ -1076,12 +1086,12 @@ function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelTyp
         skill_lv = buffInfo.max_lv;
     }
     // 固定量のバフ
-    if (status_kbn[buffInfo.ref_status_1] == 0) {
+    if (STATUS_KBN[buffInfo.ref_status_1] == 0) {
         return buffInfo.min_power;
     }
     // ステータス
     let statUp = getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap);
-    let status = memberInfo[status_kbn[buffInfo.ref_status_1]] + statUp;
+    let status = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.03 * (skill_lv - 1));
     let maxPower = buffInfo.max_power * (1 + 0.02 * (skill_lv - 1));
     let skillStat = buffInfo.param_limit;
@@ -1127,8 +1137,8 @@ function getDebuffEffectSize(buffInfo, skillLv, memberInfo, state, abilitySettin
     }
     // ステータス
     let statUp = getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap);
-    let status1 = memberInfo[status_kbn[buffInfo.ref_status_1]] + statUp;
-    let status2 = memberInfo[status_kbn[buffInfo.ref_status_2]] + statUp;
+    let status1 = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
+    let status2 = memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
     let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
     let status = (status1 * 2 + status2) / 3 - enemyStat;
@@ -1165,7 +1175,7 @@ function getFunnelEffectSize(buffInfo, memberInfo) {
     if (minPower == maxPower) {
         effectSize = funnel_power * minPower;
     } else {
-        let status1 = memberInfo[status_kbn[buffInfo.ref_status_1]];
+        let status1 = memberInfo[STATUS_KBN[buffInfo.ref_status_1]];
         if (buffInfo.param_limit > status1) {
             effectSize = funnel_power * minPower;
         } else {

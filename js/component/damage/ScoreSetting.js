@@ -2,7 +2,7 @@ const ScoreSetting = ({ state, dispatch }) => {
     const selectHalf = state.score.half
     const [checkedGrades, setCheckedGrades] = React.useState({});
 
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
     React.useEffect(() => {
         setCheckedGrades([]);
     }, [enemyInfo.sub_no]);

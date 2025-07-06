@@ -23,22 +23,22 @@ const EnmeyListComponent = ({ enemyClass, enemySelect, handleChange, isFreeInput
         if (enemy_name === null) {
             return;
         }
-        let enemy_info = {};
-        enemy_info.enemy_name = enemy_name
-        enemy_info.enemy_stat = $("#enemy_stat").val();
-        enemy_info.max_dp = removeComma($("#enemy_dp_0").val()) + "," + removeComma($("#enemy_dp_1").val()) + "," + removeComma($("#enemy_dp_2").val()) + "," + removeComma($("#enemy_dp_3").val());
-        enemy_info.max_hp = removeComma($("#enemy_hp").val());
-        let enemy_info_status_list = ["destruction_limit", "destruction"];
-        enemy_info_status_list.forEach(value => {
-            enemy_info[value] = $("#enemy_" + value).val();
+        let enemyInfo = {};
+        enemyInfo.enemy_name = enemy_name
+        enemyInfo.enemy_stat = $("#enemy_stat").val();
+        enemyInfo.max_dp = removeComma($("#enemy_dp_0").val()) + "," + removeComma($("#enemy_dp_1").val()) + "," + removeComma($("#enemy_dp_2").val()) + "," + removeComma($("#enemy_dp_3").val());
+        enemyInfo.max_hp = removeComma($("#enemy_hp").val());
+        let enemyInfo_status_list = ["destruction_limit", "destruction"];
+        enemyInfo_status_list.forEach(value => {
+            enemyInfo[value] = $("#enemy_" + value).val();
         });
-        let enemy_info_resist_list = ["physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",];
-        enemy_info_resist_list.forEach(value => {
-            enemy_info[value] = $("#enemy_" + value).data("init");
+        let enemyInfo_resist_list = ["physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",];
+        enemyInfo_resist_list.forEach(value => {
+            enemyInfo[value] = $("#enemy_" + value).data("init");
         });
         $("#enemy_list option:selected").text(enemy_name);
-        updateEnemyStatus(enemy_class_no, enemy_info);
-        localStorage.setItem("free_enemy_" + enemy_class_no, JSON.stringify(enemy_info));
+        updateEnemyStatus(enemy_class_no, enemyInfo);
+        localStorage.setItem("free_enemy_" + enemy_class_no, JSON.stringify(enemyInfo));
     }
 
     return (

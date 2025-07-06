@@ -20,11 +20,11 @@ const ModalTargetSelection = ({ closeModal, onSelect, unitList }) => {
                         let src = "img/cross.png";
                         let value = "";
                         if (!unit.blank) {
-                            src = "icon/" + unit.style.style_info.image_url;
-                            value = unit.style.style_info.style_id
+                            src = "icon/" + unit.style.styleInfo.image_url;
+                            value = unit.style.styleInfo.style_id
                         }
                         return <img className="select_style" src={src} data_value={value} key={`select_target${index}`}
-                            onClick={() => !unit.blank ? setSelectTarget(unit.style.style_info.chara_id) : undefined}
+                            onClick={() => !unit.blank ? setSelectTarget(unit.style.styleInfo.chara_id) : undefined}
                         />
                     }
                     )}

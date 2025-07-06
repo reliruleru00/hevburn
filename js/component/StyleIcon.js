@@ -2,7 +2,7 @@
 const StyleIcon = ({ style, place_no, onClick }) => {
     let icon = "img/plus.png";
     if (style) {
-        icon = "icon/" + style.style_info.image_url;
+        icon = "icon/" + style.styleInfo.image_url;
     }
 
     return (

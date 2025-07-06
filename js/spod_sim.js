@@ -105,7 +105,7 @@ function checkBuffIdExist(buff_list, buff_id) {
 function checkMember(unit_list, troops) {
     let member_list = unit_list.filter(function (unit_info) {
         if (unit_info.style) {
-            let chara_info = getCharaData(unit_info.style.style_info.chara_id);
+            let chara_info = getCharaData(unit_info.style.styleInfo.chara_id);
             return chara_info.troops == troops;
         }
         return false;
@@ -160,14 +160,14 @@ const reflectUserOperation = (turn_data, isLoadMode) => {
     turn_data.unit_list.forEach((unit) => {
         if (unit.blank) return;
         let operation_place_no = turn_data.user_operation.place_style.findIndex((item) =>
-            item === unit.style.style_info.style_id);
+            item === unit.style.styleInfo.style_id);
         if (operation_place_no >= 0) {
             if (turn_data.additional_turn) {
                 if (!isLoadMode) {
                     if (operation_place_no != unit.place_no) {
                         setInitSkill(unit);
                         turn_data.user_operation.select_skill[unit.place_no].skill_id = unit.select_skill_id;
-                        turn_data.user_operation.place_style[unit.place_no] = unit.style.style_info.style_id;
+                        turn_data.user_operation.place_style[unit.place_no] = unit.style.styleInfo.style_id;
                     }
                     return;
                 }
@@ -549,11 +549,11 @@ function origin(turn_data, skill_info, unit_data) {
     unit_data.use_skill_list.push(skill_info.skill_id);
     switch (skill_info.skill_id) {
         case 177: // エリミネイト・ポッシブル
-            let target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === unit_data.buff_target_chara_id);
+            let target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.styleInfo?.chara_id === unit_data.buff_target_chara_id);
             target_unit_data[0].next_turn_min_sp = 3;
             break;
         case 617: // ドリーミー・ガーデン
-            let target_unit_list = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id !== unit_data.style.style_info.chara_id);
+            let target_unit_list = turn_data.unit_list.filter(unit => unit?.style?.styleInfo?.chara_id !== unit_data.style.styleInfo.chara_id);
             target_unit_list.forEach(unit => unit.next_turn_min_sp = 10);
             break;
     }
@@ -596,7 +596,7 @@ const getOverDrive = (turn) => {
                 addBuffUnit(temp_turn, buff_info, skill_data.place_no, unit_data);
             }
         }
-        let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
+        let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         if (skill_info.skill_attribute == ATTRIBUTE_NORMAL_ATTACK) {
             if (isResist(turn.enemy_info, physical, unit_data.normal_attack_element, attackInfo?.attack_id)) {
                 unit_od_plus += calcODGain(3, 1, badies);
@@ -647,17 +647,17 @@ const getOverDrive = (turn) => {
         }
         // 追撃
         if (skill_id == SKILL.PURSUIT) {
-            let chara_data = getCharaData(unit_data.style.style_info.chara_id);
+            let chara_data = getCharaData(unit_data.style.styleInfo.chara_id);
             if (isResist(turn.enemy_info, chara_data.physical, 0, 0)) {
                 od_plus += chara_data.pursuit * 2.5;
             }
             return true;
         }
-        let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
+        let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         // 自動追撃
         if (skill_id == SKILL.AUTO_PURSUIT) {
             if (isResist(turn.enemy_info, physical, 0, 0)) {
-                let chara_data = getCharaData(unit_data.style.style_info.chara_id)
+                let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                 front_cost_list.filter(cost => cost <= 8).forEach(cost => {
                     od_plus += chara_data.pursuit * 2.5
                 });
@@ -683,7 +683,7 @@ const getOverDrive = (turn) => {
             if (skill_id == 633) {
                 // ネコジェット・シャテキ後自動追撃
                 if (isResist(turn.enemy_info, physical, 0, 0)) {
-                    let chara_data = getCharaData(unit_data.style.style_info.chara_id)
+                    let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                     const validCosts = front_cost_list.filter(cost => cost <= 8);
                     validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
                         od_plus += chara_data.pursuit * 2.5;
@@ -990,7 +990,7 @@ function addBuffUnit(turn_data, buff_info, place_no, use_unit_data) {
                     }
                 }
                 let buff = createBuffData(buff_info, use_unit_data);
-                if (buff_info.buff_id == 1037 && unit_data.style.style_info.element == 1) {
+                if (buff_info.buff_id == 1037 && unit_data.style.styleInfo.element == 1) {
                     buff.rest_turn = 5;
                 }
                 unit_data.buff_list.push(buff);
@@ -1199,7 +1199,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skill_info) {
                     }
                     if (buff_info.buff_kind == BUFF_MINDEYE) {
                         // 弱点のみ消費
-                        let physical = getCharaData(unit_data.style.style_info.chara_id).physical;
+                        let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
                         if (!isWeak(turn_data.enemy_info, physical, attack_info.attack_element, attack_info.attack_id)) {
                             continue;
                         }
@@ -1363,7 +1363,7 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             break;
         case RANGE_ALLY_UNIT: // 味方単体
         case RANGE_OTHER_UNIT: // 自分以外の味方単体
-            target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === buff_target_chara_id);
+            target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.styleInfo?.chara_id === buff_target_chara_id);
             if (target_unit_data.length > 0) {
                 target_list.push(target_unit_data[0].place_no);
             }
@@ -1384,7 +1384,7 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             target_list = [...Array(6).keys()].filter(num => num !== place_no);
             break;
         case RANGE_SELF_AND_UNIT: // 味方単体
-            target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.style_info?.chara_id === buff_target_chara_id);
+            target_unit_data = turn_data.unit_list.filter(unit => unit?.style?.styleInfo?.chara_id === buff_target_chara_id);
             target_list.push(place_no);
             if (target_unit_data.length > 0) {
                 target_list.push(target_unit_data[0].place_no);
@@ -1412,7 +1412,7 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
     if (target_element && target_element != 0) {
         for (let i = target_list.length - 1; i >= 0; i--) {
             let unit = getUnitData(turn_data, target_list[i]);
-            if (unit.blank || (unit.style.style_info.element != target_element && unit.style.style_info.element2 != target_element)) {
+            if (unit.blank || (unit.style.styleInfo.element != target_element && unit.style.styleInfo.element2 != target_element)) {
                 target_list.splice(i, 1);
             }
         }
@@ -1433,7 +1433,7 @@ function getTargetPlaceList(unit_list, member_id_list) {
 // キャラIDから場所番号を取得
 function charaIdToPlaceNo(unit_list, member_id) {
     for (let unit of unit_list) {
-        if (unit.style?.style_info?.chara_id == member_id) {
+        if (unit.style?.styleInfo?.chara_id == member_id) {
             return unit.place_no;
         }
     }

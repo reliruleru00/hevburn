@@ -1,5 +1,5 @@
 const PredictionScore = ({ damageResult, state }) => {
-    let enemyInfo = state.enemy_info
+    let enemyInfo = state.enemyInfo
     let scoreLv = state.score.lv;
     let turnCount = state.score.turnCount;
     let totalGradeRate = state.score.totalGradeRate;

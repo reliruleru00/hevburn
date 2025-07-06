@@ -44,11 +44,11 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
             }
             if (skill.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
                 // 通常攻撃
-                return unit.style.style_info.role != ROLE.ADMIRAL;
+                return unit.style.styleInfo.role != ROLE.ADMIRAL;
             }
             if (skill.skill_attribute === ATTRIBUTE.COMMAND_ACTION) {
                 // 指揮行動
-                return unit.style.style_info.role == ROLE.ADMIRAL;
+                return unit.style.styleInfo.role == ROLE.ADMIRAL;
             }
             if (skill.skill_attribute === ATTRIBUTE.PURSUIT_ONLY) {
                 // 追撃のみ発動可能
@@ -88,7 +88,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
     const recoil = unit.buff_list.filter((obj) => obj.buff_kind == BUFF_RECOIL);
     let not_action = (recoil.length > 0 || !unit.style || (turn.additional_turn && !unit.additional_turn && place_no <= 2))
     let className = "unit_skill " + (not_action ? "invisible" : "");
-    let physical = getCharaData(unit.style.style_info.chara_id).physical;
+    let physical = getCharaData(unit.style.styleInfo.chara_id).physical;
     return (<select className={className} onChange={(e) => chengeSkill(Number(e.target.value), place_no)} value={unit.select_skill_id} >
         {skill_list.filter((obj) => obj.skill_id == unit.select_skill_id || !isCapturing).map(skill => {
             let text = skill.skill_name;
@@ -126,8 +126,8 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
     const unit = filterUnit[0];
 
     let icon = "img/cross.png";
-    if (unit?.style?.style_info?.image_url) {
-        icon = "icon/" + unit.style.style_info.image_url;
+    if (unit?.style?.styleInfo?.image_url) {
+        icon = "icon/" + unit.style.styleInfo.image_url;
     }
     let loop_limit = 3;
     if (hideMode) {
@@ -142,7 +142,7 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
                 <div>
                     <img className="unit_style" src={icon} />
                     {
-                        unit?.style?.style_info ? <UnitSp unit={unit} /> : null
+                        unit?.style?.styleInfo ? <UnitSp unit={unit} /> : null
                     }
                 </div>
                 {place_no <= 2 || hideMode ?

@@ -5,7 +5,7 @@ const ContentsArea = ({ attackInfo, enemyInfo, enemyClass, enemySelect, setEnemy
         let enemyInfo = filteredEnemy.length > 0 ? filteredEnemy[0] : undefined;
         setEnemyClass(newClass);
         setEnemySelect(newSelect);
-        dispatch({ type: "SET_ENEMY", enemy_info: enemyInfo });
+        dispatch({ type: "SET_ENEMY", enemyInfo: enemyInfo });
     };
 
     return (
@@ -19,8 +19,8 @@ const ContentsArea = ({ attackInfo, enemyInfo, enemyClass, enemySelect, setEnemy
                 {enemyClass == ENEMY_CLASS.SCORE_ATTACK &&
                     <ScoreSetting state={state} dispatch={dispatch} />
                 }
-                <BikePartsComponent enemy_info={enemyInfo} />
-                <SeraphCardList enemy_info={enemyInfo} />
+                <BikePartsComponent enemyInfo={enemyInfo} />
+                <SeraphCardList enemyInfo={enemyInfo} />
             </div>
             <div id="enemy_status" className="surround_area adjust_width mx-auto mt-2">
                 <EnemyAreaComponent state={state} dispatch={dispatch} attackInfo={attackInfo} />

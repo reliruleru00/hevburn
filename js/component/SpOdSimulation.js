@@ -10,7 +10,7 @@ const StyleListContext = React.createContext({
 });
 
 const initialMember = {
-    style_info: undefined,
+    styleInfo: undefined,
     // is_select: false,
     chara_no: -1,
     str: 400,
@@ -34,8 +34,8 @@ const saveStyle = (member_info) => {
         return
     }
     if (navigator.cookieEnabled) {
-        let style_id = member_info.style_info.style_id;
-        let save_item = [member_info.style_info.rarity,
+        let style_id = member_info.styleInfo.style_id;
+        let save_item = [member_info.styleInfo.rarity,
         member_info.str, member_info.dex,
         member_info.con, member_info.mnd,
         member_info.int, member_info.luk,
@@ -48,8 +48,8 @@ const saveStyle = (member_info) => {
 }
 
 // ステータスを読み込む
-const loadStyle = (member_info, style_info) => {
-    let style_id = member_info.style_info.style_id;
+const loadStyle = (member_info, styleInfo) => {
+    let style_id = member_info.styleInfo.style_id;
     let save_item = localStorage.getItem("style_" + style_id);
     if (save_item) {
         let items = save_item.split(",");
@@ -66,22 +66,22 @@ const loadStyle = (member_info, style_info) => {
             member_info.init_sp = Number(items[12]);
         }
     }
-    if (style_info.rarity == 2) {
+    if (styleInfo.rarity == 2) {
         member_info.limit_count = 10;
-    } else if (style_info.rarity == 3) {
+    } else if (styleInfo.rarity == 3) {
         member_info.limit_count = 20;
     }
 }
 
 // 除外スキルを保存
 const saveExclusionSkill = (member_info) => {
-    let style_id = member_info.style_info.style_id;
+    let style_id = member_info.styleInfo.style_id;
     localStorage.setItem(`exclusion_${style_id}`, member_info.exclusion_skill_list.join(","));
 }
 
 // 除外スキルを読み込む
 const loadExclusionSkill = (member_info) => {
-    let style_id = member_info.style_info.style_id;
+    let style_id = member_info.styleInfo.style_id;
     let exclusion_skill_list = localStorage.getItem(`exclusion_${style_id}`);
     if (exclusion_skill_list) {
         member_info.exclusion_skill_list = exclusion_skill_list.split(",").map(Number);
@@ -104,14 +104,14 @@ const loadTroopsList = (troops_no) => {
 
 // メンバーを設定する。
 const setStyleMember = (selectStyleList, selectTroops, index, style_id) => {
-    let style_info = style_list.find((obj) => obj.style_id === style_id);
+    let styleInfo = style_list.find((obj) => obj.style_id === style_id);
 
     // 同一のキャラIDは不許可
     for (let i = 0; i < selectStyleList.length; i++) {
-        if (i !== index && selectStyleList[i]?.style_info.chara_id === style_info?.chara_id) {
+        if (i !== index && selectStyleList[i]?.styleInfo.chara_id === styleInfo?.chara_id) {
             // メンバーを入れ替える
             selectStyleList[i] = selectStyleList[index];
-            localStorage.setItem(`troops_${selectTroops}_${i}`, selectStyleList[i] ? selectStyleList[i].style_info.style_id : null);
+            localStorage.setItem(`troops_${selectTroops}_${i}`, selectStyleList[i] ? selectStyleList[i].styleInfo.style_id : null);
         }
     }
 
@@ -119,10 +119,10 @@ const setStyleMember = (selectStyleList, selectTroops, index, style_id) => {
     let member_info = { ...initialMember };
     // member_info.is_select = true;
     member_info.chara_no = Number(index);
-    member_info.style_info = style_info;
+    member_info.styleInfo = styleInfo;
 
     // ステータスを読み込む
-    loadStyle(member_info, style_info);
+    loadStyle(member_info, styleInfo);
     loadExclusionSkill(member_info);
     selectStyleList[index] = member_info;
 }

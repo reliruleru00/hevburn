@@ -66,24 +66,24 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             unit.normal_attack_element = member_info.bracelet;
             unit.earring_effect_size = member_info.earring;
             unit.skill_list = skill_list.filter(obj =>
-                (obj.chara_id === member_info.style_info.chara_id || obj.chara_id === 0) &&
-                (obj.style_id === member_info.style_info.style_id || obj.style_id === 0) &&
+                (obj.chara_id === member_info.styleInfo.chara_id || obj.chara_id === 0) &&
+                (obj.style_id === member_info.styleInfo.style_id || obj.style_id === 0) &&
                 obj.skill_active == 0 &&
                 !member_info.exclusion_skill_list.includes(obj.skill_id)
             ).map(obj => {
                 const copiedObj = JSON.parse(JSON.stringify(obj));
                 if (copiedObj.chara_id === 0) {
-                    copiedObj.chara_id === member_info.style_info.chara_id;
+                    copiedObj.chara_id === member_info.styleInfo.chara_id;
                 }
                 return copiedObj;
             });
             unit.passive_skill_list = skill_list.filter(obj =>
-                (obj.chara_id === member_info.style_info.chara_id || obj.chara_id === 0) &&
-                (obj.style_id === member_info.style_info.style_id || obj.style_id === 0) &&
+                (obj.chara_id === member_info.styleInfo.chara_id || obj.chara_id === 0) &&
+                (obj.style_id === member_info.styleInfo.style_id || obj.style_id === 0) &&
                 obj.skill_active == 1 &&
                 !member_info.exclusion_skill_list.includes(obj.skill_id)
             )
-            if (unit.style.style_info.role == ROLE_ADMIRAL) {
+            if (unit.style.styleInfo.role == ROLE_ADMIRAL) {
                 unit.init_skill_id = 4; // 指揮行動
             } else {
                 unit.init_skill_id = 1; // 通常攻撃
@@ -98,8 +98,8 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             });
             ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
                 const num = parseInt(numStr, 10);
-                if (member_info.style_info[`ability${numStr}`] && num <= member_info.limit_count) {
-                    let ability_info = getAbilityInfo(member_info.style_info[`ability${numStr}`]);
+                if (member_info.styleInfo[`ability${numStr}`] && num <= member_info.limit_count) {
+                    let ability_info = getAbilityInfo(member_info.styleInfo[`ability${numStr}`]);
                     if (!ability_info) {
                         return;
                     }
@@ -180,7 +180,7 @@ const SettingArea = () => {
     // 戦闘開始前処理
     const startBattle = (update, setUpdate) => {
         for (let i = 0; i < styleList.selectStyleList.length; i++) {
-            let style = styleList.selectStyleList[i]?.style_info;
+            let style = styleList.selectStyleList[i]?.styleInfo;
             if (NOT_USE_STYLE.includes(style?.style_id)) {
                 let chara_data = getCharaData(style.chara_id);
                 alert(`[${style.style_name}]${chara_data.chara_name}は現在使用できません。`);
@@ -226,11 +226,11 @@ const SettingArea = () => {
         saveData.unit_data_list.forEach((unit_data, index) => {
             if (unit_data) {
                 let member_info = { ...initialMember };
-                let style_info = style_list.find((obj) => obj.style_id === unit_data.style_id);
+                let styleInfo = style_list.find((obj) => obj.style_id === unit_data.style_id);
                 // メンバー情報作成
                 // member_info.is_select = true;
                 member_info.chara_no = Number(index);
-                member_info.style_info = style_info;
+                member_info.styleInfo = styleInfo;
                 member_info.limit_count = unit_data.limit_count;
                 member_info.earring = unit_data.earring;
                 member_info.bracelet = unit_data.bracelet;

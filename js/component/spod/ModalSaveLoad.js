@@ -45,7 +45,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
         return styleList.selectStyleList.map((style) => {
             if (style) {
                 return {
-                    style_id: style.style_info.style_id,
+                    style_id: style.styleInfo.style_id,
                     limit_count: style.limit_count,
                     earring: style.earring,
                     bracelet: style.bracelet,

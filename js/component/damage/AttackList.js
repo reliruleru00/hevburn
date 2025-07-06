@@ -28,8 +28,8 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
         let memberAttackList = [];
         for (let memberInfo of styleList.selectStyleList) {
             if (!memberInfo) continue;
-            const charaId = memberInfo.style_info.chara_id;
-            const styleId = memberInfo.style_info.style_id;
+            const charaId = memberInfo.styleInfo.chara_id;
+            const styleId = memberInfo.styleInfo.style_id;
             const matchedSkill = skill_attack.filter(skill =>
                 skill.chara_id === charaId &&
                 (skill.style_id === styleId || skill.style_id === 0) &&
@@ -66,12 +66,12 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             <label className="area_title">攻 撃</label>
             <div className="flex">
                 <select className="ml-6" id="attack_list" value={attackInfo?.attack_id} onChange={e => handleChangeAttackId(Number(e.target.value))}>
-                    {styleList.selectStyleList.filter(memberInfo => memberInfo && memberInfo.is_select).map((memberInfo, index) => {
-                        let charaData = getCharaData(memberInfo.style_info.chara_id)
+                    {styleList.selectStyleList.filter(memberInfo => memberInfo).map((memberInfo, index) => {
+                        let charaData = getCharaData(memberInfo.styleInfo.chara_id)
                         return (
-                            <optgroup key={`chara${memberInfo.style_info.chara_id}`} label={charaData.chara_name}>
+                            <optgroup key={`chara${memberInfo.styleInfo.chara_id}`} label={charaData.chara_name}>
                                 {memberAttackList.filter(obj =>
-                                    obj.chara_id === memberInfo.style_info.chara_id
+                                    obj.chara_id === memberInfo.styleInfo.chara_id
                                 ).map((skill, index) => {
                                     return (
                                         <option key={`attack${skill.attack_id}`} value={skill.attack_id} data-chara_id={skill.chara_id}>
@@ -210,7 +210,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     const maxPower = attackInfo.max_power * (1 + 0.02 * (selectSKillLv - 1));
 
     const memberInfo = getCharaIdToMember(styleList, attackInfo.chara_id);
-    const enemyInfo = state.enemy_info;
+    const enemyInfo = state.enemyInfo;
     let statUp = getStatUp(state, memberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
     let enemyStatDown = 0;
     if (attackInfo.collect?.hacking) {

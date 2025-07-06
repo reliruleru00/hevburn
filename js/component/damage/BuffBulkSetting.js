@@ -7,11 +7,11 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
     React.useEffect(() => {
         const newBuffMap = {};
         styleList.selectStyleList?.forEach(member => {
-            if (!member?.style_info) return;
+            if (!member?.styleInfo) return;
 
             const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
             const styleBuffList = filteredBuff.filter(obj =>
-                obj.use_chara_id === member.style_info.chara_id
+                obj.use_chara_id === member.styleInfo.chara_id
             );
 
             const uniqueBuffList = styleBuffList.filter((buff, index, self) =>
@@ -55,21 +55,21 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
             </div>
 
             {styleList.selectStyleList?.map(member => {
-                if (!member?.style_info) return null;
+                if (!member?.styleInfo) return null;
 
                 const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
                 const styleBuffList = filteredBuff.filter(obj =>
-                    obj.use_chara_id === member.style_info.chara_id
+                    obj.use_chara_id === member.styleInfo.chara_id
                 );
 
                 const uniqueBuffList = styleBuffList.filter((buff, index, self) =>
                     index === self.findIndex(b => b.skill_id === buff.skill_id)
                 );
 
-                const charaName = getCharaData(member.style_info.chara_id)?.chara_name ?? '不明キャラ';
+                const charaName = getCharaData(member.styleInfo.chara_id)?.chara_name ?? '不明キャラ';
 
                 return (
-                    <div key={member.style_info.chara_id}>
+                    <div key={member.styleInfo.chara_id}>
                         <span className="chara_name">{charaName}</span>
                         {uniqueBuffList.map(buff => {
                             let skillName = "";

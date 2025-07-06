@@ -49,7 +49,7 @@ const CharaSetting = () => {
         updatedStyleList.forEach((style, index) => {
             let style_id = null;
             if (style) {
-                style_id = style.style_info.style_id;
+                style_id = style.styleInfo.style_id;
             }
             localStorage.setItem(`troops_${select_troops}_${index}`, style_id);
         })
@@ -155,7 +155,7 @@ const CharaSetting = () => {
             </div>
             {styleList.selectStyleList.map((value, index) => {
                 let style = value;
-                let rarity = style ? style.style_info.rarity : 1;
+                let rarity = style ? style.styleInfo.rarity : 1;
                 let bracelet = style ? style.bracelet : 0;
                 let chain = style ? style.chain : 0;
                 let earring = style ? style.earring : 0;
@@ -191,7 +191,7 @@ const CharaSetting = () => {
                             ))}
                         </select>
                         <input className="init_sp" value={init_sp} type="number" onChange={(e) => { setSetting(index, "init_sp", e.target.value) }} />
-                        <input className="passive" data-chara_no="0" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
+                        <input className="passive" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
                     </div>
                 )
             }

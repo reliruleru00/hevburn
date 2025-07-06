@@ -2,23 +2,23 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     const PHYSICAL_LIST = { 1: "slash", 2: "stab", 3: "strike" };
     const ELEMENT_LIST = { 0: "none", 1: "fire", 2: "ice", 3: "thunder", 4: "light", 5: "dark" };
 
-    let enemy_info = state.enemy_info;
-    let max_dp_list = enemy_info.max_dp.split(",");
+    let enemyInfo = state.enemyInfo;
+    let max_dp_list = enemyInfo.max_dp.split(",");
 
     const handleEnemyChange = (key, value) => {
-        const newEnemyInfo = enemy_info;
+        const newEnemyInfo = enemyInfo;
         let newValue = removeComma(value);
         newEnemyInfo[key] = newValue;
-        dispatch({ type: "SET_ENEMY", enemy_info: newEnemyInfo });
+        dispatch({ type: "SET_ENEMY", enemyInfo: newEnemyInfo });
     };
 
     const handleMaxDpEnemyChange = (index, value) => {
         max_dp_list[index] = removeComma(value);
         const newMaxDpList = max_dp_list;
         const newMaxDp = newMaxDpList.join(",")
-        const newEnemyInfo = enemy_info;
+        const newEnemyInfo = enemyInfo;
         newEnemyInfo["max_dp"] = newMaxDp;
-        dispatch({ type: "SET_ENEMY", enemy_info: newEnemyInfo });
+        dispatch({ type: "SET_ENEMY", enemyInfo: newEnemyInfo });
     };
 
     const handleEnemyDamageRateChange = (value) => {
@@ -39,10 +39,10 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     };
 
     // HP補正
-    let maxHp = Number(enemy_info.max_hp);
-    let enemy_stat = Number(enemy_info.enemy_stat);
-    if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
-        let score_attack = getScoreAttack(enemy_info.sub_no);
+    let maxHp = Number(enemyInfo.max_hp);
+    let enemy_stat = Number(enemyInfo.enemy_stat);
+    if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
+        let score_attack = getScoreAttack(enemyInfo.sub_no);
         maxHp = getScoreHpDp(state.score.lv, score_attack, "hp_rate");
         enemy_stat = SCORE_STATUS[state.score.lv - 100];
     }
@@ -50,17 +50,17 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
 
     // 破壊率補正
-    let destruction = enemy_info.destruction
+    let destruction = enemyInfo.destruction
     destruction *= (1 - state.correction.destruction_resist / 100);
 
     // 自由入力時の対応
     let is_free_input = false;
-    if (enemy_info.enemy_class == ENEMY_CLASS.FREE_INPUT) {
+    if (enemyInfo.enemy_class == ENEMY_CLASS.FREE_INPUT) {
         is_free_input = true;
     }
     const [focus, setFocus] = React.useState(undefined);
     const handleElementFocus = (id, target) => {
-        target.value = enemy_info[id];
+        target.value = enemyInfo[id];
         setFocus(id);
     };
     const handleElementBlur = () => {
@@ -99,8 +99,8 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                                 let range_id = "dp_range_" + no;
                                 let dp_rate = state.dpRate[no];
                                 let maxDp = Number(max_dp_list[no]);
-                                if (enemy_info.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
-                                    let score_attack = getScoreAttack(enemy_info.sub_no);
+                                if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
+                                    let score_attack = getScoreAttack(enemyInfo.sub_no);
                                     maxDp = getScoreHpDp(state.score.lv, score_attack, "dp_rate");
                                 }
                                 maxDp = Math.floor(maxDp * (1 + state.correction.dp_rate / 100));
@@ -139,7 +139,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         let src = `img/${PHYSICAL_LIST[key]}.webp`;
                         let id = `physical_${key}`;
                         let correction = state.correction[`physical_${key}`];
-                        let val = enemy_info[id] - (focus == id ? 0 : correction);
+                        let val = enemyInfo[id] - (focus == id ? 0 : correction);
                         if (attackInfo?.penetration && key == attackInfo?.attack_physical) {
                             // 貫通クリティカル
                             val = 100 + Number(attackInfo.penetration);
@@ -149,7 +149,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" />
                             <input className={`enemy_type_value ${addClass}`} id={`enemy_${id}`} readOnly={!is_free_input} type="text" value={val}
-                                data-init={enemy_info[id]}
+                                data-init={enemyInfo[id]}
                                 onChange={(e) => handleEnemyChange("physical_" + key, e.target.value)}
                                 onFocus={(e) => handleElementFocus("physical_" + key, e.target)}
                                 onBlur={(e) => handleElementBlur()} />
@@ -159,7 +159,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         let src = `img/${ELEMENT_LIST[key]}.webp`;
                         let id = `element_${key}`;
                         let correction = state.correction[`element_${key}`];
-                        let val = enemy_info[id]
+                        let val = enemyInfo[id]
                         if (!focus) {
                             // 属性打ち消し
                             if (val < 100 && state.resistDown[key] > 0) {
@@ -177,7 +177,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" />
                             <input className={`enemy_type_value ${addClass}`} id={`enemy_${id}`} readOnly={!is_free_input} type="text" value={val}
-                                data-init={enemy_info[id]}
+                                data-init={enemyInfo[id]}
                                 onChange={(e) => handleEnemyChange("element_" + key, e.target.value)}
                                 onFocus={(e) => handleElementFocus("element_" + key, e.target)}
                                 onBlur={(e) => handleElementBlur()} />

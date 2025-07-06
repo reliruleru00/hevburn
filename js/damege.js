@@ -68,14 +68,14 @@ function getChainEffectSize(otherSetting, type) {
 // キャラ重複チェック
 function checkDuplicationChara(selectStyleList, searchCharaId) {
     if (searchCharaId) {
-        return selectStyleList.some((member, i) => member?.style_info.chara_id === searchCharaId);
+        return selectStyleList.some((member, i) => member?.styleInfo.chara_id === searchCharaId);
     }
     return false;
 }
 
 // 耐性判定
 function getEnemyResist(attackInfo, state) {
-    const enemyInfo = state.enemy_info;
+    const enemyInfo = state.enemyInfo;
     const correction = state.correction;
     let physical_resist = enemyInfo[`physical_${attackInfo.attack_physical}`];
     let element_resist = enemyInfo[`element_${attackInfo.attack_element}`]
@@ -398,11 +398,10 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         return null;
     }
     let attackMemberInfo = getCharaIdToMember(styleList, attackInfo.chara_id);
-    // let attackMemberInfo = styleList.selectStyleList.filter(style => style?.style_info.chara_id === attackInfo.chara_id)[0];
     if (!attackMemberInfo) {
         return null;
     }
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
 
     // ステータスアップ
     let statUp = getStatUp(state, attackMemberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
@@ -512,7 +511,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
 
 // ダメージの詳細計算
 function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting) {
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
     let damageRate = state.damageRate;
     let maxDamageRate = state.maxDamageRate;
     let destruction = Number(enemyInfo.destruction);
@@ -598,8 +597,8 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
 // 基礎攻撃力取得
 function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown) {
     let jewelLv = 0;
-    if (memberInfo.style_info.jewel_type == "1") {
-        jewelLv = memberInfo.jewel_lv;
+    if (memberInfo.styleInfo.jewel_type == "1") {
+        jewelLv = memberInfo.jewelLv;
     }
     let molecule = 0;
     let denominator = 0;
@@ -674,7 +673,7 @@ function getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
         [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE, BUFF.ARROWCHERRYBLOSSOMS,
         BUFF.ETERNAL_OARH, BUFF.BABIED, BUFF.SHADOW_CLONE]);
     // 攻撃力アップアビリティ
-    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.ATTACKUP, attackMemberInfo.style_info.chara_id);
+    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.ATTACKUP, attackMemberInfo.styleInfo.chara_id);
     // 属性リング(0%-10%)
     sumBuff += Number(otherSetting.ring);
     // オーバードライブ10%
@@ -704,7 +703,7 @@ function getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingM
     let sumBuff = getSumEffectSize(selectBuffKeyMap, buffSettingMap,
         [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]);
     // // 防御ダウンアビリティ
-    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.DEFFENCEDOWN, attackMemberInfo.style_info.chara_id);
+    sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.DEFFENCEDOWN, attackMemberInfo.styleInfo.chara_id);
     // // 制圧戦
     // sum_debuff += getBikePartsEffectSize("debuff");
     return 1 + sumBuff / 100;
@@ -760,7 +759,7 @@ function getDamagerateEffectSize(attackMemberInfo, styleList,
     destructionEffectSize += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DAMAGERATEUP]);
     destructionEffectSize += getSumAbilityEffectSize(
         abilitySettingMap, passiveSettingMap, EFFECT.DAMAGERATEUP,
-        attackMemberInfo.style_info.chara_id);
+        attackMemberInfo.styleInfo.chara_id);
     destructionEffectSize += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_DAMAGERATEUP)
     destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 10 - hitCount);
     destructionEffectSize += getChainEffectSize(otherSetting, "skill");
@@ -781,7 +780,7 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
     criticalRate += diff > 0 ? diff * 0.04 : 0;
     criticalRate = criticalRate > 15 ? 15 : criticalRate;
     criticalRate += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
-    criticalRate += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALRATEUP, attackMemberInfo.style_info.charaId);
+    criticalRate += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALRATEUP, attackMemberInfo.styleInfo.charaId);
     // チャージ
     // critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
     // // 永遠なる誓い
@@ -795,8 +794,8 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
 function getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap) {
     let criticalBuff = 50;
     criticalBuff += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALDAMAGEUP],
-        attackMemberInfo.style_info.charaId);
-    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALDAMAGEUP, attackMemberInfo.style_info.charaId);
+        attackMemberInfo.styleInfo.charaId);
+    criticalBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALDAMAGEUP, attackMemberInfo.styleInfo.charaId);
     // // 制圧戦
     // critical_buff += getBikePartsEffectSize("critical_buff");
     // // セラフ遭遇戦
@@ -1011,7 +1010,7 @@ function getPassiveInfo(skill_id) {
 // キャラIDからメンバー情報取得
 function getCharaIdToMember(styleList, charaId) {
     const filteredMember = (styleList) => {
-        const filterList = styleList.filter((obj) => obj?.style_info?.chara_id == charaId);
+        const filterList = styleList.filter((obj) => obj?.styleInfo?.chara_id == charaId);
         return filterList.length > 0 ? filterList[0] : undefined;
     }
     let member;
@@ -1026,36 +1025,36 @@ function getCharaIdToMember(styleList, charaId) {
 }
 
 // 敵ステータス更新
-function updateEnemyStatus(enemy_class_no, enemy_info) {
+function updateEnemyStatus(enemy_class_no, enemyInfo) {
     const enemy_class = 99;
     let filtered_enemy = enemy_list.filter((obj) => obj.enemy_class == enemy_class && obj.enemy_class_no === enemy_class_no);
     let index = enemy_list.findIndex((obj) => obj === filtered_enemy[0]);
-    Object.assign(enemy_list[index], enemy_info);
+    Object.assign(enemy_list[index], enemyInfo);
 }
 
 // セラフ遭遇戦敵ステータス設定
-function updateSeraphEncounter(enemy_info, selectedList) {
-    let new_enemy_info = JSON.parse(JSON.stringify(enemy_info));
+function updateSeraphEncounter(enemyInfo, selectedList) {
+    let new_enemyInfo = JSON.parse(JSON.stringify(enemyInfo));
     selectedList.forEach((item) => {
         switch (item.effect_kind) {
             case "STAT_UP":
-                new_enemy_info.enemy_stat += item.effect_size;
+                new_enemyInfo.enemy_stat += item.effect_size;
                 break;
             case "ICE_DOWN":
-                new_enemy_info.element_2 += item.effect_size;
+                new_enemyInfo.element_2 += item.effect_size;
                 break;
             case "LIGHT_DOWN":
-                new_enemy_info.element_4 += item.effect_size;
+                new_enemyInfo.element_4 += item.effect_size;
                 break;
             case "HP_UP":
-                new_enemy_info.max_hp = Math.floor(new_enemy_info.max_hp * (1 + (item.effect_size / 100)));
+                new_enemyInfo.max_hp = Math.floor(new_enemyInfo.max_hp * (1 + (item.effect_size / 100)));
                 break;
             case "DP_UP":
-                new_enemy_info.max_dp = String(Math.floor(Number(new_enemy_info.max_dp) * (1 + (item.effect_size / 100))));
+                new_enemyInfo.max_dp = String(Math.floor(Number(new_enemyInfo.max_dp) * (1 + (item.effect_size / 100))));
                 break;
         }
     })
-    // setEnemyStatus(new_enemy_info)
+    // setEnemyStatus(new_enemyInfo)
 }
 
 // スキルデータ取得
@@ -1074,8 +1073,8 @@ function getBuffIdToBuff(buff_id) {
 function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
     const NOT_JEWEL_TYPE = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP];
     let jewelLv = 0;
-    if (memberInfo.style_info && memberInfo.style_info.jewel_type == targetJewelType) {
-        jewelLv = memberInfo.jewel_lv;
+    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type == targetJewelType) {
+        jewelLv = memberInfo.jewelLv;
     }
     if (skill_lv > buffInfo.max_lv) {
         skill_lv = buffInfo.max_lv;
@@ -1119,10 +1118,10 @@ function getDebuffEffectSize(buffInfo, skillLv, memberInfo, state, abilitySettin
         return 0;
     }
     let jewelLv = 0;
-    if (memberInfo.style_info && memberInfo.style_info.jewel_type == "4") {
-        jewelLv = memberInfo.jewel_lv;
+    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type == "4") {
+        jewelLv = memberInfo.jewelLv;
     }
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
     let enemyStat = Number(enemyInfo.enemy_stat);
     if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
         enemyStat = SCORE_STATUS[state.score.lv - 100];
@@ -1183,7 +1182,7 @@ function getFunnelEffectSize(buffInfo, memberInfo) {
 
 // 敵防御力取得
 function getEnemyDefenceRate(state) {
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
     let enemyDefenceRate = 1;
     if (state.correction.defense_rate) {
         enemyDefenceRate = 1 - state.correction.defense_rate / 100;
@@ -1201,7 +1200,7 @@ function getEnemyDefenceRate(state) {
 
 // ステータスアップ取得
 function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSettingMap) {
-    let enemyInfo = state.enemy_info;
+    let enemyInfo = state.enemyInfo;
 
     let tearsOfDreams = 0;
     // // 夢の泪
@@ -1213,8 +1212,8 @@ function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSetting
     let scoreBonus = 0;
     if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
         const selectHalf = state.score.half
-        let physical = getCharaData(memberInfo.style_info.chara_id).physical;
-        const targetConditions = [`element_${memberInfo.style_info.element}`, `element_${memberInfo.style_info.element2}`, `physical_${physical}`];
+        let physical = getCharaData(memberInfo.styleInfo.chara_id).physical;
+        const targetConditions = [`element_${memberInfo.styleInfo.element}`, `element_${memberInfo.styleInfo.element2}`, `physical_${physical}`];
 
         bonus_list
             .filter(obj =>
@@ -1232,7 +1231,7 @@ function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSetting
     // 闘志
     let fightingspirit = collect?.fightingspirit ? 20 : 0;
     // パッシブ(能力固定上昇)
-    let passiveStatusUp = getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.STATUSUP_VALUE, memberInfo.style_info.chara_id);
+    let passiveStatusUp = getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.STATUSUP_VALUE, memberInfo.styleInfo.chara_id);
     return tearsOfDreams + scoreBonus + (morale > fightingspirit ? morale : fightingspirit) + passiveStatusUp;
 }
 

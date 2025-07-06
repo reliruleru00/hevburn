@@ -74,7 +74,7 @@ const setUserOperation = (turn) => {
             return { skill_id: unit.select_skill_id };
         }),
         place_style: turn.unit_list.map(function (unit) {
-            return unit.blank ? 0 : unit.style.style_info.style_id;
+            return unit.blank ? 0 : unit.style.styleInfo.style_id;
         }),
         trigger_over_drive: false,
         selected_place_no: -1,

@@ -48,9 +48,9 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
         updatedStyleList.forEach((style, index) => {
             let style_id = null;
             if (style) {
-                style_id = style.style_info.style_id;
+                style_id = style.styleInfo.style_id;
             }
-            localStorage.setItem(`troops_${selectTroops}_${index}`, style_id);
+            localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, style_id);
         })
 
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
@@ -154,16 +154,16 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                 </div>
                 {styleList.selectStyleList.map((value, index) => {
                     let style = value;
-                    let charaId = style ? style.style_info.chara_id : 0;
-                    let rarity = style ? style.style_info.rarity : 0;
+                    let charaId = style ? style.styleInfo.chara_id : 0;
+                    let rarity = style ? style.styleInfo.rarity : 0;
                     let str = style ? style.str : 400;
                     let dex = style ? style.dex : 400;
                     let con = style ? style.con : 400;
                     let mnd = style ? style.mnd : 400;
                     let int = style ? style.int : 400;
                     let luk = style ? style.luk : 400;
-                    let limit = style ? style.limit_count : 2;
-                    let jewel = style ? style.jewel_lv : 0;
+                    let limit = style ? style.limitCount : 2;
+                    let jewel = style ? style.jewelLv : 0;
                     let token = style ? style.token ? style.token : 0 : 0;
                     let morale = style ? style.morale ? style.morale : 0 : 0;
                     let results = [];
@@ -212,7 +212,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     }
                     return (
                         <div key={`chara_no${index}`} >
-                            <select className="status" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>
+                            <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
                                 {rarity == 1 ?
                                     Array.from({ length: 5 }, (_, i) => (
                                         <option value={i} key={`limit_${i}`}>{i}</option>
@@ -228,7 +228,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                             <input className={mndClassName} value={mnd} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
                             <input className={intClassName} value={int} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
                             <input className={lukClassName} value={luk} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
-                            <select className="status" value={jewel} onChange={(e) => { setSetting(index, "jewel_lv", e.target.value) }}>
+                            <select className="status" value={jewel} onChange={(e) => { setSetting(index, "jewelLv", e.target.value) }}>
                                 {Array.from({ length: 6 }, (_, i) => (
                                     <option value={i} key={`jewel_${i}`}>{i}</option>
                                 ))}

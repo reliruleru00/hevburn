@@ -1,6 +1,6 @@
 const HardLayer = ({ state, dispatch }) => {
 
-    const enemyInfo = state.enemy_info;
+    const enemyInfo = state.enemyInfo;
     const { styleList, loadSubMember } = useStyleList();
 
     // サブメンバー呼び出し
@@ -36,11 +36,11 @@ const HardLayer = ({ state, dispatch }) => {
                     </select>
                     <div className="flex">
                         {styleList.subStyleList.map((member, index) => {
-                            const charaId = member?.style_info.chara_id;
+                            const charaId = member?.styleInfo.chara_id;
                             return (<div key={`chara_${index}`} className={checkDuplicationChara(
                                     styleList.selectStyleList, charaId) ? "ban_style" : ""}>
                                 {member ?
-                                    <img className="sub_style" src={`icon/${member?.style_info.image_url}`} />
+                                    <img className="sub_style" src={`icon/${member?.styleInfo.image_url}`} />
                                     :
                                     <img className="sub_style" src="img/cross.png" />
                                 }

@@ -68,12 +68,12 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     let attackCharaId = attackInfo?.chara_id;
     let selectList = styleList.selectStyleList.concat(styleList.subStyleList).map(style =>
-        style?.style_info.style_id,
+        style?.styleInfo.style_id,
     ).join(',');
 
     const { buffList, abilityList, passiveList } = React.useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo);
-    }, [attackInfo, state.enemy_info, selectList]);
+    }, [attackInfo, state.enemyInfo, selectList]);
 
     const refBuffSettingMap = React.useRef(buffSettingMap);
     const refAbilitySettingMap = React.useRef(abilitySettingMap);
@@ -103,11 +103,11 @@ const BuffArea = ({ attackInfo, state, dispatch,
             let disabled = !ability.conditions;
             let limit_border = ability.limit_border;
             let memberInfo = getCharaIdToMember(styleList, ability.chara_id);
-            let limit_count = memberInfo.limit_count;
+            let limitCount = memberInfo.limitCount;
             switch (ability.range_area) {
                 case RANGE.SELF:	// 自分
-                    disabled = limit_count < limit_border || (ability.chara_id === attackCharaId && disabled);
-                    checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
+                    disabled = limitCount < limit_border || (ability.chara_id === attackCharaId && disabled);
+                    checked = limitCount >= limit_border && ability.chara_id === attackCharaId;
                     break
                 case RANGE.ALLY_FRONT:	// 味方前衛
                 case RANGE.ALLY_BACK:	// 味方後衛
@@ -117,7 +117,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     } else {
                         disabled = true;
                     }
-                    checked = limit_count >= limit_border && ability.chara_id === attackCharaId;
+                    checked = limitCount >= limit_border && ability.chara_id === attackCharaId;
                     break
                 case RANGE.ALLY_ALL:	// 味方全体
                 case RANGE.ENEMY_ALL:	// 敵全体
@@ -128,7 +128,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     } else {
                         disabled = true;
                     }
-                    if (limit_count < limit_border) {
+                    if (limitCount < limit_border) {
                         disabled = true;
                         checked = false;
                     }
@@ -329,7 +329,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         if (attackInfo) {
             dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });
         }
-    }, [state.enemy_info, attackInfo?.attack_id, resistDownEffectSize]);
+    }, [state.enemyInfo, attackInfo?.attack_id, resistDownEffectSize]);
 
     React.useEffect(() => {
         if (checkUpdate) {
@@ -338,7 +338,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 selectBestBuff();
             }
         }
-    }, [selectList, attackInfo?.attack_id, state.enemy_info]);
+    }, [selectList, attackInfo?.attack_id, state.enemyInfo]);
 
     React.useEffect(() => {
         // 山脇様のしもべ変更
@@ -604,11 +604,11 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
     let attackCharaId = attackInfo?.chara_id;
 
     targetStyleList
-        .filter(memberInfo => memberInfo && memberInfo.is_select)
-        .filter(memberInfo => !(troopKbn === TROOP_KBN.SUB && checkDuplicationChara(styleList.selectStyleList, memberInfo?.style_info.chara_id)))
-        .forEach(member_info => {
-            const charaId = member_info.style_info.chara_id;
-            const styleId = member_info.style_info.style_id;
+        .filter(memberInfo => memberInfo)
+        .filter(memberInfo => !(troopKbn === TROOP_KBN.SUB && checkDuplicationChara(styleList.selectStyleList, memberInfo?.styleInfo.chara_id)))
+        .forEach(memberInfo => {
+            const charaId = memberInfo.styleInfo.chara_id;
+            const styleId = memberInfo.styleInfo.style_id;
             const charaName = getCharaData(charaId).chara_short_name;
 
             const styleBuffList = skill_buff.filter(buff =>
@@ -658,14 +658,14 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             };
 
             let styleAbility = {
-                "0": member_info.style_info.ability0,
-                "00": member_info.style_info.ability00,
-                "1": member_info.style_info.ability1,
-                "3": member_info.style_info.ability3,
-                "5": member_info.style_info.ability5,
-                "10": member_info.style_info.ability10
+                "0": memberInfo.styleInfo.ability0,
+                "00": memberInfo.styleInfo.ability00,
+                "1": memberInfo.styleInfo.ability1,
+                "3": memberInfo.styleInfo.ability3,
+                "5": memberInfo.styleInfo.ability5,
+                "10": memberInfo.styleInfo.ability10
             };
-            if (member_info.style_info.role == ROLE.ADMIRAL) {
+            if (memberInfo.styleInfo.role == ROLE.ADMIRAL) {
                 styleAbility["00"] = ABILITY_ID_ADMIRAL_COMMON;
             }
 
@@ -722,7 +722,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     addBuffAbility("passive", passive.skill_id, charaId, passive.passive_name, BUFF.FIELD, 0, passive.effect_size);
                 } else {
                     passive.key = `${passive.skill_id}_${charaId}`;
-                    passive.member_info = member_info;
+                    passive.memberInfo = memberInfo;
                     passive.chara_id = charaId;
                     passive.chara_name = charaName;
                     passiveList.push(passive);
@@ -734,13 +734,13 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
 const getAttackUpBuffs = function (isElement, isWeak, attackInfo, selectStyleList) {
     const isShadowClone = CHARA_ID_SHADOW_CLONE.includes(attackInfo?.chara_id);
     const isWedingSharo = selectStyleList.some(
-        (member_info) => member_info?.style_info.style_id === STYLE_ID_WEDING_SHARO
+        (memberInfo) => memberInfo?.styleInfo.style_id === STYLE_ID_WEDING_SHARO
     );
     const isRisa = selectStyleList.some(
-        (member_info) => member_info?.style_info.chara_id === CHARA_ID_BABIED
+        (memberInfo) => memberInfo?.styleInfo.chara_id === CHARA_ID_BABIED
     );
     const isServant = STYLE_ID_SERVANT.includes(attackInfo?.style_id) || selectStyleList.some(
-        (member_info) => member_info?.style_info.style_id === STYLE_ID_UNISON_BUNGO
+        (memberInfo) => memberInfo?.styleInfo.style_id === STYLE_ID_UNISON_BUNGO
     );
     return [
         { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },

@@ -388,7 +388,9 @@ const DamageCalculation = () => {
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />
-                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo} selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv} />
+                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
+                        selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv}
+                        abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} state={state} dispatch={dispatch} />
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemy_info} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />

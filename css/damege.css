@@ -169,20 +169,62 @@ img.sub_style {
     max-width: 230px;
 }
 
-#attack_physical,
-#attack_element {
-    margin-top: -1px;
-}
-
-#range_area {
+.range_area {
     margin-top: 1px;
     color: white;
     width: 40px;
-    background: #149f14;
     border-radius: 0.5rem;
     display: inline-block;
     text-align: center;
     height: 21px;
+    font-size: 14px;
+}
+
+.range_area.unit {
+    background: #4169e1;
+}
+
+.range_area.all {
+    background: #c71585;
+}
+
+.ref_status {
+    margin-top: 1px;
+    color: white;
+    width: 45px;
+    border-radius: 0.5rem;
+    display: inline-block;
+    text-align: center;
+    height: 21px;
+    font-size: 14px;
+}
+
+.ref_status.str {
+    background: #e74c3c;
+}
+
+.ref_status.dex {
+    background: #e9bc09;
+}
+
+.ref_status.con {
+    background: #27ae60;
+}
+
+.ref_status.mnd {
+    background: #8e44ad;
+}
+
+.ref_status.int {
+    background: #3498db;
+}
+
+.ref_status.luk {
+    background: #f39c12;
+}
+
+.status_checkbox {
+    margin-top: -6px;
 }
 
 /* 敵情報 */

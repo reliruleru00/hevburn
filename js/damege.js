@@ -404,21 +404,16 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     }
     let enemyInfo = state.enemy_info;
 
-    // // 闘志
-    // let fightingspirit = $("#fightingspirit").prop("checked") ? 20 : 0;
-    // // 厄
-    // let misfortune = $("#misfortune").prop("checked") ? 20 : 0;
-    // // ハッキング
-    // let hacking = $("#hacking").prop("checked") ? 100 : 0;
-
-    // // 士気
-    let morale = attackMemberInfo.morale ? attackMemberInfo.morale * 5 : 0;
-    let statUp = getStatUp(state, attackMemberInfo, abilitySettingMap, passiveSettingMap);
-    // // 闘志or士気
-    // stat_up += (morale > fightingspirit ? morale : fightingspirit);
-    // // 厄orハッキング
-    // let stat_down = hacking || misfortune;
+    // ステータスアップ
+    let statUp = getStatUp(state, attackMemberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
+    // 厄orハッキング
     let enemyStatDown = 0;
+    if (attackInfo.collect?.hacking) {
+        enemyStatDown = 100;
+    } else if (attackInfo.collect?.misfortune) {
+        enemyStatDown = 20;
+    }
+    let criticalStatDown = Math.max(enemyStatDown, 50);
 
     let skillPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, enemyStatDown);
     let buff = getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
@@ -464,7 +459,7 @@ function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         skillUniqueRate = (sp > 30 ? 30 : sp) / 30;
     }
 
-    let criticalPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, 50);
+    let criticalPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, criticalStatDown);
     let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
     let criticalBuff = getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
 
@@ -1090,7 +1085,7 @@ function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelTyp
         return buffInfo.min_power;
     }
     // ステータス
-    let statUp = getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap);
+    let statUp = getStatUp(state, memberInfo, null, abilitySettingMap, passiveSettingMap);
     let status = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.03 * (skill_lv - 1));
     let maxPower = buffInfo.max_power * (1 + 0.02 * (skill_lv - 1));
@@ -1136,7 +1131,7 @@ function getDebuffEffectSize(buffInfo, skillLv, memberInfo, state, abilitySettin
         skillLv = buffInfo.max_lv;
     }
     // ステータス
-    let statUp = getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap);
+    let statUp = getStatUp(state, memberInfo, null, abilitySettingMap, passiveSettingMap);
     let status1 = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
     let status2 = memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
     let minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
@@ -1205,7 +1200,7 @@ function getEnemyDefenceRate(state) {
 }
 
 // ステータスアップ取得
-function getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap) {
+function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSettingMap) {
     let enemyInfo = state.enemy_info;
 
     let tearsOfDreams = 0;
@@ -1232,11 +1227,13 @@ function getStatUp(state, memberInfo, abilitySettingMap, passiveSettingMap) {
                 }
             });
     }
-    // // 士気
+    // 士気
     let morale = memberInfo.morale ? memberInfo.morale * 5 : 0;
+    // 闘志
+    let fightingspirit = collect?.fightingspirit ? 20 : 0;
     // パッシブ(能力固定上昇)
     let passiveStatusUp = getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.STATUSUP_VALUE, memberInfo.style_info.chara_id);
-    return tearsOfDreams + scoreBonus + morale + passiveStatusUp;
+    return tearsOfDreams + scoreBonus + (morale > fightingspirit ? morale : fightingspirit) + passiveStatusUp;
 }
 
 // カンマ削除

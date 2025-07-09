@@ -37,6 +37,20 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
         loadMember(selectTroops);
     }
 
+    // 部隊名変更
+    const editTroopsName = () => {
+        let troopsName = localStorage.getItem(`troops_${styleList.selectTroops}_name`);
+        if (troopsName === null) {
+            troopsName = "部隊" + (styleList.selectTroops);
+        }
+        troopsName = window.prompt("保存名称を入力してください", troopsName);
+        if (troopsName === null) {
+            return;
+        }
+        localStorage.setItem(`troops_${styleList.selectTroops}_name`, troopsName);
+        setStyleList({ ...styleList, troopsName: troopsName });
+    }
+
     // メンバー入れ替え
     const handleOnDragEnd = (result) => {
         if (!result.destination) return;
@@ -78,7 +92,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
     return (
         <>
             <div id="chara_status" className="grid grid-cols-7 text-center gap-y-px gap-x-0">
-                <label className="mt-3 mb-3 small_font">部隊選択</label>
+                <span className="mt-3 mb-3 small_font">部隊選択</span>
                 <div className="col-span-6 flex">
                     {Array.from({ length: 9 }, (_, i) => {
                         let className = "troops_btn " + (i === Number(styleList.selectTroops) ? "selected_troops" : "")
@@ -92,8 +106,13 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                         )
                     })}
                 </div>
+                <span className="mt-1 small_font">部隊名</span>
+                <div className="col-span-6 flex justify-center">
+                    <span className="text-base">{styleList.troopsName ? styleList.troopsName : `部隊${styleList.selectTroops}`}</span>
+                    <input type="image" className="w-6 h-6" src="img/edit.png" onClick={editTroopsName} />
+                </div>
                 <div className="mt-2">
-                    <label className="small_font">スタイル</label>
+                    <span className="small_font">スタイル</span>
                     <input defaultValue="リセット" id="style_reset_btn" type="button" onClick={resetStyle} />
                 </div>
                 <div className="col-span-6 flex">
@@ -140,17 +159,17 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     </DragDropContext>
                 </div>
                 <div>
-                    <label className="label_status">限界突破</label>
-                    <label className="label_status">力</label>
-                    <label className="label_status">器用さ</label>
-                    <label className="label_status">体力</label>
-                    <label className="label_status">精神</label>
-                    <label className="label_status">知性</label>
-                    <label className="label_status">運</label>
-                    <label className="label_status">宝珠Lv</label>
-                    <label className="label_status">トークン</label>
-                    <label className="label_status">士気</label>
-                    <label className="label_status">消費SP</label>
+                    <span className="label_status">限界突破</span>
+                    <span className="label_status">力</span>
+                    <span className="label_status">器用さ</span>
+                    <span className="label_status">体力</span>
+                    <span className="label_status">精神</span>
+                    <span className="label_status">知性</span>
+                    <span className="label_status">運</span>
+                    <span className="label_status">宝珠Lv</span>
+                    <span className="label_status">トークン</span>
+                    <span className="label_status">士気</span>
+                    <span className="label_status">消費SP</span>
                 </div>
                 {styleList.selectStyleList.map((value, index) => {
                     let style = value;

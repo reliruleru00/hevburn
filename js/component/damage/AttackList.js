@@ -263,8 +263,8 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     <span>{`${minPower.toLocaleString()}～${maxPower.toLocaleString()}`}</span>
                     <div></div>
                     <span>(スキルLv{selectSKillLv})</span>
-                    <span>破壊率</span>
-                    <span>{attackInfo.destruction}</span>
+                    <span>破壊係数</span>
+                    <span>{attackInfo.destruction}%</span>
                     <span>HIT数</span>
                     <span>{attackInfo.hit_count}</span>
                     <span>参照ステータス</span>

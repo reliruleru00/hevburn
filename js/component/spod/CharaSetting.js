@@ -84,7 +84,7 @@ const CharaSetting = () => {
 
     return (
         <div className="grid grid-cols-7 text-center gap-y-px gap-x-0" id="chara_setting">
-            <label className="mt-3 mb-3 small_font">部隊選択</label>
+            <span className="mt-3 mb-3 small_font">部隊選択</span>
             <div className="col-span-6 flex">
                 {Array.from({ length: 9 }, (_, i) => {
                     let className = "troops_btn " + (i === Number(styleList.selectTroops) ? "selected_troops" : "")
@@ -99,7 +99,7 @@ const CharaSetting = () => {
                 })}
             </div>
             <div className="mt-2">
-                <label className="small_font">スタイル</label>
+                <span className="small_font">スタイル</span>
                 <input defaultValue="リセット" id="style_reset_btn" type="button" onClick={resetStyle} />
             </div>
             <div className="col-span-6 flex">
@@ -146,12 +146,12 @@ const CharaSetting = () => {
                 </DragDropContext>
             </div>
             <div>
-                <label className="label_status">限界突破</label>
-                <label className="label_status text-xs leading-6 whitespace-nowrap">ドライブピアス</label>
-                <label className="label_status text-xs leading-5 whitespace-nowrap">ブレスレット</label>
-                <label className="label_status">チェーン</label>
-                <label className="label_status">初期SP</label>
-                <label className="label_status">スキル</label>
+                <span className="label_status">限界突破</span>
+                <span className="label_status text-xs leading-6 whitespace-nowrap">ドライブピアス</span>
+                <span className="label_status text-xs leading-5 whitespace-nowrap">ブレスレット</span>
+                <span className="label_status">チェーン</span>
+                <span className="label_status">初期SP</span>
+                <span className="label_status">スキル</span>
             </div>
             {styleList.selectStyleList.map((value, index) => {
                 let style = value;
@@ -207,7 +207,7 @@ const CharaSetting = () => {
                         modalSetting.modalType == "skill" ?
                             <ModalSkillSelectList index={modalSetting.modalIndex} closeModal={closeModal} />
                             :
-                            <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal} narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle}/>
+                            <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal} narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle} />
                     }
                 </ReactModal>
             </div>

@@ -564,10 +564,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
             <div className="mt-1 mx-auto text-left">
                 <div className="font-bold">＜＜注意事項＞＞</div>
                 <ul>
-                    <li>・闘志/厄/ハッキングは、バフ/デバフ効果量に影響を与えません。</li>
-                    <li>・士気は、バフ/デバフ効果量に影響します。</li>
                     <li>
-                        ・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「強化」ボタンで設定してください。
+                        ・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「詳細」ボタンで設定してください。
                     </li>
                 </ul>
                 <div className="mx-auto text-right">

@@ -29,16 +29,19 @@ const HardLayer = ({ state, dispatch }) => {
                         <option value="-1">なし</option>
                         {Array.from({ length: 9 }, (_, i) => i)
                             .filter(i => String(i) !== String(styleList.selectTroops)) // 不一致のみ表示
-                            .map(i => (
-                                <option key={i} value={i}>{styleList.troopName ? styleList.troopName : `部隊${i}`}</option>
-                            ))
+                            .map(i => {
+                                const troopsName = localStorage.getItem(`troops_${i}_name`)
+                                return (
+                                    <option key={i} value={i}>{troopsName === null ? `部隊${i}` : troopsName}</option>
+                                )
+                            })
                         }
                     </select>
                     <div className="flex">
                         {styleList.subStyleList.map((member, index) => {
                             const charaId = member?.styleInfo.chara_id;
                             return (<div key={`chara_${index}`} className={checkDuplicationChara(
-                                    styleList.selectStyleList, charaId) ? "ban_style" : ""}>
+                                styleList.selectStyleList, charaId) ? "ban_style" : ""}>
                                 {member ?
                                     <img className="sub_style" src={`icon/${member?.styleInfo.image_url}`} />
                                     :

@@ -119,6 +119,7 @@ const StyleListProvider = ({ children }) => {
         selectStyleList: loadTroopsList(selectTroops),
         selectTroops,
         subStyleList: Array(6).fill(undefined),
+        troopsName: localStorage.getItem(`troops_${selectTroops}_name`),
         subTroops: "-1",
     });
 
@@ -129,6 +130,7 @@ const StyleListProvider = ({ children }) => {
             selectStyleList: updatedStyleList,
             selectTroops: selectTroops,
             subStyleList: Array(6).fill(undefined),
+            troopsName: localStorage.getItem(`troops_${selectTroops}_name`),
             subTroops: "-1",
         });
     }

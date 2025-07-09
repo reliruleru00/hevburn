@@ -46,12 +46,12 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             if (style) {
                 return {
                     style_id: style.styleInfo.style_id,
-                    limit_count: style.limit_count,
+                    limitCount: style.limitCount,
                     earring: style.earring,
                     bracelet: style.bracelet,
                     chain: style.chain,
-                    init_sp: style.init_sp,
-                    exclusion_skill_list: style.exclusion_skill_list,
+                    initSp: style.initSp,
+                    exclusionSkillList: style.exclusionSkillList,
                 }
             }
         })

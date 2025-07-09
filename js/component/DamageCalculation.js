@@ -25,7 +25,7 @@ const initialMember = {
     bracelet: 1,
     chain: 3,
     initSp: 1,
-    exclusion_skill_list: [],
+    exclusionSkillList: [],
 };
 
 // ステータスを保存
@@ -43,6 +43,7 @@ const saveStyle = (memberInfo) => {
         memberInfo.earring, memberInfo.bracelet,
         memberInfo.chain, memberInfo.initSp].join(",");
         localStorage.setItem(`style_${styleId}`, saveItem);
+        saveExclusionSkill(memberInfo);
     }
 }
 
@@ -69,6 +70,23 @@ const loadStyle = (memberInfo, styleInfo) => {
         memberInfo.limitCount = 10;
     } else if (styleInfo.rarity == 3) {
         memberInfo.limitCount = 20;
+    }
+}
+
+// 除外スキルを保存
+const saveExclusionSkill = (memberInfo) => {
+    let styleId = memberInfo.styleInfo.style_id;
+    localStorage.setItem(`exclusion_${styleId}`, memberInfo.exclusionSkillList.join(","));
+}
+
+// 除外スキルを読み込む
+const loadExclusionSkill = (memberInfo) => {
+    let styleId = memberInfo.styleInfo.style_id;
+    let exclusionSkillList = localStorage.getItem(`exclusion_${styleId}`);
+    if (exclusionSkillList) {
+        memberInfo.exclusionSkillList = exclusionSkillList.split(",").map(Number);
+    } else {
+        memberInfo.exclusionSkillList = [];
     }
 }
 
@@ -103,6 +121,7 @@ const setStyleMember = (selectStyleList, selectTroops, index, styleId) => {
 
     // ステータスを読み込む
     loadStyle(memberInfo, styleInfo);
+    loadExclusionSkill(memberInfo);
     selectStyleList[index] = memberInfo;
 }
 

@@ -126,7 +126,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             >
                 <AttackDetail attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                     selectSKillLv={selectSKillLv} styleList={styleList} state={state}
-                    abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} />
+                    abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={() => setModal(false)}/>
             </ReactModal>
         </div >
     )
@@ -205,7 +205,7 @@ const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
     );
 }
 
-const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, state, abilitySettingMap, passiveSettingMap }) => {
+const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, state, abilitySettingMap, passiveSettingMap, closeModal }) => {
     const minPower = attackInfo.min_power * (1 + 0.05 * (selectSKillLv - 1));
     const maxPower = attackInfo.max_power * (1 + 0.02 * (selectSKillLv - 1));
 
@@ -245,6 +245,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
             <div className="modal text-left w-[350px] mx-auto">
                 <div>
                     <label className="damage_label">スキル詳細</label>
+                    <button className="modal-close" onClick={closeModal}>&times;</button>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
                     <span>スキル</span>

@@ -139,6 +139,11 @@ img.sub_style {
     border: solid 1px black;
 }
 
+.show_skill {
+    margin-top: 2px;
+    height: 20px;
+}
+
 @media screen and (max-width: 482px) {
     .status_area {
         width: 400px;
@@ -161,6 +166,25 @@ img.sub_style {
     .token {
         width: 50px;
     }
+}
+
+/* モーダル画面*/
+.modal_label {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 閉じるボタンのスタイル */
+.modal-close {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.2s, color 0.2s;
 }
 
 /* 攻撃技 */

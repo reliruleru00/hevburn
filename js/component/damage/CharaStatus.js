@@ -70,6 +70,11 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     };
 
+    // スキルリストの表示    
+    const showSkillList = (index) => {
+        openModal(index, "skill");
+    };
+
     const [modalSetting, setModalSetting] = React.useState({
         isOpen: false,
         modalIndex: -1,
@@ -169,6 +174,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     <span className="label_status">宝珠Lv</span>
                     <span className="label_status">トークン</span>
                     <span className="label_status">士気</span>
+                    <span className="label_status">スキル</span>
                     <span className="label_status">消費SP</span>
                 </div>
                 {styleList.selectStyleList.map((value, index) => {
@@ -262,7 +268,10 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                                     <option value={i} key={`morale_${i}`}>{i}</option>
                                 ))}
                             </select>
-                            <label id={`sp_cost_${index}`}>{sp_cost}</label>
+                            <input className="status show_skill" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
+                            <div>
+                                <span>{sp_cost}</span>
+                            </div>
                         </div>
                     )
                 })}

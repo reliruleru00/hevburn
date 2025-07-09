@@ -591,9 +591,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
                         modal.buffInfo.kbn === "buff" ?
                             <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
                                 buffSettingMap={buffSettingMap}
-                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} />
+                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={closeModal} />
                             :
-                            <AbilityDetail buffInfo={modal.buffInfo} />
+                            <AbilityDetail buffInfo={modal.buffInfo} closeModal={closeModal} />
                     )
                 }
             </ReactModal>
@@ -640,13 +640,13 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                         return attackInfo?.servant_count >= 5;
                     case BUFF_ID_MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
                         return attackInfo?.servant_count === 6;
-                    default:
-                        return true;
                 }
-            }).filter(buff => {
+                // サブ部隊
                 if (troopKbn === TROOP_KBN.SUB) {
                     return DEBUFF_LIST.includes(buff.buff_kind);
                 }
+                // 除外スキル
+                if (memberInfo.exclusionSkillList.includes(buff.skill_id)) return false;
                 return true;
             });
 
@@ -821,7 +821,7 @@ const getBuffEffectDisplay = (buffInfo, skillLv) => {
     }
 }
 
-const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySettingMap, passiveSettingMap }) => {
+const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySettingMap, passiveSettingMap, closeModal }) => {
     const charaId = buffInfo.chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
@@ -897,6 +897,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
             <div className="modal text-left w-[350px] mx-auto">
                 <div>
                     <label className="damage_label">スキル詳細</label>
+                    <button className="modal-close" onClick={closeModal}>&times;</button>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
                     <span>スキル</span>
@@ -1018,7 +1019,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
     )
 }
 
-const AbilityDetail = ({ buffInfo }) => {
+const AbilityDetail = ({ buffInfo, closeModal }) => {
     let effectSize = 0;
     // アビリティ
     switch (buffInfo.buff_kind) {
@@ -1045,6 +1046,7 @@ const AbilityDetail = ({ buffInfo }) => {
             <div className="modal text-left w-[350px] mx-auto">
                 <div>
                     <label className="damage_label">アビリティ詳細</label>
+                    <button className="modal-close" onClick={closeModal}>&times;</button>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
                     <span>アビリティ</span>

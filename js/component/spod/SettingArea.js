@@ -27,7 +27,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     let unit_list = [];
     constraints_list = [];
 
-    let init_sp_add = Number(detailSetting.initSpAdd);
+    let initSpAdd = Number(detailSetting.initSpAdd);
     // スタイル情報を作成
     $.each(selectStyleList, function (index, member_info) {
         if (index >= 6) {
@@ -61,15 +61,15 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             saveMember(index);
 
             unit.style = member_info;
-            unit.sp = member_info.init_sp;
-            unit.sp += member_info.chain + init_sp_add;
+            unit.sp = member_info.initSp;
+            unit.sp += member_info.chain + initSpAdd;
             unit.normal_attack_element = member_info.bracelet;
             unit.earring_effect_size = member_info.earring;
             unit.skill_list = skill_list.filter(obj =>
                 (obj.chara_id === member_info.styleInfo.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === member_info.styleInfo.style_id || obj.style_id === 0) &&
                 obj.skill_active == 0 &&
-                !member_info.exclusion_skill_list.includes(obj.skill_id)
+                !member_info.exclusionSkillList.includes(obj.skill_id)
             ).map(obj => {
                 const copiedObj = JSON.parse(JSON.stringify(obj));
                 if (copiedObj.chara_id === 0) {
@@ -81,7 +81,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
                 (obj.chara_id === member_info.styleInfo.chara_id || obj.chara_id === 0) &&
                 (obj.style_id === member_info.styleInfo.style_id || obj.style_id === 0) &&
                 obj.skill_active == 1 &&
-                !member_info.exclusion_skill_list.includes(obj.skill_id)
+                !member_info.exclusionSkillList.includes(obj.skill_id)
             )
             if (unit.style.styleInfo.role == ROLE_ADMIRAL) {
                 unit.init_skill_id = 4; // 指揮行動
@@ -98,7 +98,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             });
             ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
                 const num = parseInt(numStr, 10);
-                if (member_info.styleInfo[`ability${numStr}`] && num <= member_info.limit_count) {
+                if (member_info.styleInfo[`ability${numStr}`] && num <= member_info.limitCount) {
                     let ability_info = getAbilityInfo(member_info.styleInfo[`ability${numStr}`]);
                     if (!ability_info) {
                         return;
@@ -228,15 +228,13 @@ const SettingArea = () => {
                 let member_info = { ...initialMember };
                 let styleInfo = style_list.find((obj) => obj.style_id === unit_data.style_id);
                 // メンバー情報作成
-                // member_info.is_select = true;
-                member_info.chara_no = Number(index);
                 member_info.styleInfo = styleInfo;
-                member_info.limit_count = unit_data.limit_count;
+                member_info.limitCount = unit_data.limitCount;
                 member_info.earring = unit_data.earring;
                 member_info.bracelet = unit_data.bracelet;
                 member_info.chain = unit_data.chain;
-                member_info.init_sp = unit_data.init_sp;
-                member_info.exclusion_skill_list = unit_data.exclusion_skill_list;
+                member_info.initSp = unit_data.initSp;
+                member_info.exclusionSkillList = unit_data.exclusionSkillList;
                 updatedStyleList[index] = member_info;
             } else {
                 updatedStyleList[index] = undefined;

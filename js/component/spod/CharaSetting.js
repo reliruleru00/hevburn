@@ -159,12 +159,12 @@ const CharaSetting = () => {
                 let bracelet = style ? style.bracelet : 0;
                 let chain = style ? style.chain : 0;
                 let earring = style ? style.earring : 0;
-                let init_sp = style ? style.init_sp : 1;
-                let limit = style ? style.limit_count : 0;
+                let initSp = style ? style.initSp : 1;
+                let limit = style ? style.limitCount : 0;
 
                 return (
                     <div key={`chara_no${index}`} >
-                        <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limit_count", e.target.value) }}>
+                        <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
                             {rarity == 1 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
@@ -190,7 +190,7 @@ const CharaSetting = () => {
                                 <option value={i} key={`chain_${i}`}>SP+{i}</option>
                             ))}
                         </select>
-                        <input className="init_sp" value={init_sp} type="number" onChange={(e) => { setSetting(index, "init_sp", e.target.value) }} />
+                        <input className="init_sp" value={initSp} type="number" onChange={(e) => { setSetting(index, "initSp", e.target.value) }} />
                         <input className="passive" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
                     </div>
                 )

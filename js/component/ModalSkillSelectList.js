@@ -1,6 +1,6 @@
-const SkillCheckComponent = ({ skill, exclusion_skill_list, changeSkillList }) => {
+const SkillCheckComponent = ({ skill, exclusionSkillList, changeSkillList }) => {
     const skill_id = skill.skill_id;
-    const checked = !exclusion_skill_list.includes(skill_id);
+    const checked = !exclusionSkillList.includes(skill_id);
     return (
         <div key={skill_id}>
             <input className="passive_skill" id={`skill_${skill_id}`} type="checkbox" checked={checked} onChange={e => changeSkillList(e, skill_id)} />
@@ -12,7 +12,7 @@ const SkillCheckComponent = ({ skill, exclusion_skill_list, changeSkillList }) =
 const ModalSkillSelectList = ({index, closeModal}) => {
     const { styleList, setStyleList } = React.useContext(StyleListContext);
     const [skillSet, setSkillSet] = React.useState({
-        exclusion_skill_list: styleList.selectStyleList[index].exclusion_skill_list,
+        exclusionSkillList: styleList.selectStyleList[index].exclusionSkillList,
     });
 
     let has_skill_list = [];
@@ -29,23 +29,23 @@ const ModalSkillSelectList = ({index, closeModal}) => {
     }
 
     const changeSkillList = (e, skill_id) => {
-        let exclusion_skill_list = skillSet.exclusion_skill_list;
+        let exclusionSkillList = skillSet.exclusionSkillList;
         const checked = e.target.checked;
         if (checked) {
-            exclusion_skill_list.splice(exclusion_skill_list.indexOf(skill_id), 1);
+            exclusionSkillList.splice(exclusionSkillList.indexOf(skill_id), 1);
         } else {
-            exclusion_skill_list.push(skill_id);
+            exclusionSkillList.push(skill_id);
         }
-        setSkillSet({ ...skillSet, exclusion_skill_list: exclusion_skill_list });
+        setSkillSet({ ...skillSet, exclusionSkillList: exclusionSkillList });
     }
 
     const clickReleaseBtn = () => {
-        let exclusion_skill_list = skillSet.exclusion_skill_list;
-        exclusion_skill_list.splice(0);
+        let exclusionSkillList = skillSet.exclusionSkillList;
+        exclusionSkillList.splice(0);
         has_skill_list.forEach(element => {
-            exclusion_skill_list.push(element.skill_id);
+            exclusionSkillList.push(element.skill_id);
         });
-        setSkillSet({ ...skillSet, exclusion_skill_list: exclusion_skill_list });
+        setSkillSet({ ...skillSet, exclusionSkillList: exclusionSkillList });
     }
 
     // 習得スキルは同一スキルを排除
@@ -63,23 +63,23 @@ const ModalSkillSelectList = ({index, closeModal}) => {
             <div className="text-sm text-right">
                 <input className="w-20 mt-2 mb-2 default" defaultValue="すべてはずす" type="button" onClick={clickReleaseBtn} />
             </div>
-            <div id="exclusion_skill_list">
+            <div id="exclusionSkillList">
                 <label>■習得スキル</label>
                 {learn_skill_list.map((skill) =>
-                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                 )}
                 {passive_skill_list.length > 0 ?
                     <>
                         <label>■パッシブスキル</label>
                         {passive_skill_list.map((skill) =>
-                            <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                            <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                         )}
                     </>
                     : null
                 }
                 <label>■オーブスキル</label>
                 {orb_skill_list.map((skill) =>
-                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusion_skill_list={skillSet.exclusion_skill_list} changeSkillList={changeSkillList} />
+                    <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                 )}
             </div>
         </div>

@@ -246,9 +246,9 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                 <div>
                     <label className="damage_label">スキル詳細</label>
                 </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2">
-                    <span className="text-center">スキル</span>
-                    <span className="text-center">{attackInfo.attack_name}</span>
+                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                    <span>スキル</span>
+                    <span>{attackInfo.attack_name}</span>
                     <div></div>
                     <div className="flex justify-center items-center h-full">
                         <div className="flex">
@@ -259,16 +259,16 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                             </span>
                         </div>
                     </div>
-                    <span className="text-center">攻撃力</span>
-                    <span className="text-center">{`${minPower.toLocaleString()}～${maxPower.toLocaleString()}`}</span>
+                    <span>攻撃力</span>
+                    <span>{`${minPower.toLocaleString()}～${maxPower.toLocaleString()}`}</span>
                     <div></div>
-                    <span className="text-center">(スキルLv{selectSKillLv})</span>
-                    <span className="text-center">破壊率</span>
-                    <span className="text-center">{attackInfo.destruction}</span>
-                    <span className="text-center">HIT数</span>
-                    <span className="text-center">{attackInfo.hit_count}</span>
-                    <span className="text-center">参照ステータス</span>
-                    <span className="text-center">
+                    <span>(スキルLv{selectSKillLv})</span>
+                    <span>破壊率</span>
+                    <span>{attackInfo.destruction}</span>
+                    <span>HIT数</span>
+                    <span>{attackInfo.hit_count}</span>
+                    <span>参照ステータス</span>
+                    <span>
                         {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
                             {jpnName[attackInfo.ref_status_1]}</span> : null}
                         {attackInfo.ref_status_1 !== 0 && attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
@@ -280,54 +280,54 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     </span>
                     {attackInfo.dp_damege !== 0 ? (
                         <>
-                            <span className="text-center">DP補正</span>
-                            <span className="text-center">+{attackInfo.dp_damege}%</span>
+                            <span>DP補正</span>
+                            <span>+{attackInfo.dp_damege}%</span>
                         </>
                     ) : null}
                     {attackInfo.hp_damege !== 0 ? (
                         <>
-                            <span className="text-center">HP補正</span>
-                            <span className="text-center">+{attackInfo.hp_damege}%</span>
+                            <span>HP補正</span>
+                            <span>+{attackInfo.hp_damege}%</span>
                         </>
                     ) : null}
                     {attackInfo.penetration && (
                         <>
-                            <span className="text-center">貫通クリティカル</span>
-                            <span className="text-center">+{attackInfo.penetration}%</span>
+                            <span>貫通クリティカル</span>
+                            <span>+{attackInfo.penetration}%</span>
                         </>
                     )}
                 </div>
                 <div className="mt-2">
                     <label className="damage_label">ステータス情報</label>
                 </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2">
-                    <span className="text-center">スキル上限</span>
-                    <span className="text-center">{
+                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                    <span>スキル上限</span>
+                    <span>{
                         enemyStat + attackInfo.param_limit - enemyStatDown}({enemyStat + attackInfo.param_limit - criticalStatDown})
                     </span>
-                    <span className="text-center">宝珠上限</span>
-                    <span className="text-center">{
+                    <span>宝珠上限</span>
+                    <span>{
                         enemyStat + attackInfo.param_limit + 100 - enemyStatDown}({enemyStat + attackInfo.param_limit + 100 - criticalStatDown})
                     </span>
                     <div></div>
-                    <span className="text-center">()内はクリティカル時</span>
-                    <span className="text-center">使用者ステータス</span>
-                    <span className="text-center">{Math.floor(status * 100) / 100}</span>
-                    <span className="text-center">使用者宝珠強化</span>
-                    <span className="text-center">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
-                    <span className="text-center">闘志</span>
+                    <span className="explain">()内はクリティカル時</span>
+                    <span>使用者ステータス</span>
+                    <span>{Math.floor(status * 100) / 100}</span>
+                    <span>使用者宝珠強化</span>
+                    <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
+                    <span>闘志</span>
                     <div className="text-center status_checkbox">
                         <input type="checkbox" id="fightingspirit" checked={attackInfo.collect?.fightingspirit}
                             onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, fightingspirit: e.target.checked } })} />
                         <label htmlFor="fightingspirit" className="checkbox01"></label>
                     </div>
-                    <span className="text-center">厄</span>
+                    <span>厄</span>
                     <div className="text-center status_checkbox">
                         <input type="checkbox" id="misfortune" checked={attackInfo.collect?.misfortune}
                             onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, misfortune: e.target.checked } })} />
                         <label htmlFor="misfortune" className="checkbox01"></label>
                     </div>
-                    <span className="text-center">ハッキング</span>
+                    <span>ハッキング</span>
                     <div className="text-center status_checkbox">
                         <input type="checkbox" id="hacking" checked={attackInfo.collect?.hacking}
                             onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, hacking: e.target.checked } })} />
@@ -337,11 +337,11 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                 <div className="mt-2">
                     <label className="damage_label">スキル攻撃力</label>
                 </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2">
-                    <span className="text-center">クリティカル</span>
-                    <span className="text-center">{criticalPower}</span>
-                    <span className="text-center">通常ダメージ</span>
-                    <span className="text-center">{skillPower}</span>
+                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                    <span>クリティカル</span>
+                    <span>{criticalPower}</span>
+                    <span>通常ダメージ</span>
+                    <span>{skillPower}</span>
                 </div>
             </div>
         </div>

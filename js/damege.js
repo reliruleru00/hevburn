@@ -1,6 +1,7 @@
 
 const CHARA_ID_SHADOW_CLONE = [17, 18];
-const CHARA_ID_BABIED = [22];
+const CHARA_ID_RISA = 22;
+const CHARA_ID_MIYA = 45;
 
 const STYLE_ID_ONLY_MONN_LIGHT = 145;
 const STYLE_ID_WEDING_SHARO = 123;
@@ -23,6 +24,9 @@ const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
     BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN];
 const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
+
+const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
+const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
 
 // 倍率表示
 function convertToPercentage(value) {
@@ -171,6 +175,8 @@ function getEffectSize(buff, skillLv, memberInfo, state, abilitySettingMap, pass
                 return 50;
             case BUFF.SHADOW_CLONE: // 影分身
                 return 30;
+            case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
+                return 50;
             default:
                 break;
         }
@@ -208,8 +214,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
     let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
-    let attack_up = [BUFF_ATTACKUP, BUFF_ELEMENT_ATTACKUP];
-    if (attack_up.includes(buff.buff_kind)) {
+    if (KIND_ATTACKUP.includes(buff.buff_kind)) {
         Object.values(abilitySettingMap)
             .filter(ability => ability.chara_id == charaId)
             .filter(ability => ability.checked)
@@ -231,9 +236,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
             })
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
-    let defense_down = [BUFF_DEFENSEDOWN, BUFF_ELEMENT_DEFENSEDOWN,
-        BUFF_DEFENSEDP, BUFF_ETERNAL_DEFENSEDOWN, BUFF_ELEMENT_ETERNAL_DEFENSEDOWN];
-    if (defense_down.includes(buff.buff_kind)) {
+    if (KIND_DEFENSEDOWN.includes(buff.buff_kind)) {
         Object.values(abilitySettingMap)
             .filter(ability => ability.chara_id == charaId)
             .filter(ability => ability.checked)

@@ -227,6 +227,16 @@ img.sub_style {
     margin-top: -6px;
 }
 
+.explain {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
 /* 敵情報 */
 .enemy_label {
     width: 80px;

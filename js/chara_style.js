@@ -159,7 +159,7 @@
     {"style_id":159,"chara_id":39,"rarity":1,"style_name":"謳うそよ風の向かう先","image_url":"IRedmayneIdyllic_R3_Thumbnail.webp","role":4,"element":0,"jewel_type":3,"ability0":1527,"ability00":1116,"ability3":1004},
     {"style_id":160,"chara_id":41,"rarity":1,"style_name":"ヴァカンザ・エレガンテ","image_url":"MdAngelisMafia_R3_Thumbnail.webp","role":1,"element":1,"jewel_type":3,"ability0":1511,"ability1":1101,"ability3":1208},
     {"style_id":161,"chara_id":16,"rarity":1,"style_name":"悪の軍団進軍開始でゲス！","image_url":"YBungoEvil_R3_Thumbnail.webp","role":2,"element":0,"jewel_type":1,"ability0":13,"ability00":1140,"ability1":511,"ability3":1609,"ability4":1209},
-    {"style_id":162,"chara_id":14,"rarity":1,"style_name":"魔王に仕えし幻影の大魔道士","image_url":"SSakurabaEvil_R3_Thumbnail.webp","role":7,"element":0,"jewel_type":6,"ability0":1007,"ability00":14,"ability1":1101,"ability3":1610},
+    {"style_id":162,"chara_id":14,"rarity":1,"style_name":"魔王に仕えし幻影の大魔道士","image_url":"SSakurabaEvil_R3_Thumbnail.webp","role":7,"element":0,"jewel_type":7,"ability0":1007,"ability00":14,"ability1":1101,"ability3":1610},
     {"style_id":163,"chara_id":15,"rarity":1,"style_name":"魔王に仕えし冥界の死霊使い","image_url":"MTenneEvil_R3_Thumbnail.webp","role":4,"element":5,"jewel_type":2,"ability0":15,"ability00":1022,"ability1":1101,"ability3":1529},
     {"style_id":164,"chara_id":28,"rarity":1,"style_name":"ゆるりたゆたう湯道楽","image_url":"YoOhshimaYukata2025_R3_Thumbnail.webp","role":5,"element":5,"jewel_type":3,"ability0":1530,"ability00":1901,"ability1":1107,"ability3":1141},
     {"style_id":165,"chara_id":31,"rarity":1,"style_name":"夜の香り、薔薇の調べ","image_url":"MYanagiWhiteSuit_R3_Thumbnail.webp","role":8,"element":0,"jewel_type":3,"ability0":17,"ability1":1101,"ability3":605},

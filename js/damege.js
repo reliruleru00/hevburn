@@ -1070,14 +1070,14 @@ function getBuffIdToBuff(buff_id) {
 }
 
 // バフ効果量
-function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
+function getBuffEffectSize(buffInfo, skillLv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
     const NOT_JEWEL_TYPE = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP];
     let jewelLv = 0;
     if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type == targetJewelType) {
         jewelLv = memberInfo.jewelLv;
     }
-    if (skill_lv > buffInfo.max_lv) {
-        skill_lv = buffInfo.max_lv;
+    if (skillLv > buffInfo.max_lv) {
+        skillLv = buffInfo.max_lv;
     }
     // 固定量のバフ
     if (STATUS_KBN[buffInfo.ref_status_1] == 0) {
@@ -1086,8 +1086,8 @@ function getBuffEffectSize(buffInfo, skill_lv, memberInfo, state, targetJewelTyp
     // ステータス
     let statUp = getStatUp(state, memberInfo, null, abilitySettingMap, passiveSettingMap);
     let status = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
-    let minPower = buffInfo.min_power * (1 + 0.03 * (skill_lv - 1));
-    let maxPower = buffInfo.max_power * (1 + 0.02 * (skill_lv - 1));
+    let minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
+    let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
     let skillStat = buffInfo.param_limit;
     let effectSize = 0;
     // 宝珠分以外

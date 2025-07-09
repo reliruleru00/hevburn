@@ -412,27 +412,9 @@ table td.kind {
     background-color: #CCC;
 }
 
-table td.row_element-1,
-table td.row_element-2,
-table td.row_element-3,
-table td.row_element-4,
-table td.row_element-5 {
-    display: none;
-}
-
-label.strengthen span {
-    color: #333;
-    font-size: 14px;
-    border: 1px solid #333;
-    border-radius: 7px;
-    padding: 1px 1px 1px 1px;
-    user-select: none;
-}
-
-label.strengthen input:checked+span {
-    color: #FFF;
-    background: #149f14;
-    border-color: #149f14;
+.strengthen {
+    height: 17px;
+    width: 100%;
 }
 
 select.buff {

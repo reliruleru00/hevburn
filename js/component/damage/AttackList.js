@@ -271,7 +271,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     <span className="text-center">
                         {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
                             {jpnName[attackInfo.ref_status_1]}</span> : null}
-                        {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
+                        {attackInfo.ref_status_1 !== 0 && attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
                             {jpnName[attackInfo.ref_status_1]}</span> : null}
                         {attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_2]}`}>
                             {jpnName[attackInfo.ref_status_2]}</span> : null}
@@ -301,16 +301,20 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     <label className="damage_label">ステータス情報</label>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2">
-                    <span className="text-center">使用者ステータス</span>
-                    <span className="text-center">{Math.floor(status * 100) / 100}</span>
-                    <span className="text-center">スキル上限(クリティカル)</span>
+                    <span className="text-center">スキル上限</span>
                     <span className="text-center">{
                         enemyStat + attackInfo.param_limit - enemyStatDown}({enemyStat + attackInfo.param_limit - criticalStatDown})
                     </span>
-                    <span className="text-center">宝珠上限(クリティカル)</span>
+                    <span className="text-center">宝珠上限</span>
                     <span className="text-center">{
                         enemyStat + attackInfo.param_limit + 100 - enemyStatDown}({enemyStat + attackInfo.param_limit + 100 - criticalStatDown})
                     </span>
+                    <div></div>
+                    <span className="text-center">()内はクリティカル時</span>
+                    <span className="text-center">使用者ステータス</span>
+                    <span className="text-center">{Math.floor(status * 100) / 100}</span>
+                    <span className="text-center">使用者宝珠強化</span>
+                    <span className="text-center">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
                     <span className="text-center">闘志</span>
                     <div className="text-center status_checkbox">
                         <input type="checkbox" id="fightingspirit" checked={attackInfo.collect?.fightingspirit}

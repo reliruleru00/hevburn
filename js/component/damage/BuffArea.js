@@ -350,9 +350,12 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     const [modal, setModal] = React.useState({
         isOpen: false,
-        mode: ""
+        mode: "",
+        buffInfo: {}
     });
-    const openModal = (mode) => setModal({ isOpen: true });
+    const openModal = (mode, buffInfo) =>
+        setModal({ isOpen: true, mode: mode, buffInfo: buffInfo }
+        );
     const closeModal = () => setModal({ isOpen: false, mode: "" });
 
     return (
@@ -362,15 +365,13 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     <input
                         className="buff_btn"
                         defaultValue="全て外す"
-                        id="all_delete"
                         type="button"
                         onClick={selectNoneBuff}
                     />
                     <input
                         className="buff_btn"
                         defaultValue="一括設定"
-                        id="open_select_buff"
-                        onClick={openModal}
+                        onClick={() => openModal("bulkSetting")}
                         type="button"
                     />
                 </div>
@@ -413,6 +414,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
+                                    openModal={openModal}
                                 />
                             )
                         })}
@@ -435,6 +437,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
+                                    openModal={openModal}
                                 />
                             )
                         })}
@@ -457,6 +460,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
+                                    openModal={openModal}
                                 />
                             )
                         })}
@@ -480,6 +484,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 selectedKey={selectBuffKeyMap[filedKey] || ""}
                                 index={0}
                                 handleSelectChange={handleSelectChange}
+                                openModal={openModal}
                             />
                         </tr>
                         <tr className="sp_only">
@@ -502,6 +507,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                 selectedKey={selectBuffKeyMap[chargeKey] || ""}
                                 index={0}
                                 handleSelectChange={handleSelectChange}
+                                openModal={openModal}
                             />
                         </tr>
                         <tr className="sp_only">
@@ -578,7 +584,15 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 className={"modal-content " + (modal.isOpen ? "modal-content-open" : "")}
                 overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
             >
-                <BuffBulkSetting buffList={buffList} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />
+                {
+                    modal.mode === "bulkSetting" && <BuffBulkSetting buffList={buffList} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />
+                }
+                {
+                    modal.mode === "buffDetail" &&
+                    <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
+                        buffSettingMap={buffSettingMap}
+                        abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} />
+                }
             </ReactModal>
         </div >
     )
@@ -775,4 +789,148 @@ const getCriticalBuffs = function (isElement) {
             { name: "属性クリダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP, overlap: true },
         ] : []),
     ]
+}
+
+const getBuffEffectDisplay = (buffInfo, skillLv) => {
+    let minPower;
+    let maxPower;
+    switch (buffInfo.buff_kind) {
+        case BUFF.FUNNEL:
+            let unit = buffInfo.effect_size;
+            minPower = buffInfo.min_power;
+            maxPower = buffInfo.max_power;
+            if (minPower == maxPower) {
+                return `${unit}%×${minPower}Hit`
+            } else {
+                return `${unit}%×${minPower}Hit～${maxPower}Hit`
+            }
+        default:
+            minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
+            maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
+            if (minPower == maxPower) {
+                return `${minPower.toLocaleString()}%`
+            } else {
+                return `${minPower.toLocaleString()}%～${maxPower.toLocaleString()}%`
+            }
+    }
+}
+
+const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySettingMap, passiveSettingMap }) => {
+    const memberInfo = getCharaIdToMember(styleList, buffInfo.chara_id);
+    const enemyInfo = state.enemyInfo;
+    const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
+    const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_kind)
+
+    let statUp = getStatUp(state, memberInfo, buffInfo.collect, abilitySettingMap, passiveSettingMap);
+    let enemyStatDown = 0;
+    let enemyStat = 0;
+    if (isDebuff) {
+        enemyStat = enemyInfo.enemy_stat;
+        if (buffInfo.collect?.hacking) {
+            enemyStatDown = 100;
+        } else if (buffInfo.collect?.misfortune) {
+            enemyStatDown = 20;
+        }
+    }
+
+    let molecule = 0;
+    let denominator = 0;
+    if (buffInfo.ref_status_1 != 0) {
+        molecule += (memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp) * 2;
+        denominator += 2;
+    }
+    if (buffInfo.ref_status_2 != 0) {
+        molecule += memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
+        denominator += 1;
+    }
+    let status = molecule / denominator;
+
+    const buffSeting = buffSettingMap[buffInfo.key];
+
+    const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
+
+    return (
+        <div className="modal__container container_damage">
+            <div className="modal text-left w-[350px] mx-auto">
+                <div>
+                    <label className="damage_label">スキル詳細</label>
+                </div>
+                <div className="w-[350px] mx-auto grid grid-cols-2">
+                    <span className="text-center">スキル</span>
+                    <span className="text-center">{buffInfo.buff_name}</span>
+                    <span className="text-center">効果量</span>
+                    <span className="text-center">{getBuffEffectDisplay(buffInfo, buffSeting.skill_lv)}</span>
+                    <div></div>
+                    <span className="text-center">(スキルLv{buffSeting.skill_lv})</span>
+                    {buffInfo.ref_status_1 !== 0  && buffInfo.min_power != buffInfo.max_power &&
+                        <>
+                            <span className="text-center">参照ステータス</span>
+                            <span className="text-center">
+                                {buffInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
+                                    {jpnName[buffInfo.ref_status_1]}</span> : null}
+                                {buffInfo.ref_status_1 !== 0 && buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
+                                    {jpnName[buffInfo.ref_status_1]}</span> : null}
+                                {buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_2]}`}>
+                                    {jpnName[buffInfo.ref_status_2]}</span> : null}
+                            </span>
+                        </>
+                    }
+                </div>
+                {buffInfo.param_limit != 0 && buffInfo.min_power != buffInfo.max_power && (
+                    <>
+                        <div className="mt-2">
+                            <label className="damage_label">ステータス情報</label>
+                        </div>
+                        <div className="w-[350px] mx-auto grid grid-cols-2">
+                            <span className="text-center">スキル上限</span>
+                            <span className="text-center">{enemyStat + buffInfo.param_limit - enemyStatDown}</span>
+                            {isJewel &&
+                                <>
+                                    <span className="text-center">宝珠上限</span>
+                                    <span className="text-center">{enemyStat + buffInfo.param_limit + 100 - enemyStatDown}</span>
+                                </>
+                            }
+                            <span className="text-center">使用者ステータス</span>
+                            <span className="text-center">{Math.floor(status * 100) / 100}</span>
+                            {isJewel &&
+                                <>
+                                    <span className="text-center">使用者宝珠強化</span>
+                                    <span className="text-center">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
+                                </>
+                            }
+                            <span className="text-center">闘志</span>
+                            <div className="text-center status_checkbox">
+                                <input type="checkbox" id="fightingspirit" checked={buffInfo.collect?.fightingspirit}
+                                    onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, fightingspirit: e.target.checked } })} />
+                                <label htmlFor="fightingspirit" className="checkbox01"></label>
+                            </div>
+                            {isDebuff &&
+                                <>
+                                    <span className="text-center">厄</span>
+                                    <div className="text-center status_checkbox">
+                                        <input type="checkbox" id="misfortune" checked={buffInfo.collect?.misfortune}
+                                            onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, misfortune: e.target.checked } })} />
+                                        <label htmlFor="misfortune" className="checkbox01"></label>
+                                    </div>
+                                    <span className="text-center">ハッキング</span>
+                                    <div className="text-center status_checkbox">
+                                        <input type="checkbox" id="hacking" checked={buffInfo.collect?.hacking}
+                                            onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, hacking: e.target.checked } })} />
+                                        <label htmlFor="hacking" className="checkbox01"></label>
+                                    </div>
+                                </>
+                            }
+                        </div>
+                    </>
+                )}
+                {/* <div className="mt-2">
+                    <label className="damage_label">効果量</label>
+                </div>
+                <div className="w-[350px] mx-auto grid grid-cols-2">
+                    <span className="text-center">通常ダメージ</span>
+                    <span className="text-center">{skillPower}</span>
+                </div> */}
+            </div>
+        </div>
+    )
 }

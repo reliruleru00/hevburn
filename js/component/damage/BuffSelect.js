@@ -1,7 +1,7 @@
 
 
 const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
-    buffList, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange }) => {
+    buffList, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange, openModal }) => {
 
     let isAlone = false;
     if (selectedKey[0]) {
@@ -31,6 +31,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
                     selectedKey={selectedKey}
                     index={0}
                     handleSelectChange={handleSelectChange}
+                    openModal={openModal}
                 />
             </tr>
             {buffDef.overlap &&
@@ -56,6 +57,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
                             selectedKey={selectedKey}
                             index={1}
                             handleSelectChange={handleSelectChange}
+                            openModal={openModal}
                         />
                     }
 
@@ -65,7 +67,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
     )
 }
 
-const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange }) => {
+const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange, openModal }) => {
     let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo)
     if (Object.keys(buffSettingMap).length > 0) {
         kindBuffList.sort((a, b) => buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size);
@@ -109,10 +111,9 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
                 </select>
             </td>
             <td>
-                <label className="strengthen hidden">
-                    <input type="checkbox" />
-                    <span>強化</span>
-                </label>
+                {value &&
+                    <input className="strengthen" type="button" value={"詳細"} onClick={() => openModal("buffDetail", selectBuff)} />
+                }
             </td>
             <td>
                 {selectBuff ?

@@ -10,7 +10,6 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
             ...updatedStyleList[place_no],
             [item]: Number(value)
         };
-        saveMember(place_no);
         setLastUpdatedIndex(place_no);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
     }
@@ -81,7 +80,13 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
         modalType: null,
     });
     const openModal = (index, type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, });
-    const closeModal = () => setModalSetting({ isOpen: false });
+
+    const closeModal = () => {
+        if (modalSetting.modalType == "skill") {
+            setLastUpdatedIndex(modalSetting.modalIndex);
+        }
+        setModalSetting({ isOpen: false });
+    };
 
     const [narrowStyle, setNarrowStyle] = React.useState({
         physical: null,

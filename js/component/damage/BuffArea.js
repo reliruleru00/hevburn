@@ -67,9 +67,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
     const [checkUpdate, setCheckUpdate] = React.useState(true);
 
     let attackCharaId = attackInfo?.chara_id;
-    let selectList = styleList.selectStyleList.concat(styleList.subStyleList).map(style =>
-        style?.styleInfo.style_id,
-    ).join(',');
+    let selectList = styleList.selectStyleList.concat(styleList.subStyleList).map(style =>{
+        return style?.styleInfo.style_id + style?.exclusionSkillList.map(skill => skill).join(',');
+    }).join(',');
 
     const { buffList, abilityList, passiveList } = React.useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo);
@@ -297,6 +297,20 @@ const BuffArea = ({ attackInfo, state, dispatch,
             handleSelectChange(buffKey, getBestBuffKeys(buffKind, buffItemList, refBuffSettingMap.current));
         })
     }
+   
+    // 存在しないバフの設定を外す
+    const outNotExistBuff = () => {
+        Object.keys(selectBuffKeyMap).forEach((buffKey) => {
+            const selectedKeys = selectBuffKeyMap[buffKey].map(selectedKey => {
+                if (refBuffSettingMap.current[selectedKey]) {
+                    return selectedKey;
+                } else {
+                    return "";
+                }
+            })
+            handleSelectChange(buffKey, selectedKeys);
+        })
+    }
 
     // 選択内から最良を設定
     const setBestBuff = (buffKey, buffKind, buffItemList) => {
@@ -337,6 +351,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
             if (attackInfo) {
                 selectBestBuff();
             }
+        } else {
+            outNotExistBuff();
         }
     }, [selectList, attackInfo?.attack_id, state.enemyInfo]);
 

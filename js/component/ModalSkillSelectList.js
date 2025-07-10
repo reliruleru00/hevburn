@@ -9,16 +9,16 @@ const SkillCheckComponent = ({ skill, exclusionSkillList, changeSkillList }) => 
     );
 }
 
-const ModalSkillSelectList = ({index, closeModal}) => {
+const ModalSkillSelectList = ({ index, closeModal }) => {
     const { styleList, setStyleList } = React.useContext(StyleListContext);
     const [skillSet, setSkillSet] = React.useState({
         exclusionSkillList: styleList.selectStyleList[index].exclusionSkillList,
     });
 
-    let has_skill_list = [];
+    let hasSkillList = [];
     if (styleList.selectStyleList[index]) {
         const styleInfo = styleList.selectStyleList[index].styleInfo;
-        has_skill_list = skill_list.filter(obj =>
+        hasSkillList = skill_list.filter(obj =>
             (obj.chara_id === styleInfo.chara_id || obj.chara_id === 0) &&
             (obj.style_id === styleInfo.style_id || obj.style_id === 0) &&
             obj.skill_attribute != ATTRIBUTE.NORMAL_ATTACK &&
@@ -29,58 +29,80 @@ const ModalSkillSelectList = ({index, closeModal}) => {
     }
 
     const changeSkillList = (e, skill_id) => {
-        let exclusionSkillList = skillSet.exclusionSkillList;
         const checked = e.target.checked;
-        if (checked) {
-            exclusionSkillList.splice(exclusionSkillList.indexOf(skill_id), 1);
-        } else {
-            exclusionSkillList.push(skill_id);
-        }
-        setSkillSet({ ...skillSet, exclusionSkillList: exclusionSkillList });
-    }
+        const updatedList = checked
+            ? skillSet.exclusionSkillList.filter(id => id !== skill_id)
+            : [...skillSet.exclusionSkillList, skill_id];
+
+        setSkillSet({ ...skillSet, exclusionSkillList: updatedList });
+    };
 
     const clickReleaseBtn = () => {
-        let exclusionSkillList = skillSet.exclusionSkillList;
-        exclusionSkillList.splice(0);
-        has_skill_list.forEach(element => {
-            exclusionSkillList.push(element.skill_id);
-        });
-        setSkillSet({ ...skillSet, exclusionSkillList: exclusionSkillList });
-    }
+        const allSkillIds = hasSkillList.map(skill => skill.skill_id);
+        setSkillSet({ ...skillSet, exclusionSkillList: [...allSkillIds] });
+    };
+
+    const clickOrbReleaseBtn = () => {
+        const orbSkillIds = hasSkillList
+            .filter(skill => skill.skill_id >= 9000)
+            .map(skill => skill.skill_id);
+
+        const updatedList = Array.from(new Set([
+            ...skillSet.exclusionSkillList,
+            ...orbSkillIds,
+        ]));
+        setSkillSet({ ...skillSet, exclusionSkillList: updatedList });
+    };
+
+    const clickSetBtn = () => {
+        const updatedSelectStyleList = [...styleList.selectStyleList];
+        updatedSelectStyleList[index] = {
+            ...updatedSelectStyleList[index],
+            exclusionSkillList: [...skillSet.exclusionSkillList],
+        };
+
+        setStyleList({ ...styleList, selectStyleList: updatedSelectStyleList });
+        closeModal();
+    };
 
     // 習得スキルは同一スキルを排除
-    const learn_skill_list = Array.from(
-        new Map(has_skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0).map(item => [item.skill_id, item])).values()
-      );
-    const passive_skill_list = has_skill_list.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 1);
-    const orb_skill_list = has_skill_list.filter((skill) => skill.skill_id > 9000);
+    const learnSkillList = Array.from(
+        new Map(hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0).map(item => [item.skill_id, item])).values()
+    );
+    const passiveSkillList = hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 1);
+    const orbSkillList = hasSkillList.filter((skill) => skill.skill_id > 9000);
     return (
         <div className="p-6">
             <div className="skill_select_container">
-                <label className="modal_label">スキル設定</label>
+                <span className="modal_label">スキル設定</span>
                 <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
             <div className="text-sm text-right">
-                <input className="w-20 mt-2 mb-2 default" defaultValue="すべてはずす" type="button" onClick={clickReleaseBtn} />
+                <input className="w-20" defaultValue="全て外す" type="button" onClick={clickReleaseBtn} />
             </div>
-            <div id="exclusionSkillList">
-                <label>■習得スキル</label>
-                {learn_skill_list.map((skill) =>
+            <div>
+                <span>■習得スキル</span>
+                {learnSkillList.map((skill) =>
                     <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                 )}
-                {passive_skill_list.length > 0 ?
+                {passiveSkillList.length > 0 &&
                     <>
-                        <label>■パッシブスキル</label>
-                        {passive_skill_list.map((skill) =>
+                        <span>■パッシブスキル</span>
+                        {passiveSkillList.map((skill) =>
                             <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                         )}
                     </>
-                    : null
                 }
-                <label>■オーブスキル</label>
-                {orb_skill_list.map((skill) =>
+                <div>
+                    <span>■オーブスキル</span>
+                    <input className="w-32 text-sm" defaultValue="オーブのみ全て外す" type="button" onClick={clickOrbReleaseBtn} />
+                </div>
+                {orbSkillList.map((skill) =>
                     <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />
                 )}
+            </div>
+            <div className="text-center mt-2">
+                <input type="button" className="w-24" onClick={clickSetBtn} value={"設定"} />
             </div>
         </div>
     )

@@ -102,6 +102,7 @@ const BUFF = {
     YAMAWAKI_SERVANT: 39, // 山脇様のしもべ 
     HIGH_BOOST: 40, // ハイブースト 
     SHADOW_CLONE : 41, // 影分身
+    MAKEUP : 42, // メイクアップ
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -171,6 +172,7 @@ const EFFECT = {
     TOKEN_DAMAGERATEUP: 33, // トークン1つにつき破壊率アップ
     YAMAWAKI_SERVANT: 39, // 山脇様のしもべ
     HIGH_BOOST: 40, // ハイブースト状態
+    MAKEUP: 41, // メイクアップ
     NEGATIVE: 51, // ネガティブ
     HEALEP: 52, // EP回復
 }
@@ -334,6 +336,7 @@ const CONDITIONS = {
     DIVA_BLESS: 42, // 歌姫の加護
     NOT_DIVA_BLESS: 43, // 歌姫の加護以外
     NOT_NEGATIVE: 44, // ネガティブ以外
+    HAS_MAEKUP: 45, // メイクアップ状態
     ENEMY_COUNT_1: 51, // 敵1体
     ENEMY_COUNT_2: 52, // 敵2体
     ENEMY_COUNT_3: 53, // 敵3体

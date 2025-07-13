@@ -168,6 +168,8 @@
     {"style_id":168,"chara_id":38,"rarity":1,"style_name":"瑠璃色絢爛美々","image_url":"LShanhuaBride_R3_Thumbnail.webp","role":4,"element":0,"jewel_type":2,"ability0":1143,"ability1":1101,"ability3":1531},
     {"style_id":169,"chara_id":10,"rarity":1,"style_name":"サンセット・ユートピア","image_url":"SHiguchiSwim2025_R3_Thumbnail.webp","role":5,"element":1,"jewel_type":3,"ability0":513,"ability1":1101,"ability3":1612},
     {"style_id":170,"chara_id":11,"rarity":1,"style_name":"プールサイド・モーメント","image_url":"KHiiragiSwim2025_R3_Thumbnail.webp","role":3,"element":5,"jewel_type":1,"ability0":1518,"ability1":1101,"ability3":1613},
+    {"style_id":171,"chara_id":26,"rarity":1,"style_name":"渚のピュアメモリー","image_url":"NiOhshimaPrivate_R3_Thumbnail.webp","role":1,"element":5,"jewel_type":1,"ability0":1009,"ability1":1101,"ability3":273},
+    {"style_id":172,"chara_id":30,"rarity":1,"style_name":"さざなみ・フィールグッド","image_url":"MuOhshimaPrivate_R3_Thumbnail.webp","role":7,"element":0,"jewel_type":6,"ability0":1701,"ability1":1139,"ability3":1403},
     {"style_id":5001,"chara_id":1,"rarity":2,"style_name":"戦場のフレット","image_url":"RKayamoriDefault_R2_Thumbnail.webp","role":1,"element":0,"jewel_type":1,"ability3":1502},
     {"style_id":5002,"chara_id":3,"rarity":2,"style_name":"Impact Stream","image_url":"MAikawaDefault_R2_Thumbnail.webp","role":6,"element":0,"jewel_type":4,"ability3":212},
     {"style_id":5003,"chara_id":6,"rarity":2,"style_name":"ときめきアークライト","image_url":"TKunimiDefault_R2_Thumbnail.webp","role":4,"element":0,"jewel_type":2,"ability3":1109},

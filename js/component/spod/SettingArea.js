@@ -229,12 +229,12 @@ const SettingArea = () => {
                 let styleInfo = style_list.find((obj) => obj.style_id === unit_data.style_id);
                 // メンバー情報作成
                 member_info.styleInfo = styleInfo;
-                member_info.limitCount = unit_data.limitCount;
+                member_info.limitCount = unit_data.limitCount || unit_data.limit_count ;
                 member_info.earring = unit_data.earring;
                 member_info.bracelet = unit_data.bracelet;
                 member_info.chain = unit_data.chain;
-                member_info.initSp = unit_data.initSp;
-                member_info.exclusionSkillList = unit_data.exclusionSkillList;
+                member_info.initSp = unit_data.initSp || unit_data.init_sp;
+                member_info.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skill_list;
                 updatedStyleList[index] = member_info;
             } else {
                 updatedStyleList[index] = undefined;

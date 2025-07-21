@@ -50,13 +50,13 @@ const score_attack_list = [
 ];
 
 // スコアタ情報取得
-function getScoreAttack(score_attack_no) {
-    const filtered_score_attack = score_attack_list.filter((obj) => obj.score_attack_no == score_attack_no);
+export function getScoreAttack(score_attack_no) {
+    const filtered_score_attack = score_attack_list.filter((obj) => obj.score_attack_no === score_attack_no);
     return filtered_score_attack.length > 0 ? filtered_score_attack[0] : undefined;
 }
 
 // スコアタHP取得
-function getScoreHpDp(score_lv, score_attack, rate_kbn) {
+export function getScoreHpDp(score_lv, score_attack, rate_kbn) {
     let max_num = 150;
     let min_num = 141;
     if (score_lv <= 120) {

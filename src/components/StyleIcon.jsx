@@ -1,5 +1,5 @@
-import icons from '../assets/thumbnail';
-import plusIcon from '../assets/img/plus.png';
+import icons from 'assets/thumbnail';
+import plusIcon from 'assets/img/plus.png';
 
 const StyleIcon = ({ style, place_no, onClick }) => {
     let icon = plusIcon;

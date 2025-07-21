@@ -1,3 +1,6 @@
+import React from "react";
+import { grade_list, bonus_list } from "data/scoreGrade";
+
 const ScoreSetting = ({ state, dispatch }) => {
     const selectHalf = state.score.half
     const [checkedGrades, setCheckedGrades] = React.useState({});
@@ -7,11 +10,11 @@ const ScoreSetting = ({ state, dispatch }) => {
         setCheckedGrades([]);
     }, [enemyInfo.sub_no]);
 
-    let filteredGrade = grade_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no);
+    let filteredGrade = grade_list.filter((obj) => obj.score_attack_no === enemyInfo.sub_no);
     const uniqueHalf = [...new Set(filteredGrade.map(item => item.half))];
-    let filteredBonus = bonus_list.filter((obj) => obj.score_attack_no == enemyInfo.sub_no && (obj.half == 0 || obj.half == selectHalf));
+    let filteredBonus = bonus_list.filter((obj) => obj.score_attack_no === enemyInfo.sub_no && (obj.half === 0 || obj.half === selectHalf));
 
-    let halfGrade = filteredGrade.filter((obj) => obj.half == selectHalf);
+    let halfGrade = filteredGrade.filter((obj) => obj.half === selectHalf);
 
     // タブ変更
     const handleTabChange = (half) => {
@@ -143,3 +146,5 @@ const ScoreSetting = ({ state, dispatch }) => {
         </div>
     )
 };
+
+export default ScoreSetting;

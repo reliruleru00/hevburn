@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { useStyleList } from "../StyleListProvider";
-import ModalSkillSelectList from "../ModalSkillSelectList";
-import ModalStyleSelection from "../ModalStyleSelection";
-import StyleIcon from "../StyleIcon";
-import { getBuffIdToBuff, getSkillData } from "../../utils/common";
+import { useStyleList } from "components/StyleListProvider";
+import ModalSkillSelectList from "components/ModalSkillSelectList";
+import ModalStyleSelection from "components/ModalStyleSelection";
+import StyleIcon from "components/StyleIcon";
+import { getBuffIdToBuff, getSkillData } from "utils/common";
+import { STATUS_KBN } from "utils/const";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { STATUS_KBN } from "../../utils/const";
+import editIcon from 'assets/img/edit.png';
 
 const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
     const { styleList, setStyleList, loadMember, removeMember, setLastUpdatedIndex } = useStyleList();
@@ -127,7 +128,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                 <span className="mt-1 small_font">部隊名</span>
                 <div className="col-span-6 flex justify-center">
                     <span className="text-base">{styleList.troopsName ? styleList.troopsName : `部隊${styleList.selectTroops}`}</span>
-                    <input type="image" className="w-6 h-6" src="img/edit.png" onClick={editTroopsName} alt="編集"/>
+                    <input type="image" className="w-6 h-6" src={editIcon} onClick={editTroopsName} alt="編集"/>
                 </div>
                 <div className="mt-2">
                     <span className="small_font">スタイル</span>

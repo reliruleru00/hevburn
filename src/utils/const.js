@@ -1,3 +1,22 @@
+
+export const CHARA_ID_SHADOW_CLONE = [17, 18];
+export const CHARA_ID_RISA = 22;
+export const CHARA_ID_MIYA = 45;
+
+export const STYLE_ID_ONLY_MONN_LIGHT = 145;
+export const STYLE_ID_WEDING_SHARO = 123;
+export const STYLE_ID_UNISON_BUNGO = 161;
+export const STYLE_ID_SERVANT = [162, 163];
+
+export const SKILL_ID_RUBY_PERFUME = 635;
+export const SKILL_ID_MEGA_DESTROYER = 623;
+
+export const BUFF_ID_MOON_LIGHT = 2607;
+export const BUFF_ID_MEGA_DESTROYER5 = 235;
+export const BUFF_ID_MEGA_DESTROYER6 = 236;
+
+export const ABILITY_ID_ADMIRAL_COMMON = 299;
+
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
 
 /** ロール */

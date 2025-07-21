@@ -1,12 +1,14 @@
 import {
     BUFF, RANGE, CHARA_ID, EFFECT, ENEMY_CLASS, CONDITIONS
     , ALONE_ACTIVATION_BUFF_KIND, ALONE_ACTIVATION_ABILITY_LIST
+    , SKILL_ID_RUBY_PERFUME
 } from '../../utils/const';
 import enemyList from "../../data/enemyList";
 import { SCORE_STATUS } from "../../data/scoreData";
 import scoreBonusList from "../../data/scoreBonusList";
 import { getCharaData } from "../../utils/common";
 import { getBuffIdToBuff, getPassiveInfo, getAbilityInfo } from "../../utils/common";
+import { STATUS_KBN } from '../../utils/const';
 
 export const BUFF_KBN = {
     0: "power_up",
@@ -37,31 +39,12 @@ export const BUFF_KBN = {
     41: "shadow_clone",
 };
 
-const CHARA_ID_SHADOW_CLONE = [17, 18];
-const CHARA_ID_RISA = 22;
-const CHARA_ID_MIYA = 45;
-
-const STYLE_ID_ONLY_MONN_LIGHT = 145;
-const STYLE_ID_WEDING_SHARO = 123;
-const STYLE_ID_UNISON_BUNGO = 161;
-const STYLE_ID_SERVANT = [162, 163];
-
-const SKILL_ID_RUBY_PERFUME = 635;
-const SKILL_ID_MEGA_DESTROYER = 623;
-
-const BUFF_ID_MOON_LIGHT = 2607;
-const BUFF_ID_MEGA_DESTROYER5 = 235;
-const BUFF_ID_MEGA_DESTROYER6 = 236;
-
-const ABILITY_ID_ADMIRAL_COMMON = 299;
-
 const ATTACK_BUFF_LIST = [
     BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
     BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP];
 const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
     BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN];
-const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
 
 const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
 const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
@@ -108,7 +91,7 @@ function getChainEffectSize(otherSetting, type) {
 }
 
 // キャラ重複チェック
-function checkDuplicationChara(selectStyleList, searchCharaId) {
+export function checkDuplicationChara(selectStyleList, searchCharaId) {
     if (searchCharaId) {
         return selectStyleList.some((member, i) => member?.styleInfo.chara_id === searchCharaId);
     }
@@ -636,7 +619,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
 }
 
 // 基礎攻撃力取得
-function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown) {
+export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown) {
     let jewelLv = 0;
     if (memberInfo.styleInfo.jewel_type === "1") {
         jewelLv = memberInfo.jewelLv;
@@ -969,7 +952,7 @@ function isRangeAreaInclude(charaId, rangeArea, targetCharaId) {
 }
 
 // キャラIDからメンバー情報取得
-function getCharaIdToMember(styleList, charaId) {
+export function getCharaIdToMember(styleList, charaId) {
     const filteredMember = (styleList) => {
         const filterList = styleList.filter((obj) => obj?.styleInfo?.chara_id === charaId);
         return filterList.length > 0 ? filterList[0] : undefined;
@@ -1148,7 +1131,7 @@ function getEnemyDefenceRate(state) {
 }
 
 // ステータスアップ取得
-function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSettingMap) {
+export function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSettingMap) {
     let enemyInfo = state.enemyInfo;
 
     let tearsOfDreams = 0;
@@ -1185,14 +1168,14 @@ function getStatUp(state, memberInfo, collect, abilitySettingMap, passiveSetting
 }
 
 // カンマ削除
-function removeComma(value) {
+export function removeComma(value) {
     var regex = /[^0-9]/g;
     var newValue = "0" + value.replace(regex, '');
     return Number(newValue).toString()
 }
 
 // グラデーションを取得するメソッド
-function getApplyGradient(baseColor, percent) {
+export function getApplyGradient(baseColor, percent) {
     // generateGradientメソッドを呼び出してグラデーションカラーコードを取得
     let gradientColor = generateGradient(baseColor, "#FFFFFF", percent);
     // グラデーションのスタイルを組み立てる

@@ -1,6 +1,6 @@
 import ReactModal from "react-modal";
 import React, { useState } from "react";
-import { generateGradientFromRange } from "./utils";
+import { generateGradientFromRange } from "./logic";
 
 const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal }) => {
 
@@ -130,7 +130,7 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
                         <div className="magnification">×破壊率</div>
                         <input type="text" className="text-center magnification_value" value={detail.damageRate} readOnly />
                     </div>
-                    {mode == "critical" && (
+                    {mode === "critical" && (
                         <div>
                             <div className="magnification">×クリティカル倍率</div>
                             <input type="text" className="text-center magnification_value" value={detail.criticalBuff} readOnly />
@@ -155,7 +155,7 @@ function calculatePercentage(min, max, total, dphp) {
     if (Math.ceil((temp_min / total) * 100) === Math.ceil((temp_max / total) * 100)) {
         return Math.ceil((temp_min / total) * 100) + '%';
     } else {
-        if (dphp == "hp") {
+        if (dphp === "hp") {
             return Math.ceil((min / total) * 100) + '%～' + Math.ceil((max / total) * 100) + '%';
         } else {
             return Math.ceil((temp_min / total) * 100) + '%～' + Math.ceil((temp_max / total) * 100) + '%';
@@ -235,7 +235,7 @@ const DamageResult = ({ damageResult, enemyInfo, dispatch }) => {
                 overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
             >
                 <DamageDetail mode={modal.mode} enemyInfo={enemyInfo} detail={damageResult} dispatch={dispatch}
-                    result={modal.mode == "critical" ? damageResult.criticalResult : damageResult.normalResult}
+                    result={modal.mode === "critical" ? damageResult.criticalResult : damageResult.normalResult}
                     closeModal={closeModal} />
             </ReactModal>
         </>

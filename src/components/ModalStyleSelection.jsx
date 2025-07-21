@@ -1,15 +1,15 @@
 import React from "react";
-import { useStyleList } from "./StyleListProvider";
-import allStyleList from "../data/styleList";
-import skillBuff from "../data/skillBuff";
-import { getCharaData } from "../utils/common";
-import { BUFF, RANGE } from '../utils/const';
-import thumbnail from '../assets/thumbnail';
-import rarity from '../assets/rarity';
-import attribute from '../assets/attribute';
-import troop from '../assets/troop';
+import { useStyleList } from "components/StyleListProvider";
+import allStyleList from "data/styleList";
+import skillBuff from "data/skillBuff";
+import { getCharaData } from "utils/common";
+import { BUFF, RANGE } from 'utils/const';
+import thumbnail from 'assets/thumbnail';
+import rarity from 'assets/rarity';
+import attribute from 'assets/attribute';
+import troop from 'assets/troop';
 
-import '../assets/styles/styleSelection.css';
+import 'assets/styles/styleSelection.css';
 
 const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle }) => {
     const { styleList, setMember, removeMember } = useStyleList();

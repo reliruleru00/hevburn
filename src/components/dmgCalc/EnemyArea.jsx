@@ -1,4 +1,10 @@
-const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
+import React from "react";
+import { removeComma, getApplyGradient } from "./logic";
+import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
+import { ENEMY_CLASS } from "utils/const";
+import attribute from 'assets/attribute';
+
+const EnemyArea = ({ state, dispatch, attackInfo }) => {
     const PHYSICAL_LIST = { 1: "slash", 2: "stab", 3: "strike" };
     const ELEMENT_LIST = { 0: "none", 1: "fire", 2: "ice", 3: "thunder", 4: "light", 5: "dark" };
 
@@ -41,7 +47,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
     // HP補正
     let maxHp = Number(enemyInfo.max_hp);
     let enemy_stat = Number(enemyInfo.enemy_stat);
-    if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
+    if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
         let score_attack = getScoreAttack(enemyInfo.sub_no);
         maxHp = getScoreHpDp(state.score.lv, score_attack, "hp_rate");
         enemy_stat = SCORE_STATUS[state.score.lv - 100];
@@ -55,7 +61,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
 
     // 自由入力時の対応
     let is_free_input = false;
-    if (enemyInfo.enemy_class == ENEMY_CLASS.FREE_INPUT) {
+    if (enemyInfo.enemy_class === ENEMY_CLASS.FREE_INPUT) {
         is_free_input = true;
     }
     const [focus, setFocus] = React.useState(undefined);
@@ -99,7 +105,7 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                                 let range_id = "dp_range_" + no;
                                 let dp_rate = state.dpRate[no];
                                 let maxDp = Number(max_dp_list[no]);
-                                if (enemyInfo.enemy_class == ENEMY_CLASS.SCORE_ATTACK) {
+                                if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
                                     let score_attack = getScoreAttack(enemyInfo.sub_no);
                                     maxDp = getScoreHpDp(state.score.lv, score_attack, "dp_rate");
                                 }
@@ -136,27 +142,29 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
             <div className="resist_area mx-auto mt-2">
                 <div className="grid grid-cols-9">
                     {Object.keys(PHYSICAL_LIST).map(key => {
-                        let src = `img/${PHYSICAL_LIST[key]}.webp`;
+                        let src = attribute[PHYSICAL_LIST[key]];
                         let id = `physical_${key}`;
                         let correction = state.correction[`physical_${key}`];
-                        let val = enemyInfo[id] - (focus == id ? 0 : correction);
-                        if (attackInfo?.penetration && key == attackInfo?.attack_physical) {
+                        let val = enemyInfo[id] - (focus === id ? 0 : correction);
+                        if (attackInfo?.penetration && key === attackInfo?.attack_physical) {
                             // 貫通クリティカル
                             val = 100 + Number(attackInfo.penetration);
                         }
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
-                        let select = attackInfo?.attack_physical == key ? " selected" : "";
+                        let select = attackInfo?.attack_physical === key ? " selected" : "";
                         return (<div key={id} className={select}>
-                            <input className="enemy_type_icon" src={src} type="image" />
-                            <input className={`enemy_type_value ${addClass}`} id={`enemy_${id}`} readOnly={!is_free_input} type="text" value={val}
-                                data-init={enemyInfo[id]}
+                            <input className="enemy_type_icon" src={src} type="image" alt=""/>
+                            <input className={`enemy_type_value ${addClass}`}
+                                readOnly={!is_free_input}
+                                type="text"
+                                value={val}
                                 onChange={(e) => handleEnemyChange("physical_" + key, e.target.value)}
                                 onFocus={(e) => handleElementFocus("physical_" + key, e.target)}
                                 onBlur={(e) => handleElementBlur()} />
                         </div>)
                     })}
                     {Object.keys(ELEMENT_LIST).map(key => {
-                        let src = `img/${ELEMENT_LIST[key]}.webp`;
+                        let src = attribute[ELEMENT_LIST[key]];
                         let id = `element_${key}`;
                         let correction = state.correction[`element_${key}`];
                         let val = enemyInfo[id]
@@ -166,18 +174,20 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
                                 val = 100;
                             }
                             val -= correction - state.resistDown[key];
-                            if (attackInfo?.penetration && key == 0) {
+                            if (attackInfo?.penetration && key === 0) {
                                 // 貫通クリティカル
                                 val = 100;
                             }
                         }
                         val = Math.floor(val);
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
-                        let select = attackInfo?.attack_element == key ? " selected" : "";
+                        let select = attackInfo?.attack_element === key ? " selected" : "";
                         return (<div key={id} className={select}>
-                            <input className="enemy_type_icon" src={src} type="image" />
-                            <input className={`enemy_type_value ${addClass}`} id={`enemy_${id}`} readOnly={!is_free_input} type="text" value={val}
-                                data-init={enemyInfo[id]}
+                            <input className="enemy_type_icon" src={src} type="image" alt=""/>
+                            <input className={`enemy_type_value ${addClass}`}
+                                readOnly={!is_free_input}
+                                type="text"
+                                value={val}
                                 onChange={(e) => handleEnemyChange("element_" + key, e.target.value)}
                                 onFocus={(e) => handleElementFocus("element_" + key, e.target)}
                                 onBlur={(e) => handleElementBlur()} />
@@ -188,3 +198,5 @@ const EnemyAreaComponent = ({ state, dispatch, attackInfo }) => {
         </div>
     )
 };
+
+export default EnemyArea;

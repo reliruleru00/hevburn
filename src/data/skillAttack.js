@@ -1,4 +1,4 @@
-let skill_attack = [
+let skillAttack = [
     {"attack_id":1,"skill_id":10,"attack_name":"夢幻泡影","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"ref_status_3":0,"attack_element":0,"min_power":1602.00,"max_power":8010.00,"hit_count":9,"destruction":2.750,"sp_cost":12,"param_limit":138,"hp_damege":30,"dp_damege":0,"max_lv":13,"range_area":1,"damege_distribution":"15,5,5,5,5,5,5,5,50"},
     {"attack_id":2,"skill_id":11,"attack_name":"星火燎原","chara_id":1,"style_id":0,"ref_status_1":1,"ref_status_2":2,"ref_status_3":0,"attack_element":1,"min_power":2502.00,"max_power":12510.00,"hit_count":2,"destruction":3.500,"sp_cost":14,"param_limit":147,"hp_damege":30,"dp_damege":0,"max_lv":13,"range_area":1,"damege_distribution":"30,70"},
     {"attack_id":3,"skill_id":14,"attack_name":"流星","chara_id":2,"style_id":0,"ref_status_1":2,"ref_status_2":1,"ref_status_3":0,"attack_element":0,"min_power":1671.00,"max_power":8355.00,"hit_count":1,"destruction":2.600,"sp_cost":11,"param_limit":144,"hp_damege":0,"dp_damege":30,"max_lv":13,"range_area":2,"damege_distribution":""},
@@ -388,3 +388,5 @@ let skill_attack = [
     {"attack_id":2185,"skill_id":634,"attack_name":"フォトン・バレット","chara_id":32,"style_id":0,"ref_status_1":2,"ref_status_2":1,"ref_status_3":0,"attack_element":4,"min_power":800.25,"max_power":4001.25,"hit_count":3,"destruction":1.700,"sp_cost":9,"param_limit":131,"hp_damege":0,"dp_damege":30,"max_lv":10,"range_area":2,"damege_distribution":""},
     {"attack_id":2186,"skill_id":641,"attack_name":"輝耀","chara_id":38,"style_id":0,"ref_status_1":0,"ref_status_2":1,"ref_status_3":2,"attack_element":0,"min_power":918.00,"max_power":4590.00,"hit_count":4,"destruction":2.000,"sp_cost":10,"param_limit":129,"hp_damege":0,"dp_damege":0,"max_lv":10,"range_area":1,"damege_distribution":"","penetration":200},
 ];
+
+export default skillAttack;

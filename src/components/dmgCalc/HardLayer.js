@@ -1,3 +1,8 @@
+import { useStyleList } from "components/StyleListProvider";
+import { checkDuplicationChara } from "./logic";
+import icons from 'assets/thumbnail';
+import crossIcon from 'assets/img/cross.png';
+
 const HardLayer = ({ state, dispatch }) => {
 
     const enemyInfo = state.enemyInfo;
@@ -43,9 +48,10 @@ const HardLayer = ({ state, dispatch }) => {
                             return (<div key={`chara_${index}`} className={checkDuplicationChara(
                                 styleList.selectStyleList, charaId) ? "ban_style" : ""}>
                                 {member ?
-                                    <img className="sub_style" src={`icon/${member?.styleInfo.image_url}`} />
+                                    <img className="sub_style" src={icons[member?.styleInfo.image_url.replace(/\.(webp)$/, '')]} 
+                                        alt={member?.styleInfo.name}/>
                                     :
-                                    <img className="sub_style" src="img/cross.png" />
+                                    <img className="sub_style" src={crossIcon} alt="無し" />
                                 }
                             </div>)
                         })}
@@ -72,3 +78,5 @@ const HardLayer = ({ state, dispatch }) => {
         </div>
     )
 };
+
+export default HardLayer;

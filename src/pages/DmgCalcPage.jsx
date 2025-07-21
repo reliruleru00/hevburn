@@ -2,7 +2,7 @@ import React from 'react';
 import ReactModal from 'react-modal';
 import StyleListProvider from '../components/StyleListProvider';
 import DamageCalculation from '../components/dmgCalc/DamageCalculation';
-import { updateEnemyStatus } from '../components/dmgCalc/utils';
+import { updateEnemyStatus } from '../components/dmgCalc/logic';
 import HeaderNav from '../components/header';
 import '../assets/styles/header.css';
 import '../assets/styles/common.css';

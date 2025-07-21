@@ -1,3 +1,11 @@
+import React from "react";
+import ReactModal from "react-modal";
+import { useStyleList } from "components/StyleListProvider";
+import skillAttack from "data/skillAttack";
+import { getCharaData } from "utils/common";
+import { SKILL_ID_MEGA_DESTROYER, STATUS_KBN, JEWEL_EXPLAIN } from 'utils/const';
+import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient } from "./logic";
+import attribute from 'assets/attribute';
 
 const TYPE_PHYSICAL = ["none", "slash", "stab", "strike"];
 const TYPE_ELEMENT = ["none", "fire", "ice", "thunder", "light", "dark"];
@@ -6,6 +14,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
     abilitySettingMap, passiveSettingMap, state, dispatch,
 }) => {
     const { styleList } = useStyleList();
+    const [modal, setModal] = React.useState(false);
 
     const handleChangeAttackId = (value) => {
         let selectAttackInfo = getAttackInfo(value);
@@ -30,7 +39,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             if (!memberInfo) continue;
             const charaId = memberInfo.styleInfo.chara_id;
             const styleId = memberInfo.styleInfo.style_id;
-            const matchedSkill = skill_attack.filter(skill =>
+            const matchedSkill = skillAttack.filter(skill =>
                 skill.chara_id === charaId &&
                 (skill.style_id === styleId || skill.style_id === 0) &&
                 (!checkSpecial || skill.attack_id < 1000)
@@ -58,8 +67,6 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             }
         }
     }, [memberAttackList, attackInfo]);
-
-    const [modal, setModal] = React.useState(false);
 
     return (
         <div className="attack_area surround_area mx-auto mt-2 adjust_width">
@@ -99,8 +106,8 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
                                     )()}
                                 </select>
                             </div>
-                            <img className="w-6 h-6" src={`img/${TYPE_PHYSICAL[attack_physical]}.webp`} alt="物理" />
-                            <img className="w-6 h-6" src={`img/${TYPE_ELEMENT[attack_element]}.webp`} alt="属性" />
+                            <img className="w-6 h-6" src={attribute[TYPE_PHYSICAL[attack_physical]]} alt="物理" />
+                            <img className="w-6 h-6" src={attribute[TYPE_ELEMENT[attack_element]]} alt="属性" />
                             <span className={`range_area ${range_area === 1 ? "unit" : "all"}`}>
                                 {range_area === 1 ? "単体" : "全体"}
                             </span>
@@ -224,15 +231,15 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
 
     let molecule = 0;
     let denominator = 0;
-    if (attackInfo.ref_status_1 != 0) {
+    if (attackInfo.ref_status_1 !== 0) {
         molecule += (memberInfo[STATUS_KBN[attackInfo.ref_status_1]] + statUp) * 2;
         denominator += 2;
     }
-    if (attackInfo.ref_status_2 != 0) {
+    if (attackInfo.ref_status_2 !== 0) {
         molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_2]] + statUp;
         denominator += 1;
     }
-    if (attackInfo.ref_status_3 != 0) {
+    if (attackInfo.ref_status_3 !== 0) {
         molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_3]] + statUp;
         denominator += 1;
     }
@@ -253,8 +260,8 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     <div></div>
                     <div className="flex justify-center items-center h-full">
                         <div className="flex">
-                            <img className="w-6 h-6" src={`img/${TYPE_PHYSICAL[attackInfo.attack_physical]}.webp`} alt="物理" />
-                            <img className="w-6 h-6" src={`img/${TYPE_ELEMENT[attackInfo.attack_element]}.webp`} alt="属性" />
+                            <img className="w-6 h-6" src={attribute[TYPE_PHYSICAL[attackInfo.attack_physical]]} alt="物理" />
+                            <img className="w-6 h-6" src={attribute[TYPE_ELEMENT[attackInfo.attack_element]]} alt="属性" />
                             <span className={`range_area ${attackInfo.range_area === 1 ? "unit" : "all"}`}>
                                 {attackInfo.range_area === 1 ? "単体" : "全体"}
                             </span>
@@ -348,3 +355,5 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
         </div>
     )
 }
+
+export default AttackList;

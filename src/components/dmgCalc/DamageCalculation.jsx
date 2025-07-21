@@ -1,7 +1,9 @@
 import React, { useState, useReducer } from "react";
-import { useStyleList } from "../StyleListProvider";
-import enemyList from "../../data/enemyList";
+import { useStyleList } from "components/StyleListProvider";
+import enemyList from "data/enemyList";
+import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
+import ContentsArea from "./ContentsArea";
 import DamageResult from "./DamageResult";
 
 const setEnemy = (state, action) => {
@@ -210,14 +212,14 @@ const DamageCalculation = () => {
             <div className="pt-3 display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />
-                    {/* <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
+                    <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                         selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv}
                         abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} state={state} dispatch={dispatch} />
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemyInfo} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
-                    <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
-                    {enemyClass == ENEMY_CLASS.SCORE_ATTACK && damageResult ?
+                    {/* <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
+                    {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
                         <PredictionScore damageResult={damageResult} state={state} />
                         : null
                     } */}

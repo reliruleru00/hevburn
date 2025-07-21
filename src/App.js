@@ -1,13 +1,13 @@
 import { HashRouter  as Router, Routes, Route } from 'react-router-dom';
-import DamageCalc from './pages/DamageCalculation';
-import SpodSim from './pages/SpodSimulation';
+import DmgCalcPage from './pages/DmgCalcPage';
+import SpodSimPage from './pages/SpodSimulation';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<DamageCalc />} />
-        <Route path="/spod_sim" element={<SpodSim />} />
+        <Route path="/" element={<DmgCalcPage />} />
+        <Route path="/spod_sim" element={<SpodSimPage />} />
       </Routes>
     </Router>
   );

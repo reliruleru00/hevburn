@@ -13,14 +13,16 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
     const { styleList, setStyleList, loadMember, removeMember, setLastUpdatedIndex } = useStyleList();
 
     // 設定変更
-    const setSetting = (place_no, item, value) => {
-        const updatedStyleList = [...styleList.selectStyleList];
-        updatedStyleList[place_no] = {
-            ...updatedStyleList[place_no],
-            [item]: Number(value)
-        };
-        setLastUpdatedIndex(place_no);
-        setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+    const setSetting = (index, item, value) => {
+        if (styleList.selectStyleList[index]) {
+            const updatedStyleList = [...styleList.selectStyleList];
+            updatedStyleList[index] = {
+                ...updatedStyleList[index],
+                [item]: Number(value)
+            };
+            setLastUpdatedIndex(index);
+            setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+        }
     }
 
     // リセットボタン押下
@@ -80,7 +82,9 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
 
     // スキルリストの表示    
     const showSkillList = (index) => {
-        openModal(index, "skill");
+        if (styleList.selectStyleList[index]) {
+            openModal(index, "skill");
+        }
     };
 
     const [modalSetting, setModalSetting] = useState({
@@ -128,7 +132,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                 <span className="mt-1 small_font">部隊名</span>
                 <div className="col-span-6 flex justify-center">
                     <span className="text-base">{styleList.troopsName ? styleList.troopsName : `部隊${styleList.selectTroops}`}</span>
-                    <input type="image" className="w-6 h-6" src={editIcon} onClick={editTroopsName} alt="編集"/>
+                    <input type="image" className="w-6 h-6" src={editIcon} onClick={editTroopsName} alt="編集" />
                 </div>
                 <div className="mt-2">
                     <span className="small_font">スタイル</span>

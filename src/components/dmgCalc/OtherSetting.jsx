@@ -1,3 +1,5 @@
+import React from 'react';
+
 const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
     React.useEffect(() => {
         if (attackInfo?.attack_element === 0 && otherSetting.ring !== 0) {
@@ -76,3 +78,5 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
         </div>
     )
 };
+
+export default OtherSetting;

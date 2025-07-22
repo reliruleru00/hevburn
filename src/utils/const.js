@@ -3,19 +3,25 @@ export const CHARA_ID_SHADOW_CLONE = [17, 18];
 export const CHARA_ID_RISA = 22;
 export const CHARA_ID_MIYA = 45;
 
-export const STYLE_ID_ONLY_MONN_LIGHT = 145;
-export const STYLE_ID_WEDING_SHARO = 123;
-export const STYLE_ID_UNISON_BUNGO = 161;
-export const STYLE_ID_SERVANT = [162, 163];
+export const STYLE_ID = {
+    ONLY_MONN_LIGHT: 145,
+    WEDING_SHARO: 123,
+    UNISON_BUNGO: 161,
+    SERVANT: [162, 163]
+}
 
 export const SKILL_ID_RUBY_PERFUME = 635;
 export const SKILL_ID_MEGA_DESTROYER = 623;
 
-export const BUFF_ID_MOON_LIGHT = 2607;
-export const BUFF_ID_MEGA_DESTROYER5 = 235;
-export const BUFF_ID_MEGA_DESTROYER6 = 236;
+export const BUFF_ID = {
+    MOON_LIGHT: 2607,
+    MEGA_DESTROYER5: 235,
+    MEGA_DESTROYER6: 236
+}
 
-export const ABILITY_ID_ADMIRAL_COMMON = 299;
+export const ABILITY_ID = {
+    ADMIRAL_COMMON: 299,
+}
 
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
 
@@ -73,8 +79,8 @@ export const BUFF = {
     NAGATIVE: 38, // ネガティブ
     YAMAWAKI_SERVANT: 39, // 山脇様のしもべ 
     HIGH_BOOST: 40, // ハイブースト 
-    SHADOW_CLONE : 41, // 影分身
-    MAKEUP : 42, // メイクアップ
+    SHADOW_CLONE: 41, // 影分身
+    MAKEUP: 42, // メイクアップ
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -273,11 +279,11 @@ export const ALONE_ACTIVATION_BUFF_KIND = [
 export const ALONE_ACTIVATION_ABILITY_LIST = [12, 407, 408];
 
 export const JEWEL_EXPLAIN = {
-    1 : "スキルダメージの威力を上げる",
-    2 : "回復スキルの効果量を上げる",
-    3 : "スキル攻撃力アップの効果量を上げる",
-    4 : "デバフスキルの効果量を上げる",
-    5 : "クリティカル率上昇スキルの効果量を上げる",
-    6 : "挑発・注目状態：ダメージ軽減",
-    7 : "ダメージ軽減",
+    1: "スキルダメージの威力を上げる",
+    2: "回復スキルの効果量を上げる",
+    3: "スキル攻撃力アップの効果量を上げる",
+    4: "デバフスキルの効果量を上げる",
+    5: "クリティカル率上昇スキルの効果量を上げる",
+    6: "挑発・注目状態：ダメージ軽減",
+    7: "ダメージ軽減",
 }

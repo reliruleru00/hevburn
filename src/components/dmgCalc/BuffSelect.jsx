@@ -1,71 +1,6 @@
-
-
-const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
-    buffList, buffSettingMap, handleChangeSkillLv, selectedKey, handleSelectChange, openModal }) => {
-
-    let isAlone = false;
-    if (selectedKey[0]) {
-        let buffId = Number(selectedKey[0].split('_')[1]);
-        let buffInfo = getBuffIdToBuff(buffId);
-        isAlone = isAloneActivation(buffInfo);
-    }
-    const buffName = buffDef.name;
-    const buffKind = buffDef.kind;
-
-    return (
-        <>
-            <tr>
-                {index === 0 && (
-                    <td className="kind pc_only" rowSpan={rowSpan}>
-                        {buffKind == BUFF.ATTACKUP ? "バフ" : buffKind == BUFF.DEFENSEDOWN ? "デバフ" : "クリティカル"}
-                    </td>
-                )}
-                <td rowSpan={buffDef.overlap ? 2 : 1}>{buffName}</td>
-                <BuffSelect
-                    attackInfo={attackInfo}
-                    buffList={buffList}
-                    buffKind={buffKind}
-                    buffKey={buffKey}
-                    buffSettingMap={buffSettingMap}
-                    handleChangeSkillLv={handleChangeSkillLv}
-                    selectedKey={selectedKey}
-                    index={0}
-                    handleSelectChange={handleSelectChange}
-                    openModal={openModal}
-                />
-            </tr>
-            {buffDef.overlap &&
-                <tr>
-                    {isAlone ?
-                        <>
-                            <td>
-                                <select className="buff" disabled>
-                                    <option value={""}>使用不可</option>
-                                </select>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </>
-                        :
-                        <BuffSelect
-                            attackInfo={attackInfo}
-                            buffList={buffList}
-                            buffKind={buffKind}
-                            buffKey={buffKey}
-                            buffSettingMap={buffSettingMap}
-                            handleChangeSkillLv={handleChangeSkillLv}
-                            selectedKey={selectedKey}
-                            index={1}
-                            handleSelectChange={handleSelectChange}
-                            openModal={openModal}
-                        />
-                    }
-
-                </tr>
-            }
-        </>
-    )
-}
+import React from 'react';
+import { isOnlyBuff, isOnlyUse, isAloneActivation, filteredBuffList } from "./logic";
+import { getBuffIdToBuff } from "utils/common";
 
 const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange, openModal }) => {
     let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo)
@@ -78,7 +13,7 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
         if (value) {
             const buffId = Number(value.split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
-            if (isOnlyBuff(attackInfo, buffInfo, buffSettingMap) && selectedKey[index ^ 1] == value) {
+            if (isOnlyBuff(attackInfo, buffInfo, buffSettingMap) && selectedKey[index ^ 1] === value) {
                 if (!confirm(buffInfo.buff_name + "は\r\n通常、複数付与出来ませんが、設定してよろしいですか？")) {
                     selectedKey[index] = "";
                 }
@@ -131,3 +66,5 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
         </>
     )
 };
+
+export default BuffSelect;

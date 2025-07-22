@@ -1,3 +1,8 @@
+import React from 'react';
+import { useStyleList } from "components/StyleListProvider";
+import { filteredBuffList } from "./logic";
+import { getCharaData, getAbilityInfo, getSkillData } from "utils/common";
+
 const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
     const { styleList } = useStyleList();
     const [settingBuffList, setSettingBuffList] = React.useState({});
@@ -99,7 +104,7 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
                                                     type="radio"
                                                 />
                                                 <label htmlFor={`${buff.key}_${index}`}
-                                                    className={((index == 2 && !isSecond) ? "invisible" : "")}
+                                                    className={((index === 2 && !isSecond) ? "invisible" : "")}
                                                 >{index}</label>
                                             </React.Fragment>
                                         ))}
@@ -114,3 +119,5 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
         </div>
     );
 };
+
+export default BuffBulkSetting;

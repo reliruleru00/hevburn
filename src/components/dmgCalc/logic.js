@@ -39,15 +39,15 @@ export const BUFF_KBN = {
     41: "shadow_clone",
 };
 
-const ATTACK_BUFF_LIST = [
+export const ATTACK_BUFF_LIST = [
     BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
     BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP];
-const DEBUFF_LIST = [
+export const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
     BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN];
 
-const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
-const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
+export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
+export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
 
 // 倍率表示
 function convertToPercentage(value) {
@@ -99,7 +99,7 @@ export function checkDuplicationChara(selectStyleList, searchCharaId) {
 }
 
 // 耐性判定
-function getEnemyResist(attackInfo, state) {
+export function getEnemyResist(attackInfo, state) {
     const enemyInfo = state.enemyInfo;
     const correction = state.correction;
     let physical_resist = enemyInfo[`physical_${attackInfo.attack_physical}`];
@@ -113,7 +113,7 @@ function getEnemyResist(attackInfo, state) {
 }
 
 // バフの絞り込み
-const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
+export const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
     if (!attackInfo) return [];
     const ELEMENT_KIND = [
         BUFF.ELEMENT_ATTACKUP,
@@ -155,7 +155,7 @@ const filteredBuffList = (buffList, buffKind, attackInfo, isOrb = true) => {
 }
 
 // 効果量取得
-function getEffectSize(buff, skillLv, memberInfo, state, abilitySettingMap, passiveSettingMap, kbn) {
+export function getEffectSize(buff, skillLv, memberInfo, state, abilitySettingMap, passiveSettingMap, kbn) {
     // バフ強化
     let strengthen = getStrengthen(buff, abilitySettingMap, passiveSettingMap);
     let effectSize = 0;
@@ -321,12 +321,12 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
     return strengthen;
 }
 
-function getBuffKey(buffKind) {
+export function getBuffKey(buffKind) {
     return `${BUFF_KBN[buffKind]}-${buffKind}`;
 }
 
 // 一度しか設定出来ないバフ
-function isOnlyBuff(attackInfo, buffInfo) {
+export function isOnlyBuff(attackInfo, buffInfo) {
     if (!buffInfo) {
         return false;
     }
@@ -345,7 +345,7 @@ function isOnlyBuff(attackInfo, buffInfo) {
 }
 
 // 他スキルに使用出来ない攻撃バフ
-function isOnlyUse(attackInfo, buffInfo) {
+export function isOnlyUse(attackInfo, buffInfo) {
 
     if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_kind)) {
         return false;
@@ -363,7 +363,7 @@ function isOnlyUse(attackInfo, buffInfo) {
 }
 
 // 単独発動判定
-function isAloneActivation(buffInfo) {
+export function isAloneActivation(buffInfo) {
     if (!buffInfo) {
         return false;
     }
@@ -374,7 +374,7 @@ function isAloneActivation(buffInfo) {
 }
 
 // バフの最良選択
-function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
+export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     let combinedScore = 0;
     let combinedKeys = [];
 
@@ -416,7 +416,8 @@ function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     }
 }
 
-function getDamageResult(attackInfo, styleList, state, selectSKillLv,
+// ダメージ計算結果取得
+export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting) {
     if (!attackInfo) {
         return null;
@@ -673,7 +674,7 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
 }
 
 // 効果量合計
-function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
+export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
     let effectSize = 0;
     BUFF_KIND_LIST.forEach(buffKind => {
         const buffKey = getBuffKey(buffKind);

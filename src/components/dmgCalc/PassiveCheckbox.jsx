@@ -1,3 +1,5 @@
+import React from 'react';
+
 const PassiveCheckbox = ({ passiveList, passiveSettingMap, handlePassiveChange }) => {
     return (
         <>
@@ -24,3 +26,5 @@ const PassiveCheckbox = ({ passiveList, passiveSettingMap, handlePassiveChange }
         </>
     );
 };
+
+export default PassiveCheckbox;

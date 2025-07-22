@@ -1,9 +1,9 @@
 import pako from 'pako';
-import charaData from '../data/charaData';
-import skillList from "../data/skillList";
-import skillBuff from "../data/skillBuff";
-import skillPassive from "../data/skillPassive";
-import abilityList from "../data/abilityList";
+import charaData from 'data/charaData';
+import skillList from "data/skillList";
+import skillBuff from "data/skillBuff";
+import skillPassive from "data/skillPassive";
+import abilityList from "data/abilityList";
 
 // キャラ名取得
 export function getCharaData(charaId) {

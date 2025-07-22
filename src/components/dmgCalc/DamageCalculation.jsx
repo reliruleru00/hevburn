@@ -4,7 +4,9 @@ import enemyList from "data/enemyList";
 import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
 import ContentsArea from "./ContentsArea";
+import OtherSetting from "./OtherSetting";
 import DamageResult from "./DamageResult";
+import BuffArea from "./BuffArea";
 
 const setEnemy = (state, action) => {
     const enemy = action.enemyInfo;
@@ -218,17 +220,17 @@ const DamageCalculation = () => {
                     <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemyInfo} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
-                    {/* <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
-                    {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
+                    <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
+                    {/* {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
                         <PredictionScore damageResult={damageResult} state={state} />
                         : null
                     } */}
                 </div>
-                {/* <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
+                <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
                     selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap}
                     buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
                     abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}
-                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} /> */}
+                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
             </div>
             {/* <DamageResult damageResult={damageResult} enemyInfo={state.enemyInfo} dispatch={dispatch} /> */}
             <DamageResult enemyInfo={state.enemyInfo} dispatch={dispatch} />

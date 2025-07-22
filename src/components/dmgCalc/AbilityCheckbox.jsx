@@ -1,3 +1,6 @@
+import React from 'react';
+import { RANGE } from 'utils/const';
+
 const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbilityChange, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
@@ -61,3 +64,5 @@ const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbi
         </>
     );
 };
+
+export default AbilityCheckbox;

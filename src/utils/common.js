@@ -1,6 +1,8 @@
 import pako from 'pako';
 import charaData from 'data/charaData';
+import styleList from "data/styleList";
 import skillList from "data/skillList";
+import skillAttack from "data/skillAttack";
 import skillBuff from "data/skillBuff";
 import enemyList from 'data/enemyList';
 import skillPassive from "data/skillPassive";
@@ -10,6 +12,12 @@ import abilityList from "data/abilityList";
 export function getCharaData(charaId) {
   const filteredChara = charaData.filter((obj) => obj.chara_id === charaId);
   return filteredChara.length > 0 ? filteredChara[0] : undefined;
+}
+
+// スタイル取得
+export function getStyleData(styleId) {
+  const filteredStyle = styleList.filter((obj) => obj.style_id === styleId);
+  return filteredStyle.length > 0 ? filteredStyle[0] : undefined;
 }
 
 // 敵情報取得
@@ -23,6 +31,12 @@ export function getEnemyInfo(enemyClass, enemySelect) {
 export function getSkillData(skillId) {
   const filteredSkill = skillList.filter((obj) => obj.skill_id === skillId);
   return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
+}
+
+// スキル攻撃情報取得
+export function getAttackInfo(attackId) {
+  const filteredAttack = skillAttack.filter((obj) => obj.attack_id === attackId);
+  return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
 }
 
 // バフ情報取得
@@ -56,4 +70,36 @@ export function decompressString(compressedString) {
   const decompressedData = pako.inflate(compressedDataBuffer);
   const decompressedString = new TextDecoder().decode(decompressedData);
   return decompressedString;
+}
+
+// ディープコピー
+export function deepClone(instance) {
+  // インスタンスがnullまたはundefinedの場合、そのまま返す
+  if (instance === null || instance === undefined) return instance;
+
+  // プリミティブ型の場合、そのまま返す
+  if (typeof instance !== 'object') return instance;
+
+  // 特殊なオブジェクト型の場合
+  if (instance instanceof Date) return new Date(instance);
+  if (instance instanceof RegExp) return new RegExp(instance);
+  if (instance instanceof Map) return new Map(instance);
+  if (instance instanceof Set) return new Set(instance);
+
+  // インスタンスがArrayの場合の処理
+  if (Array.isArray(instance)) {
+    return instance.map(item => deepClone(item));
+  }
+
+  // インスタンスのクラスを取得
+  const ClonedClass = instance.constructor;
+  // 新しいインスタンスを作成
+  const clone = new ClonedClass();
+
+  // プロパティを再帰的にコピー
+  for (let key of Object.keys(instance)) {
+    clone[key] = deepClone(instance[key]);
+  }
+
+  return clone;
 }

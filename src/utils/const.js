@@ -17,7 +17,9 @@ export const STYLE_ID = {
 
 export const SKILL_ID_RUBY_PERFUME = 635;
 export const SKILL_ID_MEGA_DESTROYER = 623;
-
+export const SKILL_ID = {
+    BOUQUET_SHOOT: 640,
+}
 export const BUFF_ID = {
     MOON_LIGHT: 2607,
     MEGA_DESTROYER5: 235,
@@ -240,19 +242,17 @@ export const ENEMY_CLASS = {
 }
 
 /** スキル種類 */
-const KIND_PURPOSE = 0; // 汎用
-const KIND_EX_GENERATE = 1; // EX(ジェネライズ)
-const KIND_EX_EXCLUSIVE = 2; // EX(専用)
-const KIND_MASTER = 5; // マスター
-const KIND_ORB = 7; // オーブ
-const KIND_OTHER = 9; // その他
+export const KIND = {
+    PURPOSE: 0, // 汎用
+    EX_GENERATE: 1, // EX(ジェネライズ)
+    EX_EXCLUSIVE: 2, // EX(専用)
+    MASTER: 5, // マスター
+    ORB: 7, // オーブ
+    OTHER: 9, // その他
+}
 
 /** 汎用スキル */
-const SKILL_NORMAL_ATTACK = 1; // 通常攻撃
-const SKILL_NONE = 2; // 無し
-const SKILL_PURSUIT = 3; // 追撃
-const SKILL_COMMAND_ACTION = 4; // 指揮行動
-const SKILL = {
+export const SKILL = {
     NORMAL_ATTACK: 1, // 通常攻撃
     NONE: 2, // 無し
     PURSUIT: 3, // 追撃

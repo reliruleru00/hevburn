@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactModal from 'react-modal';
 import StyleListProvider from 'components/StyleListProvider';
 import DamageCalculation from 'components/dmgCalc/DamageCalculation';
@@ -11,7 +11,7 @@ import 'assets/styles/micromodal.css';
 
 const DmgCalcPage = () => {
 
-  React.useEffect(() => {
+  useEffect(() => {
     ReactModal.setAppElement("#root");
     for (let i = 0; i < 10; i++) {
       let freeEnemy = localStorage.getItem("free_enemy_" + i);

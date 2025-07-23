@@ -32,7 +32,7 @@ const EnemyArea = ({ enemy, setEnemy, detailSetting }) => {
                         return (
                             <div key={`physical_${key}`}>
                                 <input className="enemy_type_icon" src={src} type="image" />
-                                <input className={className} type="text" value={enemyStatus[`physical_${key}`]} />
+                                <input className={className} type="text" value={val} readOnly />
                             </div>
                         );
                     })}
@@ -48,7 +48,7 @@ const EnemyArea = ({ enemy, setEnemy, detailSetting }) => {
                         return (
                             <div key={`element_${key}`}>
                                 <input className="enemy_type_icon" src={src} type="image" />
-                                <input className={className} type="text" value={val} />
+                                <input className={className} type="text" value={val} readOnly />
                             </div>
                         );
                     })}

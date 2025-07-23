@@ -5,7 +5,7 @@ import {
 } from '../../utils/const';
 import enemyList from "../../data/enemyList";
 import { SCORE_STATUS } from "../../data/scoreData";
-import scoreBonusList from "../../data/scoreBonusList";
+import scoreBonusList from "../../data/scoreBonus";
 import { getCharaData } from "../../utils/common";
 import { getBuffIdToBuff, getPassiveInfo, getAbilityInfo } from "../../utils/common";
 import { STATUS_KBN } from '../../utils/const';

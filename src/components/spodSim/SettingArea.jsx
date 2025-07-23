@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import ReactModal from "react-modal";
 import { ROLE } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
@@ -8,6 +9,10 @@ import { useStyleList } from "components/StyleListProvider";
 import skillList from "data/skillList";
 import CharaSetting from "./CharaSetting";
 import EnemyArea from "./EnemyArea";
+import DetailSetting from "./DetailSetting";
+import ConstraintsList from "./ConstraintsList";
+import ModalExplanation from "./ModalExplanation";
+import BattleArea from "./BattleArea";
 
 // リスト更新用のReducer
 const reducer = (state, action) => {
@@ -329,11 +334,10 @@ const SettingArea = () => {
     });
 
     const [update, setUpdate] = useState(0);
-    const [ConstraintsList, setConstraintsList] = useState([]);
+    const [constraints, setConstraints] = useState([]);
 
     return (
         <>
-        表示確認
             {
                 hideMode ?
                     null
@@ -346,9 +350,9 @@ const SettingArea = () => {
                         </div>
                         <div>
                             <EnemyArea enemy={enemy} setEnemy={setEnemy} detailSetting={detailSetting} />
-                            {/* <DetailSetting detailSetting={detailSetting} setDetailSetting={setDetailSetting} /> */}
+                            <DetailSetting detailSetting={detailSetting} setDetailSetting={setDetailSetting} />
                         </div>
-                        {/* <div className="flex justify-center mt-2 text-sm">
+                        <div className="flex justify-center mt-2 text-sm">
                             <input id="is_overwrite" type="checkbox" onChange={(e) => { changeOverwrite(e) }} defaultChecked={is_overwrite} />
                             <label className="checkbox01 text-sm" htmlFor="is_overwrite">
                                 上書き確認
@@ -356,21 +360,21 @@ const SettingArea = () => {
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e => startBattle(update, setUpdate)} />
                         </div>
                         <div>
-                            <ConstraintsList />
-                        </div> */}
+                            <ConstraintsList constraints={constraints} />
+                        </div>
                         <div>
-                            {/* <ReactModal
+                            <ReactModal
                                 isOpen={modalIsOpen}
                                 onRequestClose={closeModal}
                                 className={"modal-content modal-wide " + (modalIsOpen ? "modal-content-open" : "")}
                                 overlayClassName={"modal-overlay " + (modalIsOpen ? "modal-overlay-open" : "")}
                             >
                                 <ModalExplanation />
-                            </ReactModal> */}
+                            </ReactModal>
                         </div>
                     </div>
             }
-            {/* <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turn_list} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} /> */}
+            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turn_list} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} />
         </>
     )
 };

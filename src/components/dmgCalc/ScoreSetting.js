@@ -1,5 +1,6 @@
 import React from "react";
-import { grade_list, bonus_list } from "data/scoreGrade";
+import gradeList from "data/scoreGrade";
+import bonusList from "data/scoreBonus";
 
 const ScoreSetting = ({ state, dispatch }) => {
     const selectHalf = state.score.half
@@ -10,9 +11,9 @@ const ScoreSetting = ({ state, dispatch }) => {
         setCheckedGrades([]);
     }, [enemyInfo.sub_no]);
 
-    let filteredGrade = grade_list.filter((obj) => obj.score_attack_no === enemyInfo.sub_no);
+    let filteredGrade = gradeList.filter((obj) => obj.score_attack_no === enemyInfo.sub_no);
     const uniqueHalf = [...new Set(filteredGrade.map(item => item.half))];
-    let filteredBonus = bonus_list.filter((obj) => obj.score_attack_no === enemyInfo.sub_no && (obj.half === 0 || obj.half === selectHalf));
+    let filteredBonus = bonusList.filter((obj) => obj.score_attack_no === enemyInfo.sub_no && (obj.half === 0 || obj.half === selectHalf));
 
     let halfGrade = filteredGrade.filter((obj) => obj.half === selectHalf);
 

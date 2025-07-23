@@ -13,7 +13,7 @@ const SpOdSimulation = () => {
     });
 
     return (
-        <div className="frame">
+        <div className="frame pt-3">
             <SettingArea />
         </div>
     );

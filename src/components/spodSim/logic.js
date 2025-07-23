@@ -70,7 +70,7 @@ export function checkSp(turn_data, range_area, sp) {
 
 
 // スキルデータ更新
-const skillUpdate = (turn_data, skill_id, place_no) => {
+export const skillUpdate = (turn_data, skill_id, place_no) => {
     const unit = turn_data.unit_list.filter(unit => unit.place_no === place_no)[0];
     unit.select_skill_id = skill_id;
     if (skill_id !== 0) {
@@ -164,7 +164,7 @@ const compereUserOperation = (comp1, comp2) => {
 }
 
 // バフアイコン取得
-function getBuffIconImg(buffInfo) {
+export function getBuffIconImg(buffInfo) {
     let src = "img/";
     switch (buffInfo.buff_kind) {
         case BUFF.ATTACKUP: // 攻撃力アップ
@@ -272,7 +272,7 @@ function getBuffIconImg(buffInfo) {
 }
 
 // ユニットデータ取得
-function getUnitData(turnData, index) {
+export function getUnitData(turnData, index) {
     let unitList = turnData.unitList;
     const filteredUnit = unitList.filter((obj) => obj.place_no === index);
     return filteredUnit.length > 0 ? filteredUnit[0] : undefined;
@@ -288,7 +288,7 @@ function getUnitData(turnData, index) {
 //     const filtered_attack = skill_attack.filter((obj) => obj.attack_id === attack_id);
 //     return filtered_attack.length > 0 ? filtered_attack[0] : undefined;
 // }
-function getSkillIdToAttackInfo(turnData, skillId) {
+export function getSkillIdToAttackInfo(turnData, skillId) {
     let filteredAttack = skillAttack.filter((obj) => obj.skill_id === skillId);
     switch (skillId) {
         case SKILL_ID.BOUQUET_SHOOT:
@@ -317,7 +317,7 @@ function getSkillIdToAttackInfo(turnData, skillId) {
 // }
 
 // 行動開始
-function startAction(turn_data) {
+export function startAction(turn_data) {
     // 追加ターンフラグ削除
     if (turn_data.additional_turn) {
         turn_data.additional_turn = false;
@@ -504,7 +504,7 @@ function origin(turn_data, skillInfo, unit_data) {
 }
 
 // OD上昇量取得
-const getOverDrive = (turn) => {
+export const getOverDrive = (turn) => {
     // OD上昇量取得
     const seq = sortActionSeq(turn);
     const enemy_count = turn.enemy_count;
@@ -646,7 +646,7 @@ const calcODGain = (hitCount, enemyTarget, badies = 0, earring = 0, funnelCount 
 };
 
 // 消費SP取得
-function getSpCost(turn_data, skillInfo, unit) {
+export function getSpCost(turn_data, skillInfo, unit) {
     if (!skillInfo) {
         return 0;
     }
@@ -1183,7 +1183,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
 }
 
 // バフ名称取得
-function getBuffKindName(buffInfo) {
+export function getBuffKindName(buffInfo) {
     let buff_kind_name = "";
     if (buffInfo.buff_element !== 0) {
         buff_kind_name = ELEMENT_NAME[buffInfo.buff_element] + "属性";
@@ -1601,7 +1601,7 @@ const unitSort = (turn) => {
     turn.unit_list.sort((a, b) => a.place_no - b.place_no);
 }
 
-const getTurnNumber = (turn) => {
+export const getTurnNumber = (turn) => {
     const defalt_turn = "ターン" + turn.turn_number;
     // 追加ターン
     if (turn.additional_turn) {
@@ -1614,14 +1614,14 @@ const getTurnNumber = (turn) => {
     return defalt_turn;
 }
 
-const addOverDrive = (add_od_gauge, turn) => {
+export const addOverDrive = (add_od_gauge, turn) => {
     turn.over_drive_gauge += add_od_gauge;
     if (turn.over_drive_gauge > 300) {
         turn.over_drive_gauge = 300;
     }
 }
 
-const startOverDrive = (turn) => {
+export const startOverDrive = (turn) => {
     let over_drive_level = Math.floor(turn.over_drive_gauge / 100)
     turn.over_drive_number = 1;
     turn.over_drive_max_turn = over_drive_level;
@@ -1637,7 +1637,7 @@ const startOverDrive = (turn) => {
     turn.trigger_over_drive = true;
 }
 
-const removeOverDrive = (turn) => {
+export const removeOverDrive = (turn) => {
     turn.over_drive_number = 0;
     turn.over_drive_max_turn = 0;
     turn.over_drive_gauge = turn.start_over_drive_gauge;
@@ -1708,7 +1708,7 @@ const unitTurnProceed = (unit, turn) => {
     }
 }
 
-const setInitSkill = (unit) => {
+export const setInitSkill = (unit) => {
     if (unit.place_no < 3) {
         unit.select_skill_id = unit.init_skill_id;
         unit.sp_cost = 0;

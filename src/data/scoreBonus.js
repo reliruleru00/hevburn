@@ -1,4 +1,4 @@
-let scoreBonusList = [
+let scoreBonus = [
     {"score_attack_no":68,"half":0,"bonus_no":1,"conditions":"element_3","effect_kind":"STAT_UP","effect_size":30},
     {"score_attack_no":68,"half":0,"bonus_no":2,"conditions":"element_4","effect_kind":"STAT_UP","effect_size":30},
     {"score_attack_no":68,"half":0,"bonus_no":3,"conditions":"physical_1","effect_kind":"STAT_UP","effect_size":15},
@@ -52,4 +52,4 @@ let scoreBonusList = [
     {"score_attack_no":77,"half":3,"bonus_no":3,"conditions":"physical_2","effect_kind":"STAT_UP","effect_size":15},
 ];
 
-export default scoreBonusList;
+export default scoreBonus;

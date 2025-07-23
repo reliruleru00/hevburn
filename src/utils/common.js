@@ -2,6 +2,7 @@ import pako from 'pako';
 import charaData from 'data/charaData';
 import skillList from "data/skillList";
 import skillBuff from "data/skillBuff";
+import enemyList from 'data/enemyList';
 import skillPassive from "data/skillPassive";
 import abilityList from "data/abilityList";
 
@@ -11,28 +12,35 @@ export function getCharaData(charaId) {
   return filteredChara.length > 0 ? filteredChara[0] : undefined;
 }
 
+// 敵情報取得
+export function getEnemyInfo(enemyClass, enemySelect) {
+  const filteredEnemy = enemyList.filter((obj) =>
+    obj.enemy_class === Number(enemyClass) && obj.enemy_class_no === Number(enemySelect));
+  return filteredEnemy.length > 0 ? filteredEnemy[0] : enemyList[0];
+}
+
 // スキルデータ取得
 export function getSkillData(skillId) {
-    const filteredSkill = skillList.filter((obj) => obj.skill_id === skillId);
-    return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
+  const filteredSkill = skillList.filter((obj) => obj.skill_id === skillId);
+  return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
 }
 
 // バフ情報取得
 export function getBuffIdToBuff(buffId) {
-    const filteredBuff = skillBuff.filter((obj) => obj.buff_id === buffId);
-    return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
+  const filteredBuff = skillBuff.filter((obj) => obj.buff_id === buffId);
+  return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
 }
 
 // アビリティ情報取得
 export function getAbilityInfo(abilityId) {
-    const filteredAbility = abilityList.filter((obj) => obj.ability_id === abilityId);
-    return filteredAbility.length > 0 ? filteredAbility[0] : undefined;
+  const filteredAbility = abilityList.filter((obj) => obj.ability_id === abilityId);
+  return filteredAbility.length > 0 ? filteredAbility[0] : undefined;
 }
 
 // パッシブ情報取得
 export function getPassiveInfo(skillId) {
-    const filteredPassive = skillPassive.filter((obj) => obj.skill_id === skillId);
-    return filteredPassive.length > 0 ? skillPassive[0] : undefined;
+  const filteredPassive = skillPassive.filter((obj) => obj.skill_id === skillId);
+  return filteredPassive.length > 0 ? skillPassive[0] : undefined;
 }
 
 // 文字列を圧縮

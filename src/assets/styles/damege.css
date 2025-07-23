@@ -1,6 +1,8 @@
 /* 全体 */
 div.frame {
     height: calc(100svh - 180px);
+    overflow-y: scroll;
+    border-bottom-width: 1px;
 }
 
 div.footer {

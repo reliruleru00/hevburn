@@ -1,6 +1,7 @@
 import React, { useState, useReducer } from "react";
 import { useStyleList } from "components/StyleListProvider";
-import enemyList from "data/enemyList";
+import { getDamageResult } from "./logic";
+import { getEnemyInfo } from "utils/common";
 import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
 import ContentsArea from "./ContentsArea";
@@ -148,16 +149,7 @@ const DamageCalculation = () => {
         let enemySelect = localStorage.getItem("enemy_select");
         return enemySelect ? Number(enemySelect) : 1;
     });
-    const filteredEnemy = enemyList.filter((obj) =>
-        obj.enemy_class === enemyClass && obj.enemy_class_no === enemySelect);
-
-    let initEnemyInfo = filteredEnemy.length > 0 ? filteredEnemy[0] : undefined;
-    if (!initEnemyInfo) {
-        // データ消えたりしてたら初期値に戻す
-        enemyClass = "1";
-        enemySelect = "1";
-        initEnemyInfo = enemyList[0];
-    }
+    let initEnemyInfo = getEnemyInfo(enemyClass, enemySelect);
 
     const initialState = {
         enemyInfo: initEnemyInfo,
@@ -206,18 +198,18 @@ const DamageCalculation = () => {
         overdrive: false,
     });
 
-    // let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv,
-    //     selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
+    let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv,
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
 
     return (
-        <>
-            <div className="pt-3 display_area mx-auto">
+        <div className="frame pt-3">
+            <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />
                     <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                         selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv}
                         abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} state={state} dispatch={dispatch} />
-                    <ContentsArea attackInfo={attackInfo} enemyInfo={state.enemyInfo} enemyClass={enemyClass}
+                    <ContentsArea attackInfo={attackInfo} enemyClass={enemyClass} 
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
                     <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
@@ -232,9 +224,8 @@ const DamageCalculation = () => {
                     abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}
                     passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
             </div>
-            {/* <DamageResult damageResult={damageResult} enemyInfo={state.enemyInfo} dispatch={dispatch} /> */}
-            <DamageResult enemyInfo={state.enemyInfo} dispatch={dispatch} />
-        </>
+            <DamageResult damageResult={damageResult} enemyInfo={state.enemyInfo} dispatch={dispatch} />
+        </div>
     );
 }
 

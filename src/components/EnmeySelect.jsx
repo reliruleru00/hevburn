@@ -2,16 +2,16 @@ import React from "react";
 import { ENEMY_CLASS } from "utils/const";
 import enemyList from "data/enemyList";
 
-const EnmeyListComponent = ({ enemyClass, enemySelect, handleChange, isFreeInput }) => {
+const EnmeySelect = ({ enemyClass, enemySelect, handleChange, isFreeInput }) => {
     const handleClassChange = (newClass) => {
         localStorage.setItem("enemy_class", newClass);
         localStorage.setItem("enemy_select", "1");
-        handleChange(newClass, "1");
+        handleChange(Number(newClass), 1);
     };
 
     const handleSelectChange = (newSelect) => {
         localStorage.setItem("enemy_select", newSelect);
-        handleChange(enemyClass, newSelect);
+        handleChange(Number(enemyClass), Number(newSelect));
     };
 
     let class_List = enemyList.filter((obj) => obj.enemy_class === enemyClass);
@@ -93,4 +93,4 @@ const EnmeyListComponent = ({ enemyClass, enemySelect, handleChange, isFreeInput
     )
 };
 
-export default EnmeyListComponent;
+export default EnmeySelect;

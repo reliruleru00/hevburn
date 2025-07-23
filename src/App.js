@@ -1,6 +1,6 @@
 import { HashRouter  as Router, Routes, Route } from 'react-router-dom';
 import DmgCalcPage from './pages/DmgCalcPage';
-import SpodSimPage from './pages/SpodSimulation';
+import SpodSimPage from './pages/SpodSimPage';
 
 function App() {
   return (

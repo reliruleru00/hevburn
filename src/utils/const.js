@@ -1,7 +1,12 @@
-
-export const CHARA_ID_SHADOW_CLONE = [17, 18];
-export const CHARA_ID_RISA = 22;
-export const CHARA_ID_MIYA = 45;
+export const CHARA_ID = {
+    MEMBER_31C: [13, 14, 15, 16, 17, 18],
+    MEMBER_31E: [25, 26, 27, 28, 29, 30],
+    MARUYAMA: [15, 16, 28, 32, 40, 47],
+    RUKA_SHARO: [1, 42],
+    SHADOW_CLONE: [17, 18],
+    RISA: 22,
+    MIYA: 45,
+}
 
 export const STYLE_ID = {
     ONLY_MONN_LIGHT: 145,
@@ -157,12 +162,6 @@ export const RANGE = {
     OTHER: 99, // その他
 }
 
-export const CHARA_ID = {
-    MEMBER_31C: [13, 14, 15, 16, 17, 18],
-    MEMBER_31E: [25, 26, 27, 28, 29, 30],
-    MARUYAMA: [15, 16, 28, 32, 40, 47],
-    RUKA_SHARO: [1, 42],
-}
 
 /** スキル属性 */
 export const ATTRIBUTE = {

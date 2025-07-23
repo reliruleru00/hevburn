@@ -1,33 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { isOnlyBuff, isOnlyUse, isAloneActivation, filteredBuffList } from "./logic";
 import { getBuffIdToBuff } from "utils/common";
+import ConfirmModal from 'components/ConfirmModal';
 
 const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, handleChangeSkillLv, selectedKey, index, handleSelectChange, openModal }) => {
+    const [modalData, setModalData] = useState(null);
+
     let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo)
     if (Object.keys(buffSettingMap).length > 0) {
         kindBuffList.sort((a, b) => buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size);
     }
 
+    const confirmSet = (message, onConfirm) => {
+        setModalData({
+            title: "確認",
+            message,
+            onConfirm: () => {
+                onConfirm();
+                setModalData(null);
+            },
+            onCancel: () => setModalData(null),
+        });
+    };
+
     const onChangeBuff = (value) => {
-        selectedKey[index] = value;
+        const newSelected = [...selectedKey];
+        newSelected[index] = value;
+
         if (value) {
             const buffId = Number(value.split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
-            if (isOnlyBuff(attackInfo, buffInfo, buffSettingMap) && selectedKey[index ^ 1] === value) {
-                if (!confirm(buffInfo.buff_name + "は\r\n通常、複数付与出来ませんが、設定してよろしいですか？")) {
-                    selectedKey[index] = "";
-                }
+            if (isOnlyBuff(attackInfo, buffInfo, buffSettingMap) && newSelected[index ^ 1] === value) {
+                confirmSet(`${buffInfo.buff_name}は\r\n通常、複数付与出来ません。\r\n設定してよろしいですか？`, () => {
+                    handleSelectChange(buffKey, newSelected);
+                });
+                return;
             }
+
             if (isOnlyUse(attackInfo, buffInfo)) {
-                if (!confirm(buffInfo.buff_name + "は\r\n通常、他スキルに設定出来ませんが、設定してよろしいですか？")) {
-                    selectedKey[index] = "";
-                }
+                confirmSet(`${buffInfo.buff_name}は\r\n通常、他スキルに設定出来ません。\r\n設定してよろしいですか？`, () => {
+                    handleSelectChange(buffKey, newSelected);
+                });
+                return;
             }
             if (isAloneActivation(buffInfo)) {
-                selectedKey = [value, ""];
+                handleSelectChange(buffKey, [value, ""]);
+                return;
             }
         }
-        handleSelectChange(buffKey, selectedKey);
+
+        handleSelectChange(buffKey, newSelected);
     }
     const value = selectedKey.length > index ? selectedKey[index] : "";
     const selectBuff = kindBuffList.find(buff => buff.key === value);
@@ -63,6 +85,13 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
                     : null
                 }
             </td>
+            <ConfirmModal
+                isOpen={!!modalData}
+                title={modalData?.title}
+                message={modalData?.message}
+                onConfirm={modalData?.onConfirm}
+                onCancel={modalData?.onCancel}
+            />
         </>
     )
 };

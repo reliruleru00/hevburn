@@ -3,7 +3,7 @@ import titleLogo from '../assets/img/title_log.png'; // ロゴ画像へのパス
 
 const linkList = [
   { url: '.', title: 'ダメージ計算ツール' },
-  { url: '#/spod_sim', title: 'SP/ODシミュレータ' },
+  { url: '/#/simulator', title: 'SP/ODシミュレータ' },
   { url: 'style_checker', title: 'スタイル所持率チェッカー' },
   { url: 'arts_list', title: 'アーツデッキ画像生成' },
   { url: 'chara_mgmt', title: 'キャラ管理ツール' },

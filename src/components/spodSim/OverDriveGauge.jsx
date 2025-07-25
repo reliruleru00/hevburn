@@ -1,12 +1,12 @@
 import React from "react";
 import { getOverDrive } from "./logic";
+import overdriveIcons from 'assets/overdrive';
 
 const OverDriveGauge = ({ turn }) => {
     let over_drive_gauge = turn.over_drive_gauge;
     let add_over_drive_gauge = getOverDrive(turn);
     turn.add_over_drive_gauge = add_over_drive_gauge;
     over_drive_gauge += add_over_drive_gauge;
-    // over_drive_gauge = over_drive_gauge > 300 ? 300 : over_drive_gauge;
     let gauge = Math.floor(turn.over_drive_gauge / 100);
     gauge = gauge > 3 ? 3 : gauge;
 
@@ -18,9 +18,9 @@ const OverDriveGauge = ({ turn }) => {
             </label>
             <div className="inc_od_icon">
                 {gauge > 0 ?
-                    <img className="od_number" src={`img/ButtonOverdrive${gauge}Default.webp`} />
+                    <img className="od_number" src={overdriveIcons[`ButtonOverdrive${gauge}Default`]} />
                     :
-                    <img className="od_icon" src="img/FrameOverdriveGaugeR.webp" />
+                    <img className="od_icon" src={overdriveIcons["FrameOverdriveGaugeR"]} />
                 }
             </div>
         </div>

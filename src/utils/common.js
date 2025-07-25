@@ -39,6 +39,12 @@ export function getAttackInfo(attackId) {
   return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
 }
 
+// バフ一覧取得
+export function getBuffList(skillId) {
+    const filteredBuff = skillBuff.filter((obj) => obj.skill_id === skillId);
+    return filteredBuff;
+}
+
 // バフ情報取得
 export function getBuffIdToBuff(buffId) {
   const filteredBuff = skillBuff.filter((obj) => obj.buff_id === buffId);

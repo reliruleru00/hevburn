@@ -2,7 +2,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { RANGE, CONDITIONS, ATTRIBUTE } from "utils/const";
 import { KB_NEXT } from "./const";
-import { getBuffIdToBuff, getSkillData, deepClone } from "utils/common";
+import { getBuffList, getSkillData, deepClone } from "utils/common";
 import { FIELD_LIST } from "./const";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
@@ -14,6 +14,7 @@ import {
     getOverDrive, startOverDrive, removeOverDrive, skillUpdate, getUnitData, getTurnNumber,
     startAction, setInitSkill
 } from "./logic";
+import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
 const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = React.useRef(false);
@@ -58,11 +59,11 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         let select_skill = user_operation.select_skill[place_no];
         select_skill.skill_id = skill_id;
         skillUpdate(turn, skill_id, place_no);
-        const unit = turn.unit_list.filter(unit => unit.place_no === place_no)[0];
+        const unit = turn.unitList.filter(unit => unit.place_no === place_no)[0];
 
-        const buff_list = getBuffIdToBuff(skill_id);
+        const buffList = getBuffList(skill_id);
         const SELECT_RANGE = [RANGE.ALLY_UNIT, RANGE.SELF_AND_UNIT, RANGE.OTHER_UNIT];
-        if (buff_list.some(buff => SELECT_RANGE.includes(buff.range_area))) {
+        if (buffList.some(buff => SELECT_RANGE.includes(buff.range_area))) {
             openModal(place_no, "target")
         } else {
             unit.buff_target_chara_id = null;
@@ -70,7 +71,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
 
         let effect_type = 0;
         let skill_info = getSkillData(skill_id);
-        const conditionsList = buff_list.map(buff => buff.conditions).filter(condition => condition !== null);
+        const conditionsList = buffList.map(buff => buff.conditions).filter(condition => condition !== null);
         if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200)) {
             effect_type = 2;
         }
@@ -219,14 +220,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     });
 
     const handleSelectTarget = (chara_id) => {
-        const unit = turn.unit_list.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
+        const unit = turn.unitList.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_target_chara_id = chara_id;
         turn.user_operation.select_skill[modalSetting.modalIndex].buff_target_chara_id = chara_id;
         reRender(turn.user_operation, true);
     };
 
     const handleSelectEffect = (effect_type) => {
-        const unit = turn.unit_list.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
+        const unit = turn.unitList.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_effect_select_type = effect_type;
         turn.user_operation.select_skill[modalSetting.modalIndex].buff_effect_select_type = effect_type;
         let skill_info = getSkillData(unit.select_skill_id);
@@ -247,15 +248,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         reRender(turn.user_operation, true);
     };
 
-    const clickBuffIcon = (buff_list) => {
-        openModal(0, "buff", buff_list);
+    const clickBuffIcon = (buffList) => {
+        openModal(0, "buff", buffList);
     };
 
 
     const openModal = (index, type, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
-    // console.log(`render${index}`);
     return (
         <div className="turn">
             <div className="turn_header_area">
@@ -263,7 +263,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     <div>
                         <div className="turn_number">{getTurnNumber(turn)}</div>
                         <div className="left flex">
-                            <img className="enemy_icon" src="icon/BtnEventBattleActive.webp" />
+                            <img className="enemy_icon" src={enemyIcon} />
                             <div>
                                 <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
                                     {[1, 2, 3].filter(value => value === turn.enemy_count || !isCapturing)
@@ -279,7 +279,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     </div>
                     <OverDriveGauge turn={turn} />
                 </div>
-                <BuffIconComponent buff_list={turn.enemy_debuff_list} loop_limit={12} loop_step={1} place_no={7} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                <BuffIconComponent buffList={turn.enemy_debuffList} loop_limit={12} loop_step={1} place_no={7} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">
@@ -330,7 +330,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                 >
                     {
                         modalSetting.modalType === "target" ?
-                            <ModalTargetSelection closeModal={closeModal} onSelect={handleSelectTarget} unitList={turn.unit_list} />
+                            <ModalTargetSelection closeModal={closeModal} onSelect={handleSelectTarget} unitList={turn.unitList} />
                             : modalSetting.modalType === "effect" ?
                                 <ModalEffectSelection closeModal={closeModal} onSelect={handleSelectEffect} effectType={modalSetting.effect_type} />
                                 : modalSetting.modalType === "buff" ?

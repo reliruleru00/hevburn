@@ -64,8 +64,8 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
         trigger_over_drive: false,
         additional_turn: false,
         additional_count: 0,
-        enemy_debuff_list: [],
-        unit_list: [],
+        enemy_debuffList: [],
+        unitList: [],
         start_over_drive_gauge: 0,
         step_over_drive_gauge: 0,
         over_drive_gauge: 0,
@@ -77,7 +77,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
         field_turn: 0,
         user_operation: {}
     }
-    let unit_list = [];
+    let unitList = [];
     let constraints_list = [];
 
     let initSpAdd = Number(detailSetting.initSpAdd);
@@ -93,7 +93,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
             over_drive_sp: 0,
             add_sp: 0,
             sp_cost: 0,
-            buff_list: [],
+            buffList: [],
             additional_turn: false,
             normalAttackElement: 0,
             earringEffectSize: 0,
@@ -178,7 +178,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
         } else {
             unit.blank = true;
         }
-        unit_list.push(unit);
+        unitList.push(unit);
     });
 
     // 初期設定を読み込み
@@ -197,7 +197,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     turnInit.step_sp_all_add = Number(detailSetting.stepSpAllAdd);
 
     // turnInit.enemy_count = Number($("#enemy_select_count").val());;
-    turnInit.unit_list = unit_list;
+    turnInit.unitList = unitList;
     turnInit.enemy_info = getEnemyInfo()
     // 戦闘開始アビリティ
     abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
@@ -206,21 +206,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     return turnInit;
 }
 
-const SettingArea = () => {
-    // 敵選択
-    let enemy_class = localStorage.getItem("enemy_class");
-    enemy_class = enemy_class ? enemy_class : "1";
-    let enemy_select = localStorage.getItem("enemy_select");
-    enemy_select = enemy_select ? enemy_select : "1";
-
-    // 上書き確認
-    let is_overwrite = localStorage.getItem("is_overwrite");
-    is_overwrite = is_overwrite === "true" ? true : false;
-
-    const changeOverwrite = (e) => {
-        is_overwrite = e.target.checked;
-        localStorage.setItem("is_overwrite", e.target.checked);
-    }
+const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect }) => {
 
     const { styleList, setStyleList, saveMember, removeMember } = useStyleList();
 
@@ -231,6 +217,7 @@ const SettingArea = () => {
         seq_last_turn: 0,
         enemy_info: {}
     });
+    let enemyInfo = getEnemyInfo(enemyClass, enemySelect);
 
     // 戦闘開始前処理
     const startBattle = (update, setUpdate) => {
@@ -252,12 +239,6 @@ const SettingArea = () => {
         if (hasBlankFront && hasBack) {
             alert("後衛がいるとき 前衛には3名必要です");
             return;
-        }
-
-        if (is_overwrite) {
-            // if (simProc.turn_list.length > 0 && !confirm("現在の結果が消えますが、よろしいですか？")) {
-            //     return;
-            // }
         }
 
         /** 戦闘開始処理 */
@@ -291,7 +272,7 @@ const SettingArea = () => {
                 member_info.bracelet = unit_data.bracelet;
                 member_info.chain = unit_data.chain;
                 member_info.initSp = unit_data.initSp || unit_data.init_sp;
-                member_info.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skill_list;
+                member_info.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skillList;
                 updatedStyleList[index] = member_info;
             } else {
                 updatedStyleList[index] = undefined;
@@ -307,11 +288,6 @@ const SettingArea = () => {
         // 画面反映
         dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list });
     }
-
-    const [enemy, setEnemy] = React.useState({
-        enemy_class: enemy_class,
-        enemy_select: enemy_select
-    });
 
     const [detailSetting, setDetailSetting] = React.useState({
         initField: 0,
@@ -349,14 +325,12 @@ const SettingArea = () => {
                             <CharaSetting />
                         </div>
                         <div>
-                            <EnemyArea enemy={enemy} setEnemy={setEnemy} detailSetting={detailSetting} />
+                            <EnemyArea enemyInfo={enemyInfo} enemyClass={enemyClass}
+                                enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
+                                detailSetting={detailSetting} />
                             <DetailSetting detailSetting={detailSetting} setDetailSetting={setDetailSetting} />
                         </div>
                         <div className="flex justify-center mt-2 text-sm">
-                            <input id="is_overwrite" type="checkbox" onChange={(e) => { changeOverwrite(e) }} defaultChecked={is_overwrite} />
-                            <label className="checkbox01 text-sm" htmlFor="is_overwrite">
-                                上書き確認
-                            </label>
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e => startBattle(update, setUpdate)} />
                         </div>
                         <div>

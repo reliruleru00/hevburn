@@ -4,7 +4,8 @@ import { BUFF, ROLE, ATTRIBUTE, SKILL } from "utils/const";
 import { PHYSICAL_NAME, ELEMENT_NAME, ABILIRY_TIMING } from "./const";
 import BuffIconComponent from "./BuffIconComponent";
 import { getSkillIdToAttackInfo, getSpCost, checkAbilityExist } from "./logic";
-
+import icons from 'assets/thumbnail';
+import crossIcon from 'assets/img/cross.png';
 
 const UnitSp = ({ unit }) => {
     let unit_sp;
@@ -43,9 +44,9 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
             </select>
         );
     }
-    let skill_list = unit.skill_list
+    let skillList = unit.skillList
     if (place_no < 3) {
-        skill_list = skill_list.filter(skill => {
+        skillList = skillList.filter(skill => {
             if (skill.skill_id === 495) {
                 // 夜醒
                 return !turn.additional_turn;
@@ -70,7 +71,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
             return true;
         })
     } else {
-        skill_list = unit.skill_list.filter(skill => {
+        skillList = unit.skillList.filter(skill => {
             if (skill.skill_id === SKILL.AUTO_PURSUIT) {
                 if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1530)) {
                     // 自動追撃
@@ -93,12 +94,12 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
         })
     }
 
-    const recoil = unit.buff_list.filter((obj) => obj.buff_kind === BUFF.RECOIL);
+    const recoil = unit.buffList.filter((obj) => obj.buff_kind === BUFF.RECOIL);
     let not_action = (recoil.length > 0 || !unit.style || (turn.additional_turn && !unit.additional_turn && place_no <= 2))
     let className = "unit_skill " + (not_action ? "invisible" : "");
     let physical = getCharaData(unit.style.styleInfo.chara_id).physical;
     return (<select className={className} onChange={(e) => chengeSkill(Number(e.target.value), place_no)} value={unit.select_skill_id} >
-        {skill_list.filter((obj) => obj.skill_id === unit.select_skill_id || !isCapturing).map(skill => {
+        {skillList.filter((obj) => obj.skill_id === unit.select_skill_id || !isCapturing).map(skill => {
             let text = skill.skill_name;
             const attackInfo = getSkillIdToAttackInfo(turn, skill.skill_id);
             let sp_cost = 0;
@@ -130,13 +131,10 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
 });
 
 const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit, hideMode, isCapturing, clickBuffIcon }) => {
-    const filterUnit = turn.unit_list.filter(unit => unit.place_no === place_no);
+    const filterUnit = turn.unitList.filter(unit => unit.place_no === place_no);
     const unit = filterUnit[0];
 
-    let icon = "img/cross.png";
-    if (unit?.style?.styleInfo?.image_url) {
-        icon = "icon/" + unit.style.styleInfo.image_url;
-    }
+    let icon = icons[unit?.style?.styleInfo?.image_url.replace(/\.webp$/, "")] || crossIcon;
     let loop_limit = 3;
     if (hideMode) {
         loop_limit = 4;
@@ -148,13 +146,13 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
                 unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} trigger_over_drive={turn.trigger_over_drive} isCapturing={isCapturing} />
             <div className="flex">
                 <div>
-                    <img className="unit_style" src={icon} />
+                    <img className="unit_style" src={icon} alt=""/>
                     {
                         unit?.style?.styleInfo ? <UnitSp unit={unit} /> : null
                     }
                 </div>
                 {place_no <= 2 || hideMode ?
-                    <BuffIconComponent buff_list={unit.buff_list} loop_limit={loop_limit} loop_step={2} place_no={place_no} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                    <BuffIconComponent buffList={unit.buffList} loop_limit={loop_limit} loop_step={2} place_no={place_no} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
                     : null
                 }
             </div>

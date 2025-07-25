@@ -14,7 +14,8 @@ const SpOdSimulation = () => {
 
     return (
         <div className="frame pt-3">
-            <SettingArea />
+            <SettingArea enemyClass={enemyClass}
+                enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect} />
         </div>
     );
 }

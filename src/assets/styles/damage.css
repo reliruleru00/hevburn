@@ -64,7 +64,7 @@ input[type="text"]:not(:read-only) {
     border: solid 1px #000;
 }
 
-select {
+.damage_frame > select {
     border: solid 1px #000;
     height: 21px;
 }

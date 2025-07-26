@@ -42,7 +42,7 @@ hr.line {
   margin-bottom: 5px;
 }
 
-.troops {
+.stylelist > .troops {
   font-size: 24px;
   font-weight: bold;
   margin-top: 5px;

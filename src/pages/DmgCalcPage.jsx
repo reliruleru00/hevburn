@@ -4,6 +4,7 @@ import StyleListProvider from 'components/StyleListProvider';
 import DamageCalculation from 'components/dmgCalc/DamageCalculation';
 import { updateEnemyStatus } from 'components/dmgCalc/logic';
 import HeaderNav from 'components/HeaderNav';
+import 'assets/styles/damage.css';
 
 const DmgCalcPage = () => {
 

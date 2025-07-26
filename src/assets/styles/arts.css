@@ -17,22 +17,14 @@
   } 
 }
 
-div.frame {
+div.arts_frame {
   height: calc(100svh - 60px);
 }
 
-.troops {
+.arts_troops {
   margin-top: 5px;
   margin-left: 3px;
   display: flex;
   width: 552px;
   background-color: black;
-}
-
-.selected {
-  opacity : 1!important;
-}
-
-.select_arts {
-  opacity : 0.3;
 }

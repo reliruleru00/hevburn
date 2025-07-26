@@ -13,7 +13,7 @@ div.checker_frame {
   height: calc(100svh - 195px);
 }
 
-.troops {
+.checker_troops {
   margin-top: 10px;
   display: flex;
 }

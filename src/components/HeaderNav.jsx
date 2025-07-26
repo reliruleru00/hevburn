@@ -5,7 +5,7 @@ const linkList = [
   { url: '/#/damage', title: 'ダメージ計算ツール' },
   { url: '/#/simulator', title: 'SP/ODシミュレータ' },
   { url: '/#/checker', title: 'スタイル所持率チェッカー' },
-  { url: '/#/arts_list', title: 'アーツデッキ画像生成' },
+  { url: '/#/artslist', title: 'アーツデッキ画像生成' },
   { url: '/#/chara_mgmt', title: 'キャラ管理ツール' },
   { url: '', title: 'このサイトについて' },
 ];

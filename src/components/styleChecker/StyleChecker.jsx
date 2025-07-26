@@ -124,7 +124,7 @@ const StyleChecker = () => {
                             let charaData = getCharaData(style.chara_id);
                             return (charaData.troops === key);
                         })
-                        return (<div className="troops" key={`troops_${key}`}>
+                        return (<div className="checker_troops" key={`troops_${key}`}>
                             <input className="emblem" src={troop[TROOP_LIST[key]]} alt={TROOP_LIST[key]} type="image" />
                             <div className="flex flex-wrap">
                                 {filterList.map((style) => {

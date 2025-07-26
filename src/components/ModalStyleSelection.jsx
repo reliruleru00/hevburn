@@ -92,7 +92,7 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
         closeModal();
     }
     return (
-        <div className="modal_inner">
+        <div className="modal_inner stylelist">
             <div className="modal_inner_headline">
                 <div className="flex leading-10">
                     <div className="mx-auto pl-16">スタイル選択</div>

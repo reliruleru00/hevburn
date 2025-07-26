@@ -133,7 +133,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             >
                 <AttackDetail attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                     selectSKillLv={selectSKillLv} styleList={styleList} state={state}
-                    abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={() => setModal(false)}/>
+                    abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={() => setModal(false)} />
             </ReactModal>
         </div >
     )
@@ -248,109 +248,107 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
     return (
-        <div className="modal__container container_damage">
-            <div className="modal text-left w-[350px] mx-auto">
-                <div>
-                    <label className="damage_label">スキル詳細</label>
-                    <button className="modal-close" onClick={closeModal}>&times;</button>
-                </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    <span>スキル</span>
-                    <span>{attackInfo.attack_name}</span>
-                    <div></div>
-                    <div className="flex justify-center items-center h-full">
-                        <div className="flex">
-                            <img className="w-6 h-6" src={attribute[TYPE_PHYSICAL[attackInfo.attack_physical]]} alt="物理" />
-                            <img className="w-6 h-6" src={attribute[TYPE_ELEMENT[attackInfo.attack_element]]} alt="属性" />
-                            <span className={`range_area ${attackInfo.range_area === 1 ? "unit" : "all"}`}>
-                                {attackInfo.range_area === 1 ? "単体" : "全体"}
-                            </span>
-                        </div>
-                    </div>
-                    <span>攻撃力</span>
-                    <span>{`${minPower.toLocaleString()}～${maxPower.toLocaleString()}`}</span>
-                    <div></div>
-                    <span>(スキルLv{selectSKillLv})</span>
-                    <span>破壊係数</span>
-                    <span>{attackInfo.destruction}%</span>
-                    <span>HIT数</span>
-                    <span>{attackInfo.hit_count}</span>
-                    <span>参照ステータス</span>
-                    <span>
-                        {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
-                            {jpnName[attackInfo.ref_status_1]}</span> : null}
-                        {attackInfo.ref_status_1 !== 0 && attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
-                            {jpnName[attackInfo.ref_status_1]}</span> : null}
-                        {attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_2]}`}>
-                            {jpnName[attackInfo.ref_status_2]}</span> : null}
-                        {attackInfo.ref_status_3 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_3]}`}>
-                            {jpnName[attackInfo.ref_status_3]}</span> : null}
-                    </span>
-                    {attackInfo.dp_damege !== 0 ? (
-                        <>
-                            <span>DP補正</span>
-                            <span>+{attackInfo.dp_damege}%</span>
-                        </>
-                    ) : null}
-                    {attackInfo.hp_damege !== 0 ? (
-                        <>
-                            <span>HP補正</span>
-                            <span>+{attackInfo.hp_damege}%</span>
-                        </>
-                    ) : null}
-                    {attackInfo.penetration && (
-                        <>
-                            <span>貫通クリティカル</span>
-                            <span>+{attackInfo.penetration}%</span>
-                        </>
-                    )}
-                </div>
-                <div className="mt-2">
-                    <label className="damage_label">ステータス情報</label>
-                </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    <span>スキル上限</span>
-                    <span>{
-                        enemyStat + attackInfo.param_limit - enemyStatDown}({enemyStat + attackInfo.param_limit - criticalStatDown})
-                    </span>
-                    <span>宝珠上限</span>
-                    <span>{
-                        enemyStat + attackInfo.param_limit + 100 - enemyStatDown}({enemyStat + attackInfo.param_limit + 100 - criticalStatDown})
-                    </span>
-                    <div></div>
-                    <span className="explain">()内はクリティカル時</span>
-                    <span>使用者ステータス</span>
-                    <span>{Math.floor(status * 100) / 100}</span>
-                    <span>使用者宝珠強化</span>
-                    <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
-                    <span>闘志</span>
-                    <div className="text-center status_checkbox">
-                        <input type="checkbox" id="fightingspirit" checked={attackInfo.collect?.fightingspirit}
-                            onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, fightingspirit: e.target.checked } })} />
-                        <label htmlFor="fightingspirit" className="checkbox01"></label>
-                    </div>
-                    <span>厄</span>
-                    <div className="text-center status_checkbox">
-                        <input type="checkbox" id="misfortune" checked={attackInfo.collect?.misfortune}
-                            onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, misfortune: e.target.checked } })} />
-                        <label htmlFor="misfortune" className="checkbox01"></label>
-                    </div>
-                    <span>ハッキング</span>
-                    <div className="text-center status_checkbox">
-                        <input type="checkbox" id="hacking" checked={attackInfo.collect?.hacking}
-                            onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, hacking: e.target.checked } })} />
-                        <label htmlFor="hacking" className="checkbox01"></label>
+        <div className="modal text-left mx-auto p-6">
+            <div>
+                <label className="damage_label">スキル詳細</label>
+                <button className="modal-close" onClick={closeModal}>&times;</button>
+            </div>
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                <span>スキル</span>
+                <span>{attackInfo.attack_name}</span>
+                <div></div>
+                <div className="flex justify-center items-center h-full">
+                    <div className="flex">
+                        <img className="w-6 h-6" src={attribute[TYPE_PHYSICAL[attackInfo.attack_physical]]} alt="物理" />
+                        <img className="w-6 h-6" src={attribute[TYPE_ELEMENT[attackInfo.attack_element]]} alt="属性" />
+                        <span className={`range_area ${attackInfo.range_area === 1 ? "unit" : "all"}`}>
+                            {attackInfo.range_area === 1 ? "単体" : "全体"}
+                        </span>
                     </div>
                 </div>
-                <div className="mt-2">
-                    <label className="damage_label">スキル攻撃力</label>
+                <span>攻撃力</span>
+                <span>{`${minPower.toLocaleString()}～${maxPower.toLocaleString()}`}</span>
+                <div></div>
+                <span>(スキルLv{selectSKillLv})</span>
+                <span>破壊係数</span>
+                <span>{attackInfo.destruction}%</span>
+                <span>HIT数</span>
+                <span>{attackInfo.hit_count}</span>
+                <span>参照ステータス</span>
+                <span>
+                    {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
+                        {jpnName[attackInfo.ref_status_1]}</span> : null}
+                    {attackInfo.ref_status_1 !== 0 && attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>
+                        {jpnName[attackInfo.ref_status_1]}</span> : null}
+                    {attackInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_2]}`}>
+                        {jpnName[attackInfo.ref_status_2]}</span> : null}
+                    {attackInfo.ref_status_3 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_3]}`}>
+                        {jpnName[attackInfo.ref_status_3]}</span> : null}
+                </span>
+                {attackInfo.dp_damege !== 0 ? (
+                    <>
+                        <span>DP補正</span>
+                        <span>+{attackInfo.dp_damege}%</span>
+                    </>
+                ) : null}
+                {attackInfo.hp_damege !== 0 ? (
+                    <>
+                        <span>HP補正</span>
+                        <span>+{attackInfo.hp_damege}%</span>
+                    </>
+                ) : null}
+                {attackInfo.penetration && (
+                    <>
+                        <span>貫通クリティカル</span>
+                        <span>+{attackInfo.penetration}%</span>
+                    </>
+                )}
+            </div>
+            <div className="mt-2">
+                <label className="damage_label">ステータス情報</label>
+            </div>
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                <span>スキル上限</span>
+                <span>{
+                    enemyStat + attackInfo.param_limit - enemyStatDown}({enemyStat + attackInfo.param_limit - criticalStatDown})
+                </span>
+                <span>宝珠上限</span>
+                <span>{
+                    enemyStat + attackInfo.param_limit + 100 - enemyStatDown}({enemyStat + attackInfo.param_limit + 100 - criticalStatDown})
+                </span>
+                <div></div>
+                <span className="explain">()内はクリティカル時</span>
+                <span>使用者ステータス</span>
+                <span>{Math.floor(status * 100) / 100}</span>
+                <span>使用者宝珠強化</span>
+                <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
+                <span>闘志</span>
+                <div className="text-center status_checkbox">
+                    <input type="checkbox" id="fightingspirit" checked={attackInfo.collect?.fightingspirit}
+                        onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, fightingspirit: e.target.checked } })} />
+                    <label htmlFor="fightingspirit" className="checkbox01"></label>
                 </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    <span>クリティカル</span>
-                    <span>{criticalPower}</span>
-                    <span>通常ダメージ</span>
-                    <span>{skillPower}</span>
+                <span>厄</span>
+                <div className="text-center status_checkbox">
+                    <input type="checkbox" id="misfortune" checked={attackInfo.collect?.misfortune}
+                        onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, misfortune: e.target.checked } })} />
+                    <label htmlFor="misfortune" className="checkbox01"></label>
                 </div>
+                <span>ハッキング</span>
+                <div className="text-center status_checkbox">
+                    <input type="checkbox" id="hacking" checked={attackInfo.collect?.hacking}
+                        onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, hacking: e.target.checked } })} />
+                    <label htmlFor="hacking" className="checkbox01"></label>
+                </div>
+            </div>
+            <div className="mt-2">
+                <label className="damage_label">スキル攻撃力</label>
+            </div>
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                <span>クリティカル</span>
+                <span>{criticalPower}</span>
+                <span>通常ダメージ</span>
+                <span>{skillPower}</span>
             </div>
         </div>
     )

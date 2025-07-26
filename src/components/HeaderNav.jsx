@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import titleLogo from '../assets/img/title_log.png'; // ロゴ画像へのパスを適宜修正
 
 const linkList = [
-  { url: '.', title: 'ダメージ計算ツール' },
+  { url: '/#/damage', title: 'ダメージ計算ツール' },
   { url: '/#/simulator', title: 'SP/ODシミュレータ' },
-  { url: 'style_checker', title: 'スタイル所持率チェッカー' },
-  { url: 'arts_list', title: 'アーツデッキ画像生成' },
-  { url: 'chara_mgmt', title: 'キャラ管理ツール' },
-  { url: 'siteinfo', title: 'このサイトについて' },
+  { url: '/#/checker', title: 'スタイル所持率チェッカー' },
+  { url: '/#/arts_list', title: 'アーツデッキ画像生成' },
+  { url: '/#/chara_mgmt', title: 'キャラ管理ツール' },
+  { url: '', title: 'このサイトについて' },
 ];
 
 const HeaderNav = () => {

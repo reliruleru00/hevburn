@@ -202,7 +202,7 @@ const DamageCalculation = () => {
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
 
     return (
-        <div className="frame pt-3">
+        <div className="damage_frame pt-3">
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />

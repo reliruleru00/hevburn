@@ -9,7 +9,7 @@ import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
     getCharaIdToMember, getEffectSize, getSumEffectSize,
     getBuffKey, filteredBuffList, getBestBuffKeys, checkDuplicationChara,
-    isOnlyUse, isAloneActivation, isOnlyBuff, 
+    isOnlyUse, isAloneActivation, isOnlyBuff,
     getEnemyResist, getStatUp
 } from "./logic";
 import { getCharaData, getPassiveInfo, getAbilityInfo } from "utils/common";
@@ -134,7 +134,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 case RANGE.ALLY_FRONT:	// 味方前衛
                 case RANGE.ALLY_BACK:	// 味方後衛
                     // 前衛または後衛かつ、本人以外
-                    if ((ability.activation_place === 1 || ability.activation_place === 2) && !ability.chara_id !== attackCharaId || !disabled) {
+                    if (((ability.activation_place === 1 || ability.activation_place === 2) && !ability.chara_id !== attackCharaId) || !disabled) {
                         disabled = false;
                     } else {
                         disabled = true;
@@ -145,7 +145,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 case RANGE.ENEMY_ALL:	// 敵全体
                 case RANGE.OTHER:	    // その他
                     // 前衛または後衛かつ、本人以外
-                    if ((ability.activation_place === 1 || ability.activation_place === 2) && ability.chara_id !== attackCharaId || !disabled) {
+                    if (((ability.activation_place === 1 || ability.activation_place === 2) && ability.chara_id !== attackCharaId) || !disabled) {
                         disabled = false;
                     } else {
                         disabled = true;
@@ -678,6 +678,8 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                         return attackInfo?.servant_count >= 5;
                     case BUFF_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
                         return attackInfo?.servant_count === 6;
+                    default:
+                        break;
                 }
                 // サブ部隊
                 if (troopKbn === TROOP_KBN.SUB) {
@@ -931,128 +933,126 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
     const abilityList = getAbilityListByBuff(buffInfo.buff_kind, charaId);
     const PassiveList = getPassiveListByBuff(buffInfo.buff_kind, charaId);
     return (
-        <div className="modal__container container_damage">
-            <div className="modal text-left w-[350px] mx-auto">
-                <div>
-                    <label className="damage_label">スキル詳細</label>
-                    <button className="modal-close" onClick={closeModal}>&times;</button>
-                </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    <span>スキル</span>
-                    <span>{buffInfo.buff_name}</span>
-                    <span>効果量</span>
-                    <span>{getBuffEffectDisplay(buffInfo, buffSeting.skill_lv)}</span>
-                    <div></div>
-                    <span>(スキルLv{buffSeting.skill_lv})</span>
-                    {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
-                        <>
-                            <span>参照ステータス</span>
-                            <span>
-                                {buffInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
-                                    {jpnName[buffInfo.ref_status_1]}</span> : null}
-                                {buffInfo.ref_status_1 !== 0 && buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
-                                    {jpnName[buffInfo.ref_status_1]}</span> : null}
-                                {buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_2]}`}>
-                                    {jpnName[buffInfo.ref_status_2]}</span> : null}
-                            </span>
-                        </>
-                    }
-                </div>
-                {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
+        <div className="modal text-left p-6 mx-auto">
+            <div>
+                <label className="damage_label">スキル詳細</label>
+                <button className="modal-close" onClick={closeModal}>&times;</button>
+            </div>
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                <span>スキル</span>
+                <span>{buffInfo.buff_name}</span>
+                <span>効果量</span>
+                <span>{getBuffEffectDisplay(buffInfo, buffSeting.skill_lv)}</span>
+                <div></div>
+                <span>(スキルLv{buffSeting.skill_lv})</span>
+                {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
                     <>
-                        <div className="mt-2">
-                            <label className="damage_label">ステータス情報</label>
-                        </div>
-                        <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                            <span>スキル上限</span>
-                            <span>{enemyStat + buffInfo.param_limit - enemyStatDown}</span>
-                            {isJewel &&
-                                <>
-                                    <span>宝珠上限</span>
-                                    <span>{enemyStat + buffInfo.param_limit + 100 - enemyStatDown}</span>
-                                </>
-                            }
-                            <span>使用者ステータス</span>
-                            <span>{Math.floor(status * 100) / 100}</span>
-                            {isJewel &&
-                                <>
-                                    <span>使用者宝珠強化</span>
-                                    <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
-                                </>
-                            }
-                            <span>闘志</span>
-                            <div className="text-center status_checkbox">
-                                <input type="checkbox" id="fightingspirit" checked={buffInfo.collect?.fightingspirit}
-                                // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, fightingspirit: e.target.checked } })}
-                                />
-                                <label htmlFor="fightingspirit" className="checkbox01"></label>
-                            </div>
-                            {isDebuff &&
-                                <>
-                                    <span>厄</span>
-                                    <div className="text-center status_checkbox">
-                                        <input type="checkbox" id="misfortune" checked={buffInfo.collect?.misfortune}
-                                        // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, misfortune: e.target.checked } })}
-                                        />
-                                        <label htmlFor="misfortune" className="checkbox01"></label>
-                                    </div>
-                                    <span>ハッキング</span>
-                                    <div className="text-center status_checkbox">
-                                        <input type="checkbox" id="hacking" checked={buffInfo.collect?.hacking}
-                                        // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, hacking: e.target.checked } })}
-                                        />
-                                        <label htmlFor="hacking" className="checkbox01"></label>
-                                    </div>
-                                </>
-                            }
-                        </div>
-                    </>
-                )}
-                {abilityList.length > 0 &&
-                    <>
-                        <div className="mt-2">
-                            <label className="damage_label">関連アビリティ</label>
-                        </div>
-                        <div className="w-[350px] mx-auto">
-                            {abilityList.map((ability, index) => {
-                                const key = ability.key;
-                                const abilityInfo = getAbilityInfo(ability.ability_id);
-                                return (
-                                    <div key={key} className="explain">
-                                        <input type="checkbox" className="ability" id={key} checked={abilitySettingMap[key].checked} />
-                                        <label htmlFor={key}
-                                            className="checkbox01">
-                                            {`${abilityInfo.ability_name}:${abilityInfo.ability_short_explan}`}
-                                        </label>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </>
-                }
-                {PassiveList.length > 0 &&
-                    <>
-                        <div className="mt-2">
-                            <label className="damage_label">関連パッシブ</label>
-                        </div>
-                        <div className="w-[350px] mx-auto">
-                            {PassiveList.map((passive, index) => {
-                                const key = passive.key;
-                                const passiveInfo = getPassiveInfo(passive.skill_id);
-                                return (
-                                    <div key={key} className="explain">
-                                        <input type="checkbox" className="ability" id={key} checked={passiveSettingMap[key].checked} />
-                                        <label htmlFor={key}
-                                            className="checkbox01">
-                                            {`${passiveInfo.passive_name}:${passiveInfo.passive_short_explan}`}
-                                        </label>
-                                    </div>
-                                )
-                            })}
-                        </div>
+                        <span>参照ステータス</span>
+                        <span>
+                            {buffInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
+                                {jpnName[buffInfo.ref_status_1]}</span> : null}
+                            {buffInfo.ref_status_1 !== 0 && buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
+                                {jpnName[buffInfo.ref_status_1]}</span> : null}
+                            {buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_2]}`}>
+                                {jpnName[buffInfo.ref_status_2]}</span> : null}
+                        </span>
                     </>
                 }
             </div>
+            {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
+                <>
+                    <div className="mt-2">
+                        <label className="damage_label">ステータス情報</label>
+                    </div>
+                    <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                        <span>スキル上限</span>
+                        <span>{enemyStat + buffInfo.param_limit - enemyStatDown}</span>
+                        {isJewel &&
+                            <>
+                                <span>宝珠上限</span>
+                                <span>{enemyStat + buffInfo.param_limit + 100 - enemyStatDown}</span>
+                            </>
+                        }
+                        <span>使用者ステータス</span>
+                        <span>{Math.floor(status * 100) / 100}</span>
+                        {isJewel &&
+                            <>
+                                <span>使用者宝珠強化</span>
+                                <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
+                            </>
+                        }
+                        <span>闘志</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="fightingspirit" checked={buffInfo.collect?.fightingspirit}
+                            // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, fightingspirit: e.target.checked } })}
+                            />
+                            <label htmlFor="fightingspirit" className="checkbox01"></label>
+                        </div>
+                        {isDebuff &&
+                            <>
+                                <span>厄</span>
+                                <div className="text-center status_checkbox">
+                                    <input type="checkbox" id="misfortune" checked={buffInfo.collect?.misfortune}
+                                    // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, misfortune: e.target.checked } })}
+                                    />
+                                    <label htmlFor="misfortune" className="checkbox01"></label>
+                                </div>
+                                <span>ハッキング</span>
+                                <div className="text-center status_checkbox">
+                                    <input type="checkbox" id="hacking" checked={buffInfo.collect?.hacking}
+                                    // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, hacking: e.target.checked } })}
+                                    />
+                                    <label htmlFor="hacking" className="checkbox01"></label>
+                                </div>
+                            </>
+                        }
+                    </div>
+                </>
+            )}
+            {abilityList.length > 0 &&
+                <>
+                    <div className="mt-2">
+                        <label className="damage_label">関連アビリティ</label>
+                    </div>
+                    <div className="w-[350px] mx-auto">
+                        {abilityList.map((ability, index) => {
+                            const key = ability.key;
+                            const abilityInfo = getAbilityInfo(ability.ability_id);
+                            return (
+                                <div key={key} className="explain">
+                                    <input type="checkbox" className="ability" id={key} checked={abilitySettingMap[key].checked} />
+                                    <label htmlFor={key}
+                                        className="checkbox01">
+                                        {`${abilityInfo.ability_name}:${abilityInfo.ability_short_explan}`}
+                                    </label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </>
+            }
+            {PassiveList.length > 0 &&
+                <>
+                    <div className="mt-2">
+                        <label className="damage_label">関連パッシブ</label>
+                    </div>
+                    <div className="w-[350px] mx-auto">
+                        {PassiveList.map((passive, index) => {
+                            const key = passive.key;
+                            const passiveInfo = getPassiveInfo(passive.skill_id);
+                            return (
+                                <div key={key} className="explain">
+                                    <input type="checkbox" className="ability" id={key} checked={passiveSettingMap[key].checked} />
+                                    <label htmlFor={key}
+                                        className="checkbox01">
+                                        {`${passiveInfo.passive_name}:${passiveInfo.passive_short_explan}`}
+                                    </label>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </>
+            }
         </div>
     )
 }
@@ -1080,20 +1080,19 @@ const AbilityDetail = ({ buffInfo, closeModal }) => {
             break;
     }
     return (
-        <div className="modal__container container_damage">
-            <div className="modal text-left w-[350px] mx-auto">
-                <div>
-                    <label className="damage_label">アビリティ詳細</label>
-                    <button className="modal-close" onClick={closeModal}>&times;</button>
-                </div>
-                <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    <span>アビリティ</span>
-                    <span>{buffInfo.buff_name}</span>
-                    <span>効果量</span>
-                    <span>{effectSize}%</span>
-                </div>
+        <div className="modal text-left p-6 mx-auto">
+            <div>
+                <label className="damage_label">アビリティ詳細</label>
+                <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
-        </div>)
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+                <span>アビリティ</span>
+                <span>{buffInfo.buff_name}</span>
+                <span>効果量</span>
+                <span>{effectSize}%</span>
+            </div>
+        </div>
+    )
 }
 
 export default BuffArea;

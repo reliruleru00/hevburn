@@ -1,5 +1,5 @@
 /* 全体 */
-div.frame {
+div.damage_frame {
     height: calc(100svh - 180px);
     overflow-y: scroll;
     border-bottom-width: 1px;
@@ -25,7 +25,7 @@ div.footer {
 }
 
 @media screen and (max-width: 768px) {
-    div.frame {
+    div.damage_frame {
         height: calc(100svh - 150px);
     }
 

@@ -33,110 +33,108 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
 
     const rateText = maxRate === minRate ? `${maxRate}%` : `${maxRate}%～${minRate}%`;
     return (
-        <div className="modal__container container_damage">
-            <div className="modal text-left w-[250px] mx-auto mt-2">
+        <div className="modal text-left mx-auto p-6">
+            <div>
+                <label className="damage_label">ダメージ詳細</label>
+            </div>
+            <div className="text-center mx-auto">
+                <input type="text" className="text-center damage"
+                    value={result.avg.damage.toLocaleString()} readOnly />
                 <div>
-                    <label className="damage_label">ダメージ詳細</label>
+                    最大
+                    <input type="text" className="text-center min_damage"
+                        value={result.max.damage.toLocaleString()} readOnly />
                 </div>
-                <div className="text-center mx-auto">
-                    <input type="text" className="text-center damage"
-                        value={result.avg.damage.toLocaleString()} readOnly />
-                    <div>
-                        最大
-                        <input type="text" className="text-center min_damage"
-                            value={result.max.damage.toLocaleString()} readOnly />
-                    </div>
-                    <div>
-                        最小
-                        <input type="text" className="text-center min_damage"
-                            value={result.min.damage.toLocaleString()} readOnly />
-                    </div>
-                    <label className="detail_max_damage">最終破壊率</label>
-                    <label className="damage_label">{rateText}</label>
+                <div>
+                    最小
+                    <input type="text" className="text-center min_damage"
+                        value={result.min.damage.toLocaleString()} readOnly />
                 </div>
-                <div className="enemy_rest_hp text-center w-[240px] mx-auto">
-                    <div className="flex">
-                        <div className="w-8">DP</div>
-                        <div>
-                            {result.avg.restDp.map((dp, revIndex) => {
-                                const index = result.avg.restDp.length - 1 - revIndex;
-                                let enemyDp = Number(enemyInfo.max_dp.split(",")[index]);
-                                let dispRestDp = calculatePercentage(result.max.restDp[index], result.min.restDp[index], enemyDp, "hp");
-                                return (
-                                    <output key={index} className="rest_gauge_rate"
-                                        style={{ background: generateGradientFromRange(dispRestDp, "#A7BEC5") }}>{dispRestDp}</output>
-                                )
-                            })}
+                <label className="detail_max_damage">最終破壊率</label>
+                <label className="damage_label">{rateText}</label>
+            </div>
+            <div className="enemy_rest_hp text-center w-[240px] mx-auto">
+                <div className="flex">
+                    <div className="w-8">DP</div>
+                    <div>
+                        {result.avg.restDp.map((dp, revIndex) => {
+                            const index = result.avg.restDp.length - 1 - revIndex;
+                            let enemyDp = Number(enemyInfo.max_dp.split(",")[index]);
+                            let dispRestDp = calculatePercentage(result.max.restDp[index], result.min.restDp[index], enemyDp, "hp");
+                            return (
+                                <output key={index} className="rest_gauge_rate"
+                                    style={{ background: generateGradientFromRange(dispRestDp, "#A7BEC5") }}>{dispRestDp}</output>
+                            )
+                        })}
+                    </div>
+                </div>
+                <div className="flex">
+                    <div className="w-8">HP</div>
+                    <div>
+                        <div className="flex">
+                            <output className="rest_gauge_rate" style={{ background: gradientStyleHp }}>{dispRestHp}</output>
                         </div>
                     </div>
-                    <div className="flex">
-                        <div className="w-8">HP</div>
-                        <div>
-                            <div className="flex">
-                                <output className="rest_gauge_rate" style={{ background: gradientStyleHp }}>{dispRestHp}</output>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="button" className="durability_reflection" defaultValue="敵情報に反映" onClick={handleChilckRefrection} />
                 </div>
-                <div className="w-[250px] mx-auto mt-3">
-                    <div className="font-bold">補正詳細(初段Hit時点)</div>
-                    <div>
-                        <div className="magnification">スキル攻撃力</div>
-                        <input type="text" className="text-center magnification_value" value={result.skillPower} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×攻撃力アップ</div>
-                        <input type="text" className="text-center magnification_value" value={detail.buff} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×防御力ダウン</div>
-                        <input type="text" className="text-center magnification_value" value={detail.debuff} readOnly />
+                <input type="button" className="durability_reflection" defaultValue="敵情報に反映" onClick={handleChilckRefrection} />
+            </div>
+            <div className="w-[250px] mx-auto mt-3">
+                <div className="font-bold">補正詳細(初段Hit時点)</div>
+                <div>
+                    <div className="magnification">スキル攻撃力</div>
+                    <input type="text" className="text-center magnification_value" value={result.skillPower} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×攻撃力アップ</div>
+                    <input type="text" className="text-center magnification_value" value={detail.buff} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×防御力ダウン</div>
+                    <input type="text" className="text-center magnification_value" value={detail.debuff} readOnly />
 
-                    </div>
-                    <div>
-                        <div className="magnification">×フィールド</div>
-                        <input type="text" className="text-center magnification_value" value={detail.field} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×HP/DP特攻</div>
-                        <input type="text" className="text-center magnification_value" value={detail.special} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×連撃</div>
-                        <input type="text" className="text-center magnification_value" value={detail.funnel} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×トークン補正</div>
-                        <input type="text" className="text-center magnification_value" value={detail.token} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×武器相性</div>
-                        <input type="text" className="text-center magnification_value" value={detail.physical} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×属性相性</div>
-                        <input type="text" className="text-center magnification_value" value={detail.element} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×心眼</div>
-                        <input type="text" className="text-center magnification_value" value={detail.mindeye} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×脆弱</div>
-                        <input type="text" className="text-center magnification_value" value={detail.fragile} readOnly />
-                    </div>
-                    <div>
-                        <div className="magnification">×破壊率</div>
-                        <input type="text" className="text-center magnification_value" value={detail.damageRate} readOnly />
-                    </div>
-                    {mode === "critical" && (
-                        <div>
-                            <div className="magnification">×クリティカル倍率</div>
-                            <input type="text" className="text-center magnification_value" value={detail.criticalBuff} readOnly />
-                        </div>
-                    )}
                 </div>
+                <div>
+                    <div className="magnification">×フィールド</div>
+                    <input type="text" className="text-center magnification_value" value={detail.field} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×HP/DP特攻</div>
+                    <input type="text" className="text-center magnification_value" value={detail.special} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×連撃</div>
+                    <input type="text" className="text-center magnification_value" value={detail.funnel} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×トークン補正</div>
+                    <input type="text" className="text-center magnification_value" value={detail.token} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×武器相性</div>
+                    <input type="text" className="text-center magnification_value" value={detail.physical} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×属性相性</div>
+                    <input type="text" className="text-center magnification_value" value={detail.element} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×心眼</div>
+                    <input type="text" className="text-center magnification_value" value={detail.mindeye} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×脆弱</div>
+                    <input type="text" className="text-center magnification_value" value={detail.fragile} readOnly />
+                </div>
+                <div>
+                    <div className="magnification">×破壊率</div>
+                    <input type="text" className="text-center magnification_value" value={detail.damageRate} readOnly />
+                </div>
+                {mode === "critical" && (
+                    <div>
+                        <div className="magnification">×クリティカル倍率</div>
+                        <input type="text" className="text-center magnification_value" value={detail.criticalBuff} readOnly />
+                    </div>
+                )}
             </div>
         </div>
     )

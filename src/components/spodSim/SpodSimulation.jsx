@@ -13,7 +13,7 @@ const SpOdSimulation = () => {
     });
 
     return (
-        <div className="frame pt-3">
+        <div className="sim_frame pt-3">
             <SettingArea enemyClass={enemyClass}
                 enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect} />
         </div>

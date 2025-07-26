@@ -1,31 +1,15 @@
 @media screen and (max-width: 848px) {
-  .main_area {
+  .checker_main_area {
     width: 100%;
-  }
-  .select_style {
-    width: 69px;
-    height: 69px;
-  }
-  .emblem {
-    width: 69px;
-    height: 69px;
   }
 }
 @media screen and (min-width: 848px) {
-  .main_area {
+  .checker_main_area {
     width: 828px;
   }
-  .select_style {
-    width: 92px;
-    height: 92px;
-  } 
-  .emblem {
-    width: 92px;
-    height: 92px;
-  } 
 }
 
-div.frame {
+div.checker_frame {
   height: calc(100svh - 195px);
 }
 
@@ -34,7 +18,7 @@ div.frame {
   display: flex;
 }
 
-input[type="button"].default {
+input[type="button"].checker_default {
   font-size: 16px;
   height: 26px;
 }
@@ -62,28 +46,3 @@ footer {
   width: 100%;
   height: calc(120px + env(safe-area-inset-bottom));
 }
-
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  display: none;
-  position: fixed;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  background: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  max-width: 80%;
-  max-height: calc(100svh - 235px);
-  overflow: auto;
-}
-

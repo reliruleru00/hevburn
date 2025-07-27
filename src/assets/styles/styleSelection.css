@@ -42,6 +42,11 @@ hr.line {
   margin-bottom: 5px;
 }
 
+.narrow_buff {
+    border: solid 1px #000;
+    height: 21px;
+}
+
 .stylelist > .troops {
   font-size: 24px;
   font-weight: bold;

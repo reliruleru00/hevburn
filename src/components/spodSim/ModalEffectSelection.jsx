@@ -33,6 +33,8 @@ const ModalEffectSelection = ({ closeModal, onSelect, effectType }) => {
         case 8:
             value = ["DP100%未満", "DP100%以上"];
             break;
+        default:
+            break;
     }
     return (
         <div className="p-6">

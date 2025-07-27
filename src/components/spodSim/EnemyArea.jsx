@@ -1,5 +1,4 @@
 import React from "react";
-import { getEnemyInfo } from "utils/common";
 import EnmeySelect from "components/EnmeySelect";
 import attribute from 'assets/attribute';
 
@@ -15,7 +14,7 @@ const EnemyArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect, ene
     return (
         <div className="surround_area mx-auto mt-2 adjust_width" id="enemy_area">
             <label className="area_title">敵情報</label>
-            <EnmeySelect enemyClass={enemyClass} enemySelect={enemySelect}  handleChange={setEnemyStatus} isFreeInput={false} />
+            <EnmeySelect enemyClass={enemyClass} enemySelect={enemySelect} handleChange={setEnemyStatus} isFreeInput={false} />
             <div className="resist_area mx-auto mt-2">
                 <div className="grid grid-cols-9">
                     {Object.keys(PHYSICAL_LIST).map(key => {
@@ -29,7 +28,7 @@ const EnemyArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect, ene
                         let src = attribute[PHYSICAL_LIST[key]];
                         return (
                             <div key={`physical_${key}`}>
-                                <input className="enemy_type_icon" src={src} type="image" />
+                                <input className="enemy_type_icon" src={src} type="image" alt={PHYSICAL_LIST[key]} />
                                 <input className={className} type="text" value={val} readOnly />
                             </div>
                         );
@@ -45,7 +44,7 @@ const EnemyArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect, ene
                         let src = attribute[ELEMENT_LIST[key]];
                         return (
                             <div key={`element_${key}`}>
-                                <input className="enemy_type_icon" src={src} type="image" />
+                                <input className="enemy_type_icon" src={src} type="image" alt={ELEMENT_LIST[key]} />
                                 <input className={className} type="text" value={val} readOnly />
                             </div>
                         );

@@ -86,6 +86,8 @@ function getChainEffectSize(otherSetting, type) {
                     break;
             }
             break;
+        default:
+            break;
     }
     return 0;
 }
@@ -253,6 +255,8 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
+                    default:
+                        break;
                 }
             })
     }
@@ -280,6 +284,8 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
+                    default:
+                        break;
                 }
             })
     }
@@ -292,6 +298,8 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                 switch (passive.skill_id) {
                     case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
+                        break;
+                    default:
                         break;
                 }
             })
@@ -948,6 +956,8 @@ function isRangeAreaInclude(charaId, rangeArea, targetCharaId) {
             return CHARA_ID.MEMBER_31E.includes(targetCharaId);
         case RANGE.RUKA_SHARO:
             return CHARA_ID.RUKA_SHARO.includes(targetCharaId);
+        default:
+            break;
     }
     return true;
 }
@@ -978,29 +988,29 @@ export function updateEnemyStatus(enemy_class_no, enemyInfo) {
 }
 
 // セラフ遭遇戦敵ステータス設定
-function updateSeraphEncounter(enemyInfo, selectedList) {
-    let new_enemyInfo = JSON.parse(JSON.stringify(enemyInfo));
-    selectedList.forEach((item) => {
-        switch (item.effect_kind) {
-            case "STAT_UP":
-                new_enemyInfo.enemy_stat += item.effect_size;
-                break;
-            case "ICE_DOWN":
-                new_enemyInfo.element_2 += item.effect_size;
-                break;
-            case "LIGHT_DOWN":
-                new_enemyInfo.element_4 += item.effect_size;
-                break;
-            case "HP_UP":
-                new_enemyInfo.max_hp = Math.floor(new_enemyInfo.max_hp * (1 + (item.effect_size / 100)));
-                break;
-            case "DP_UP":
-                new_enemyInfo.max_dp = String(Math.floor(Number(new_enemyInfo.max_dp) * (1 + (item.effect_size / 100))));
-                break;
-        }
-    })
-    // setEnemyStatus(new_enemyInfo)
-}
+// function updateSeraphEncounter(enemyInfo, selectedList) {
+//     let new_enemyInfo = JSON.parse(JSON.stringify(enemyInfo));
+//     selectedList.forEach((item) => {
+//         switch (item.effect_kind) {
+//             case "STAT_UP":
+//                 new_enemyInfo.enemy_stat += item.effect_size;
+//                 break;
+//             case "ICE_DOWN":
+//                 new_enemyInfo.element_2 += item.effect_size;
+//                 break;
+//             case "LIGHT_DOWN":
+//                 new_enemyInfo.element_4 += item.effect_size;
+//                 break;
+//             case "HP_UP":
+//                 new_enemyInfo.max_hp = Math.floor(new_enemyInfo.max_hp * (1 + (item.effect_size / 100)));
+//                 break;
+//             case "DP_UP":
+//                 new_enemyInfo.max_dp = String(Math.floor(Number(new_enemyInfo.max_dp) * (1 + (item.effect_size / 100))));
+//                 break;
+//         }
+//     })
+//     // setEnemyStatus(new_enemyInfo)
+// }
 
 // バフ効果量
 function getBuffEffectSize(buffInfo, skillLv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {

@@ -269,7 +269,6 @@ export function getBuffIconImg(buffInfo) {
     if (buffInfo.buff_element !== 0) {
         src += buffInfo.buff_element;
     }
-    src += ".webp";
     return src;
 }
 
@@ -1135,6 +1134,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
                     if (attack_info.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
+                    // fallthrough
                 case BUFF.ATTACKUP: // 攻撃力アップ
                 case BUFF.MINDEYE: // 心眼
                 case BUFF.CHARGE: // チャージ
@@ -1158,6 +1158,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
                     if (attack_info.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
+                    // fallthrough
                 case BUFF.CRITICALRATEUP:	// クリティカル率アップ
                 case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
                     // 通常攻撃でも消費

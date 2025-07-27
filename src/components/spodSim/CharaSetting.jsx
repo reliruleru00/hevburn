@@ -34,7 +34,7 @@ const CharaSetting = () => {
 
     // 部隊変更
     const changeTroops = (e) => {
-        if (e.target.value == styleList.selectTroops) {
+        if (e.target.value === styleList.selectTroops) {
             return;
         }
         const updatedStyleList = [...styleList.selectStyleList];
@@ -72,7 +72,7 @@ const CharaSetting = () => {
         }
     };
 
-    const [modalSetting, setModalSetting] = React.useState({
+    const [modalSetting, setModalSetting] = useState({
         isOpen: false,
         modalIndex: -1,
         modalType: null,
@@ -81,7 +81,7 @@ const CharaSetting = () => {
     const openModal = (index, type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, });
     const closeModal = () => setModalSetting({ isOpen: false });
 
-    const [narrowStyle, setNarrowStyle] = React.useState({
+    const [narrowStyle, setNarrowStyle] = useState({
         physical: null,
         element: null,
         role: null,
@@ -175,14 +175,14 @@ const CharaSetting = () => {
                 return (
                     <div key={`chara_no${index}`} >
                         <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                            {rarity == 1 ?
+                            {rarity === 1 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
                                 ))
                                 : null
                             }
-                            {rarity == 2 ? <option value="10">10</option> : null}
-                            {rarity == 3 ? <option value="20">20</option> : null}
+                            {rarity === 2 ? <option value="10">10</option> : null}
+                            {rarity === 3 ? <option value="20">20</option> : null}
                         </select>
                         <select className="earring" value={earring} onChange={(e) => { setSetting(index, "earring", e.target.value) }}>
                             <option value="0">無し</option>
@@ -214,7 +214,7 @@ const CharaSetting = () => {
                     overlayClassName={"modal-overlay " + (modalSetting.isOpen ? "modal-overlay-open" : "")}
                 >
                     {
-                        modalSetting.modalType == "skill" ?
+                        modalSetting.modalType === "skill" ?
                             <ModalSkillSelectList index={modalSetting.modalIndex} closeModal={closeModal} />
                             :
                             <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal} narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle} />

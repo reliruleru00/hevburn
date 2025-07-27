@@ -108,12 +108,13 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
             <hr className="line" />
             <div className="narrow_element flex mx-auto">
                 {Object.keys(PHYSICAL_LIST).map(key => {
+                    key = Number(key);
                     let opacity = (narrowStyle.physical === null || key === narrowStyle.physical) ? "" : "translucent";
                     let className = `narrow physical ${opacity}`
-                    return (<input className={className} id={`physical_${key}`} src={attribute[PHYSICAL_LIST[key]]} type="image" 
+                    return (<input className={className} id={`physical_${key}`} src={attribute[PHYSICAL_LIST[key]]} type="image"
                         key={`physical_${key}`}
                         alt={PHYSICAL_LIST[key]}
-                        onClick={(e) => {
+                        onClick={() => {
                             let newPhysical = key;
                             if (narrowStyle.physical === key) {
                                 newPhysical = null;
@@ -124,12 +125,13 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
                 })}
                 <div className="w-12" />
                 {Object.keys(ELEMENT_LIST).map(key => {
+                    key = Number(key);
                     let opacity = (narrowStyle.element === null || key === narrowStyle.element) ? "" : "translucent";
                     let className = `narrow element ${opacity}`
                     return (<input className={className} id={`element_${key}`} src={attribute[ELEMENT_LIST[key]]} type="image"
                         key={`element_${key}`}
                         alt={ELEMENT_LIST[key]}
-                        onClick={(e) => {
+                        onClick={() => {
                             let newElement = key;
                             if (narrowStyle.element === key) {
                                 newElement = null;
@@ -141,12 +143,13 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
             </div>
             <div className="flex flex-wrap justify-center">
                 {Object.keys(ROLE_LIST).map(key => {
+                    key = Number(key);
                     let opacity = (narrowStyle.role === null || key === narrowStyle.role) ? "" : "translucent";
                     let className = `role ${opacity}`
-                    return (<input className={className} id={`role_${key}`} defaultValue={ROLE_LIST[key]} type="button" 
+                    return (<input className={className} id={`role_${key}`} defaultValue={ROLE_LIST[key]} type="button"
                         key={`role_${key}`}
                         alt={ROLE_LIST[key]}
-                        onClick={(e) => {
+                        onClick={() => {
                             let newRole = key;
                             if (narrowStyle.role === key) {
                                 newRole = null;
@@ -158,13 +161,14 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
             </div>
             <div className="flex flex-wrap rearity_area justify-center mx-auto">
                 {Object.keys(RARITY_LIST).map(key => {
-                    let opacity = Number(key) === narrowStyle.rarity ? "" : "translucent";
+                    key = Number(key);
+                    let opacity = key === narrowStyle.rarity ? "" : "translucent";
                     let className = `rarity ${opacity}`
                     return (<input className={className} id={`rarity_${key}`} src={rarity[RARITY_LIST[key]]} type="image"
                         key={`rearity_${key}`}
                         alt={RARITY_LIST[key]}
                         onClick={(e) => {
-                            setNarrowStyle({ ...narrowStyle, rarity: Number(key) });
+                            setNarrowStyle({ ...narrowStyle, rarity: key });
                         }}
                     />)
                 })}
@@ -212,9 +216,9 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
             <div className="search_result_area">
                 {Object.keys(TROOP_LIST).map(key => {
                     let filterList = allStyleList.filter((style) => {
-                        let chara_data = getCharaData(style.chara_id);
+                        let charaData = getCharaData(style.chara_id);
                         let buffList = skillBuff.filter(obj =>
-                            (obj.chara_id === chara_data.chara_id || obj.chara_id === 0) &&
+                            (obj.chara_id === charaData.chara_id || obj.chara_id === 0) &&
                             ((obj.style_id === style.style_id || obj.style_id === 0) && obj.skill_id < 8000)
                         );
 
@@ -233,22 +237,22 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
                                 return false;
                             };
                         }
-                        return chara_data.troops === key
+                        return charaData.troops === key
                             && (narrowStyle.rarity === null || style.rarity === narrowStyle.rarity)
-                            && (narrowStyle.physical === null || chara_data.physical === narrowStyle.physical)
+                            && (narrowStyle.physical === null || charaData.physical === narrowStyle.physical)
                             && (narrowStyle.element === null || style.element === narrowStyle.element || style.element2 === narrowStyle.element)
                             && (narrowStyle.role === null || style.role === narrowStyle.role);
                     })
-                    return (<div className="troops" key={`troops_${key}`}>
+                    return (<div className="flex" key={`troops_${key}`}>
                         <input className="emblem" src={troop[TROOP_LIST[key]]} alt={TROOP_LIST[key]} type="image" />
                         <div className="flex flex-wrap">
                             {filterList.map((style) => {
-                                let chara_data = getCharaData(style.chara_id);
-                                const imageName = style.image_url.replace(/\.(webp)$/, '');
+                                let charaData = getCharaData(style.chara_id);
+                                const imageName = style.image_url;
                                 const icon = thumbnail[imageName];
-                                return (<img className="select_style_list" loading="lazy" id={`style_${style.style_id}`} 
-                                    alt={`[${style.style_name}]${chara_data.chara_name}`}
-                                    src={icon} title={`[${style.style_name}]${chara_data.chara_name}`} key={`style_${style.style_id}`}
+                                return (<img className="select_style_list" loading="lazy" id={`style_${style.style_id}`}
+                                    alt={`[${style.style_name}]${charaData.chara_name}`}
+                                    src={icon} title={`[${style.style_name}]${charaData.chara_name}`} key={`style_${style.style_id}`}
                                     onClick={() => { clickSetMember(index, style.style_id) }}
                                 />)
                             })}

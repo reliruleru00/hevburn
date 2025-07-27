@@ -26,10 +26,10 @@ const ModalSkillSelectList = ({ index, closeModal }) => {
         hasSkillList = skillList.filter(obj =>
             (obj.chara_id === styleInfo.chara_id || obj.chara_id === 0) &&
             (obj.style_id === styleInfo.style_id || obj.style_id === 0) &&
-            obj.skill_attribute != ATTRIBUTE.NORMAL_ATTACK &&
-            obj.skill_attribute != ATTRIBUTE.PURSUIT &&
-            obj.skill_attribute != ATTRIBUTE.COMMAND_ACTION &&
-            obj.skill_attribute != ATTRIBUTE.NOT_ACTION
+            obj.skill_attribute !== ATTRIBUTE.NORMAL_ATTACK &&
+            obj.skill_attribute !== ATTRIBUTE.PURSUIT &&
+            obj.skill_attribute !== ATTRIBUTE.COMMAND_ACTION &&
+            obj.skill_attribute !== ATTRIBUTE.NOT_ACTION
         );
     }
 
@@ -72,9 +72,9 @@ const ModalSkillSelectList = ({ index, closeModal }) => {
 
     // 習得スキルは同一スキルを排除
     const learnSkillList = Array.from(
-        new Map(hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 0).map(item => [item.skill_id, item])).values()
+        new Map(hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active === 0).map(item => [item.skill_id, item])).values()
     );
-    const passiveSkillList = hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active == 1);
+    const passiveSkillList = hasSkillList.filter((skill) => skill.skill_id < 9000 && skill.skill_active === 1);
     const orbSkillList = hasSkillList.filter((skill) => skill.skill_id > 9000);
     return (
         <div className="p-6">

@@ -81,6 +81,11 @@ img.select_style {
     display: block;
 }
 
+.sim_frame select {
+    border: solid 1px #000;
+    height: 21px;
+}
+
 .limit,
 .earring,
 .bracelet,

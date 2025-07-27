@@ -89,8 +89,9 @@ const ArtsList = () => {
                                         let opacity = isSelected === "1" ? 1 : 0.3;
                                         return (
                                             <input type="image" key={arts.image_url}
-                                                src={artsImage[arts.image_url.replace(".webp", "")]} className="select_arts"
+                                                src={artsImage[arts.image_url]} className="select_arts"
                                                 style={{ opacity: opacity }}
+                                                alt={arts.image_url}
                                                 onClick={() => { handleCArtsClick(troopId, artsSplit, index, isSelected) }}
                                             />
                                         )
@@ -167,7 +168,7 @@ function combineImagesWithHatching(showList) {
                 resolve();
             };
             img.onerror = reject;
-            img.src = artsImage[arts.image_url.replace(".webp", "")];
+            img.src = artsImage[arts.image_url];
         });
 
         promises.push(promise);
@@ -187,7 +188,7 @@ function getRowSize(showList) {
     let stage = 0;
     let add = 0;
     showList.forEach((value, index) => {
-        if (index % 2 == 0) {
+        if (index % 2 === 0) {
             add = TROOPS_ARTS_COUNT[value];
         } else {
             add = add > TROOPS_ARTS_COUNT[value] ? add : TROOPS_ARTS_COUNT[value];

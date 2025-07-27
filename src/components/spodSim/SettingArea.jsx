@@ -208,7 +208,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
 
 const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect }) => {
 
-    const { styleList, setStyleList, saveMember, removeMember } = useStyleList();
+    const { styleList, setStyleList, saveMember } = useStyleList();
 
     const [hideMode, setHideMode] = React.useState(false);
 
@@ -320,7 +320,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                     :
                     <div className="setting_area">
                         <div className="unit_setting_area">
-                            <input className="w-20" defaultValue="注意事項" role="button" type="button"
+                            <input className="w-20" defaultValue="注意事項" type="button"
                                 onClick={openModal} />
                             <CharaSetting />
                         </div>

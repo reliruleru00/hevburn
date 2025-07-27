@@ -7,8 +7,8 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
     const { styleList } = useStyleList();
 
     const handleClick = (i, name) => {
-        if (mode == "save") {
-            if (name == NONE) {
+        if (mode === "save") {
+            if (name === NONE) {
                 name = "データ" + (i + 1);
             }
             let data_name = window.prompt("保存名称を入力してください", name);
@@ -24,7 +24,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             let compress = compressString(JSON.stringify(save_data));
             localStorage.setItem(`sim_data_${i}`, compress);
             handleClose();
-        } else if (mode == "load") {
+        } else if (mode === "load") {
             let jsonstr = localStorage.getItem(`sim_data_${i}`);
             loadSimData(jsonstr);
         }
@@ -58,6 +58,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
                     exclusionSkillList: style.exclusionSkillList,
                 }
             }
+            return undefined;
         })
     }
 
@@ -131,7 +132,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
         if (load_data) {
             save.push(load_data.data_name);
         } else {
-            if (mode == "save") {
+            if (mode === "save") {
                 save.push(NONE);
             }
         }
@@ -154,7 +155,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
                         <li key={index} onClick={() => handleClick(index, item)}>{item}</li>
                     ))}
                 </ul>
-                {mode == "save" ?
+                {mode === "save" ?
                     <input type="button" className="text-sm w-[120px]" onClick={chickOutput} value="ファイルへ出力" />
                     :
                     <input type="button" className="text-sm w-[120px]" onClick={chickRead} value="ファイルから読み込み" />

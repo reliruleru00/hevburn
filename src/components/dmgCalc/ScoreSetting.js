@@ -51,31 +51,33 @@ const ScoreSetting = ({ state, dispatch }) => {
     };
 
     const getImg = (conditions) => {
-        let img = "img/";
+        let img = "";
         switch (conditions) {
             case "physical_1":
-                img += "slash.webp";
+                img += "slash";
                 break;
             case "physical_2":
-                img += "stab.webp";
+                img += "stab";
                 break;
             case "physical_3":
-                img += "strike.webp";
+                img += "strike";
                 break;
             case "element_1":
-                img += "fire.webp";
+                img += "fire";
                 break;
             case "element_2":
-                img += "ice.webp";
+                img += "ice";
                 break;
             case "element_3":
-                img += "thunder.webp";
+                img += "thunder";
                 break;
             case "element_4":
-                img += "light.webp";
+                img += "light";
                 break;
             case "element_5":
-                img += "dark.webp";
+                img += "dark";
+                break;
+            default:
                 break;
         }
         return img;
@@ -86,6 +88,9 @@ const ScoreSetting = ({ state, dispatch }) => {
         switch (bonus.effect_kind) {
             case "STAT_UP":
                 str += "全能力+";
+                break;
+            default:
+                break;
         }
         str += bonus.effect_size;
         return str;
@@ -138,7 +143,8 @@ const ScoreSetting = ({ state, dispatch }) => {
                 <div className="flex flex-wrap">
                     {filteredBonus.map((bonus, index) => (
                         <div className="flex items-center" key={`bunus_${index}`}>
-                            <img className="ml-1" src={getImg(bonus.conditions)} style={{ width: 20, height: 20 }} />
+                            <img className="ml-1" src={getImg(bonus.conditions)} style={{ width: 20, height: 20 }}
+                                alt={getImg(bonus.conditions)} />
                             <label className="">{getStr(bonus)}</label>
                         </div>
                     ))}

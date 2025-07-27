@@ -155,6 +155,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                         checked = false;
                     }
                     break;
+                default:
+                    break;
             }
             initialMap[key] = {
                 key: key,
@@ -281,6 +283,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 break;
             case RANGE.RUKA_SHARO:
                 targetCharaList = CHARA_ID.RUKA_SHARO;
+                break;
+            default:
                 break;
         }
 

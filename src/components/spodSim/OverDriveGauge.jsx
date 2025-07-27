@@ -18,9 +18,9 @@ const OverDriveGauge = ({ turn }) => {
             </label>
             <div className="inc_od_icon">
                 {gauge > 0 ?
-                    <img className="od_number" src={overdriveIcons[`ButtonOverdrive${gauge}Default`]} />
+                    <img className="od_number" src={overdriveIcons[`ButtonOverdrive${gauge}Default`]} alt={`Overdrive${gauge}`} />
                     :
-                    <img className="od_icon" src={overdriveIcons["FrameOverdriveGaugeR"]} />
+                    <img className="od_icon" src={overdriveIcons["FrameOverdriveGaugeR"]} alt={`OverdriveNone`} />
                 }
             </div>
         </div>

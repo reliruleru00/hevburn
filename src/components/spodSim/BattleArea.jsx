@@ -122,7 +122,7 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
 
     return (
         <div id="battle_area">
-            {turnList.length == 0 ?
+            {turnList.length === 0 ?
                 <input type="button" id="btnLoad" value="読込" onClick={() => openModal("load")} />
                 :
                 <div className={display_class}>
@@ -139,7 +139,7 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
                     <div id="battle_display" className="text-left" ref={elementRef}>
                         {turnList.map((turn, index) => {
                             return <TurnData turn={turn} index={index} key={`turn${index}`}
-                                isLastTurn={turnList.length - 1 == index} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
+                                isLastTurn={turnList.length - 1 === index} hideMode={hideMode} isCapturing={isCapturing} handlers={handlers} />
                         })}
                     </div>
                 </div>

@@ -1,7 +1,8 @@
 import React from "react";
 import { getBuffIconImg } from "./logic";
+import buffIcons from 'assets/buffIcons';
 
-const BuffIconComponent = ({ buffList, loop_limit, loop_step, place_no, turn_number, clickBuffIcon }) => {
+const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber, clickBuffIcon }) => {
     const scrollContentRef = React.useRef(null);
 
     React.useEffect(() => {
@@ -9,7 +10,7 @@ const BuffIconComponent = ({ buffList, loop_limit, loop_step, place_no, turn_num
         if (!scrollContent) return;
 
         const styleSheet = document.styleSheets[0];
-        const animationName = `scroll-${turn_number}-${place_no}`;
+        const animationName = `scroll-${turnNumber}-${placeNo}`;
 
         // 古いアニメーションを削除
         for (let i = 0; i < styleSheet.cssRules.length; i++) {
@@ -18,14 +19,14 @@ const BuffIconComponent = ({ buffList, loop_limit, loop_step, place_no, turn_num
                 break;
             }
         }
-        if (buffList.length > loop_limit * loop_step) {
+        if (buffList.length > loopLimit * loopStep) {
             scrollContent.classList.add("scroll");
 
             // 動的アニメーション生成
             const duration = buffList.length * 0.5; // 例: アイコン数に応じて2秒ごとに1アイコンがスクロール
             const translateXValue = buffList.length * 24;
-        // @keyframesを動的に追加
-        const keyframes = `
+            // @keyframesを動的に追加
+            const keyframes = `
           @keyframes ${animationName} {
             0% {
               transform: translateX(0);
@@ -44,24 +45,26 @@ const BuffIconComponent = ({ buffList, loop_limit, loop_step, place_no, turn_num
             scrollContent.classList.remove("scroll");
             scrollContent.classList.add("flex-wrap");
         }
-    }, [buffList]);
+    }, [buffList, loopLimit, loopStep, turnNumber, placeNo]);
 
-    let className = "scroll-container " + (place_no == 7 ? "enemy_icon_list" : "icon_list");
+    let className = "scroll-container " + (placeNo === 7 ? "enemy_icon_list" : "icon_list");
     return (buffList.length > 0 ?
         <div className={className} onClick={() => clickBuffIcon(buffList)}>
             <div className="scroll-content" ref={scrollContentRef}>
                 {buffList.map((buffInfo, index) => (
                     <img
                         key={index}
-                        src={getBuffIconImg(buffInfo)}
+                        src={buffIcons[getBuffIconImg(buffInfo)]}
+                        alt={buffInfo.buff_name}
                         className="unit_buff"
                     />
                 ))}
-                {(buffList.length > loop_limit * loop_step) ?
+                {(buffList.length > loopLimit * loopStep) ?
                     buffList.map((buffInfo, index) => (
                         <img
                             key={index}
-                            src={getBuffIconImg(buffInfo)}
+                            src={buffIcons[getBuffIconImg(buffInfo)]}
+                            alt={buffInfo.buff_name}
                             className="unit_buff"
                         />
                     )) : null

@@ -32,7 +32,11 @@ const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbi
                             return false;
                         }
                         break;
+                    default:
+                        break;
                 }
+                break;
+            default:
                 break;
         }
         return true;

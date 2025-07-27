@@ -1,29 +1,29 @@
 import React from "react";
 import { getBuffIconImg, getBuffKindName } from "./logic";
 import { BUFF } from "utils/const";
-
+import buffIcons from 'assets/buffIcons';
 
 const BuffDetailLabelComponent = ({ buff }) => {
-    let img = getBuffIconImg(buff);
-    let buff_kind_name = getBuffKindName(buff);
-    let buff_text = buff.buff_name;
+    let img = buffIcons[getBuffIconImg(buff)];
+    let buffKindName = getBuffKindName(buff);
+    let buffText = buff.buff_name;
     switch (buff.buff_kind) {
         case BUFF.MORALE: // 士気
-            buff_text += `(Lv${buff.lv})`;
+            buffText += `(Lv${buff.lv})`;
             break;
         default:
             if (buff.rest_turn > 0) {
-                buff_text += `(残りターン${buff.rest_turn})`;
+                buffText += `(残りターン${buff.rest_turn})`;
             }
             break;
     }
     return (
         < div className="flex detail_line_height" >
-            <img className="icon_buff_detail" src={img} />
+            <img className="icon_buff_detail" src={img} alt={buffKindName}/>
             <label>
-                {buff_kind_name}
+                {buffKindName}
                 <br />
-                {buff_text}
+                {buffText}
             </label>
         </div >
     )
@@ -38,7 +38,6 @@ const BuffDetailListComponent = ({ buffList }) => {
                     return <BuffDetailLabelComponent buff={buff} key={`buff_detail_label${index}`} />
                 })}
             </div>
-            <div id="buff_detail"></div>
         </div>
     )
 };

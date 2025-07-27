@@ -1,4 +1,6 @@
 import React from "react";
+import thumbnail from 'assets/thumbnail';
+import crossIcon from 'assets/img/cross.png';
 
 const ModalTargetSelection = ({ closeModal, onSelect, unitList }) => {
 
@@ -11,20 +13,22 @@ const ModalTargetSelection = ({ closeModal, onSelect, unitList }) => {
             <div>
                 <label className="modal_label">対象選択</label>
             </div>
-            <div className="troops">
+            <div className="flex">
                 {unitList
                     .slice() // 元の配列を変更しないようコピーを作成
                     .sort((a, b) => a.place_no - b.place_no)
                     .map((unit, index) => {
-                        let src = "img/cross.png";
-                        let value = "";
                         if (!unit.blank) {
-                            src = "icon/" + unit.style.styleInfo.image_url;
-                            value = unit.style.styleInfo.style_id
+                            let src = thumbnail[unit.style.styleInfo.image_url.replace(/\.(webp)$/, '')];
+                            return <img className="select_style" src={src} key={`select_target${index}`}
+                                alt={unit.style.styleInfo.style_name}
+                                onClick={() => setSelectTarget(unit.style.styleInfo.chara_id)}
+                            />
+                        } else {
+                            return <img className="select_style" src={crossIcon} key={`select_target${index}`}
+                                alt="" />
                         }
-                        return <img className="select_style" src={src} data_value={value} key={`select_target${index}`}
-                            onClick={() => !unit.blank ? setSelectTarget(unit.style.styleInfo.chara_id) : undefined}
-                        />
+
                     }
                     )}
             </div>

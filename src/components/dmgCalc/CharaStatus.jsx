@@ -10,7 +10,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import editIcon from 'assets/img/edit.png';
 
 const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
-    const { styleList, setStyleList, loadMember, removeMember, setLastUpdatedIndex } = useStyleList();
+    const { styleList, setStyleList, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
 
     // 設定変更
     const setSetting = (index, item, value) => {
@@ -44,7 +44,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
         })
         let selectTroops = e.target.value;
         localStorage.setItem('select_troops', selectTroops);
-        loadMember(selectTroops);
+        loadTroops(selectTroops);
     }
 
     // 部隊名変更

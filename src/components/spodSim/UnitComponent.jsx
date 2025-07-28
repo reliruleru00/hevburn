@@ -135,9 +135,9 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
     const unit = filterUnit[0];
 
     let icon = icons[unit?.style?.styleInfo?.image_url.replace(/\.webp$/, "")] || crossIcon;
-    let loop_limit = 3;
+    let loopLimit = 3;
     if (hideMode) {
-        loop_limit = 4;
+        loopLimit = 4;
     }
     let className = "unit_select " + (place_no === selected_place_no ? "unit_selected" : "");
     return (
@@ -152,7 +152,7 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
                     }
                 </div>
                 {place_no <= 2 || hideMode ?
-                    <BuffIconComponent buffList={unit.buffList} loop_limit={loop_limit} loop_step={2} place_no={place_no} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                    <BuffIconComponent buffList={unit.buffList} loopLimit={loopLimit} loopStep={2} placeNo={place_no} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
                     : null
                 }
             </div>

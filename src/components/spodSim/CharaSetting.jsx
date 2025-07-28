@@ -10,7 +10,7 @@ const CharaSetting = () => {
     const BRACELET_LIST = ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"];
     const EARRING_LIST = [10, 12, 15];
 
-    const { styleList, setStyleList, loadMember, removeMember } = useStyleList();
+    const { styleList, setStyleList, loadTroops, removeMember } = useStyleList();
 
     // 設定変更
     const setSetting = (index, item, value) => {
@@ -43,7 +43,7 @@ const CharaSetting = () => {
         })
         let selectTroops = e.target.value;
         localStorage.setItem('select_troops', selectTroops);
-        loadMember(selectTroops);
+        loadTroops(selectTroops);
     }
 
     // メンバー入れ替え

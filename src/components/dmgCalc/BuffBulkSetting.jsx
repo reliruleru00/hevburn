@@ -28,7 +28,7 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
             });
         });
         setSettingBuffList(newBuffMap);
-    }, [orb]);
+    }, [orb, attackInfo, buffList, styleList.selectStyleList]);
 
     const handleChangeIndex = (key, index) => {
         setSettingBuffList(prev => ({

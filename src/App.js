@@ -1,4 +1,5 @@
 import { HashRouter  as Router, Routes, Route } from 'react-router-dom';
+import IndexPage from './pages/IndexPage';
 import DmgCalcPage from './pages/DmgCalcPage';
 import SpodSimPage from './pages/SpodSimPage';
 import StyleCheckerPage from './pages/StyleCheckerPage';
@@ -11,7 +12,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<DmgCalcPage />} />
+        <Route path="/" element={<IndexPage />} />
+        <Route path="/damage" element={<DmgCalcPage />} />
         <Route path="/simulator" element={<SpodSimPage />} />
         <Route path="/checker" element={<StyleCheckerPage />} />
         <Route path="/artslist" element={<ArtsListPage />} />

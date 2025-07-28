@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
-    React.useEffect(() => {
+
+    /* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(() => {
         if (attackInfo?.attack_element === 0 && otherSetting.ring !== 0) {
             setOtherSetting((prev) => ({ ...prev, ring: 0 }));
         }
-    }, [attackInfo?.attack_element]);
+    }, [attackInfo?.attack_element, otherSetting.ring]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     return (
         <div className="surround_area mx-auto my-2 adjust_width">

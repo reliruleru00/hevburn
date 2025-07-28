@@ -6,11 +6,11 @@ import crossIcon from 'assets/img/cross.png';
 const HardLayer = ({ state, dispatch }) => {
 
     const enemyInfo = state.enemyInfo;
-    const { styleList, loadSubMember } = useStyleList();
+    const { styleList, loadSubTroops } = useStyleList();
 
     // サブメンバー呼び出し
     const changeSubTroops = (subTroops) => {
-        loadSubMember(subTroops);
+        loadSubTroops(subTroops);
     }
 
     // 夢の泪変更

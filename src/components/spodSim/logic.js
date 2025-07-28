@@ -165,7 +165,7 @@ const compereUserOperation = (comp1, comp2) => {
 
 // バフアイコン取得
 export function getBuffIconImg(buffInfo) {
-    let src = "img/";
+    let src = "";
     switch (buffInfo.buff_kind) {
         case BUFF.ATTACKUP: // 攻撃力アップ
         case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
@@ -742,7 +742,7 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
         case CONDITIONS.HAS_SHADOW: // 影分身
         case CONDITIONS.PERCENTAGE_30: // 確率30%
         case CONDITIONS.DOWN_TURN: // ダウンターン
-        case CONDITIONS.BUFF.DISPEL: // バフ解除
+        case CONDITIONS.BUFF_DISPEL: // バフ解除
         case CONDITIONS.DP_OVER_100: // DP100%以上
             return unit_data.buff_effect_select_type === 1;
         case CONDITIONS.OVER_DRIVE: // オーバードライブ中

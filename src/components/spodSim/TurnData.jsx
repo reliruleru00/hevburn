@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactModal from "react-modal";
 import { RANGE, CONDITIONS, ATTRIBUTE } from "utils/const";
 import { KB_NEXT } from "./const";
@@ -17,8 +17,8 @@ import {
 import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
 const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
-    const isNextInfluence = React.useRef(false);
-    const [turnData, setTurnData] = React.useState({
+    const isNextInfluence = useRef(false);
+    const [turnData, setTurnData] = useState({
         user_operation: turn.user_operation
     });
 
@@ -206,13 +206,15 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         handlers.proceedTurn(turn_data, true);
     };
 
-    React.useEffect(() => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(() => {
         if (!isLastTurn && isNextInfluence.current) {
             handlers.recreateTurn(index);
         }
-    }, [turnData, index]);
+    }, [turnData, index, isLastTurn]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
-    const [modalSetting, setModalSetting] = React.useState({
+    const [modalSetting, setModalSetting] = useState({
         isOpen: false,
         modalIndex: -1,
         modalType: null,
@@ -263,7 +265,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     <div>
                         <div className="turn_number">{getTurnNumber(turn)}</div>
                         <div className="left flex">
-                            <img className="enemy_icon" src={enemyIcon} />
+                            <img className="enemy_icon" src={enemyIcon} alt="ENEMY" />
                             <div>
                                 <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
                                     {[1, 2, 3].filter(value => value === turn.enemy_count || !isCapturing)
@@ -279,7 +281,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     </div>
                     <OverDriveGauge turn={turn} />
                 </div>
-                <BuffIconComponent buffList={turn.enemy_debuffList} loop_limit={12} loop_step={1} place_no={7} turn_number={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                <BuffIconComponent buffList={turn.enemy_debuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">

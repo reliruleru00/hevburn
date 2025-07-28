@@ -60,7 +60,7 @@ export function getAbilityInfo(abilityId) {
 // パッシブ情報取得
 export function getPassiveInfo(skillId) {
   const filteredPassive = skillPassive.filter((obj) => obj.skill_id === skillId);
-  return filteredPassive.length > 0 ? skillPassive[0] : undefined;
+  return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
 }
 
 // 文字列を圧縮

@@ -248,7 +248,7 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
                         <div className="flex flex-wrap">
                             {filterList.map((style) => {
                                 let charaData = getCharaData(style.chara_id);
-                                const imageName = style.image_url;
+                                const imageName = style.image_url.replace(/\.webp$/, '');
                                 const icon = thumbnail[imageName];
                                 return (<img className="select_style_list" loading="lazy" id={`style_${style.style_id}`}
                                     alt={`[${style.style_name}]${charaData.chara_name}`}

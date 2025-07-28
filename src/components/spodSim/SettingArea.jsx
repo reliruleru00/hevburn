@@ -4,7 +4,7 @@ import ReactModal from "react-modal";
 import { ROLE } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
-import { getCharaData, getStyleData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
+import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
 import { useStyleList } from "components/StyleListProvider";
 import skillList from "data/skillList";
 import CharaSetting from "./CharaSetting";
@@ -53,7 +53,7 @@ const reducer = (state, action) => {
 };
 
 // 戦闘初期データ作成
-function getInitBattleData(selectStyleList, saveMember, detailSetting) {
+function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints) {
     // 初期データ作成
     let turnInit = {
         turn_number: 0,
@@ -78,7 +78,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
         user_operation: {}
     }
     let unitList = [];
-    let constraints_list = [];
+    let constraintsList = [];
 
     let initSpAdd = Number(detailSetting.initSpAdd);
     // スタイル情報を作成
@@ -159,7 +159,7 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
                         return;
                     }
                     if (CONSTRAINTS_ABILITY.includes(ability_info.ability_id)) {
-                        constraints_list.push(ability_info.ability_id);
+                        constraintsList.push(ability_info.ability_id);
                     }
                     unit[`ability_${ability_info.activation_timing}`].push(ability_info);
                     if (ability_info.ability_id === 510) {
@@ -196,19 +196,19 @@ function getInitBattleData(selectStyleList, saveMember, detailSetting) {
     turnInit.step_sp_back_add = Number(detailSetting.stepSpBackAdd);
     turnInit.step_sp_all_add = Number(detailSetting.stepSpAllAdd);
 
-    // turnInit.enemy_count = Number($("#enemy_select_count").val());;
+    turnInit.enemy_count = Number(enemyInfo.enemy_count);
     turnInit.unitList = unitList;
-    turnInit.enemy_info = getEnemyInfo()
+    turnInit.enemy_info = enemyInfo;
     // 戦闘開始アビリティ
     abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
     setUserOperation(turnInit);
 
+    setConstraints(constraintsList);
     return turnInit;
 }
 
 const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect }) => {
-
-    const { styleList, setStyleList, saveMember } = useStyleList();
+    const { styleList, setStyleList, saveMember, loadMember } = useStyleList();
 
     const [hideMode, setHideMode] = React.useState(false);
 
@@ -220,7 +220,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     let enemyInfo = getEnemyInfo(enemyClass, enemySelect);
 
     // 戦闘開始前処理
-    const startBattle = (update, setUpdate) => {
+    const startBattle = (update, setUpdate, setConstraints) => {
         for (let i = 0; i < styleList.selectStyleList.length; i++) {
             let style = styleList.selectStyleList[i]?.styleInfo;
             if (NOT_USE_STYLE.includes(style?.style_id)) {
@@ -243,7 +243,8 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
 
         /** 戦闘開始処理 */
         // 初期データ作成
-        let turnInit = getInitBattleData(styleList.selectStyleList, saveMember, detailSetting);
+        let turnInit = getInitBattleData(
+            styleList.selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
         // 制約事項更新
         setUpdate(update + 1);
         // 初期処理
@@ -255,32 +256,31 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     const [modalIsOpen, setModalIsOpen] = React.useState(false);
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
+    const [update, setUpdate] = useState(0);
+    const [constraints, setConstraints] = useState([]);
 
     const loadData = (saveData, key, setKey) => {
         // 部隊情報上書き
         const updatedStyleList = [...styleList.selectStyleList];
         saveData.unit_data_list.forEach((unit_data, index) => {
-
             if (unit_data) {
-                // let member_info = { ...initialMember };
-                let member_info = {};
-                let styleInfo = getStyleData(unit_data.style_id);
+                let memberInfo = loadMember(unit_data.style_id);
                 // メンバー情報作成
-                member_info.styleInfo = styleInfo;
-                member_info.limitCount = unit_data.limitCount || unit_data.limit_count;
-                member_info.earring = unit_data.earring;
-                member_info.bracelet = unit_data.bracelet;
-                member_info.chain = unit_data.chain;
-                member_info.initSp = unit_data.initSp || unit_data.init_sp;
-                member_info.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skillList;
-                updatedStyleList[index] = member_info;
+                memberInfo.limitCount = unit_data.limitCount || unit_data.limit_count;
+                memberInfo.earring = unit_data.earring;
+                memberInfo.bracelet = unit_data.bracelet;
+                memberInfo.chain = unit_data.chain;
+                memberInfo.initSp = unit_data.initSp || unit_data.init_sp;
+                memberInfo.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skill_list;
+                updatedStyleList[index] = memberInfo;
             } else {
                 updatedStyleList[index] = undefined;
             }
         })
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
         // 初期データ作成
-        let turnInit = getInitBattleData(updatedStyleList, saveMember, detailSetting);
+        let turnInit = getInitBattleData(
+            updatedStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
         // 制約事項更新
         setKey(key + 1);
         let turn_list = [];
@@ -309,9 +309,6 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         stepSpBackAdd: 0,
     });
 
-    const [update, setUpdate] = useState(0);
-    const [constraints, setConstraints] = useState([]);
-
     return (
         <>
             {
@@ -331,7 +328,8 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                             <DetailSetting detailSetting={detailSetting} setDetailSetting={setDetailSetting} />
                         </div>
                         <div className="flex justify-center mt-2 text-sm">
-                            <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e => startBattle(update, setUpdate)} />
+                            <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e => 
+                                startBattle(update, setUpdate, setConstraints)} />
                         </div>
                         <div>
                             <ConstraintsList constraints={constraints} />

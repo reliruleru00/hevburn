@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ReactModal from "react-modal";
 import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
@@ -14,7 +14,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
     abilitySettingMap, passiveSettingMap, state, dispatch,
 }) => {
     const { styleList } = useStyleList();
-    const [modal, setModal] = React.useState(false);
+    const [modal, setModal] = useState(false);
 
     const handleChangeAttackId = (value) => {
         let selectAttackInfo = getAttackInfo(value);
@@ -31,9 +31,9 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
         return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
     }
 
-    const [checkSpecial, setCheckSpecial] = React.useState(true);
+    const [checkSpecial, setCheckSpecial] = useState(true);
 
-    const memberAttackList = React.useMemo(() => {
+    const memberAttackList = useMemo(() => {
         let memberAttackList = [];
         for (let memberInfo of styleList.selectStyleList) {
             if (!memberInfo) continue;
@@ -51,7 +51,8 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
         return memberAttackList;
     }, [checkSpecial, styleList.selectStyleList]);
 
-    React.useEffect(() => {
+    /* eslint-disable react-hooks/exhaustive-deps */
+    useEffect(() => {
         if (!attackInfo || !memberAttackList.some(a => a.attack_id === attackInfo.attack_id)) {
             if (memberAttackList.length > 0) {
                 const firstAttack = memberAttackList[0];
@@ -67,6 +68,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
             }
         }
     }, [memberAttackList, attackInfo]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     return (
         <div className="attack_area surround_area mx-auto mt-2 adjust_width">

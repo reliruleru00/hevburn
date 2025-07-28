@@ -7,8 +7,8 @@ const defaultSelectStyleList = Array(6).fill(undefined);
 const StyleListContext = createContext({
   selectTroops: 0,
   styleList: defaultSelectStyleList,
-  loadMember: () => { },
-  loadSubMember: () => { },
+  loadTroops: () => { },
+  loadSubTroops: () => { },
   setMember: () => { },
   removeMember: () => { },
   setStyle: () => { },
@@ -57,8 +57,11 @@ const saveStyle = (memberInfo) => {
   saveExclusionSkill(memberInfo);
 };
 
-const loadStyle = (memberInfo, styleInfo) => {
-  const styleId = styleInfo.style_id;
+const loadStyle = (styleId) => {
+  const styleInfo = styleList.find((obj) => obj.style_id === styleId);
+  if (!styleInfo) return null;
+
+  const memberInfo = { ...initialMember, styleInfo };
   const saveItem = localStorage.getItem(`style_${styleId}`);
   if (saveItem) {
     const items = saveItem.split(",");
@@ -76,6 +79,8 @@ const loadStyle = (memberInfo, styleInfo) => {
 
   if (styleInfo.rarity === 2) memberInfo.limitCount = 10;
   else if (styleInfo.rarity === 3) memberInfo.limitCount = 20;
+
+  return memberInfo;
 };
 
 const saveExclusionSkill = (memberInfo) => {
@@ -102,8 +107,9 @@ const loadTroopsList = (troopsNo) => {
 };
 
 const setStyleMember = (list, troops, index, styleId) => {
-  const styleInfo = styleList.find((obj) => obj.style_id === styleId);
-  if (!styleInfo) return;
+  const memberInfo = loadStyle(styleId);
+  if (!memberInfo) return;
+  const styleInfo = memberInfo.styleInfo;
 
   for (let i = 0; i < list.length; i++) {
     if (i !== index && list[i]?.styleInfo.chara_id === styleInfo.chara_id) {
@@ -112,8 +118,6 @@ const setStyleMember = (list, troops, index, styleId) => {
     }
   }
 
-  const memberInfo = { ...initialMember, styleInfo };
-  loadStyle(memberInfo, styleInfo);
   loadExclusionSkill(memberInfo);
   list[index] = memberInfo;
 };
@@ -143,7 +147,7 @@ const StyleListProvider = ({ children }) => {
     }
   }, [styleList, lastUpdatedIndex]);
 
-  const loadMember = (troops) => {
+  const loadTroops = (troops) => {
     const updatedList = loadTroopsList(troops);
     setStyleList({
       ...styleList,
@@ -155,7 +159,7 @@ const StyleListProvider = ({ children }) => {
     });
   };
 
-  const loadSubMember = (subTroops) => {
+  const loadSubTroops = (subTroops) => {
     const updatedList = loadTroopsList(subTroops);
     setStyleList((prev) => ({ ...prev, subStyleList: updatedList, subTroops }));
   };
@@ -176,6 +180,10 @@ const StyleListProvider = ({ children }) => {
     saveStyle(styleList.selectStyleList[index]);
   };
 
+  const loadMember = (styleId) => {
+    return loadStyle(styleId);
+  };
+
   const setStyle = (style, index) => {
     const updatedList = [...styleList.selectStyleList];
     updatedList[index] = style;
@@ -187,11 +195,12 @@ const StyleListProvider = ({ children }) => {
       value={{
         styleList,
         setStyleList,
-        loadMember,
-        loadSubMember,
+        loadTroops,
+        loadSubTroops,
         setMember,
         removeMember,
         saveMember,
+        loadMember,
         setStyle,
         setLastUpdatedIndex,
       }}

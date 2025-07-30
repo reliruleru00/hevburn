@@ -271,9 +271,10 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                                     {[1, 2, 3].filter(value => value === turn.enemy_count || !isCapturing)
                                         .map(enemy_count => <option value={enemy_count} key={`enemy_count${enemy_count}`}>{`${enemy_count}体`}</option>)}
                                 </select>
-                                <label className="ml-1">場</label>
+                                <span className="ml-1">場</span>
                                 <select className="enemy_count" value={turn.field} onChange={(e) => chengeField(e)}>
-                                    {Object.keys(FIELD_LIST).filter(value => value === turn.field || !isCapturing)
+                                    {Object.keys(FIELD_LIST)
+                                        .filter(value => Number(value) === turn.field || !isCapturing)
                                         .map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                                 </select>
                             </div>

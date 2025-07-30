@@ -4,6 +4,8 @@ import DmgCalcPage from './pages/DmgCalcPage';
 import SpodSimPage from './pages/SpodSimPage';
 import StyleCheckerPage from './pages/StyleCheckerPage';
 import ArtsListPage from './pages/ArtsListPage';
+import CharaMgmtPage from './pages/CharaMgmtPage';
+
 import 'assets/styles/header.css';
 import 'assets/styles/common.css';
 import 'assets/styles/micromodal.css';
@@ -17,6 +19,7 @@ function App() {
         <Route path="/simulator" element={<SpodSimPage />} />
         <Route path="/checker" element={<StyleCheckerPage />} />
         <Route path="/artslist" element={<ArtsListPage />} />
+        <Route path="/management" element={<CharaMgmtPage />} />
       </Routes>
     </Router>
   );

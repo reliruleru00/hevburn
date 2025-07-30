@@ -6,7 +6,7 @@ const linkList = [
   { url: '/#/simulator', title: 'SP/ODシミュレータ' },
   { url: '/#/checker', title: 'スタイル所持率チェッカー' },
   { url: '/#/artslist', title: 'アーツデッキ画像生成' },
-  { url: '/#/chara_mgmt', title: 'キャラ管理ツール' },
+  { url: '/#/management', title: 'キャラ管理ツール' },
   { url: '', title: 'このサイトについて' },
 ];
 

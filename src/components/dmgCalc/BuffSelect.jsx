@@ -62,7 +62,6 @@ const BuffSelect = ({ attackInfo, buffList, buffKind, buffKey, buffSettingMap, h
                         let effect_text = `${buff.chara_name}: ${buff.buff_name} ${Math.floor(buffSettingMap[buff.key]?.effect_size * 100) / 100}%`;
                         return <option key={buff.key}
                             value={buff.key}
-                            data-text_effect_size={buffSettingMap[buff.key]?.effect_size}
                         >{effect_text}</option>
                     })}
                 </select>

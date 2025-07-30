@@ -536,6 +536,11 @@ div.lv select {
     height: 21px;
 }
 
+
+div.lv select:disabled {
+    border: none;
+}
+
 label[class*="block_chara_id-"] {
     display: block !important;
 }

@@ -252,7 +252,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     return (
         <div className="modal text-left mx-auto p-6">
             <div>
-                <label className="damage_label">スキル詳細</label>
+                <span className="damage_label">スキル詳細</span>
                 <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
             <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
@@ -307,7 +307,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                 )}
             </div>
             <div className="mt-2">
-                <label className="damage_label">ステータス情報</label>
+                <span className="damage_label">ステータス情報</span>
             </div>
             <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
                 <span>スキル上限</span>

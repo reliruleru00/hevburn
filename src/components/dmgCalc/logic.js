@@ -448,20 +448,23 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let criticalStatDown = Math.max(enemyStatDown, 50);
 
     let skillPower = getSkillPower(attackInfo, selectSKillLv, attackMemberInfo, statUp, enemyInfo, enemyStatDown);
+
     let buff = getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state);
-    let mindeye = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE, BUFF.YAMAWAKI_SERVANT]) / 100;
+    let mindeye = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.MINDEYE, BUFF.YAMAWAKI_SERVANT]) / 100;
+    let field = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FIELD]) / 100;
+    buff += mindeye + field;
+
     let debuff = getSumDebuffEffectSize(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, state);
     let debuffDp = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.DEFENSEDP]) / 100;
-
-    let fragile = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FRAGILE]) / 100;
+    let fragile = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FRAGILE]) / 100;
+    debuff += fragile;
 
     let damageRateUp = getDamagerateEffectSize(attackMemberInfo, styleList,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state, attackInfo.hit_count);
     let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap);
 
     let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
-    let field = 1 + getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.FIELD]) / 100;
     let [physical, element] = getEnemyResist(attackInfo, state);
     let enemyDefenceRate = getEnemyDefenceRate(state);
 
@@ -495,7 +498,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let criticalRate = getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
     let criticalBuff = getCriticalBuff(attackMemberInfo, selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap);
 
-    let fixed = mindeye * fragile * token * field * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate;
+    let fixed = token * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate;
     const normalAvgResult =
         calculateDamage(state, skillPower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
     const normalMinResult =
@@ -533,9 +536,6 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         physical: convertToPercentage(physical / 100),
         element: convertToPercentage(element / 100),
         token: convertToPercentage(token),
-        mindeye: convertToPercentage(mindeye),
-        fragile: convertToPercentage(fragile),
-        field: convertToPercentage(field),
         damageRate: state.damageRate + "%",
         criticalRate: convertToPercentage(criticalRate / 100),
         criticalBuff: convertToPercentage(criticalBuff),
@@ -815,9 +815,9 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
     criticalRate += getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
     criticalRate += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.CRITICALRATEUP, attackMemberInfo.styleInfo.charaId);
     // チャージ
-    // critical_rate += $("#charge").prop("selectedIndex") > 0 ? 20 : 0;
-    // // 永遠なる誓い
-    // critical_rate += $("#eternal_vows").prop("checked") ? 50 : 0;
+    criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
+    // 永遠なる誓い
+    criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 50 : 0;
     // // 制圧戦
     // critical_rate += getBikePartsEffectSize("critical_rate");
     return criticalRate > 100 ? 100 : criticalRate;
@@ -1023,7 +1023,7 @@ function getBuffEffectSize(buffInfo, skillLv, memberInfo, state, targetJewelType
         skillLv = buffInfo.max_lv;
     }
     // 固定量のバフ
-    if (STATUS_KBN[buffInfo.ref_status_1] === 0) {
+    if (buffInfo.ref_status_1 === 0) {
         return buffInfo.min_power;
     }
     // ステータス

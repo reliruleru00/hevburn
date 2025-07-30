@@ -76,9 +76,6 @@ const TROOP_KBN = {
     SUB: "2",
 }
 
-const filedKey = `field-${BUFF.FIELD}`
-const chargeKey = `charge-${BUFF.CHARGE}`
-
 const BuffArea = ({ attackInfo, state, dispatch,
     selectBuffKeyMap, setSelectBuffKeyMap,
     buffSettingMap, setBuffSettingMap,
@@ -225,8 +222,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
     criticalBuffs.forEach(buff => {
         buffKeyList[getBuffKey(buff.kind)] = [];
     });
-    buffKeyList[filedKey] = [];
-    buffKeyList[chargeKey] = [];
 
     const handleChangeSkillLv = (buffKey, lv, index) => {
         let buff = buffList.filter(buff => buff.key === buffKey[index])[0];
@@ -507,52 +502,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
                             )
                         })}
                         <tr className="sp_only">
-                            <td className="kind" colSpan="4">
-                                フィールド
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="kind pc_only">フィールド</td>
-                            <td className="type">
-                                フィールド
-                            </td>
-                            <BuffSelect
-                                attackInfo={attackInfo}
-                                buffList={buffList}
-                                buffKind={BUFF.FIELD}
-                                buffKey={filedKey}
-                                buffSettingMap={buffSettingMap}
-                                handleChangeSkillLv={handleChangeSkillLv}
-                                selectedKey={selectBuffKeyMap[filedKey] || ""}
-                                index={0}
-                                handleSelectChange={handleSelectChange}
-                                openModal={openModal}
-                            />
-                        </tr>
-                        <tr className="sp_only">
-                            <td className="kind" colSpan="4">
-                                チャージ
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="kind pc_only">チャージ</td>
-                            <td className="type">
-                                チャージ
-                            </td>
-                            <BuffSelect
-                                attackInfo={attackInfo}
-                                buffList={buffList}
-                                buffKind={BUFF.CHARGE}
-                                buffKey={chargeKey}
-                                buffSettingMap={buffSettingMap}
-                                handleChangeSkillLv={handleChangeSkillLv}
-                                selectedKey={selectBuffKeyMap[chargeKey] || ""}
-                                index={0}
-                                handleSelectChange={handleSelectChange}
-                                openModal={openModal}
-                            />
-                        </tr>
-                        <tr className="sp_only">
                             <td className="kind" colSpan="5">
                                 アビリティ
                             </td>
@@ -808,6 +757,8 @@ const getAttackUpBuffs = function (isElement, isWeak, attackInfo, selectStyleLis
     return [
         { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },
         ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP, overlap: true },] : []),
+        { name: "フィールド", kind: BUFF.FIELD, overlap: false },
+        { name: "チャージ", kind: BUFF.CHARGE, overlap: false },
         ...(isShadowClone ? [{ name: "影分身", kind: BUFF.SHADOW_CLONE, overlap: false },] : []),
         ...(isMiya ? [{ name: "桜花の矢", kind: BUFF.ARROWCHERRYBLOSSOMS, overlap: false },] : []),
         ...(isWedingSharo ? [{ name: "永遠なる誓い", kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
@@ -939,7 +890,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
     return (
         <div className="modal text-left p-6 mx-auto">
             <div>
-                <label className="damage_label">スキル詳細</label>
+                <span className="damage_label">スキル詳細</span>
                 <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
             <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
@@ -966,7 +917,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
                 <>
                     <div className="mt-2">
-                        <label className="damage_label">ステータス情報</label>
+                        <span className="damage_label">ステータス情報</span>
                     </div>
                     <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
                         <span>スキル上限</span>
@@ -1016,7 +967,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
             {abilityList.length > 0 &&
                 <>
                     <div className="mt-2">
-                        <label className="damage_label">関連アビリティ</label>
+                        <span className="damage_label">関連アビリティ</span>
                     </div>
                     <div className="w-[350px] mx-auto">
                         {abilityList.map((ability, index) => {
@@ -1038,7 +989,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
             {PassiveList.length > 0 &&
                 <>
                     <div className="mt-2">
-                        <label className="damage_label">関連パッシブ</label>
+                        <span className="damage_label">関連パッシブ</span>
                     </div>
                     <div className="w-[350px] mx-auto">
                         {PassiveList.map((passive, index) => {

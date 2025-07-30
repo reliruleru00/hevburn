@@ -35,7 +35,7 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
     return (
         <div className="modal text-left mx-auto p-6">
             <div>
-                <label className="damage_label">ダメージ詳細</label>
+                <span className="damage_label">ダメージ詳細</span>
             </div>
             <div className="text-center mx-auto">
                 <input type="text" className="text-center damage"
@@ -50,8 +50,8 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
                     <input type="text" className="text-center min_damage"
                         value={result.min.damage.toLocaleString()} readOnly />
                 </div>
-                <label className="detail_max_damage">最終破壊率</label>
-                <label className="damage_label">{rateText}</label>
+                <span className="detail_max_damage">最終破壊率</span>
+                <span className="damage_label">{rateText}</span>
             </div>
             <div className="enemy_rest_hp text-center w-[240px] mx-auto">
                 <div className="flex">
@@ -91,11 +91,6 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
                 <div>
                     <div className="magnification">×防御力ダウン</div>
                     <input type="text" className="text-center magnification_value" value={detail.debuff} readOnly />
-
-                </div>
-                <div>
-                    <div className="magnification">×フィールド</div>
-                    <input type="text" className="text-center magnification_value" value={detail.field} readOnly />
                 </div>
                 <div>
                     <div className="magnification">×HP/DP特攻</div>
@@ -116,14 +111,6 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
                 <div>
                     <div className="magnification">×属性相性</div>
                     <input type="text" className="text-center magnification_value" value={detail.element} readOnly />
-                </div>
-                <div>
-                    <div className="magnification">×心眼</div>
-                    <input type="text" className="text-center magnification_value" value={detail.mindeye} readOnly />
-                </div>
-                <div>
-                    <div className="magnification">×脆弱</div>
-                    <input type="text" className="text-center magnification_value" value={detail.fragile} readOnly />
                 </div>
                 <div>
                     <div className="magnification">×破壊率</div>
@@ -177,12 +164,12 @@ const DamageResult = ({ damageResult, enemyInfo, dispatch }) => {
                     <div className="flex">
                         <div className="mt-2 damage-flex">
                             <div>
-                                <label className="damage_label">クリティカル</label>
-                                <label className="damage_label">{`(発生率${damageResult.criticalRate})`}</label>
+                                <span className="damage_label">クリティカル</span>
+                                <span className="font-bold">{`(発生率${damageResult.criticalRate})`}</span>
                             </div>
                             <div>
-                                <label className="damage_label">最終破壊率</label>
-                                <label className="damage_label">{`${damageResult.criticalResult.avg.damageRate}%`}</label>
+                                <span className="damage_label">最終破壊率</span>
+                                <span className="damage_label">{`${damageResult.criticalResult.avg.damageRate}%`}</span>
                                 <input type="button" className="open_detail" defaultValue="詳細" onClick={() => openModal("critical")} />
 
                             </div>
@@ -190,36 +177,36 @@ const DamageResult = ({ damageResult, enemyInfo, dispatch }) => {
                                 <input type="text" className="text-center damage"
                                     value={damageResult.criticalResult.avg.damage.toLocaleString()} readOnly />
                                 <div className="leading-4 items-end">
-                                    <label className="pb-0.5">(</label>
+                                    <span className="pb-0.5">(</span>
                                     <input type="text" className="text-center min_damage"
                                         value={damageResult.criticalResult.min.damage.toLocaleString()} readOnly />
-                                    <label className="pb-0.5">～</label>
+                                    <span className="pb-0.5">～</span>
                                     <input type="text" className="text-center min_damage"
                                         value={damageResult.criticalResult.max.damage.toLocaleString()} readOnly />
-                                    <label className="pb-0.5">)</label>
+                                    <span className="pb-0.5">)</span>
                                 </div>
                             </div>
                         </div>
                         <div className="mt-2 damage-flex">
                             <div>
-                                <label className="damage_label">通常ダメージ</label>
+                                <span className="damage_label">通常ダメージ</span>
                             </div>
                             <div>
-                                <label className="damage_label">最終破壊率</label>
-                                <label className="damage_label">{`${damageResult.normalResult.avg.damageRate}%`}</label>
+                                <span className="damage_label">最終破壊率</span>
+                                <span className="damage_label">{`${damageResult.normalResult.avg.damageRate}%`}</span>
                                 <input type="button" className="open_detail" defaultValue="詳細" onClick={() => openModal("normal")} />
                             </div>
                             <div className="text-center mx-auto">
                                 <input className="text-center damage"
                                     value={damageResult.normalResult.avg.damage.toLocaleString()} readOnly type="text" />
                                 <div className="leading-4 items-end">
-                                    <label className="pb-0.5">(</label>
+                                    <span className="pb-0.5">(</span>
                                     <input type="text" className="text-center min_damage"
                                         value={damageResult.normalResult.min.damage.toLocaleString()} readOnly />
-                                    <label className="pb-0.5">～</label>
+                                    <span className="pb-0.5">～</span>
                                     <input type="text" className="text-center min_damage"
                                         value={damageResult.normalResult.max.damage.toLocaleString()} readOnly />
-                                    <label className="pb-0.5">)</label>
+                                    <span className="pb-0.5">)</span>
                                 </div>
                             </div>
                         </div>

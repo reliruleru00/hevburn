@@ -29,37 +29,37 @@ export function getEnemyInfo(enemyClass, enemySelect) {
 
 // スキルデータ取得
 export function getSkillData(skillId) {
-  const filteredSkill = skillList.filter((obj) => obj.skill_id === skillId);
+  const filteredSkill = skillList.filter((obj) => obj.skill_id === Number(skillId));
   return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
 }
 
 // スキル攻撃情報取得
 export function getAttackInfo(attackId) {
-  const filteredAttack = skillAttack.filter((obj) => obj.attack_id === attackId);
+  const filteredAttack = skillAttack.filter((obj) => obj.attack_id === Number(attackId));
   return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
 }
 
 // バフ一覧取得
 export function getBuffList(skillId) {
-    const filteredBuff = skillBuff.filter((obj) => obj.skill_id === skillId);
+    const filteredBuff = skillBuff.filter((obj) => obj.skill_id === Number(skillId));
     return filteredBuff;
 }
 
 // バフ情報取得
 export function getBuffIdToBuff(buffId) {
-  const filteredBuff = skillBuff.filter((obj) => obj.buff_id === buffId);
+  const filteredBuff = skillBuff.filter((obj) => obj.buff_id === Number(buffId));
   return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
 }
 
 // アビリティ情報取得
 export function getAbilityInfo(abilityId) {
-  const filteredAbility = abilityList.filter((obj) => obj.ability_id === abilityId);
+  const filteredAbility = abilityList.filter((obj) => obj.ability_id === Number(abilityId));
   return filteredAbility.length > 0 ? filteredAbility[0] : undefined;
 }
 
 // パッシブ情報取得
 export function getPassiveInfo(skillId) {
-  const filteredPassive = skillPassive.filter((obj) => obj.skill_id === skillId);
+  const filteredPassive = skillPassive.filter((obj) => obj.skill_id === Number(skillId));
   return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
 }
 

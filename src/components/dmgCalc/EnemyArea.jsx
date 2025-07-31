@@ -151,7 +151,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                             val = 100 + Number(attackInfo.penetration);
                         }
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
-                        let select = attackInfo?.attack_physical === key ? " selected" : "";
+                        let select = attackInfo?.attack_physical === Number(key) ? " selected" : "";
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" alt=""/>
                             <input className={`enemy_type_value ${addClass}`}
@@ -181,7 +181,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         }
                         val = Math.floor(val);
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
-                        let select = attackInfo?.attack_element === key ? " selected" : "";
+                        let select = attackInfo?.attack_element === Number(key) ? " selected" : "";
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" alt=""/>
                             <input className={`enemy_type_value ${addClass}`}

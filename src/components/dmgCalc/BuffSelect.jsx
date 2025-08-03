@@ -23,10 +23,7 @@ const BuffSelect = ({ attackInfo, buffList, buffKey, buffSettingMap, handleChang
 
     const onChangeBuff = (value) => {
         const newSelected = [...selectedKey];
-        while (newSelected.length <= index) {
-            newSelected.push({ key: "" });
-        }
-        newSelected[index]["key"] = value;
+        newSelected[index] = value;
 
         if (value) {
             const buffId = Number(value.split('_')[1]);
@@ -45,15 +42,16 @@ const BuffSelect = ({ attackInfo, buffList, buffKey, buffSettingMap, handleChang
                 return;
             }
             if (isAloneActivation(buffInfo)) {
-                handleSelectChange(buffKey, [{ key: value}, {}]);
+                handleSelectChange(buffKey, [value, ""]);
                 return;
             }
         }
 
         handleSelectChange(buffKey, newSelected);
     }
-    const value = selectedKey.length > index ? selectedKey[index]["key"] : "";
+    const value = selectedKey.length > index ? selectedKey[index] : "";
     const selectBuff = buffList.find(buff => buff.key === value);
+
     return (
         <>
             <td>
@@ -69,7 +67,7 @@ const BuffSelect = ({ attackInfo, buffList, buffKey, buffSettingMap, handleChang
             </td>
             <td>
                 {value &&
-                    <input className="strengthen" type="button" value={"詳細"} onClick={() => openModal("buffDetail", selectBuff, buffKey, selectedKey, index)} />
+                    <input className="strengthen" type="button" value={"詳細"} onClick={() => openModal("buffDetail", selectBuff, index)} />
                 }
             </td>
             <td>

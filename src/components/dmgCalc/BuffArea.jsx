@@ -219,7 +219,6 @@ const BuffArea = ({ attackInfo, state, dispatch,
         const updateMap = { ...refBuffSettingMap.current };
         const newAbilitySettingMap = { ...refAbilitySettingMap.current };
         const newPassiveSettingMap = { ...refPassiveSettingMap.current };
-
         Object.keys(updateMap).forEach(buffKind => {
             updateMap[buffKind].forEach((buffInnerList, index) => {
                 Object.keys(buffInnerList).forEach(buffKey => {
@@ -230,6 +229,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 })
             });
         });
+
         setBuffSettingMap(updateMap);
         refBuffSettingMap.current = updateMap;
     }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
@@ -366,12 +366,10 @@ const BuffArea = ({ attackInfo, state, dispatch,
         isOpen: false,
         mode: "",
         buffInfo: {},
-        buffKey: "",
-        selectedKey: "",
         index: 0,
     });
-    const openModal = (mode, buffInfo, buffKey, selectedKey, index) =>
-        setModal({ isOpen: true, mode: mode, buffInfo: buffInfo, buffKey: buffKey, selectedKey: selectedKey, index: index });
+    const openModal = (mode, buffInfo, index) =>
+        setModal({ isOpen: true, mode: mode, buffInfo: buffInfo, index: index });
     const closeModal = () => setModal({ isOpen: false, mode: "" });
 
     return (
@@ -560,8 +558,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     (
                         modal.buffInfo.kbn === "buff" ?
                             <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
-                                buffSettingMap={buffSettingMap} buffKey={modal.buffKey} selectedKey={modal.selectedKey} index={modal.index}
-                                setBuffSettingMap={setBuffSettingMap}
+                                index={modal.index} buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
                                 abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={closeModal} />
                             :
                             <AbilityDetail buffInfo={modal.buffInfo} closeModal={closeModal} />
@@ -814,9 +811,9 @@ const getBuffEffectDisplay = (buffInfo, skillLv) => {
     }
 }
 
-const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, buffKey, index, setBuffSettingMap,
+const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, closeModal }) => {
-    const charaId = buffInfo.chara_id;
+    const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
     const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
@@ -824,34 +821,15 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, buffKey, index
     const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
 
     const changeBuffSetting = (item, value) => {
-        const newSelected = { ...buffSetting };
-        if (!newSelected["collect"]) {
-            newSelected["collect"] = {};
+        const updateSettingMap = { ...buffSettingMap };
+        const buffSetting = updateSettingMap[buffInfo.buff_kind][index][buffInfo.key]
+        if (!buffSetting["collect"]) {
+            buffSetting["collect"] = {};
         }
-        newSelected["collect"][item] = value;
-        setBuffSettingMap(prev => {
-            const kind = buffInfo.buff_kind;
-            const key = buffInfo.key;
-            const prevList = [...(prev[kind] ?? [])];
-            const target = { ...(prevList[index]?.[key] ?? {}) };
+        buffSetting["collect"][item] = value;
+        buffSetting.effect_size = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
 
-            // collectを初期化し、設定を反映
-            target.collect = {
-                ...(target.collect ?? {}),
-                [item]: value,
-            };
-
-            // 指定位置に更新したtargetを設定
-            prevList[index] = {
-                ...prevList[index],
-                [key]: target,
-            };
-
-            return {
-                ...prev,
-                [kind]: prevList,
-            };
-        });
+        setBuffSettingMap(updateSettingMap);
     };
 
     let statUp = getStatUp(state, memberInfo, buffSetting.collect, abilitySettingMap, passiveSettingMap);

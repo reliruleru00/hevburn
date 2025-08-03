@@ -9,7 +9,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
 
     let isAlone = false;
     if (selectedKey[0]) {
-        let buffId = Number(selectedKey[0]["key"].split('_')[1]);
+        let buffId = Number(selectedKey[0].split('_')[1]);
         let buffInfo = getBuffIdToBuff(buffId);
         isAlone = isAloneActivation(buffInfo);
     }
@@ -56,7 +56,7 @@ const BuffField = ({ buffKey, index, rowSpan, buffDef, attackInfo,
                             buffList={buffInnerList[1] || []}
                             buffKind={buffKind}
                             buffKey={buffKey}
-                            buffSettingMap={buffSettingMap[0] || []}
+                            buffSettingMap={buffSettingMap[1] || []}
                             handleChangeSkillLv={handleChangeSkillLv}
                             selectedKey={selectedKey}
                             index={1}

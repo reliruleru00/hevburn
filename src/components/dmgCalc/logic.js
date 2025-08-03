@@ -416,15 +416,15 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
         ![BUFF.CHARGE, BUFF.FIELD, BUFF.ETERNAL_OARH, BUFF.YAMAWAKI_SERVANT,
         BUFF.ARROWCHERRYBLOSSOMS, BUFF.BABIED, BUFF.SHADOW_CLONE].includes(buffKind)) {
         combinedScore = buffSettingMap[top1.key]?.effect_size + buffSettingMap[top2.key]?.effect_size;
-        combinedKeys = [{ key: top1.key }, { key: top2.key }];
+        combinedKeys = [top1.key, top2.key];
     } else if (top1) {
         combinedScore = top1.effect_size;
-        combinedKeys = [{ key: top1.key }];
+        combinedKeys = [top1.key];
     }
 
     // 比較して大きい方を返す
     if (maxAloneBuff && buffSettingMap[buffKind][0][maxAloneBuff.key]?.effect_size >= combinedScore) {
-        return [{ key: maxAloneBuff.key }];
+        return [maxAloneBuff.key];
     } else {
         return combinedKeys;
     }
@@ -696,7 +696,7 @@ export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIS
         if (selectedKeys) {
             selectedKeys.forEach((selectedKey, index) => {
                 if (selectedKey["key"]) {
-                    effectSize += buffSettingMap[buffKind][index][selectedKey["key"]]?.effect_size;
+                    effectSize += buffSettingMap[buffKind][index][selectedKey]?.effect_size;
                 }
             })
         }
@@ -757,7 +757,7 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
     const selectedKey = selectBuffKeyMap[funnelKey];
     if (selectedKey) {
         selectedKey.forEach(selectedKey => {
-            let buffId = Number(selectedKey["key"].split('_')[1]);
+            let buffId = Number(selectedKey.split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
             if (buffInfo) {
                 let loop = buffInfo.max_power;

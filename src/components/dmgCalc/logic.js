@@ -1,7 +1,7 @@
 import {
     BUFF, RANGE, CHARA_ID, EFFECT, ENEMY_CLASS, CONDITIONS
     , ALONE_ACTIVATION_BUFF_KIND, ALONE_ACTIVATION_ABILITY_LIST
-    , SKILL_ID_RUBY_PERFUME
+    , SKILL_ID_RUBY_PERFUME, JEWEL_TYPE
 } from '../../utils/const';
 import enemyList from "../../data/enemyList";
 import { SCORE_STATUS } from "../../data/scoreData";
@@ -166,17 +166,19 @@ export function getEffectSize(buff, skillLv, memberInfo, state, abilitySettingMa
         switch (buff.buff_kind) {
             case BUFF.ATTACKUP: // 攻撃力アップ
             case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
+                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, JEWEL_TYPE.SKILL_ATTACKUP, abilitySettingMap, passiveSettingMap);
+                break;
             case BUFF.MINDEYE: // 心眼
             case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
             case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
             case BUFF.CHARGE: // チャージ
             case BUFF.DAMAGERATEUP: // 破壊率アップ
             case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, "3", abilitySettingMap, passiveSettingMap);
+                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, 0, abilitySettingMap, passiveSettingMap);
                 break;
             case BUFF.CRITICALRATEUP:	// クリティカル率アップ
             case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, "5", abilitySettingMap, passiveSettingMap);
+                effectSize = getBuffEffectSize(buff, skillLv, memberInfo, state, JEWEL_TYPE.CRITICALRATE_UP, abilitySettingMap, passiveSettingMap);
                 break;
             case BUFF.DEFENSEDOWN: // 防御力ダウン
             case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
@@ -410,15 +412,15 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
         ![BUFF.CHARGE, BUFF.FIELD, BUFF.ETERNAL_OARH, BUFF.YAMAWAKI_SERVANT,
         BUFF.ARROWCHERRYBLOSSOMS, BUFF.BABIED, BUFF.SHADOW_CLONE].includes(buffKind)) {
         combinedScore = buffSettingMap[top1.key]?.effect_size + buffSettingMap[top2.key]?.effect_size;
-        combinedKeys = [top1.key, top2.key];
+        combinedKeys = [{key : top1.key}, {key : top2.key}];
     } else if (top1) {
         combinedScore = top1.effect_size;
-        combinedKeys = [top1.key];
+        combinedKeys = [{key : top1.key}];
     }
 
     // 比較して大きい方を返す
     if (maxAloneBuff && buffSettingMap[maxAloneBuff.key]?.effect_size >= combinedScore) {
-        return [maxAloneBuff.key];
+        return [{key : maxAloneBuff.key}];
     } else {
         return combinedKeys;
     }
@@ -630,7 +632,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
 // 基礎攻撃力取得
 export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown) {
     let jewelLv = 0;
-    if (memberInfo.styleInfo.jewel_type === "1") {
+    if (memberInfo.styleInfo.jewel_type === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
     let molecule = 0;
@@ -688,9 +690,9 @@ export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIS
         const buffKey = getBuffKey(buffKind);
         const selectedKeys = selectBuffKeyMap[buffKey];
         if (selectedKeys) {
-            selectedKeys.forEach(selectedKey => {
-                if (selectedKey.length > 0) {
-                    effectSize += buffSettingMap[selectedKey]?.effect_size;
+            selectedKeys.forEach((selectedKey, index) => {
+                if (selectedKey["key"]) {
+                    effectSize += buffSettingMap[buffKind][index][selectedKey["key"]]?.effect_size;
                 }
             })
         }
@@ -751,7 +753,7 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
     const selectedKey = selectBuffKeyMap[funnelKey];
     if (selectedKey) {
         selectedKey.forEach(selectedKey => {
-            let buffId = Number(selectedKey.split('_')[1]);
+            let buffId = Number(selectedKey["key"].split('_')[1]);
             let buffInfo = getBuffIdToBuff(buffId);
             if (buffInfo) {
                 let loop = buffInfo.max_power;
@@ -1014,7 +1016,6 @@ export function updateEnemyStatus(enemy_class_no, enemyInfo) {
 
 // バフ効果量
 function getBuffEffectSize(buffInfo, skillLv, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
-    const NOT_JEWEL_TYPE = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP];
     let jewelLv = 0;
     if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === targetJewelType) {
         jewelLv = memberInfo.jewelLv;
@@ -1039,10 +1040,6 @@ function getBuffEffectSize(buffInfo, skillLv, memberInfo, state, targetJewelType
     } else {
         effectSize += (maxPower - minPower) / skillStat * status + minPower;
     }
-    if (!NOT_JEWEL_TYPE.includes(buffInfo.buff_kind)) {
-        // 宝珠強化対象外はここまで
-        return effectSize;
-    }
     // 宝珠分(SLvの恩恵を受けない)
     if (jewelLv > 0) {
         let jewelStat = skillStat + jewelLv * 60;
@@ -1061,7 +1058,7 @@ function getDebuffEffectSize(buffInfo, skillLv, memberInfo, state, abilitySettin
         return 0;
     }
     let jewelLv = 0;
-    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === "4") {
+    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === JEWEL_TYPE.SKILL_DEBUFFUP) {
         jewelLv = memberInfo.jewelLv;
     }
     let enemyInfo = state.enemyInfo;

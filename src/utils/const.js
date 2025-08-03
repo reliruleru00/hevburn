@@ -277,6 +277,16 @@ export const ALONE_ACTIVATION_BUFF_KIND = [
 /** 単独発動アビリティ */
 export const ALONE_ACTIVATION_ABILITY_LIST = [12, 407, 408];
 
+export const JEWEL_TYPE = {
+    ATTACK_UP: 1,
+    HEAL_UP: 2,
+    SKILL_ATTACKUP: 3,
+    SKILL_DEBUFFUP: 4,
+    CRITICALRATE_UP: 5,
+    FOCUS_DAMAGE_DOWN: 6,
+    DAMAGE_DOWN: 7,
+}
+
 export const JEWEL_EXPLAIN = {
     1: "スキルダメージの威力を上げる",
     2: "回復スキルの効果量を上げる",

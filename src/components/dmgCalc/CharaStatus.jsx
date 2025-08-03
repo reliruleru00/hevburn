@@ -222,7 +222,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     for (const [, values] of Object.entries(selectBuffKeyMap)) {
                         let tempCount = {};
                         for (const entry of values) {
-                            const [, buffId, useCharaId] = entry.split("_");
+                            const [, buffId, useCharaId] = entry["key"].split("_");
                             if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
                             if (!buffInfo) continue;

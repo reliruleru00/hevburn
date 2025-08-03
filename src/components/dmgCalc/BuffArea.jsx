@@ -8,12 +8,11 @@ import {
 import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
     getCharaIdToMember, getEffectSize, getSumEffectSize,
-    getBuffKey, filteredBuffList, getBestBuffKeys, checkDuplicationChara,
+    getBuffKey, getBestBuffKeys, checkDuplicationChara,
     isOnlyUse, isAloneActivation, isOnlyBuff,
     getEnemyResist, getStatUp
 } from "./logic";
-import { getCharaData, getPassiveInfo, getAbilityInfo } from "utils/common";
-import BuffSelect from "./BuffSelect";
+import { getCharaData, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
 import PassiveCheckbox from "./PassiveCheckbox";
@@ -85,14 +84,38 @@ const BuffArea = ({ attackInfo, state, dispatch,
     const { styleList } = useStyleList();
     const [checkUpdate, setCheckUpdate] = useState(true);
 
+    let isElement = false;
+    let isWeak = false;
+    if (attackInfo) {
+        isElement = attackInfo.attack_element;
+        const [physicalResist, elementResist] = getEnemyResist(attackInfo, state);
+        isWeak = physicalResist * elementResist > 10000;
+    }
+    let isDp = Number(state.dpRate[0]) !== 0;
+
+    const attackUpBuffs = getAttackUpBuffs(isElement, isWeak, attackInfo, styleList.selectStyleList);
+    const defDownBuffs = getDefenseDownBuffs(isElement, isWeak, isDp);
+    const criticalBuffs = getCriticalBuffs(isElement);
+
+    let buffKeyList = {};
+    attackUpBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+    defDownBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+    criticalBuffs.forEach(buff => {
+        buffKeyList[getBuffKey(buff.kind)] = [];
+    });
+
     let attackCharaId = attackInfo?.chara_id;
     let selectList = styleList.selectStyleList.concat(styleList.subStyleList).map(style => {
         return style?.styleInfo.style_id + style?.exclusionSkillList.map(skill => skill).join(',');
     }).join(',');
 
-    const { buffList, abilityList, passiveList } = useMemo(() => {
-        return generateBuffAbilityPassiveLists(styleList, attackInfo);
-    }, [attackInfo, state.enemyInfo, selectList]);
+    const { buffGroup, abilityList, passiveList } = useMemo(() => {
+        return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
+    }, [attackInfo, selectList]);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);
@@ -101,20 +124,25 @@ const BuffArea = ({ attackInfo, state, dispatch,
     // バフ初期化
     useEffect(() => {
         const initialMap = {};
-        buffList.forEach(buff => {
-            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
-            initialMap[buff.key] = {
-                buff_id: buff.buff_id,
-                skill_lv: buff.max_lv,
-                effect_size: getEffectSize(buff, buff.max_lv, memberInfo, state, abilitySettingMap, passiveSettingMap, buff.kbn),
-            };
+        Object.keys(buffGroup).forEach(key => {
+            const initialList = [];
+            buffGroup[key].forEach(buffList => {
+                const innerMap = {};
+                buffList.forEach(buff => {
+                    innerMap[buff.key] = {
+                        buff_id: buff.buff_id,
+                        skill_lv: buff.max_lv,
+                    };
+                });
+                initialList.push(innerMap);
+            });
+            initialMap[key] = initialList;
         });
-        setBuffSettingMap(initialMap);
         refBuffSettingMap.current = initialMap;
-    }, [buffList]);
+    }, [buffGroup]);
 
     // アビリティ初期化   
-    React.useEffect(() => {
+    useEffect(() => {
         const initialMap = {};
         abilityList.forEach(ability => {
             const key = `${ability.ability_id}-${ability.chara_id}`
@@ -165,10 +193,10 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
         });
         refAbilitySettingMap.current = initialMap;
-        setAbilitySettingMap(initialMap);
-    }, [styleList, abilityList]);
+    }, [styleList, abilityList, attackCharaId]);
 
-    React.useEffect(() => {
+    // パッシブ初期化
+    useEffect(() => {
         const initialMap = {};
         passiveList.forEach(passive => {
             const key = passive.key;
@@ -181,58 +209,40 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
         });
         refPassiveSettingMap.current = initialMap;
-        setPassiveSettingMap(initialMap);
     }, [passiveList]);
 
     // バフ効果量更新
-    React.useEffect(() => {
+    useEffect(() => {
         const updateMap = { ...refBuffSettingMap.current };
         const newAbilitySettingMap = { ...refAbilitySettingMap.current };
         const newPassiveSettingMap = { ...refPassiveSettingMap.current };
-        buffList.forEach(buff => {
-            const key = buff.key;
-            const buffSetting = updateMap[key];
-            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
-            updateMap[key].effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap, buff.kbn);
-        })
+
+        Object.keys(updateMap).forEach(buffKind => {
+            updateMap[buffKind].forEach((buffInnerList, index) => {
+                Object.keys(buffInnerList).forEach(buffKey => {
+                    let buffSetting = buffInnerList[buffKey];
+                    let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
+                    const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
+                    buffSetting.effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap, buff.kbn);
+                })
+            });
+        });
         setBuffSettingMap(updateMap);
         refBuffSettingMap.current = updateMap;
     }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
 
-    let isElement = false;
-    let isWeak = false;
-    if (attackInfo) {
-        isElement = attackInfo.attack_element;
-        const [physicalResist, elementResist] = getEnemyResist(attackInfo, state);
-        isWeak = physicalResist * elementResist > 10000;
-    }
-    let isDp = Number(state.dpRate[0]) !== 0;
-
-    const attackUpBuffs = getAttackUpBuffs(isElement, isWeak, attackInfo, styleList.selectStyleList);
-    const defDownBuffs = getDefenseDownBuffs(isElement, isWeak, isDp);
-    const criticalBuffs = getCriticalBuffs(isElement);
-
-    let buffKeyList = {};
-    attackUpBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-    defDownBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-    criticalBuffs.forEach(buff => {
-        buffKeyList[getBuffKey(buff.kind)] = [];
-    });
-
-    const handleChangeSkillLv = (buffKey, lv, index) => {
-        let buff = buffList.filter(buff => buff.key === buffKey[index])[0];
-        const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
-        const newSetting = buffSettingMap[buffKey[index]]
-        newSetting.skill_lv = lv;
-        newSetting.effect_size = getEffectSize(buff, lv, memberInfo, state, abilitySettingMap, passiveSettingMap);
-        setBuffSettingMap(prev => ({
-            ...prev,
-            [buffKey]: newSetting
-        }));
+    // スキルレベル変更
+    const handleChangeSkillLv = (buffKindKey, buffKey, lv, index) => {
+        const updateMap = { ...buffSettingMap };
+        let buffKind = Number(buffKindKey.split('-')[1]);
+        updateMap[buffKind].forEach(buffInnerList => {
+            let settingBuff = buffInnerList[buffKey];
+            settingBuff.skill_lv = lv
+            let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
+            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
+            settingBuff.effect_size = getEffectSize(buff, lv, memberInfo, state, abilitySettingMap, passiveSettingMap);
+        })
+        setBuffSettingMap(updateMap);
     };
 
     const handleSelectChange = (buffKey, newSelect) => {
@@ -244,6 +254,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         newAbilitySettingMap[key].checked = e.target.checked;
         setAbilitySettingMap(newAbilitySettingMap);
 
+        // TODO
         // buffList.forEach(buff => {
         //     const buffKey = buff.key
         //     const newSetting = buffSettingMap[buffKey]
@@ -283,16 +294,15 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 break;
         }
 
-        buffList.filter(buff => targetCharaList.includes(buff.chara_id)).forEach(buff => {
-            const buffKey = buff.key
-            const newSetting = buffSettingMap[buffKey]
-            const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id)
-            newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, memberInfo, state, abilitySettingMap, passiveSettingMap);
-            setBuffSettingMap(prev => ({
-                ...prev,
-                [buffKey]: newSetting
-            }));
-        })
+        // TODO
+        // buffList.filter(buff => targetCharaList.includes(buff.chara_id)).forEach(buff => {
+        //     const buffKey = buff.key
+        //     const newSetting = buffSettingMap[buffKey]
+        //     setBuffSettingMap(prev => ({
+        //         ...prev,
+        //         [buffKey]: newSetting
+        //     }));
+        // })
     };
 
     // 全て外す
@@ -306,7 +316,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
     const selectBestBuff = () => {
         Object.keys(buffKeyList).forEach((buffKey) => {
             let buffKind = Number(buffKey.split('-')[1]);
-            let kindBuffList = filteredBuffList(buffList, buffKind, attackInfo, false);
+            let kindBuffList = buffGroup[buffKind] ? buffGroup[buffKind][0] : [];
             const buffItemList = [
                 ...kindBuffList.filter(buffInfo =>
                     !(isOnlyUse(attackInfo, buffInfo))
@@ -345,6 +355,12 @@ const BuffArea = ({ attackInfo, state, dispatch,
             const buffKind = Number(buffKey.split('-')[1]);
             const buffItemList = Object.entries(settingBuffList).flatMap(([key, count]) => {
                 if (count === 0) return [];
+                const buffList = [];
+                Object.keys(buffGroup).forEach(key => {
+                    buffGroup[key][0].forEach(buff => {
+                        buffList.push(buff);
+                    });
+                })
                 const [skillId, charaId] = key.split('-').map(Number);
                 const matchedBuffs = buffList.filter(buffInfo =>
                     buffInfo.buff_kind === buffKind &&
@@ -380,19 +396,22 @@ const BuffArea = ({ attackInfo, state, dispatch,
     React.useEffect(() => {
         // 山脇様のしもべ変更
         if (checkUpdate) {
-            let funnel = buffList.filter(buff => buff.buff_kind === BUFF.FUNNEL)
-            setBestBuff(getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel);
+            // TODO
+            // let funnel = buffList.filter(buff => buff.buff_kind === BUFF.FUNNEL)
+            // setBestBuff(getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel);
         }
     }, [attackInfo?.servant_count]);
 
     const [modal, setModal] = React.useState({
         isOpen: false,
         mode: "",
-        buffInfo: {}
+        buffInfo: {},
+        buffKey: "",
+        selectedKey: "",
+        index: 0,
     });
-    const openModal = (mode, buffInfo) =>
-        setModal({ isOpen: true, mode: mode, buffInfo: buffInfo }
-        );
+    const openModal = (mode, buffInfo, buffKey, selectedKey, index) =>
+        setModal({ isOpen: true, mode: mode, buffInfo: buffInfo, buffKey: buffKey, selectedKey: selectedKey, index: index });
     const closeModal = () => setModal({ isOpen: false, mode: "" });
 
     return (
@@ -446,8 +465,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     rowSpan={totalRowCount}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
-                                    buffList={buffList}
-                                    buffSettingMap={buffSettingMap}
+                                    buffInnerList={buffGroup[buffDef.kind] || []}
+                                    buffSettingMap={buffSettingMap[buffDef.kind] || []}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
@@ -469,8 +488,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     buffDef={buffDef}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
-                                    buffList={buffList}
-                                    buffSettingMap={buffSettingMap}
+                                    buffInnerList={buffGroup[buffDef.kind] || []}
+                                    buffSettingMap={buffSettingMap[buffDef.kind] || []}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
@@ -492,8 +511,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
                                     buffDef={buffDef}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}
-                                    buffList={buffList}
-                                    buffSettingMap={buffSettingMap}
+                                    buffInnerList={buffGroup[buffDef.kind] || []}
+                                    buffSettingMap={buffSettingMap[buffDef.kind] || []}
                                     handleChangeSkillLv={handleChangeSkillLv}
                                     selectedKey={selectBuffKeyMap[buffKey] || []}
                                     handleSelectChange={handleSelectChange}
@@ -574,14 +593,15 @@ const BuffArea = ({ attackInfo, state, dispatch,
                 overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
             >
                 {
-                    modal.mode === "bulkSetting" && <BuffBulkSetting buffList={buffList} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />
+                    modal.mode === "bulkSetting" && <BuffBulkSetting buffGroup={buffGroup} attackInfo={attackInfo} setMultiBuff={setMultiBuff} />
                 }
                 {
                     modal.mode === "buffDetail" &&
                     (
                         modal.buffInfo.kbn === "buff" ?
                             <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
-                                buffSettingMap={buffSettingMap}
+                                buffSettingMap={buffSettingMap} buffKey={modal.buffKey} selectedKey={modal.selectedKey} index={modal.index}
+                                setSelectBuffKeyMap={setSelectBuffKeyMap}
                                 abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={closeModal} />
                             :
                             <AbilityDetail buffInfo={modal.buffInfo} closeModal={closeModal} />
@@ -593,7 +613,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
 };
 
 // バフ、アビリティ、パッシブ作成
-function generateBuffAbilityPassiveLists(styleList, attackInfo) {
+function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs) {
     const buffList = [];
     const abilityList = [];
     const passiveList = [];
@@ -604,7 +624,23 @@ function generateBuffAbilityPassiveLists(styleList, attackInfo) {
     addBuffAbilityPassiveLists(
         styleList, styleList.subStyleList, attackInfo, buffList, abilityList, passiveList, TROOP_KBN.SUB
     )
-    return { buffList, abilityList, passiveList };
+
+    // グループ化
+    const buffGroup = buffList.reduce((acc, buff) => {
+        const key = buff.buff_kind;
+        if (!acc[key]) {
+            acc[key] = [[], []];
+        }
+        acc[key][0].push(deepClone(buff));
+        const match1 = attackUpBuffs.find(item => item.kind === key);
+        const match2 = defDownBuffs.find(item => item.kind === key);
+        const match3 = criticalBuffs.find(item => item.kind === key);
+        if (match1?.overlap || match2?.overlap || match3?.overlap === true) {
+            acc[key][1].push(deepClone(buff));
+        }
+        return acc;
+    }, {});
+    return { buffList, buffGroup, abilityList, passiveList };
 }
 
 // バフ、アビリティ、パッシブ追加
@@ -816,21 +852,32 @@ const getBuffEffectDisplay = (buffInfo, skillLv) => {
     }
 }
 
-const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySettingMap, passiveSettingMap, closeModal }) => {
+const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, buffKey, selectedKey, index, setSelectBuffKeyMap,
+    abilitySettingMap, passiveSettingMap, closeModal }) => {
     const charaId = buffInfo.chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
     const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
     const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
+    const selectedBuff = selectedKey[index];
 
-    let statUp = getStatUp(state, memberInfo, buffInfo.collect, abilitySettingMap, passiveSettingMap);
+    const changeBuffSetting = (item, value) => {
+        const newSelected = [...selectedKey];
+        if (!newSelected[index]["collect"]) {
+            newSelected[index]["collect"] = {};
+        }
+        newSelected[index]["collect"][item] = value;
+        setSelectBuffKeyMap(prev => ({ ...prev, [buffKey]: newSelected }));
+    };
+
+    let statUp = getStatUp(state, memberInfo, selectedBuff.collect, abilitySettingMap, passiveSettingMap);
     let enemyStatDown = 0;
     let enemyStat = 0;
     if (isDebuff) {
         enemyStat = enemyInfo.enemy_stat;
-        if (buffInfo.collect?.hacking) {
+        if (selectedBuff.collect?.hacking) {
             enemyStatDown = 100;
-        } else if (buffInfo.collect?.misfortune) {
+        } else if (selectedBuff.collect?.misfortune) {
             enemyStatDown = 20;
         }
     }
@@ -847,7 +894,7 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
     }
     let status = molecule / denominator;
 
-    const buffSeting = buffSettingMap[buffInfo.key];
+    const buffSetting = buffSettingMap[buffInfo.key];
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
 
@@ -897,9 +944,9 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
                 <span>スキル</span>
                 <span>{buffInfo.buff_name}</span>
                 <span>効果量</span>
-                <span>{getBuffEffectDisplay(buffInfo, buffSeting.skill_lv)}</span>
+                <span>{getBuffEffectDisplay(buffInfo, buffSetting.skill_lv)}</span>
                 <div></div>
-                <span>(スキルLv{buffSeting.skill_lv})</span>
+                <span>(スキルLv{buffSetting.skill_lv})</span>
                 {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
                     <>
                         <span>参照ステータス</span>
@@ -938,8 +985,8 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
                         }
                         <span>闘志</span>
                         <div className="text-center status_checkbox">
-                            <input type="checkbox" id="fightingspirit" checked={buffInfo.collect?.fightingspirit}
-                            // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, fightingspirit: e.target.checked } })}
+                            <input type="checkbox" id="fightingspirit" checked={selectedBuff.collect?.fightingspirit}
+                                onChange={(e) => changeBuffSetting("fightingspirit", e.target.checked)}
                             />
                             <label htmlFor="fightingspirit" className="checkbox01"></label>
                         </div>
@@ -947,15 +994,15 @@ const BuffDetail = ({ buffInfo, styleList, state, buffSettingMap, abilitySetting
                             <>
                                 <span>厄</span>
                                 <div className="text-center status_checkbox">
-                                    <input type="checkbox" id="misfortune" checked={buffInfo.collect?.misfortune}
-                                    // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, misfortune: e.target.checked } })}
+                                    <input type="checkbox" id="misfortune" checked={selectedBuff.collect?.misfortune}
+                                        onChange={(e) => changeBuffSetting("misfortune", e.target.checked)}
                                     />
                                     <label htmlFor="misfortune" className="checkbox01"></label>
                                 </div>
                                 <span>ハッキング</span>
                                 <div className="text-center status_checkbox">
-                                    <input type="checkbox" id="hacking" checked={buffInfo.collect?.hacking}
-                                    // onChange={(e) => setAttackInfo({ ...buffInfo, collect: { ...buffInfo.collect, hacking: e.target.checked } })}
+                                    <input type="checkbox" id="hacking" checked={selectedBuff.collect?.hacking}
+                                        onChange={(e) => changeBuffSetting("hacking", e.target.checked)}
                                     />
                                     <label htmlFor="hacking" className="checkbox01"></label>
                                 </div>
@@ -1026,7 +1073,7 @@ const AbilityDetail = ({ buffInfo, closeModal }) => {
             effectSize = 50;
             break;
         case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-            effectSize = 30;
+            effectSize = 40;
             break;
         case BUFF.SHADOW_CLONE: // 影分身
             effectSize = 30;

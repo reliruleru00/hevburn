@@ -1,20 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useStyleList } from "components/StyleListProvider";
 import { filteredBuffList } from "./logic";
 import { getCharaData, getAbilityInfo, getSkillData } from "utils/common";
 
-const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
+const BuffBulkSetting = ({ buffGroup, attackInfo, setMultiBuff }) => {
     const { styleList } = useStyleList();
     const [settingBuffList, setSettingBuffList] = React.useState({});
     const [orb, setOrb] = React.useState(false);
 
+    const buffList = [];
+    Object.keys(buffGroup).forEach(key => {
+        buffGroup[key][0].forEach(buff => {
+            buffList.push(buff);
+        });
+    })
+    const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
+
     // 初期化処理
-    React.useEffect(() => {
+    useEffect(() => {
         const newBuffMap = {};
         styleList.selectStyleList?.forEach(member => {
             if (!member?.styleInfo) return;
 
-            const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
             const styleBuffList = filteredBuff.filter(obj =>
                 obj.use_chara_id === member.styleInfo.chara_id
             );
@@ -28,7 +35,7 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
             });
         });
         setSettingBuffList(newBuffMap);
-    }, [orb, attackInfo, buffList, styleList.selectStyleList]);
+    }, []);
 
     const handleChangeIndex = (key, index) => {
         setSettingBuffList(prev => ({
@@ -62,7 +69,6 @@ const BuffBulkSetting = ({ buffList, attackInfo, setMultiBuff }) => {
             {styleList.selectStyleList?.map(member => {
                 if (!member?.styleInfo) return null;
 
-                const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
                 const styleBuffList = filteredBuff.filter(obj =>
                     obj.use_chara_id === member.styleInfo.chara_id
                 );

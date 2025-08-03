@@ -45,7 +45,7 @@ const BuffSelect = ({ attackInfo, buffList, buffKey, buffSettingMap, handleChang
                 return;
             }
             if (isAloneActivation(buffInfo)) {
-                handleSelectChange(buffKey, [value, ""]);
+                handleSelectChange(buffKey, [{ key: value}, {}]);
                 return;
             }
         }

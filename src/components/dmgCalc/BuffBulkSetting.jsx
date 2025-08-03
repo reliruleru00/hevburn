@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useStyleList } from "components/StyleListProvider";
-import { filteredBuffList } from "./logic";
+import { filteredOrb } from "./logic";
 import { getCharaData, getAbilityInfo, getSkillData } from "utils/common";
 
 const BuffBulkSetting = ({ buffGroup, attackInfo, setMultiBuff }) => {
@@ -14,7 +14,7 @@ const BuffBulkSetting = ({ buffGroup, attackInfo, setMultiBuff }) => {
             buffList.push(buff);
         });
     })
-    const filteredBuff = filteredBuffList(buffList, null, attackInfo, orb);
+    const filteredBuff = filteredOrb(buffList, orb);
 
     // 初期化処理
     useEffect(() => {

@@ -254,7 +254,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                         }
                     }
                     return (
-                        <div key={`chara_no${index}`} >
+                        <div key={`chara_no${index}`}>
                             <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
                                 {rarity === 1 ?
                                     Array.from({ length: 5 }, (_, i) => (

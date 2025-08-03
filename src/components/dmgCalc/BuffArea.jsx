@@ -9,7 +9,7 @@ import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
     getCharaIdToMember, getEffectSize, getSumEffectSize,
     getBuffKey, getBestBuffKeys, checkDuplicationChara,
-    isOnlyUse, isAloneActivation, isOnlyBuff,
+    isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList,
     getEnemyResist, getStatUp
 } from "./logic";
 import { getCharaData, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
@@ -139,6 +139,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             initialMap[key] = initialList;
         });
         refBuffSettingMap.current = initialMap;
+        setBuffSettingMap(initialMap);
     }, [buffGroup]);
 
     // アビリティ初期化   
@@ -193,6 +194,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
         });
         refAbilitySettingMap.current = initialMap;
+        setAbilitySettingMap(initialMap);
     }, [styleList, abilityList, attackCharaId]);
 
     // パッシブ初期化
@@ -209,6 +211,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             }
         });
         refPassiveSettingMap.current = initialMap;
+        setPassiveSettingMap(initialMap);
     }, [passiveList]);
 
     // バフ効果量更新
@@ -254,16 +257,18 @@ const BuffArea = ({ attackInfo, state, dispatch,
         newAbilitySettingMap[key].checked = e.target.checked;
         setAbilitySettingMap(newAbilitySettingMap);
 
-        // TODO
-        // buffList.forEach(buff => {
-        //     const buffKey = buff.key
-        //     const newSetting = buffSettingMap[buffKey]
-        //     newSetting.effect_size = getEffectSize(buff, newSetting.skill_lv, state, abilitySettingMap, passiveSettingMap);
-        //     setBuffSettingMap(prev => ({
-        //         ...prev,
-        //         [buffKey]: newSetting
-        //     }));
+        // const newBuffSettingMap = { ...buffSettingMap };
+        // Object.keys(buffSettingMap).forEach(buffKind => {
+        //     buffSettingMap[buffKind].forEach((buffInnerList, index) => {
+        //         Object.keys(buffInnerList).forEach(buffKey => {
+        //             let buffSetting = buffInnerList[buffKey];
+        //             let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
+        //             const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
+        //             buffSetting.effect_size = getEffectSize(buff, buffSetting.skill_lv, memberInfo, state, newAbilitySettingMap, passiveSettingMap, buff.kbn);
+        //         })
+        //     })
         // })
+        // setBuffSettingMap(newBuffSettingMap);
     };
 
     const handlePassiveChange = (e, key) => {
@@ -317,6 +322,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         Object.keys(buffKeyList).forEach((buffKey) => {
             let buffKind = Number(buffKey.split('-')[1]);
             let kindBuffList = buffGroup[buffKind] ? buffGroup[buffKind][0] : [];
+            kindBuffList = filteredBuffList(kindBuffList, null, attackInfo, false);
             const buffItemList = [
                 ...kindBuffList.filter(buffInfo =>
                     !(isOnlyUse(attackInfo, buffInfo))
@@ -376,13 +382,13 @@ const BuffArea = ({ attackInfo, state, dispatch,
     };
 
     let resistDownEffectSize = getSumEffectSize(selectBuffKeyMap, buffSettingMap, [BUFF.RESISTDOWN])
-    React.useEffect(() => {
+    useEffect(() => {
         if (attackInfo) {
             dispatch({ type: "SET_RRGIST_DOWN", element: attackInfo.attack_element, value: resistDownEffectSize });
         }
     }, [state.enemyInfo, attackInfo?.attack_id, resistDownEffectSize]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (checkUpdate) {
             setSelectBuffKeyMap(buffKeyList);
             if (attackInfo) {
@@ -393,12 +399,11 @@ const BuffArea = ({ attackInfo, state, dispatch,
         }
     }, [selectList, attackInfo?.attack_id, state.enemyInfo]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         // 山脇様のしもべ変更
         if (checkUpdate) {
-            // TODO
-            // let funnel = buffList.filter(buff => buff.buff_kind === BUFF.FUNNEL)
-            // setBestBuff(getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel);
+            let funnel = buffGroup[BUFF.FUNNEL];
+            setBestBuff(getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel[0]);
         }
     }, [attackInfo?.servant_count]);
 

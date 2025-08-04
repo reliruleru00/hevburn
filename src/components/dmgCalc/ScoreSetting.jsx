@@ -1,6 +1,8 @@
 import React from "react";
 import gradeList from "data/scoreGrade";
 import bonusList from "data/scoreBonus";
+import attribute from 'assets/attribute';
+import { SCORE_STATUS } from "data/scoreData";
 
 const ScoreSetting = ({ state, dispatch }) => {
     const selectHalf = state.score.half
@@ -30,7 +32,8 @@ const ScoreSetting = ({ state, dispatch }) => {
 
     // レベル変更
     const handleScoreChange = (lv) => {
-        dispatch({ type: "SET_SCORE_LV", lv });
+        let status = SCORE_STATUS[Number(lv) - 20]
+        dispatch({ type: "SET_SCORE_LV", lv, status });
     }
 
     // グレード変更
@@ -119,8 +122,8 @@ const ScoreSetting = ({ state, dispatch }) => {
                 <span id="score_turn">
                     Lv
                     <select className="text-right w-12" value={state.score.lv} onChange={(e) => handleScoreChange(e.target.value)}>
-                        {Array.from({ length: 50 }, (_, i) => (
-                            <option value={150 - i} key={`score_lv_${i}`}>{150 - i}</option>
+                        {Array.from({ length: 20 }, (_, i) => (
+                            <option value={40 - i} key={`score_lv_${i}`}>{40 - i}</option>
                         ))}
                     </select>
                 </span>
@@ -143,7 +146,7 @@ const ScoreSetting = ({ state, dispatch }) => {
                 <div className="flex flex-wrap">
                     {filteredBonus.map((bonus, index) => (
                         <div className="flex items-center" key={`bunus_${index}`}>
-                            <img className="ml-1" src={getImg(bonus.conditions)} style={{ width: 20, height: 20 }}
+                            <img className="ml-1" src={attribute[getImg(bonus.conditions)]} style={{ width: 20, height: 20 }}
                                 alt={getImg(bonus.conditions)} />
                             <label className="">{getStr(bonus)}</label>
                         </div>

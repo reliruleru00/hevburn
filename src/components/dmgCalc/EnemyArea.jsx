@@ -46,11 +46,11 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
 
     // HP補正
     let maxHp = Number(enemyInfo.max_hp);
-    let enemy_stat = Number(enemyInfo.enemy_stat);
+    let enemyStat = Number(enemyInfo.enemy_stat);
     if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-        let score_attack = getScoreAttack(enemyInfo.sub_no);
-        maxHp = getScoreHpDp(state.score.lv, score_attack, "hp_rate");
-        enemy_stat = SCORE_STATUS[state.score.lv - 100];
+        let scoreAttack = getScoreAttack(enemyInfo.sub_no);
+        maxHp = getScoreHpDp(state.score.lv, scoreAttack, "hp_rate");
+        enemyStat = SCORE_STATUS[state.score.lv - 20];
     }
     maxHp = Math.floor(maxHp * (1 + state.correction.hp_rate / 100));
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
@@ -60,9 +60,9 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
     destruction *= (1 - state.correction.destruction_resist / 100);
 
     // 自由入力時の対応
-    let is_free_input = false;
+    let isFreeInput = false;
     if (enemyInfo.enemy_class === ENEMY_CLASS.FREE_INPUT) {
-        is_free_input = true;
+        isFreeInput = true;
     }
     const [focus, setFocus] = React.useState(undefined);
     const handleElementFocus = (id, target) => {
@@ -79,10 +79,10 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
             <div className="flex">
                 <div className="flex flex-wrap gap-1 w-40">
                     <div className="text-right enemy_label">防御値</div>
-                    <input type="number" className="w-10 text-center" value={enemy_stat} id="enemy_stat" readOnly={!is_free_input}
+                    <input type="number" className="w-10 text-center" value={enemyStat} id="enemy_stat" readOnly={!isFreeInput}
                         onChange={(e) => handleEnemyChange("enemy_stat", e.target.value)} />
                     <div className="text-right enemy_label">破壊率上限</div>
-                    <input type="number" className="w-10 text-center" value={state.maxDamageRate} id="enemy_destruction_limit" readOnly={!is_free_input}
+                    <input type="number" className="w-10 text-center" value={state.maxDamageRate} id="enemy_destruction_limit" readOnly={!isFreeInput}
                         onChange={(e) => handleEnemyChange("destruction_limit", e.target.value)} />
                     <div className="text-right enemy_label">破壊率</div>
                     <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.damageRate}
@@ -92,7 +92,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         <label className="checkbox01 text-xs font-bold" htmlFor="strong_break">強ブレイク</label>
                     </div>
                     <div className="text-right enemy_label">破壊係数</div>
-                    <input type="number" className="text-center" id="enemy_destruction" min="1" value={destruction} readOnly={!is_free_input}
+                    <input type="number" className="text-center" id="enemy_destruction" min="1" value={destruction} readOnly={!isFreeInput}
                         onChange={(e) => handleEnemyChange("destruction", e.target.value)} />
                 </div>
                 <div>
@@ -106,14 +106,14 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                                 let dp_rate = state.dpRate[no];
                                 let maxDp = Number(max_dp_list[no]);
                                 if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-                                    let score_attack = getScoreAttack(enemyInfo.sub_no);
-                                    maxDp = getScoreHpDp(state.score.lv, score_attack, "dp_rate");
+                                    let scoreAttack = getScoreAttack(enemyInfo.sub_no);
+                                    maxDp = getScoreHpDp(state.score.lv, scoreAttack, "dp_rate");
                                 }
                                 maxDp = Math.floor(maxDp * (1 + state.correction.dp_rate / 100));
                                 let background = getApplyGradient("#4F7C8B", dp_rate)
                                 return (
                                     <div className="dp_gauge" key={enemy_id}>
-                                        <input type="text" className="w-20 text-right comma" value={Number(maxDp).toLocaleString()} id={enemy_id} pattern="\d*" readOnly={!is_free_input}
+                                        <input type="text" className="w-20 text-right comma" value={Number(maxDp).toLocaleString()} id={enemy_id} pattern="\d*" readOnly={!isFreeInput}
                                             onChange={(e) => handleMaxDpEnemyChange(no, e.target.value)} />
                                         <input type="range" className="enemy_dp_range dp_range" value={dp_rate} id={range_id} max="100" min="0" step="1" onChange={(e) => handleDpChange(no, e.target.value)}
                                             style={{ background: background }}
@@ -128,7 +128,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         <div className="w-5">HP</div>
                         <div>
                             <div className="flex">
-                                <input type="text" id="enemy_hp" className="w-20 text-right comma" value={maxHp.toLocaleString()} readOnly={!is_free_input}
+                                <input type="text" id="enemy_hp" className="w-20 text-right comma" value={maxHp.toLocaleString()} readOnly={!isFreeInput}
                                     onChange={(e) => handleEnemyChange("max_hp", e.target.value)} />
                                 <input type="range" className="hp_range" value={state.hpRate} id="hp_range" max="100" min="0" step="1" onChange={(e) => handleHpChange(e.target.value)}
                                     style={{ background: backgroundHp }}
@@ -155,7 +155,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" alt=""/>
                             <input className={`enemy_type_value ${addClass}`}
-                                readOnly={!is_free_input}
+                                readOnly={!isFreeInput}
                                 type="text"
                                 value={val}
                                 onChange={(e) => handleEnemyChange("physical_" + key, e.target.value)}
@@ -185,7 +185,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         return (<div key={id} className={select}>
                             <input className="enemy_type_icon" src={src} type="image" alt=""/>
                             <input className={`enemy_type_value ${addClass}`}
-                                readOnly={!is_free_input}
+                                readOnly={!isFreeInput}
                                 type="text"
                                 value={val}
                                 onChange={(e) => handleEnemyChange("element_" + key, e.target.value)}

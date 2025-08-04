@@ -695,7 +695,7 @@ export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIS
         const selectedKeys = selectBuffKeyMap[buffKey];
         if (selectedKeys) {
             selectedKeys.forEach((selectedKey, index) => {
-                if (selectedKey["key"]) {
+                if (selectedKey) {
                     effectSize += buffSettingMap[buffKind][index][selectedKey]?.effect_size;
                 }
             })

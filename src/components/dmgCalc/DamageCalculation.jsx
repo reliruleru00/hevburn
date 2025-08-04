@@ -6,11 +6,17 @@ import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
 import ContentsArea from "./ContentsArea";
 import OtherSetting from "./OtherSetting";
+import PredictionScore from "./PredictionScore";
 import DamageResult from "./DamageResult";
 import BuffArea from "./BuffArea";
+import { ENEMY_CLASS } from "utils/const";
+import { SCORE_STATUS } from "data/scoreData";
 
 const setEnemy = (state, action) => {
     const enemy = action.enemyInfo;
+    if (enemy.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
+        enemy.enemy_stat = SCORE_STATUS[20];
+    }
     return {
         ...state,
         enemyInfo: enemy,
@@ -90,7 +96,10 @@ const reducer = (state, action) => {
             };
         }
         case "SET_SCORE_LV":
-            return { ...state, score: { ...state.score, lv: action.lv } };
+            return { ...state, 
+                enemyInfo: { ...state.enemyInfo, enemy_stat: action.status },
+                score: { ...state.score, lv: action.lv } 
+            };
 
         case "SET_SCORE_TURN":
             return { ...state, score: { ...state.score, turnCount: action.turn } };
@@ -150,7 +159,9 @@ const DamageCalculation = () => {
         return enemySelect ? Number(enemySelect) : 1;
     });
     let initEnemyInfo = getEnemyInfo(enemyClass, enemySelect);
-
+    if (initEnemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
+        initEnemyInfo.enemy_stat = SCORE_STATUS[20];
+    }
     const initialState = {
         enemyInfo: initEnemyInfo,
         hpRate: 100,
@@ -159,7 +170,7 @@ const DamageCalculation = () => {
         maxDamageRate: initEnemyInfo.destruction_limit,
         strongBreak: false,
         score: {
-            lv: 150,
+            lv: 40,
             turnCount: 1,
             totalGradeRate: 0,
             half: 1,
@@ -213,10 +224,10 @@ const DamageCalculation = () => {
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
                     <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
-                    {/* {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
+                    {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
                         <PredictionScore damageResult={damageResult} state={state} />
                         : null
-                    } */}
+                    }
                 </div>
                 <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
                     selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap}

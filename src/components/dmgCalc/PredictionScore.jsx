@@ -1,3 +1,6 @@
+import React from 'react';
+import { getScoreAttack, NO_BREAK_BONUS, LEVEL_BONUS, TURN_BONUS, DAMAGE_LIMIT1, DAMAGE_LIMIT2 } from "data/scoreData";
+
 const PredictionScore = ({ damageResult, state }) => {
     let enemyInfo = state.enemyInfo
     let scoreLv = state.score.lv;
@@ -8,7 +11,7 @@ const PredictionScore = ({ damageResult, state }) => {
 
     // スコア設定
     let scoreAttack = getScoreAttack(enemyInfo.sub_no);
-    let num = scoreLv - 100;
+    let num = scoreLv - 20;
     let noBreakValue = checkNobreak ? NO_BREAK_BONUS[num] : 0;
     let damageBonusAvg = getDamageBonus(damageResult.criticalResult.avg.damage, num, scoreAttack, socreEnemyUnit);
     let damageBonusMax = getDamageBonus(damageResult.criticalResult.max.damage, num, scoreAttack, socreEnemyUnit);
@@ -87,7 +90,7 @@ function getDamageBonus(damage, num, scoreAttack, socreEnemyUnit) {
     damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
     let damageBonus;
     let damageLimitValue;
-    if (scoreAttack.enemy_count == 1) {
+    if (scoreAttack.enemy_count === 1) {
         damageLimitValue = DAMAGE_LIMIT1[num];
     } else {
         damageLimitValue = DAMAGE_LIMIT2[num];
@@ -99,3 +102,5 @@ function getDamageBonus(damage, num, scoreAttack, socreEnemyUnit) {
     }
     return Math.floor(damageBonus * scoreAttack.max_damage_rate / 100);
 }
+
+export default PredictionScore

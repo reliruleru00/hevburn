@@ -1093,12 +1093,38 @@ function getDebuffEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySe
     // 宝珠分(SLvの恩恵を受けない)
     if (jewelLv > 0) {
         let jewelStat = skillStat + jewelLv * 20;
-        if (status < 0) {
+        if (status - enemyStat < 0) {
             effectSize += buffInfo.min_power * jewelLv * 0.02;
-        } else if (status < jewelStat) {
-            effectSize += ((buffInfo.max_power - buffInfo.min_power) / jewelStat * status + buffInfo.min_power) * jewelLv * 0.02;
+        } else if (status - enemyStat < jewelStat) {
+            effectSize += ((buffInfo.max_power - buffInfo.min_power) / jewelStat * (status - enemyStat) + buffInfo.min_power) * jewelLv * 0.02;
         } else {
             effectSize += buffInfo.max_power * jewelLv * 0.02;
+        }
+    }
+    return effectSize;
+}
+
+// デバフ効果量
+export function calcDebuffEffectSize(status, enemyStat, skillStat, baseMinPower, baseMaxPower, skillLv, jewelLv) {
+    let minPower = baseMinPower * (1 + 0.05 * (skillLv - 1));
+    let maxPower = baseMaxPower * (1 + 0.02 * (skillLv - 1));
+    let effectSize = 0;
+    // 宝珠分以外
+    if (status - enemyStat < 0) {
+        effectSize = minPower;
+    } else if (status - enemyStat < skillStat) {
+        effectSize = (maxPower - minPower) / skillStat * (status - enemyStat) + minPower;
+    } else {
+        effectSize = maxPower * (1 + (status - enemyStat - skillStat) * 0.000002);
+    }
+    if (jewelLv > 0) {
+        let jewelStat = skillStat + jewelLv * 20;
+        if (status - enemyStat < 0) {
+            effectSize += baseMinPower * jewelLv * 0.02;
+        } else if (status - enemyStat < jewelStat) {
+            effectSize += ((baseMaxPower - baseMinPower) / jewelStat * (status - enemyStat) + baseMinPower) * jewelLv * 0.02;
+        } else {
+            effectSize += baseMaxPower * jewelLv * 0.02;
         }
     }
     return effectSize;

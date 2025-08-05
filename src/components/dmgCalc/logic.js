@@ -4,7 +4,6 @@ import {
     , SKILL_ID_RUBY_PERFUME, JEWEL_TYPE
 } from '../../utils/const';
 import enemyList from "../../data/enemyList";
-import { SCORE_STATUS } from "../../data/scoreData";
 import scoreBonusList from "../../data/scoreBonus";
 import { getCharaData } from "../../utils/common";
 import { getBuffIdToBuff, getPassiveInfo, getAbilityInfo } from "../../utils/common";
@@ -664,11 +663,11 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
     if (enemyStat - skillStat / 2 > status) {
         basePower = 1;
     } else if (enemyStat > status) {
-        basePower = minPower / (skillStat / 2) * (status - (enemyStat - skillStat / 2));
+        basePower = minPower / skillStat * (status - enemyStat + skillStat);
     } else if (enemyStat + skillStat > status) {
         basePower = (maxPower - minPower) / skillStat * (status - enemyStat) + minPower;
     } else {
-        basePower = maxPower;
+        basePower = maxPower * (1 + (status - enemyStat - skillStat) * 0.0025);
     }
 
     // 宝珠分(SLvの恩恵を受けない)
@@ -823,7 +822,7 @@ function getCriticalRate(attackMemberInfo, enemyInfo, selectBuffKeyMap, buffSett
     // チャージ
     criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
     // 永遠なる誓い
-    criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 50 : 0;
+    criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 100 : 0;
     // // 制圧戦
     // critical_rate += getBikePartsEffectSize("critical_rate");
     return criticalRate > 100 ? 100 : criticalRate;
@@ -1037,10 +1036,10 @@ function getBuffEffectSize(buffInfo, buffSetting, memberInfo, state, targetJewel
     let skillStat = buffInfo.param_limit;
     let effectSize = 0;
     // 宝珠分以外
-    if (status > buffInfo.param_limit) {
-        effectSize += maxPower;
+    if (status < skillStat) {
+        effectSize = (maxPower - minPower) / skillStat * status + minPower;
     } else {
-        effectSize += (maxPower - minPower) / skillStat * status + minPower;
+        effectSize = maxPower * (1 + (status - skillStat) * 0.000002);
     }
     // 宝珠分(SLvの恩恵を受けない)
     if (jewelLv > 0) {
@@ -1069,9 +1068,6 @@ function getDebuffEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySe
     let status2 = memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
     let enemyInfo = state.enemyInfo;
     let enemyStat = Number(enemyInfo.enemy_stat);
-    if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-        enemyStat = SCORE_STATUS[state.score.lv - 100];
-    }
     let enemyStatDown = 0;
     if (buffSetting.collect?.hacking) {
         enemyStatDown = 100;
@@ -1083,16 +1079,16 @@ function getDebuffEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySe
     let skillLv = buffSetting.skill_lv;
     let minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
     let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
-    let status = (status1 * 2 + status2) / 3 - enemyStat;
+    let status = (status1 * 2 + status2) / 3;
     let skillStat = buffInfo.param_limit;
     let effectSize = 0;
     // 宝珠分以外
-    if (status < 0) {
-        effectSize += minPower;
-    } else if (status < buffInfo.param_limit) {
-        effectSize += (maxPower - minPower) / skillStat * status + minPower;
+    if (status - enemyStat < 0) {
+        effectSize = minPower;
+    } else if (status - enemyStat < skillStat) {
+        effectSize = (maxPower - minPower) / skillStat * (status - enemyStat) + minPower;
     } else {
-        effectSize += maxPower;
+        effectSize = maxPower * (1 + (status - enemyStat - skillStat) * 0.000002);
     }
     // 宝珠分(SLvの恩恵を受けない)
     if (jewelLv > 0) {

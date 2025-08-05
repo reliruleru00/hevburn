@@ -25,7 +25,7 @@ const PredictionScore = ({ damageResult, state }) => {
     return (
         <div className="surround_area mx-auto my-2 adjust_width">
             <label className="area_title">予測スコア</label>
-            <div className="mx-auto w-[330px] mt-2">
+            <div className="mx-auto w-[350px] mt-2">
                 <div>
                     <div className="prediction">難易度スコア</div>
                     <input type="text" className="text-center prediction_value" readOnly value={LEVEL_BONUS[num].toLocaleString(0)}

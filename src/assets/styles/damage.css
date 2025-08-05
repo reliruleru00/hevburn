@@ -401,7 +401,7 @@ input[type="range"].result_display::-ms-thumb {
 /* 予測スコア */
 .prediction {
     display: inline-block;
-    width: 200px;
+    width: 210px;
     font-size: 16px;
     white-space: nowrap;
 }
@@ -413,12 +413,12 @@ input[type="range"].result_display::-ms-thumb {
 
 .prediction_shift {
     margin-left: -23px;
-    width: 223px;
+    width: 233px;
     white-space: nowrap;
 }
 
 .prediction_none {
-    width: 130px;
+    width: 150px;
 }
 
 .label_damage_bonus {

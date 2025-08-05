@@ -398,16 +398,16 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     // 単独発動の中で最大値のeffect_sizeの要素を取得
     const aloneBuffs = kindBuffList.filter(buffInfo => isAloneActivation(buffInfo));
     const maxAloneBuff = aloneBuffs.reduce((max, buff) =>
-        !max || buffSettingMap[buff.key]?.effect_size > buffSettingMap[max.key]?.effect_size ? buff : max, null);
+        !max || buffSettingMap[buffKind][0][buff.key]?.effect_size > buffSettingMap[buffKind][0][max.key]?.effect_size ? buff : max, null);
 
     // 単独発動以外の中から、effect_sizeでソートして上位2件を取得
     const normalBuffs = kindBuffList.filter(buffInfo => !isAloneActivation(buffInfo));
     const sortedNormalBuffs = [...normalBuffs].sort(
         (a, b) => {
-            if (buffSettingMap[b.key]?.effect_size === buffSettingMap[a.key]?.effect_size) {
+            if (buffSettingMap[buffKind][0][b.key]?.effect_size === buffSettingMap[buffKind][0][a.key]?.effect_size) {
                 return b.sp_cost - a.sp_cost
             }
-            return buffSettingMap[b.key]?.effect_size - buffSettingMap[a.key]?.effect_size
+            return buffSettingMap[buffKind][0][b.key]?.effect_size - buffSettingMap[buffKind][0][a.key]?.effect_size
         });
     const top1 = sortedNormalBuffs[0];
     const top2 = sortedNormalBuffs[1];
@@ -415,7 +415,7 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     if (top1 && top2 &&
         ![BUFF.CHARGE, BUFF.FIELD, BUFF.ETERNAL_OARH, BUFF.YAMAWAKI_SERVANT,
         BUFF.ARROWCHERRYBLOSSOMS, BUFF.BABIED, BUFF.SHADOW_CLONE].includes(buffKind)) {
-        combinedScore = buffSettingMap[top1.key]?.effect_size + buffSettingMap[top2.key]?.effect_size;
+        combinedScore = buffSettingMap[buffKind][0][top1.key]?.effect_size + buffSettingMap[buffKind][0][top2.key]?.effect_size;
         combinedKeys = [top1.key, top2.key];
     } else if (top1) {
         combinedScore = top1.effect_size;

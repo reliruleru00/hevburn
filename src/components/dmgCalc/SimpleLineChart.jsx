@@ -1,34 +1,70 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Label, Tooltip } from 'recharts';
-import { calcDebuffEffectSize } from './logic'
+import { calcBuffEffectSize, calcDebuffEffectSize } from './logic'
 
-export default function SimpleLineChart() {
+
+export function BuffLineChart({ buffInfo, status, jewelLv, skillLv }) {
     const data = [];
-    const enemyStat = 750;
-    const skillStat = 150;
-    const baseMinPower = 42;
-    const baseMaxPower = 60;
-    for (let x = 700; x <= 1000; x++) {
-        data.push({ x: x, y: calcDebuffEffectSize(x, enemyStat, skillStat, baseMinPower, baseMaxPower, 1, 5) });
+    const skillStat = buffInfo.param_limit;
+    const minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
+    const maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
+    const tickMinPower = Math.floor(minPower + buffInfo.min_power * (jewelLv * 0.04));
+    const tickMaxPower = Math.floor(maxPower + buffInfo.max_power * (jewelLv * 0.04));
+
+    let min = 0;
+    let max = Math.max(status, skillStat + 300) + 30;
+    for (let x = min; x <= max; x++) {
+        data.push({ x: x, y: calcBuffEffectSize(buffInfo, x, skillLv, jewelLv) });
     }
-    let stat = 780;
-    if (stat < 700) {
-        stat = 700;
-    }
+
     return (
         <LineChart width={400} height={300} data={data} >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="x" domain={['dataMin', 'dataMax']} interval={49}>
                 <Label value="ステータス" offset={40} position="insideBottom" />
             </XAxis>
-            <YAxis domain={[baseMinPower * 0.9, baseMaxPower * 1.2]} ticks={[baseMinPower + 4, baseMaxPower + 6]}
+            <YAxis domain={[tickMinPower * 0.9, tickMaxPower * 1.1]} ticks={[tickMinPower, tickMaxPower]}
+                tickFormatter={(value) => `${value}%`} width={40} >
+                <Label value="効果量" offset={55} angle={-90} position="insideLeft" />
+            </YAxis>
+            <Tooltip content={<CustomTooltip />} />
+            <Line type="monotone" dataKey="y" stroke="#ff3333" strokeWidth={2} dot={false} />
+
+            <ReferenceLine x={status} stroke="deepskyblue" strokeWidth={2}>
+                <Label value={status} position="top" fill="deepskyblue" fontSize={24} />
+            </ReferenceLine>
+        </LineChart>
+    );
+}
+
+export function DebuffLineChart({ buffInfo, status, enemyStat, jewelLv }) {
+    const data = [];
+    const skillStat = buffInfo.param_limit;
+    const baseMinPower = buffInfo.min_power;
+    const baseMaxPower = buffInfo.max_power;
+    const tickMinPower = Math.floor(baseMinPower * (1 + jewelLv * 0.02));
+    const tickMaxPower = Math.floor(baseMaxPower * (1 + jewelLv * 0.02));
+
+    let min = Math.min(status, enemyStat) - 30;
+    let max = Math.max(status, enemyStat + skillStat + 100) + 30;
+    for (let x = min; x <= max; x++) {
+        data.push({ x: x, y: calcDebuffEffectSize(x, enemyStat, skillStat, baseMinPower, baseMaxPower, 1, jewelLv) });
+    }
+
+    return (
+        <LineChart width={400} height={300} data={data} >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="x" domain={['dataMin', 'dataMax']} interval={49}>
+                <Label value="ステータス" offset={40} position="insideBottom" />
+            </XAxis>
+            <YAxis domain={[tickMinPower * 0.9, tickMaxPower * 1.1]} ticks={[tickMinPower, tickMaxPower]}
                 tickFormatter={(value) => `${value}%`} width={40} >
                 <Label value="効果量" offset={20} angle={-90} position="insideLeft" />
             </YAxis>
             <Tooltip content={<CustomTooltip />} />
             <Line type="monotone" dataKey="y" stroke="#ff3333" strokeWidth={2} dot={false} />
 
-            <ReferenceLine x={stat} stroke="deepskyblue" strokeWidth={2}>
-                <Label value={stat} position="top" fill="deepskyblue" fontSize={24} />
+            <ReferenceLine x={status} stroke="deepskyblue" strokeWidth={2}>
+                <Label value={status} position="top" fill="deepskyblue" fontSize={24} />
             </ReferenceLine>
         </LineChart>
     );

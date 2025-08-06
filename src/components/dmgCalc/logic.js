@@ -1053,6 +1053,31 @@ function getBuffEffectSize(buffInfo, buffSetting, memberInfo, state, targetJewel
     return effectSize;
 }
 
+// バフ効果量
+export function calcBuffEffectSize(buffInfo, status, skillLv, jewelLv) {
+    let minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
+    let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
+    let skillStat = buffInfo.param_limit;
+    let effectSize = 0;
+
+    // 宝珠分以外
+    if (status < skillStat) {
+        effectSize = (maxPower - minPower) / skillStat * status + minPower;
+    } else {
+        effectSize = maxPower * (1 + (status - skillStat) * 0.000002);
+    }
+    // 宝珠分(SLvの恩恵を受けない)
+    if (jewelLv > 0) {
+        let jewelStat = skillStat + jewelLv * 60;
+        if (status > jewelStat) {
+            effectSize += buffInfo.max_power * jewelLv * 0.04;
+        } else {
+            effectSize += ((buffInfo.max_power - buffInfo.min_power) / jewelStat * status + buffInfo.min_power) * jewelLv * 0.04;
+        }
+    }
+    return effectSize;
+}
+
 // デバフ効果量
 function getDebuffEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap) {
     if (!state) {

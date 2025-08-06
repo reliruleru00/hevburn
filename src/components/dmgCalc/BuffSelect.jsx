@@ -73,8 +73,8 @@ const BuffSelect = ({ attackInfo, buffList, buffKey, buffSettingMap, handleChang
             <td>
                 {selectBuff ?
                     <div className="lv">
-                        <select className="lv_effect" disabled={selectBuff.max_lv === 1} value={buffSettingMap[selectedKey[index].key]?.skill_lv}
-                            onChange={(e) => handleChangeSkillLv(buffKey, selectedKey[index]["key"], Number(e.target.value), index)}>
+                        <select className="lv_effect" disabled={selectBuff.max_lv === 1} value={buffSettingMap[selectedKey[index]]?.skill_lv}
+                            onChange={(e) => handleChangeSkillLv(buffKey, selectedKey[index], Number(e.target.value), index)}>
                             {Array.from({ length: selectBuff.max_lv }, (_, index) => selectBuff.max_lv - index).map(
                                 (lv, index) => <option key={index} value={lv}>{lv}</option>
                             )}

@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 import {
     BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN
 } from "utils/const";
@@ -6,14 +6,23 @@ import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
     getCharaIdToMember, getEffectSize, getStatUp
 } from "./logic";
-import { getPassiveInfo, getAbilityInfo} from "utils/common";
-import SimpleLineChart from "./SimpleLineChart";
+import { getPassiveInfo, getAbilityInfo } from "utils/common";
+import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
+import { JEWEL_TYPE } from "utils/const";
+
+const BUFF_KIND_TO_JEWEL_TYPE = {
+    [BUFF.ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
+    [BUFF.ELEMENT_ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
+    [BUFF.CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
+    [BUFF.ELEMENT_CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
+};
 
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, closeModal }) => {
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
+    const isBuffChart = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE].includes(buffInfo.buff_kind);
     const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
     const buffSetting = buffSettingMap[buffInfo.buff_kind][index][buffInfo.key];
     const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
@@ -94,6 +103,15 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
 
     const abilityList = getAbilityListByBuff(buffInfo.buff_kind, charaId);
     const passiveList = getPassiveListByBuff(buffInfo.buff_kind, charaId);
+
+    let jewelLv = memberInfo.jewelLv
+    const kind = buffInfo.buff_kind;
+    const jewelType = memberInfo.styleInfo.jewel_type;
+    if ((DEBUFF_LIST.includes(kind) && jewelType !== JEWEL_TYPE.SKILL_DEBUFFUP) ||
+        (BUFF_KIND_TO_JEWEL_TYPE[kind] && jewelType !== BUFF_KIND_TO_JEWEL_TYPE[kind])) {
+        jewelLv = 0;
+    }
+
     return (
         <div className="modal text-left p-6 mx-auto">
             <div>
@@ -121,26 +139,23 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                     </>
                 }
             </div>
-            <SimpleLineChart />
+            {isBuffChart &&
+                <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv}/>
+            }
+            {isDebuff &&
+                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} />
+            }
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
                 <>
                     <div className="mt-2">
-                        <span className="damage_label">ステータス情報</span>
+                        <span className="damage_label">使用者情報</span>
                     </div>
                     <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                        <span>スキル上限</span>
-                        <span>{enemyStat + buffInfo.param_limit - enemyStatDown}</span>
-                        {isJewel &&
-                            <>
-                                <span>宝珠上限</span>
-                                <span>{enemyStat + buffInfo.param_limit + 100 - enemyStatDown}</span>
-                            </>
-                        }
-                        <span>使用者ステータス</span>
+                        <span>ステータス</span>
                         <span>{Math.floor(status * 100) / 100}</span>
                         {isJewel &&
                             <>
-                                <span>使用者宝珠強化</span>
+                                <span>宝珠強化</span>
                                 <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
                             </>
                         }

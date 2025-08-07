@@ -3,9 +3,10 @@ import ReactModal from "react-modal";
 import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
 import { getCharaData } from "utils/common";
-import { SKILL_ID_MEGA_DESTROYER, STATUS_KBN, JEWEL_EXPLAIN } from 'utils/const';
+import { SKILL_ID_MEGA_DESTROYER, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
 import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient } from "./logic";
 import attribute from 'assets/attribute';
+import { AttackLineChart } from "./SimpleLineChart";
 
 const TYPE_PHYSICAL = ["none", "slash", "stab", "strike"];
 const TYPE_ELEMENT = ["none", "fire", "ice", "thunder", "light", "dark"];
@@ -249,13 +250,18 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     let status = molecule / denominator;
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
+    let jewelLv = 0;
+    const jewelType = memberInfo.styleInfo.jewel_type;
+    if (jewelType === JEWEL_TYPE.ATTACK_UP) {
+        jewelLv = memberInfo.jewelLv;
+    }
     return (
         <div className="modal text-left mx-auto p-6">
             <div>
                 <span className="damage_label">スキル詳細</span>
                 <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
-            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+            <div className="w-[350px] mx-auto grid grid-cols-[2fr_3fr] text-center">
                 <span>スキル</span>
                 <span>{attackInfo.attack_name}</span>
                 <div></div>
@@ -306,20 +312,11 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     </>
                 )}
             </div>
+            <AttackLineChart status={Math.floor(status)} attackInfo={attackInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={selectSKillLv} />
             <div className="mt-2">
                 <span className="damage_label">ステータス情報</span>
             </div>
             <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                <span>スキル上限</span>
-                <span>{
-                    enemyStat + attackInfo.param_limit - enemyStatDown}({enemyStat + attackInfo.param_limit - criticalStatDown})
-                </span>
-                <span>宝珠上限</span>
-                <span>{
-                    enemyStat + attackInfo.param_limit + 100 - enemyStatDown}({enemyStat + attackInfo.param_limit + 100 - criticalStatDown})
-                </span>
-                <div></div>
-                <span className="explain">()内はクリティカル時</span>
                 <span>使用者ステータス</span>
                 <span>{Math.floor(status * 100) / 100}</span>
                 <span>使用者宝珠強化</span>

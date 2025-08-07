@@ -1,4 +1,4 @@
-let gradeList = [
+const scoreGrade = [
     {"score_attack_no":64,"half":1,"grade_no":1,"grade_name":"Blasterのスキル使用回数2回","grade_rate":10,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":64,"half":1,"grade_no":2,"grade_name":"Attackerのスキル使用回数2回","grade_rate":10,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":64,"half":1,"grade_no":3,"grade_name":"Debufferのスキル使用回数2回","grade_rate":15,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
@@ -93,6 +93,8 @@ let gradeList = [
     {"score_attack_no":77,"half":3,"grade_no":1,"grade_name":"敵の行動パターンが変化し、連続行動が増加","grade_rate":10,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":77,"half":3,"grade_no":2,"grade_name":"敵の氷、雷、光耐性アップ、火弱点が消失","grade_rate":10,"grade_none":0,"effect_kind1":"element_3","effect_size1":50,"conditions1":"","effect_kind2":"element_1","effect_size2":150,"conditions2":"","effect_kind3":"element_4","effect_size3":50,"conditions3":"","effect_kind4":"element_2","effect_size4":50,"conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":77,"half":3,"grade_no":3,"grade_name":"毎ターンODゲージ減少","grade_rate":15,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
+    {"score_attack_no":79,"half":1,"grade_no":1,"grade_name":"4ターン後とに敵の防御力15%アップ(解除不可)","grade_rate":25,"grade_none":0,"effect_kind1":"defense_rate","effect_size1":15,"conditions1":"step_turn4","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
+    {"score_attack_no":79,"half":1,"grade_no":2,"grade_name":"ターン数が30ターンから15ターンに減少","grade_rate":10,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
 ];
 
-export default gradeList;
+export default scoreGrade;

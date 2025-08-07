@@ -17,12 +17,15 @@ const BUFF_KIND_TO_JEWEL_TYPE = {
     [BUFF.ELEMENT_CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
 };
 
+const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHARGE, 
+    BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP];
+
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, closeModal }) => {
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
-    const isBuffChart = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE].includes(buffInfo.buff_kind);
+    const isBuffChart = BUFF_LIST.includes(buffInfo.buff_kind);
     const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
     const buffSetting = buffSettingMap[buffInfo.buff_kind][index][buffInfo.key];
     const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
@@ -143,7 +146,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                 <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv}/>
             }
             {isDebuff &&
-                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} />
+                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv}/>
             }
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
                 <>

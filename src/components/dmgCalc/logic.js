@@ -660,10 +660,9 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
     let skillStat = attackInfo.param_limit;
     let basePower;
     // 宝珠分以外
-    if (enemyStat - skillStat / 2 > status) {
-        basePower = 1;
-    } else if (enemyStat > status) {
+    if (enemyStat >= status) {
         basePower = minPower / skillStat * (status - enemyStat + skillStat);
+        basePower = basePower < 1 ? 1 : basePower;
     } else if (enemyStat + skillStat > status) {
         basePower = (maxPower - minPower) / skillStat * (status - enemyStat) + minPower;
     } else {
@@ -685,6 +684,39 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
     }
     return Math.floor(basePower * 100) / 100;
 }
+
+export function calcAttackEffectSize(attackInfo, status, enemyStat, skillLv, jewelLv) {
+    let minPower = attackInfo.min_power * (1 + 0.05 * (skillLv - 1));
+    let maxPower = attackInfo.max_power * (1 + 0.02 * (skillLv - 1));
+    let skillStat = attackInfo.param_limit;
+    let basePower;
+    // 宝珠分以外
+    if (enemyStat >= status) {
+        basePower = minPower / skillStat * (status - enemyStat + skillStat);
+        basePower = basePower < 1 ? 1 : basePower;
+    } else if (enemyStat + skillStat > status) {
+        basePower = (maxPower - minPower) / skillStat * (status - enemyStat) + minPower;
+    } else {
+        basePower = maxPower;
+        basePower += maxPower * (status - enemyStat - skillStat) * 0.0025;
+    }
+
+    // 宝珠分(SLvの恩恵を受けない)
+    if (jewelLv > 0) {
+        let jewelStat = skillStat + jewelLv * 20;
+        if (enemyStat - skillStat / 2 > status) {
+            basePower += 0;
+        } else if (enemyStat > status) {
+            basePower += attackInfo.min_power / (jewelStat / 2) * (status - (enemyStat - jewelStat / 2)) * jewelLv * 0.02;
+        } else if (enemyStat + jewelStat > status) {
+            basePower += ((attackInfo.max_power - attackInfo.min_power) / jewelStat * (status - enemyStat) + attackInfo.min_power) * jewelLv * 0.02;
+        } else {
+            basePower += attackInfo.max_power * jewelLv * 0.02;
+        }
+    }
+    return Math.floor(basePower * 100) / 100;
+}
+
 
 // 効果量合計
 export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
@@ -714,10 +746,6 @@ function getSumBuffEffectSize(attackInfo, attackMemberInfo, styleList,
     sumBuff += getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, EFFECT.ATTACKUP, attackMemberInfo.styleInfo.chara_id);
     // 属性リング(0%-10%)
     sumBuff += Number(otherSetting.ring);
-    // オーバードライブ10%
-    if (otherSetting.overdrive) {
-        sumBuff += 10;
-    }
     sumBuff += getChainEffectSize(otherSetting, "skill");
     // // トークン
     sumBuff += getSumTokenAbilirySize(styleList, abilitySettingMap, EFFECT.TOKEN_ATTACKUP);
@@ -1130,9 +1158,10 @@ function getDebuffEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySe
 }
 
 // デバフ効果量
-export function calcDebuffEffectSize(status, enemyStat, skillStat, baseMinPower, baseMaxPower, skillLv, jewelLv) {
-    let minPower = baseMinPower * (1 + 0.05 * (skillLv - 1));
-    let maxPower = baseMaxPower * (1 + 0.02 * (skillLv - 1));
+export function calcDebuffEffectSize(buffInfo, status, enemyStat, skillLv, jewelLv) {
+    let minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
+    let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
+    let skillStat = buffInfo.param_limit;
     let effectSize = 0;
     // 宝珠分以外
     if (status - enemyStat < 0) {
@@ -1142,14 +1171,15 @@ export function calcDebuffEffectSize(status, enemyStat, skillStat, baseMinPower,
     } else {
         effectSize = maxPower * (1 + (status - enemyStat - skillStat) * 0.000002);
     }
+    // 宝珠分(SLvの恩恵を受けない)
     if (jewelLv > 0) {
         let jewelStat = skillStat + jewelLv * 20;
         if (status - enemyStat < 0) {
-            effectSize += baseMinPower * jewelLv * 0.02;
+            effectSize += buffInfo.min_power * jewelLv * 0.02;
         } else if (status - enemyStat < jewelStat) {
-            effectSize += ((baseMaxPower - baseMinPower) / jewelStat * (status - enemyStat) + baseMinPower) * jewelLv * 0.02;
+            effectSize += ((buffInfo.max_power - buffInfo.min_power) / jewelStat * (status - enemyStat) + buffInfo.min_power) * jewelLv * 0.02;
         } else {
-            effectSize += baseMaxPower * jewelLv * 0.02;
+            effectSize += buffInfo.max_power * jewelLv * 0.02;
         }
     }
     return effectSize;

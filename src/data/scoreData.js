@@ -5,48 +5,9 @@ export const DAMAGE_LIMIT1 = [0, 9_000_000, 9_000_000, 9_000_000, 9_000_000, 9_0
 export const DAMAGE_LIMIT2 = [0, 12_600_000, 12_600_000, 12_600_000, 12_600_000, 12_600_000, 18_200_000, 18_200_000, 18_200_000, 18_200_000, 18_200_000, 28_000_000, 28_000_000, 28_000_000, 28_000_000, 28_000_000, 35_000_000, 35_000_000, 35_000_000, 35_000_000];
 export const TURN_BONUS = [0.00, 1.30, 1.29, 1.28, 1.27, 1.26, 1.24, 1.23, 1.22, 1.21, 1.20, 1.19, 1.18, 1.17, 1.16, 1.15, 1.14, 1.13, 1.12, 1.11, 1.10, 1.09, 1.08, 1.07, 1.06, 1.05, 1.04, 1.03, 1.02, 1.01, 1.00];
 const score_attack_list = [
+    
     {
-        "score_attack_no": 70, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 71, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 73, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 73, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 74, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 75, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 76, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 77, "enemy_count": 1, "max_damage_rate": 0.100,
-        "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
-        "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
-    },
-    {
-        "score_attack_no": 78, "enemy_count": 1, "max_damage_rate": 0.100,
+        "score_attack_no": 79, "enemy_count": 1, "max_damage_rate": 1,
         "dp_rate": { 21: 331000, 30: 662000, 31: 707000, 40: 1586000 },
         "hp_rate": { 21: 1905000, 30: 5080500, 31: 5284500, 40: 13468500 }
     },
@@ -59,16 +20,16 @@ export function getScoreAttack(score_attack_no) {
 }
 
 // スコアタHP取得
-export function getScoreHpDp(score_lv, score_attack, rate_kbn) {
-    let max_num = 40;
-    let min_num = 31;
-    if (score_lv <= 30) {
-        max_num = 30;
-        min_num = 21;
+export function getScoreHpDp(scoreLv, scoreAttack, rateKbn) {
+    let maxNum = 40;
+    let minNum = 31;
+    if (scoreLv <= 30) {
+        maxNum = 30;
+        minNum = 21;
     }
 
-    let base = score_attack[rate_kbn][min_num];
-    let div = (score_attack[rate_kbn][max_num] - score_attack[rate_kbn][min_num]) / (max_num - min_num);
-    let diff = score_lv - min_num;
+    let base = scoreAttack[rateKbn][minNum];
+    let div = (scoreAttack[rateKbn][maxNum] - scoreAttack[rateKbn][minNum]) / (maxNum - minNum);
+    let diff = scoreLv - minNum;
     return Math.floor(base + div * diff);
 }

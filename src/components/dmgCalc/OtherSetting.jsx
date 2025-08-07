@@ -53,10 +53,15 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
                         <option value="3">雷霆</option>
                     </select>
                 </div>
-                <input id="overdrive" type="checkbox" checked={otherSetting.overdrive} onChange={(e) => setOtherSetting({ ...otherSetting, overdrive: e.target.checked })} />
-                <label className="checkbox01" htmlFor="overdrive">
-                    オーバードライブ
-                </label>
+                <div className="flex">
+                    <div className="pt-0.5">オーバードライブ</div>
+                    <select value={otherSetting.overdrive} onChange={(e) => setOtherSetting({ ...otherSetting, overdrive: e.target.value })}>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
                 {/* <input className="ml-3 pt-0.5" id="fightingspirit" type="checkbox" />
                 <label className="checkbox01" htmlFor="fightingspirit">
                     闘志

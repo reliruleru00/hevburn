@@ -137,11 +137,11 @@ export const filteredBuffList = (buffList, attackInfo) => {
         if (buff.buff_kind === BUFF.FIELD && buff.buff_element !== 0 && buff.buff_element !== attackInfo.attack_element) {
             return false;
         }
-        if (buff.range_area === RANGE.SELF && buff.chara_id !== attackInfo.chara_id) {
+        if (buff.range_area === RANGE.SELF && buff.use_chara_id !== attackInfo.chara_id) {
             return false;
         }
         // 自分に使用出来ない攻撃バフ
-        if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.chara_id === attackInfo.chara_id) {
+        if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.use_chara_id === attackInfo.chara_id) {
             return false;
         }
         return true;
@@ -200,7 +200,7 @@ export function getEffectSize(buff, buffSetting, memberInfo, state, abilitySetti
             case BUFF.BABIED: // オギャり
                 return 30;
             case BUFF.ETERNAL_OARH: // 永遠なる誓い
-                return 50;
+                return 100;
             case BUFF.SHADOW_CLONE: // 影分身
                 return 30;
             case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
@@ -218,7 +218,7 @@ export function getEffectSize(buff, buffSetting, memberInfo, state, abilitySetti
             case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
                 return 50;
             case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                return 30;
+                return 40;
             case BUFF.SHADOW_CLONE: // 影分身
                 return 30;
             default:

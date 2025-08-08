@@ -115,7 +115,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     const { buffGroup, abilityList, passiveList } = useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
-    }, [attackInfo, selectList]);
+    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList]);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);
@@ -132,6 +132,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
                     innerMap[buff.key] = {
                         buff_id: buff.buff_id,
                         skill_lv: buff.max_lv,
+                        buffInfo: buff,
                     };
                 });
                 initialList.push(innerMap);
@@ -223,7 +224,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
             updateMap[buffKind].forEach((buffInnerList, index) => {
                 Object.keys(buffInnerList).forEach(buffKey => {
                     let buffSetting = buffInnerList[buffKey];
-                    let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
+                    // let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
+                    let buff = buffSetting.buffInfo;
                     const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
                     buffSetting.effect_size = getEffectSize(buff, buffSetting, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap);
                 })
@@ -305,8 +307,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
     }
 
     // 選択内から最良を設定
-    const setBestBuff = (buffKey, buffKind, buffItemList) => {
-        const bestKeys = getBestBuffKeys(buffKind, buffItemList, buffSettingMap);
+    const setBestBuff = (buffKey, buffKind, buffItemList) => {        
+        const bestKeys = getBestBuffKeys(buffKind, buffItemList, refBuffSettingMap.current);
         handleSelectChange(buffKey, bestKeys);
     }
 
@@ -360,7 +362,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         if (checkUpdate && funnel) {
             setBestBuff(getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel[0]);
         }
-    }, [attackInfo?.servant_count]);
+    }, [attackInfo?.servantCount]);
 
     const [modal, setModal] = React.useState({
         isOpen: false,
@@ -623,9 +625,9 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     case BUFF_ID.MOON_LIGHT: // 月光(歌姫の加護)
                         return styleId === STYLE_ID.ONLY_MONN_LIGHT;
                     case BUFF_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
-                        return attackInfo?.servant_count >= 5;
+                        return attackInfo?.servantCount >= 5;
                     case BUFF_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
-                        return attackInfo?.servant_count === 6;
+                        return attackInfo?.servantCount === 6;
                     default:
                         break;
                 }

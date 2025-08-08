@@ -2,7 +2,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Label, Too
 import { calcAttackEffectSize, calcBuffEffectSize, calcDebuffEffectSize } from './logic'
 
 
-export function AttackLineChart({ attackInfo, status, enemyStat, jewelLv, skillLv }) {
+export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, jewelLv, skillLv }) {
     const data1 = [];
     const data2 = [];
     const skillStat = attackInfo.param_limit;
@@ -14,10 +14,10 @@ export function AttackLineChart({ attackInfo, status, enemyStat, jewelLv, skillL
     let min = Math.min(status, enemyStat) - 80;
     let max = Math.max(status, enemyStat + skillStat + 100) + 50;
     for (let x = min; x <= max; x++) {
-        data1.push({ x: x, y: calcAttackEffectSize(attackInfo, x, enemyStat, skillLv, jewelLv) });
+        data1.push({ x: x, y: calcAttackEffectSize(attackInfo, x, enemyStat - enemyStatDown, skillLv, jewelLv) });
     }
     for (let x = min; x <= max; x++) {
-        data2.push({ x: x, y: calcAttackEffectSize(attackInfo, x, enemyStat - 50, skillLv, jewelLv) });
+        data2.push({ x: x, y: calcAttackEffectSize(attackInfo, x, enemyStat - Math.max(enemyStatDown, 50), skillLv, jewelLv) });
     }
 
     return (

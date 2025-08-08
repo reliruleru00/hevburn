@@ -17,8 +17,8 @@ const BUFF_KIND_TO_JEWEL_TYPE = {
     [BUFF.ELEMENT_CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
 };
 
-const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHARGE, 
-    BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP];
+const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHARGE,
+BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP];
 
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, closeModal }) => {
@@ -36,7 +36,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         if (!buffSetting["collect"]) {
             buffSetting["collect"] = {};
         }
-        buffSetting["collect"][item] = value;
+        buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
         buffSetting.effect_size = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
 
         setBuffSettingMap(updateSettingMap);
@@ -107,12 +107,12 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     const abilityList = getAbilityListByBuff(buffInfo.buff_kind, charaId);
     const passiveList = getPassiveListByBuff(buffInfo.buff_kind, charaId);
 
-    let jewelLv = memberInfo.jewelLv
+    let jewelLv = 0;
     const kind = buffInfo.buff_kind;
     const jewelType = memberInfo.styleInfo.jewel_type;
-    if ((DEBUFF_LIST.includes(kind) && jewelType !== JEWEL_TYPE.SKILL_DEBUFFUP) ||
-        (BUFF_KIND_TO_JEWEL_TYPE[kind] && jewelType !== BUFF_KIND_TO_JEWEL_TYPE[kind])) {
-        jewelLv = 0;
+    if ((DEBUFF_LIST.includes(kind) && jewelType === JEWEL_TYPE.SKILL_DEBUFFUP) ||
+        (BUFF_KIND_TO_JEWEL_TYPE[kind] && jewelType === BUFF_KIND_TO_JEWEL_TYPE[kind])) {
+        jewelLv = memberInfo.jewelLv;
     }
 
     return (
@@ -143,10 +143,10 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                 }
             </div>
             {isBuffChart &&
-                <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv}/>
+                <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
             }
             {isDebuff &&
-                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv}/>
+                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
             }
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
                 <>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
+const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting, bulkSetting }) => {
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -9,6 +9,14 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
         }
     }, [attackInfo?.attack_element, otherSetting.ring]);
     /* eslint-enable react-hooks/exhaustive-deps */
+
+
+    const changeBulkSetting = (e, name) => {
+        const value = e.target.checked;
+        let newSetting = { ...otherSetting, collect: { ...otherSetting.collect, [name]: value } };
+        setOtherSetting(newSetting);
+        bulkSetting(newSetting.collect);
+    }
 
     return (
         <div className="surround_area mx-auto my-2 adjust_width">
@@ -62,26 +70,27 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting }) => {
                         <option value="3">3</option>
                     </select>
                 </div>
-                {/* <input className="ml-3 pt-0.5" id="fightingspirit" type="checkbox" />
-                <label className="checkbox01" htmlFor="fightingspirit">
-                    闘志
-                </label>
-                <input className="ml-3 pt-0.5" id="misfortune" type="checkbox" />
-                <label className="checkbox01" htmlFor="misfortune">
-                    厄
-                </label>
-                <input className="ml-3 pt-0.5" id="eternal_vows" type="checkbox" />
-                <label className="checkbox01" htmlFor="eternal_vows">
-                    永遠なる誓い
-                </label>
-                <input className="ml-3 pt-0.5" id="babied" type="checkbox" />
-                <label className="checkbox01" htmlFor="babied">
-                    オギャり
-                </label>
-                <input className="ml-3 pt-0.5" id="hacking" type="checkbox" />
-                <label className="checkbox01" htmlFor="hacking">
-                    ハッキング
-                </label> */}
+            </div>
+            <label className="area_title">一括設定</label>
+            <div className="flex flex-wrap py-1 ml-3 gap-x-4 gap-y-2">
+                <div className="flex">
+                    <input className="ml-3 pt-0.5" id="bulkFightingspirit" type="checkbox"
+                        value={otherSetting.collect.fightingspirit}
+                        onChange={(e) => changeBulkSetting(e, "fightingspirit")} />
+                    <label className="checkbox01" htmlFor="bulkFightingspirit">闘志</label>
+                </div>
+                <div className="flex">
+                    <input className="ml-3 pt-0.5" id="bulkMisfortune" type="checkbox"
+                        value={otherSetting.collect.misfortune}
+                        onChange={(e) => changeBulkSetting(e, "misfortune")} />
+                    <label className="checkbox01" htmlFor="bulkMisfortune">厄</label>
+                </div>
+                <div className="flex">
+                    <input className="ml-3 pt-0.5" id="bulkHacking" type="checkbox"
+                        value={otherSetting.collect.hacking}
+                        onChange={(e) => changeBulkSetting(e, "hacking")} />
+                    <label className="checkbox01" htmlFor="bulkHacking">ハッキング</label>
+                </div>
             </div>
         </div>
     )

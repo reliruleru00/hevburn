@@ -197,7 +197,7 @@ const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
             val = 400;
         }
         setServantCount(servantCount);
-        const newAttackInfo = { ...attackInfo, servant_count: servantCount, penetration: val };
+        const newAttackInfo = { ...attackInfo, servantCount: servantCount, penetration: val };
         setAttackInfo(newAttackInfo);
     }
 
@@ -312,14 +312,14 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                     </>
                 )}
             </div>
-            <AttackLineChart status={Math.floor(status)} attackInfo={attackInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={selectSKillLv} />
+            <AttackLineChart status={Math.floor(status)} attackInfo={attackInfo} enemyStat={enemyStat} enemyStatDown={enemyStatDown} jewelLv={jewelLv} skillLv={selectSKillLv} />
             <div className="mt-2">
-                <span className="damage_label">ステータス情報</span>
+                <span className="damage_label">使用者情報</span>
             </div>
             <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                <span>使用者ステータス</span>
+                <span>ステータス</span>
                 <span>{Math.floor(status * 100) / 100}</span>
-                <span>使用者宝珠強化</span>
+                <span>宝珠強化</span>
                 <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
                 <span>闘志</span>
                 <div className="text-center status_checkbox">

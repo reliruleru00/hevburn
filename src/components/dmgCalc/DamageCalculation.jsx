@@ -1,7 +1,7 @@
 import React, { useState, useReducer } from "react";
 import { useStyleList } from "components/StyleListProvider";
-import { getDamageResult } from "./logic";
-import { getEnemyInfo } from "utils/common";
+import { getDamageResult, getEffectSize, getCharaIdToMember } from "./logic";
+import { getEnemyInfo, } from "utils/common";
 import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
 import ContentsArea from "./ContentsArea";
@@ -96,9 +96,10 @@ const reducer = (state, action) => {
             };
         }
         case "SET_SCORE_LV":
-            return { ...state, 
+            return {
+                ...state,
                 enemyInfo: { ...state.enemyInfo, enemy_stat: action.status },
-                score: { ...state.score, lv: action.lv } 
+                score: { ...state.score, lv: action.lv }
             };
 
         case "SET_SCORE_TURN":
@@ -206,11 +207,34 @@ const DamageCalculation = () => {
         ring: "0",
         earring: "0",
         chain: "0",
-        overdrive: false,
+        overdrive: "0",
+        collect: {
+            fightingspirit: false,
+            misfortune: false,
+            hacking: false,
+        },
     });
 
     let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
+
+    const bulkSetting = (collect) => {
+        setAttackInfo({ ...attackInfo, collect: collect })
+        const newBuffSettingMap = { ...buffSettingMap };
+        Object.keys(newBuffSettingMap).forEach(key =>
+            newBuffSettingMap[key].forEach((buffList, index) => {
+                Object.keys(buffList).forEach(buffKey => {
+                    const buffSetting = buffList[buffKey];
+                    let buffInfo = buffSetting.buffInfo;
+                    const charaId = buffInfo.use_chara_id;
+                    const memberInfo = getCharaIdToMember(styleList, charaId);
+                    buffSetting["collect"] = collect;
+                    buffSetting.effect_size = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+                })
+            })
+        );
+        setBuffSettingMap(newBuffSettingMap);
+    }
 
     return (
         <div className="damage_frame pt-3">
@@ -220,10 +244,10 @@ const DamageCalculation = () => {
                     <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                         selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv}
                         abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} state={state} dispatch={dispatch} />
-                    <ContentsArea attackInfo={attackInfo} enemyClass={enemyClass} 
+                    <ContentsArea attackInfo={attackInfo} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />
-                    <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} />
+                    <OtherSetting attackInfo={attackInfo} otherSetting={otherSetting} setOtherSetting={setOtherSetting} bulkSetting={bulkSetting} />
                     {enemyClass === ENEMY_CLASS.SCORE_ATTACK && damageResult ?
                         <PredictionScore damageResult={damageResult} state={state} />
                         : null

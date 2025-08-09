@@ -229,7 +229,7 @@ const DamageCalculation = () => {
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
-                    buffSetting.effect_size = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
                 })
             })
         );

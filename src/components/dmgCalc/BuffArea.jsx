@@ -60,6 +60,7 @@ const TARGET_KIND = [
     EFFECT.GIVEATTACKBUFFUP, // 攻撃力バフ強化
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
     EFFECT.HIGH_BOOST, // ハイブースト状態
+    EFFECT.FIRE_MARK, // 火の印
 ]
 const SUB_TARGET_KIND = [
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開
@@ -224,10 +225,9 @@ const BuffArea = ({ attackInfo, state, dispatch,
             updateMap[buffKind].forEach((buffInnerList, index) => {
                 Object.keys(buffInnerList).forEach(buffKey => {
                     let buffSetting = buffInnerList[buffKey];
-                    // let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
                     let buff = buffSetting.buffInfo;
                     const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
-                    buffSetting.effect_size = getEffectSize(buff, buffSetting, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap);
+                    buffSetting.effect_size = getEffectSize(styleList, buff, buffSetting, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap);
                 })
             });
         });
@@ -245,7 +245,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
             settingBuff.skill_lv = lv
             let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
             const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
-            settingBuff.effect_size = getEffectSize(buff, settingBuff, memberInfo, state, abilitySettingMap, passiveSettingMap);
+            settingBuff.effect_size = getEffectSize(styleList, buff, settingBuff, memberInfo, state, abilitySettingMap, passiveSettingMap);
         })
         setBuffSettingMap(updateMap);
     };

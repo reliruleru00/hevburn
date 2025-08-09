@@ -221,7 +221,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
 
     const memberInfo = getCharaIdToMember(styleList, attackInfo.chara_id);
     const enemyInfo = state.enemyInfo;
-    let statUp = getStatUp(state, memberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
+    let statUp = getStatUp(styleList, state, memberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
     let enemyStatDown = 0;
     if (attackInfo.collect?.hacking) {
         enemyStatDown = 100;

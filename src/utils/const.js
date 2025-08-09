@@ -22,7 +22,9 @@ export const SKILL_ID = {
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
     RUBY_PERFUME: 635, // ルビー・パヒューム
     BOUQUET_SHOOT: 640, // ファーマメントブーケショット
+    SUMMER_FINE_WEATHER: 658, // 夏のひより
 }
+
 export const BUFF_ID = {
     MOON_LIGHT: 2607,
     MEGA_DESTROYER5: 235,
@@ -46,6 +48,15 @@ export const ROLE = {
     DEBUFFER: 6,
     DEFENDER: 7,
     ADMIRAL: 8,
+}
+/** フィールド */
+export const ELEMENT = {
+    NORMAL: 0, // 通常
+    FIRE: 1, // 火
+    ICE: 2, // 氷
+    THUNDER: 3, // 雷
+    LIGHT: 4, // 光
+    DARK: 5, // 闇
 }
 
 /** バフ種別 */
@@ -92,6 +103,7 @@ export const BUFF = {
     HIGH_BOOST: 40, // ハイブースト 
     SHADOW_CLONE: 41, // 影分身
     MAKEUP: 42, // メイクアップ
+    FIRE_MARK: 43, // 火の印 
     HEALEP: 52, // EP回復
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
@@ -132,6 +144,7 @@ export const EFFECT = {
     YAMAWAKI_SERVANT: 39, // 山脇様のしもべ
     HIGH_BOOST: 40, // ハイブースト状態
     MAKEUP: 41, // メイクアップ
+    FIRE_MARK: 43, // 火の印 
     NEGATIVE: 51, // ネガティブ
     HEALEP: 52, // EP回復
 }

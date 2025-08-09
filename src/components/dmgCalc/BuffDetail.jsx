@@ -37,12 +37,12 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             buffSetting["collect"] = {};
         }
         buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
-        buffSetting.effect_size = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+        buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
 
         setBuffSettingMap(updateSettingMap);
     };
 
-    let statUp = getStatUp(state, memberInfo, buffSetting.collect, abilitySettingMap, passiveSettingMap);
+    let statUp = getStatUp(styleList, state, memberInfo, buffSetting.collect, abilitySettingMap, passiveSettingMap);
     let enemyStatDown = 0;
     let enemyStat = 0;
     if (isDebuff) {
@@ -66,7 +66,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     }
     let status = molecule / denominator;
 
-    const effectSize = getEffectSize(buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+    const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
 

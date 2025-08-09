@@ -1,4 +1,5 @@
 export const CHARA_ID = {
+    MEMBER_31A: [1, 2, 3, 4, 5, 6],
     MEMBER_31C: [13, 14, 15, 16, 17, 18],
     MEMBER_31E: [25, 26, 27, 28, 29, 30],
     MARUYAMA: [15, 16, 28, 32, 40, 47],
@@ -9,16 +10,18 @@ export const CHARA_ID = {
 }
 
 export const STYLE_ID = {
-    ONLY_MONN_LIGHT: 145,
+    ONLY_MOON_LIGHT: 145,
     WEDING_SHARO: 123,
     UNISON_BUNGO: 161,
     SERVANT: [162, 163]
 }
 
-export const SKILL_ID_RUBY_PERFUME = 635;
-export const SKILL_ID_MEGA_DESTROYER = 623;
 export const SKILL_ID = {
-    BOUQUET_SHOOT: 640,
+    DANCING_COOL_BREEZE: 390,	// 爽籟に舞う仁慈
+    MEGA_DESTROYER: 623, // メガデストロイヤー
+    CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
+    RUBY_PERFUME: 635, // ルビー・パヒューム
+    BOUQUET_SHOOT: 640, // ファーマメントブーケショット
 }
 export const BUFF_ID = {
     MOON_LIGHT: 2607,
@@ -27,7 +30,8 @@ export const BUFF_ID = {
 }
 
 export const ABILITY_ID = {
-    ADMIRAL_COMMON: 299,
+    ADMIRAL_COMMON: 299, // 指揮行動
+    BLUE_SKY: 510, // 蒼天
 }
 
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
@@ -88,6 +92,7 @@ export const BUFF = {
     HIGH_BOOST: 40, // ハイブースト 
     SHADOW_CLONE: 41, // 影分身
     MAKEUP: 42, // メイクアップ
+    HEALEP: 52, // EP回復
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -164,7 +169,6 @@ export const RANGE = {
     OTHER: 99, // その他
 }
 
-
 /** スキル属性 */
 export const ATTRIBUTE = {
     NORMAL_ATTACK: 1, // 通常攻撃
@@ -210,6 +214,7 @@ export const CONDITIONS = {
     OVER_31C_3: 33, // 31C3人以上
     OVER_31D_3: 34, // 31D3人以上
     OVER_31E_3: 35, // 31E3人以上
+    SELECT_31A: 37, // 31A選択
     FIELD_NOT_FIRE: 41, // 火属性以外フィールド
     DIVA_BLESS: 42, // 歌姫の加護
     NOT_DIVA_BLESS: 43, // 歌姫の加護以外

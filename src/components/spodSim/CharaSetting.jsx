@@ -85,7 +85,7 @@ const CharaSetting = () => {
         physical: null,
         element: null,
         role: null,
-        rarity: 1,
+        rarity: 0,
         target: "none",
         buff_1: -1,
         buff_2: -1,
@@ -175,7 +175,7 @@ const CharaSetting = () => {
                 return (
                     <div key={`chara_no${index}`} >
                         <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                            {rarity === 1 ?
+                            {rarity <= 1 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
                                 ))

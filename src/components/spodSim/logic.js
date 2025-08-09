@@ -418,7 +418,7 @@ export function startAction(turn_data) {
                 }
                 consumeBuffUnit(turn_data, unit_data, attackInfo, skillInfo);
             }
-            if (skill_id === 633) {
+            if (skill_id === SKILL_ID.CAT_JET_SHOOTING) {
                 // ネコジェット・シャテキ後自動追撃
                 abilityActionUnit(turn_data, ABILIRY_TIMING.PURSUIT, unit_data)
                 const validCosts = front_cost_list.filter(cost => cost <= 8);
@@ -524,7 +524,7 @@ export const getOverDrive = (turn) => {
         let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
             // 通常攻撃
-            if (isResist(turn.enemy_info, physical, unit_data.normalAttackElement, null)) {
+            if (!isResist(turn.enemy_info, physical, unit_data.normalAttackElement, null)) {
                 unit_od_plus += calcODGain(3, 1, badies);
             }
         } else if (attackInfo) {
@@ -541,7 +541,7 @@ export const getOverDrive = (turn) => {
                     break;
             }
             front_cost_list.push(unit_data.sp_cost);
-            if (isResist(turn.enemy_info, physical, attackInfo.attack_element, attackId)) {
+            if (!isResist(turn.enemy_info, physical, attackInfo.attack_element, attackId)) {
                 let enemy_target = enemy_count;
                 if (attackInfo.range_area === 1) {
                     enemy_target = 1;
@@ -576,7 +576,7 @@ export const getOverDrive = (turn) => {
         // 追撃
         if (skill_id === SKILL.PURSUIT) {
             let chara_data = getCharaData(unit_data.style.styleInfo.chara_id);
-            if (isResist(turn.enemy_info, chara_data.physical, 0, 0)) {
+            if (!isResist(turn.enemy_info, chara_data.physical, 0, 0)) {
                 od_plus += chara_data.pursuit * 2.5;
             }
             return true;
@@ -584,7 +584,7 @@ export const getOverDrive = (turn) => {
         let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         // 自動追撃
         if (skill_id === SKILL.AUTO_PURSUIT) {
-            if (isResist(turn.enemy_info, physical, 0, 0)) {
+            if (!isResist(turn.enemy_info, physical, 0, 0)) {
                 let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                 front_cost_list.filter(cost => cost <= 8).forEach(cost => {
                     od_plus += chara_data.pursuit * 2.5
@@ -599,7 +599,7 @@ export const getOverDrive = (turn) => {
             if (attackInfo) {
                 let badies = checkBuffExist(unit_data.buffList, BUFF.BABIED) ? 20 : 0;
                 const earring = attackInfo.attack_id ? getearringEffectSize(attackInfo.hit_count, unit_data) : 0;
-                if (isResist(turn.enemy_info, physical, attackInfo.attack_element, attackInfo.attack_id)) {
+                if (!isResist(turn.enemy_info, physical, attackInfo.attack_element, attackInfo.attack_id)) {
                     let enemy_target = enemy_count;
                     if (attackInfo.range_area === 1) {
                         enemy_target = 1;
@@ -608,9 +608,9 @@ export const getOverDrive = (turn) => {
                     od_plus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
                 }
             }
-            if (skill_id === 633) {
+            if (skill_id === SKILL_ID.CAT_JET_SHOOTING) {
                 // ネコジェット・シャテキ後自動追撃
-                if (isResist(turn.enemy_info, physical, 0, 0)) {
+                if (!isResist(turn.enemy_info, physical, 0, 0)) {
                     let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                     const validCosts = front_cost_list.filter(cost => cost <= 8);
                     validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
@@ -651,6 +651,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
     if (ZeroSpSkill(turn_data, skillInfo, unit)) {
         return 0;
     }
+    
     // 追加ターン
     if (turn_data.additional_turn) {
         // クイックリキャスト
@@ -777,6 +778,8 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
             return turn_data.enemy_count === 2;
         case CONDITIONS.ENEMY_COUNT_3: // 敵3体
             return turn_data.enemy_count === 3;
+        case CONDITIONS.SELECT_31A: // 31A選択
+            return CHARA_ID.MEMBER_31A.includes(unit_data.buff_target_chara_id);
         case CONDITIONS.MEMBER_31C_3: // 31A3人以上
             return checkMember(turn_data.unitList, "31A") >= 3;
         case CONDITIONS.OVER_31C_3: // 31C3人以上
@@ -989,11 +992,21 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
                 skillHealSp(turn_data, target_no, buffInfo.min_power, buffInfo.max_power, place_no, false, buffInfo.buff_id);
             });
             break;
+        case BUFF.HEALEP: // EP追加
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList.forEach(function (target_no) {
+                let unitData = getUnitData(turn_data, target_no);
+                unitData.ep += buffInfo.min_power;
+                if (unitData.ep > 10) {
+                    unitData.ep = 10
+                }
+            });
+            break;
         case BUFF.ADDITIONALTURN: // 追加ターン
             targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
             targetList.forEach(function (target_no) {
-                let unit_data = getUnitData(turn_data, target_no);
-                unit_data.additional_turn = true;
+                let unitData = getUnitData(turn_data, target_no);
+                unitData.additional_turn = true;
             });
             turn_data.additional_turn = true;
             break;
@@ -1134,7 +1147,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
                     if (attack_info.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
-                    // fallthrough
+                // fallthrough
                 case BUFF.ATTACKUP: // 攻撃力アップ
                 case BUFF.MINDEYE: // 心眼
                 case BUFF.CHARGE: // チャージ
@@ -1158,7 +1171,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
                     if (attack_info.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
-                    // fallthrough
+                // fallthrough
                 case BUFF.CRITICALRATEUP:	// クリティカル率アップ
                 case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
                     // 通常攻撃でも消費

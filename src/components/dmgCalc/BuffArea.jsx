@@ -623,7 +623,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             ).filter(buff => {
                 switch (buff.buff_id) {
                     case BUFF_ID.MOON_LIGHT: // 月光(歌姫の加護)
-                        return styleId === STYLE_ID.ONLY_MONN_LIGHT;
+                        return styleId === STYLE_ID.ONLY_MOON_LIGHT;
                     case BUFF_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
                         return attackInfo?.servantCount >= 5;
                     case BUFF_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)

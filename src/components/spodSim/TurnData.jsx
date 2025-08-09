@@ -72,7 +72,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         let effect_type = 0;
         let skill_info = getSkillData(skill_id);
         const conditionsList = buffList.map(buff => buff.conditions).filter(condition => condition !== null);
-        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200)) {
+        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200) || skill_info.attribute_conditions === CONDITIONS.DESTRUCTION_OVER_200) {
             effect_type = 2;
         }
         if (conditionsList.includes(CONDITIONS.BREAK)) {
@@ -232,16 +232,16 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         const unit = turn.unitList.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
         unit.buff_effect_select_type = effect_type;
         turn.user_operation.select_skill[modalSetting.modalIndex].buff_effect_select_type = effect_type;
-        let skill_info = getSkillData(unit.select_skill_id);
+        let skillInfo = getSkillData(unit.select_skill_id);
 
-        const selectionConditions = [CONDITIONS.HAS_SHADOW, CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100];
-        if (selectionConditions.includes(skill_info.attribute_conditions)) {
+        const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW, CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100];
+        if (selectionConditions.includes(skillInfo.attribute_conditions)) {
             if (unit.buff_effect_select_type === 1) {
-                let sp_cost = skill_info.sp_cost;
-                if (skill_info.skill_attribute === ATTRIBUTE.SP_HALF) {
+                let sp_cost = skillInfo.sp_cost;
+                if (skillInfo.skill_attribute === ATTRIBUTE.SP_HALF) {
                     sp_cost = Math.floor(sp_cost / 2);
                 }
-                if (skill_info.skill_attribute === ATTRIBUTE.SP_ZERO) {
+                if (skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO) {
                     sp_cost = 0;
                 }
                 unit.sp_cost = sp_cost + unit.spCostUp - unit.spCostDown;

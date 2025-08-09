@@ -581,32 +581,43 @@ function getExp(rowData) {
         {
             value: rowData["score_attack"],
             increments: [
-                { threshold: 100000, exp: 50 },
-                { threshold: 200000, exp: 50 },
-                { threshold: 400000, exp: 100 },
-                { threshold: 600000, exp: 200 },
+                { threshold: 100000, exp: 100 },
+                { threshold: 200000, exp: 100 },
+                { threshold: 400000, exp: 200 },
+                { threshold: 600000, exp: 300 },
                 { threshold: 800000, exp: 500 },
-                { threshold: 1000000, exp: 1000 }
+                { threshold: 1000000, exp: 1000 },
+                { threshold: 1200000, exp: 1500 },
+                { threshold: 1400000, exp: 2000 },
+                { threshold: 1600000, exp: 1500 },
+                { threshold: 1800000, exp: 2000 },
+                { threshold: 2000000, exp: 2500 },
+                { threshold: 2200000, exp: 3500 },
+                { threshold: 2400000, exp: 4500 },
             ]
         },
         {
             value: rowData["battle_count"],
             increments: [
-                { threshold: 10, exp: 50 },
-                { threshold: 100, exp: 100 },
+                { threshold: 10, exp: 100 },
+                { threshold: 100, exp: 200 },
                 { threshold: 1000, exp: 500 },
                 { threshold: 5000, exp: 1000 },
-                { threshold: 10000, exp: 2000 }
+                { threshold: 10000, exp: 2000 },
+                { threshold: 15000, exp: 2500 },
+                { threshold: 20000, exp: 3000 },
             ]
         },
         {
             value: rowData["dungeon_count"],
             increments: [
-                { threshold: 5, exp: 50 },
-                { threshold: 50, exp: 100 },
+                { threshold: 5, exp: 100 },
+                { threshold: 50, exp: 200 },
                 { threshold: 100, exp: 500 },
                 { threshold: 250, exp: 1000 },
-                { threshold: 500, exp: 2000 }
+                { threshold: 500, exp: 2000 },
+                { threshold: 750, exp: 1000 },
+                { threshold: 1000, exp: 2000 },
             ]
         },
         {
@@ -711,7 +722,14 @@ function getExp(rowData) {
                 { threshold: 400000, exp: 200 },
                 { threshold: 600000, exp: 300 },
                 { threshold: 800000, exp: 500 },
-                { threshold: 1000000, exp: 1000 }
+                { threshold: 1000000, exp: 1000 },
+                { threshold: 1200000, exp: 1500 },
+                { threshold: 1400000, exp: 2000 },
+                { threshold: 1600000, exp: 1500 },
+                { threshold: 1800000, exp: 2000 },
+                { threshold: 2000000, exp: 2500 },
+                { threshold: 2200000, exp: 3500 },
+                { threshold: 2400000, exp: 4500 },
             ]
         },
         {
@@ -721,7 +739,9 @@ function getExp(rowData) {
                 { threshold: 100, exp: 200 },
                 { threshold: 1000, exp: 500 },
                 { threshold: 5000, exp: 1000 },
-                { threshold: 10000, exp: 2000 }
+                { threshold: 10000, exp: 2000 },
+                { threshold: 15000, exp: 2500 },
+                { threshold: 20000, exp: 3000 },
             ]
         },
         {
@@ -731,7 +751,9 @@ function getExp(rowData) {
                 { threshold: 50, exp: 200 },
                 { threshold: 100, exp: 500 },
                 { threshold: 250, exp: 1000 },
-                { threshold: 500, exp: 2000 }
+                { threshold: 500, exp: 2000 },
+                { threshold: 750, exp: 1000 },
+                { threshold: 1000, exp: 2000 },
             ]
         },
         {

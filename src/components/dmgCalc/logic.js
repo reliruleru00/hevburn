@@ -1,7 +1,7 @@
 import {
     BUFF, RANGE, CHARA_ID, EFFECT, ENEMY_CLASS, CONDITIONS
     , ALONE_ACTIVATION_BUFF_KIND, ALONE_ACTIVATION_ABILITY_LIST
-    , SKILL_ID_RUBY_PERFUME, JEWEL_TYPE
+    , SKILL_ID, JEWEL_TYPE
 } from '../../utils/const';
 import enemyList from "../../data/enemyList";
 import scoreBonusList from "../../data/scoreBonus";
@@ -257,7 +257,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
             .filter(passive => passive.checked)
             .forEach((passive) => {
                 switch (passive.skill_id) {
-                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
+                    case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
                     default:
@@ -286,7 +286,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     }
                 }
                 switch (passive.skill_id) {
-                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
+                    case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
                     default:
@@ -301,7 +301,7 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
             .filter(passive => passive.checked)
             .forEach((passive) => {
                 switch (passive.skill_id) {
-                    case SKILL_ID_RUBY_PERFUME: // ハイブースト状態
+                    case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
                         strengthen += 20;
                         break;
                     default:
@@ -964,7 +964,7 @@ function getSumAbilityEffectSize(abilitySettingMap, passiveSettingMap, effectTyp
                 }
             }
             // ハイブースト状態
-            if (skillId === SKILL_ID_RUBY_PERFUME && effectType === EFFECT.ATTACKUP) {
+            if (skillId === SKILL_ID.RUBY_PERFUME && effectType === EFFECT.ATTACKUP) {
                 abilityEffectSize += 180;
             } else {
                 abilityEffectSize += effectSize;

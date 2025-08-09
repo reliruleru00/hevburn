@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { ROLE } from "utils/const";
+import { ROLE, ABILITY_ID } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
@@ -162,7 +162,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
                         constraintsList.push(ability_info.ability_id);
                     }
                     unit[`ability_${ability_info.activation_timing}`].push(ability_info);
-                    if (ability_info.ability_id === 510) {
+                    if (ability_info.ability_id === ABILITY_ID.BLUE_SKY) {
                         // 蒼天
                         turnInit.sp_cost_down = ability_info.effect_size;
                     }

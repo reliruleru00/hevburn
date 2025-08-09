@@ -3,7 +3,7 @@ import ReactModal from "react-modal";
 import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
 import { getCharaData } from "utils/common";
-import { SKILL_ID_MEGA_DESTROYER, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
+import { SKILL_ID, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
 import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient } from "./logic";
 import attribute from 'assets/attribute';
 import { AttackLineChart } from "./SimpleLineChart";
@@ -147,7 +147,7 @@ const SkillUnique = ({ attackInfo, setAttackInfo }) => {
 
     const { skill_id } = attackInfo;
 
-    if (skill_id === SKILL_ID_MEGA_DESTROYER) {
+    if (skill_id === SKILL_ID.MEGA_DESTROYER) {
         return <YamawakiServant attackInfo={attackInfo} setAttackInfo={setAttackInfo} />;
     }
 

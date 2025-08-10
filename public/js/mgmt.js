@@ -617,7 +617,7 @@ function getExp(rowData) {
                 { threshold: 250, exp: 1000 },
                 { threshold: 500, exp: 2000 },
                 { threshold: 750, exp: 1000 },
-                { threshold: 1000, exp: 2000 },
+                { threshold: 1000, exp: 3000 },
             ]
         },
         {
@@ -753,7 +753,7 @@ function getExp(rowData) {
                 { threshold: 250, exp: 1000 },
                 { threshold: 500, exp: 2000 },
                 { threshold: 750, exp: 1000 },
-                { threshold: 1000, exp: 2000 },
+                { threshold: 1000, exp: 3000 },
             ]
         },
         {

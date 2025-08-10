@@ -90,7 +90,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             place_no: 99,
             sp: 1,
             ep: 0,
-            over_drive_sp: 0,
+            overDriveSp: 0,
             add_sp: 0,
             sp_cost: 0,
             buffList: [],
@@ -103,11 +103,11 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             useSkillList: [],
             buff_target_chara_id: null,
             buff_effect_select_type: 0,
-            next_turn_min_sp: -1,
+            nextTurnMinSp: -1,
             select_skill_id: 0,
             init_skill_id: 0,
             no_action: false,
-            limit_sp: 20,
+            limitSp: 20,
             spCostUp: 0,
             spCostDown: 0,
         };
@@ -187,14 +187,14 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
         turnInit.field_turn = -1;
     }
     turnInit.over_drive_gauge = Number(detailSetting.initOverDrive);
-    turnInit.front_sp_add = Number(detailSetting.frontSpAdd);
-    turnInit.back_sp_add = Number(detailSetting.backSpAdd);
+    turnInit.frontSpAdd = Number(detailSetting.frontSpAdd);
+    turnInit.backSpAdd = Number(detailSetting.backSpAdd);
     turnInit.step_turn_over_drive = Number(detailSetting.stepTurnOverDrive);
     turnInit.step_over_drive_gauge = Number(detailSetting.stepOverDriveGauge);
-    turnInit.step_turn_sp = Number(detailSetting.stepTurnSp);
-    turnInit.step_sp_front_add = Number(detailSetting.stepSpFrontAdd);
-    turnInit.step_sp_back_add = Number(detailSetting.stepSpBackAdd);
-    turnInit.step_sp_all_add = Number(detailSetting.stepSpAllAdd);
+    turnInit.stepTurnSp = Number(detailSetting.stepTurnSp);
+    turnInit.stepSpFrontAdd = Number(detailSetting.stepSpFrontAdd);
+    turnInit.stepSpBackAdd = Number(detailSetting.stepSpBackAdd);
+    turnInit.stepSpAllAdd = Number(detailSetting.stepSpAllAdd);
 
     turnInit.enemy_count = Number(enemyInfo.enemy_count);
     turnInit.unitList = unitList;

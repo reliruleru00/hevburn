@@ -3,7 +3,7 @@ import {
     SINGLE_BUFF_LIST, ELEMENT_NAME, BUFF_FUNNEL_LIST
 } from "./const";
 import {
-    CHARA_ID, SKILL_ID, SKILL, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
+    CHARA_ID, SKILL_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
     ALONE_ACTIVATION_ABILITY_LIST, ALONE_ACTIVATION_BUFF_KIND,
 
 } from "utils/const";
@@ -263,6 +263,9 @@ export function getBuffIconImg(buffInfo) {
         case BUFF.MAKEUP: // メイクアップ
             src += "IconMakeup";
             break;
+        case BUFF.FIRE_MARK: // 火の印
+            src += "IconFireMark";
+            break;
         default:
             break;
     }
@@ -473,11 +476,11 @@ function origin(turn_data, skillInfo, unit_data) {
     switch (skillInfo.skill_id) {
         case 177: // エリミネイト・ポッシブル
             let target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === unit_data.buff_target_chara_id);
-            target_unit_data[0].next_turn_min_sp = 3;
+            target_unit_data[0].nextTurnMinSp = 3;
             break;
         case 617: // ドリーミー・ガーデン
             let target_unitList = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id !== unit_data.style.styleInfo.chara_id);
-            target_unitList.forEach(unit => unit.next_turn_min_sp = 10);
+            target_unitList.forEach(unit => unit.nextTurnMinSp = 10);
             break;
         default:
             break;
@@ -651,7 +654,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
     if (ZeroSpSkill(turn_data, skillInfo, unit)) {
         return 0;
     }
-    
+
     // 追加ターン
     if (turn_data.additional_turn) {
         // クイックリキャスト
@@ -697,7 +700,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
     }
     // SP全消費
     if (spCost === 99) {
-        spCost = unit.sp + unit.over_drive_sp;
+        spCost = unit.sp + unit.overDriveSp;
         spCostDown = 0;
         spCostUp = 0;
     }
@@ -1055,9 +1058,9 @@ function skillHealSp(turnData, targetNo, addSp, limitSp, usePlaceNo, isRecursion
         minusSp = unitData.sp_cost;
     }
     unitSp += addSp;
-    limitSp = unitData.limit_sp > limitSp ? unitData.limit_sp : limitSp;
-    if (unitSp + unitData.over_drive_sp - minusSp > limitSp) {
-        unitSp = limitSp - unitData.over_drive_sp + minusSp;
+    limitSp = unitData.limitSp > limitSp ? unitData.limitSp : limitSp;
+    if (unitSp + unitData.overDriveSp - minusSp > limitSp) {
+        unitSp = limitSp - unitData.overDriveSp + minusSp;
     }
     if (unitSp < unitData.sp) {
         unitSp = unitData.sp
@@ -1640,7 +1643,7 @@ export const startOverDrive = (turn) => {
 
     let sp_list = [0, 5, 12, 20];
     unitLoop(function (unit) {
-        unit.over_drive_sp = sp_list[over_drive_level];
+        unit.overDriveSp = sp_list[over_drive_level];
         unit.sp_cost = getSpCost(turn, getSkillData(unit.select_skill_id), unit);
     }, turn.unitList);
     abilityAction(ABILIRY_TIMING.OD_START, turn);
@@ -1654,7 +1657,7 @@ export const removeOverDrive = (turn) => {
     turn.add_over_drive_gauge = 0;
 
     unitLoop(function (unit) {
-        unit.over_drive_sp = 0;
+        unit.overDriveSp = 0;
         unit.sp_cost = getSpCost(turn, getSkillData(unit.select_skill_id), unit);
     }, turn.unitList);
     turn.trigger_over_drive = false;
@@ -1691,31 +1694,48 @@ const unitTurnInit = (additional_turn, unit) => {
 
 const unitTurnProceed = (unit, turn) => {
     buffSort(unit);
-    if (unit.next_turn_min_sp > 0) {
-        if (unit.next_turn_min_sp > unit.sp) {
-            unit.sp = unit.next_turn_min_sp;
-            unit.next_turn_min_sp = -1
+    if (unit.nextTurnMinSp > 0) {
+        if (unit.nextTurnMinSp > unit.sp) {
+            unit.sp = unit.nextTurnMinSp;
+            unit.nextTurnMinSp = -1
         }
     }
-    if (unit.sp < unit.limit_sp) {
+    if (unit.sp < unit.limitSp) {
         unit.sp += 2;
         if (unit.place_no < 3) {
-            unit.sp += turn.front_sp_add;
+            unit.sp += turn.frontSpAdd;
         } else {
-            unit.sp += turn.back_sp_add;
+            unit.sp += turn.backSpAdd;
         }
-        if ((turn.turn_number + 1) % turn.step_turn_sp === 0) {
-            unit.sp += turn.step_sp_all_add;
+        if ((turn.turn_number + 1) % turn.stepTurnSp === 0) {
+            unit.sp += turn.stepSpAllAdd;
             if (unit.place_no < 3) {
-                unit.sp += turn.step_sp_front_add;
+                unit.sp += turn.stepSpFrontAdd;
             } else {
-                unit.sp += turn.step_sp_back_add;
+                unit.sp += turn.stepSpBackAdd;
             }
         }
-        if (unit.sp > unit.limit_sp) {
-            unit.sp = unit.limit_sp
+        if (checkBuffExist(unit.buffList, BUFF.FIRE_MARK)) {
+            // 火の印6人
+            if (targetCountInclude(turn, ELEMENT.FIEE) >= 5) {
+                unit.sp += 1;
+            }
+        }
+        if (unit.sp > unit.limitSp) {
+            unit.sp = unit.limitSp
         }
     }
+}
+
+// 対象数判定
+function targetCountInclude(turnData, targetElement) {
+    let count = 0;
+    unitLoop(function (unit) {
+        if (unit.style.styleInfo.element === targetElement || unit.style.styleInfo.element2 === targetElement) {
+            count++;
+        }
+    }, turnData.unitList);
+    return count;
 }
 
 export const setInitSkill = (unit) => {
@@ -1738,9 +1758,9 @@ export const setInitSkill = (unit) => {
 const unitOverDriveTurnProceed = (unit) => {
     buffSort(unit);
     // OverDriveゲージをSPに加算
-    unit.sp += unit.over_drive_sp;
+    unit.sp += unit.overDriveSp;
     if (unit.sp > 99) unit.sp = 99;
-    unit.over_drive_sp = 0;
+    unit.overDriveSp = 0;
 }
 
 const buffConsumption = (turnProgress, unit) => {
@@ -1777,8 +1797,8 @@ const buffSort = (unit) => {
 
 const payCost = (unit) => {
     // OD上限突破
-    if (unit.sp + unit.over_drive_sp > 99) {
-        unit.sp = 99 - unit.over_drive_sp;
+    if (unit.sp + unit.overDriveSp > 99) {
+        unit.sp = 99 - unit.overDriveSp;
     }
     if (unit.select_skill_id === 591) {
         // ノヴァエリミネーション
@@ -1941,7 +1961,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
             case EFFECT.OVERDRIVE_SP: // ODSPアップ
                 targetList.forEach(function (target_no) {
                     let unit_data = getUnitData(turn_data, target_no);
-                    unit_data.over_drive_sp += ability.effect_size;
+                    unit_data.overDriveSp += ability.effect_size;
                 });
                 break;
             case EFFECT.HEALSP: // SP回復
@@ -1952,7 +1972,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 ability.used = true;
                 targetList.forEach(function (target_no) {
                     let unit_data = getUnitData(turn_data, target_no);
-                    if (unit_data.sp + unit_data.over_drive_sp < unit_data.limit_sp) {
+                    if (unit_data.sp + unit_data.overDriveSp < unit_data.limitSp) {
                         if (ability.ability_id) {
                             switch (ability.ability_id) {
                                 case 1109: // 吉報
@@ -2007,8 +2027,8 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                                     break;
                             }
                         }
-                        if (unit_data.sp + unit_data.over_drive_sp > unit_data.limit_sp) {
-                            unit_data.sp = unit_data.limit_sp - unit_data.over_drive_sp;
+                        if (unit_data.sp + unit_data.overDriveSp > unit_data.limitSp) {
+                            unit_data.sp = unit_data.limitSp - unit_data.overDriveSp;
                         }
                     }
                 });
@@ -2077,8 +2097,11 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 addAbilityBuffUnit(BUFF.HIGH_BOOST, ability.passive_name, ability.effect_count + 1, targetList, turn_data)
                 targetList.forEach(function (target_no) {
                     let unit = getUnitData(turn_data, target_no);
-                    unit.limit_sp = 30;
+                    unit.limitSp = 30;
                 })
+                break;
+            case EFFECT.FIRE_MARK: // 火の印
+                addAbilityBuffUnit(BUFF.FIRE_MARK, ability.passive_name, -1, targetList, turn_data)
                 break;
             case EFFECT.FIELD_DEPLOYMENT: // フィールド
                 if (ability.element) {

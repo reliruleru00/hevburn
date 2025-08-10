@@ -18,6 +18,8 @@ export const STYLE_ID = {
 
 export const SKILL_ID = {
     DANCING_COOL_BREEZE: 390,	// 爽籟に舞う仁慈
+    WAKING_NIGHT: 495, // 夜醒
+    NOVA_ELIMINATION: 591, // ノヴァエリミネーション
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
     RUBY_PERFUME: 635, // ルビー・パヒューム
@@ -34,6 +36,7 @@ export const BUFF_ID = {
 export const ABILITY_ID = {
     ADMIRAL_COMMON: 299, // 指揮行動
     BLUE_SKY: 510, // 蒼天
+    AUTO_PURSUIT: 1530 // 自動追撃,
 }
 
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];

@@ -1,6 +1,6 @@
 import React from "react";
 import { getCharaData } from "utils/common";
-import { BUFF, ROLE, ATTRIBUTE, SKILL } from "utils/const";
+import { SKILL_ID, ABILITY_ID, BUFF, ROLE, ATTRIBUTE, SKILL } from "utils/const";
 import { PHYSICAL_NAME, ELEMENT_NAME, ABILIRY_TIMING } from "./const";
 import BuffIconComponent from "./BuffIconComponent";
 import { getSkillIdToAttackInfo, getSpCost, checkAbilityExist } from "./logic";
@@ -13,11 +13,11 @@ const UnitSp = ({ unit }) => {
     if (unit.sp_cost >= 90) {
         unit_sp = 0;
     } else {
-        unit_sp = unit.sp + unit.over_drive_sp;
+        unit_sp = unit.sp + unit.overDriveSp;
         if (unit_sp > 99) unit_sp = 99;
 
         // ノヴァエリミネーション
-        if (unit.select_skill_id === 591) {
+        if (unit.select_skill_id === SKILL_ID.NOVA_ELIMINATION) {
             unit_ep -= unit.sp_cost;
         } else {
             unit_sp -= unit.sp_cost;
@@ -47,7 +47,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
     let skillList = unit.skillList
     if (place_no < 3) {
         skillList = skillList.filter(skill => {
-            if (skill.skill_id === 495) {
+            if (skill.skill_id === SKILL_ID.WAKING_NIGHT) {
                 // 夜醒
                 return !turn.additional_turn;
             }
@@ -73,7 +73,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
     } else {
         skillList = unit.skillList.filter(skill => {
             if (skill.skill_id === SKILL.AUTO_PURSUIT) {
-                if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1530)) {
+                if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], ABILITY_ID.AUTO_PURSUIT)) {
                     // 自動追撃
                     return true;
                 }
@@ -146,7 +146,7 @@ const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeS
                 unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} trigger_over_drive={turn.trigger_over_drive} isCapturing={isCapturing} />
             <div className="flex">
                 <div>
-                    <img className="unit_style" src={icon} alt=""/>
+                    <img className="unit_style" src={icon} alt="" />
                     {
                         unit?.style?.styleInfo ? <UnitSp unit={unit} /> : null
                     }

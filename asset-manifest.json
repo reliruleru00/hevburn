@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/hevburn/static/css/main.f6efa095.css",
-    "main.js": "/hevburn/static/js/main.1cd78a1b.js",
+    "main.css": "/hevburn/static/css/main.d76946dd.css",
+    "main.js": "/hevburn/static/js/main.0ff71f56.js",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
     "static/media/VBalakrishnanDefault_R3.webp": "/hevburn/static/media/VBalakrishnanDefault_R3.fff0818bba78c0579c7c.webp",
@@ -292,6 +292,7 @@
     "static/media/ByakkoBeast_R3_Select.webp": "/hevburn/static/media/ByakkoBeast_R3_Select.f8f894342a388e5104e6.webp",
     "static/media/SHiguchiNewYear2024_R2_Thumbnail.webp": "/hevburn/static/media/SHiguchiNewYear2024_R2_Thumbnail.8baf9e664ab22e76e86d.webp",
     "static/media/MNikaidoDefault_R3_Select.webp": "/hevburn/static/media/MNikaidoDefault_R3_Select.c63c6c876f6f01b6bdea.webp",
+    "static/media/KAsakuraTwinsAnother_R3_Thumbnail.webp": "/hevburn/static/media/KAsakuraTwinsAnother_R3_Thumbnail.e3edc4626f16ea8cc1f6.webp",
     "static/media/MiOhshimaDefault_R3_Thumbnail.webp": "/hevburn/static/media/MiOhshimaDefault_R3_Thumbnail.e697a0b54926855f09fc.webp",
     "static/media/MuOhshimaFurisode2024_R3_Select.webp": "/hevburn/static/media/MuOhshimaFurisode2024_R3_Select.47255e435326aa9b9cb8.webp",
     "static/media/MTsukishiroRugged_R3_Select.webp": "/hevburn/static/media/MTsukishiroRugged_R3_Select.5384dc95508ee9f27794.webp",
@@ -724,11 +725,11 @@
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
     "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
     "index.html": "/hevburn/index.html",
-    "main.f6efa095.css.map": "/hevburn/static/css/main.f6efa095.css.map",
-    "main.1cd78a1b.js.map": "/hevburn/static/js/main.1cd78a1b.js.map"
+    "main.d76946dd.css.map": "/hevburn/static/css/main.d76946dd.css.map",
+    "main.0ff71f56.js.map": "/hevburn/static/js/main.0ff71f56.js.map"
   },
   "entrypoints": [
-    "static/css/main.f6efa095.css",
-    "static/js/main.1cd78a1b.js"
+    "static/css/main.d76946dd.css",
+    "static/js/main.0ff71f56.js"
   ]
 }

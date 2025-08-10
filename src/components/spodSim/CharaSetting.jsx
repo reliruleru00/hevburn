@@ -144,7 +144,7 @@ const CharaSetting = () => {
                                                         justifyContent: 'center',
                                                     }}
                                                 >
-                                                    <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} isChange={false} />
+                                                    <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} />
                                                 </li>
                                             )}
                                         </Draggable>)
@@ -175,7 +175,7 @@ const CharaSetting = () => {
                 return (
                     <div key={`chara_no${index}`} >
                         <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                            {rarity <= 1 ?
+                            {rarity <= 1 || rarity === 9 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
                                 ))

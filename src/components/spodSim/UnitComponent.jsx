@@ -155,7 +155,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                     }
                     {changeStyle[unit?.style?.styleInfo.style_id] &&
                         <img
-                            className="absolute bottom-[0px] left-[0px] w-[24px] h-[24px]"
+                            className="absolute style_change bottom-[0px] left-[0px] w-[24px] h-[24px]"
                             src={changeIcon}
                             alt={"変更"}
                             onClick={() => { chageStyle(placeNo, changeStyle[unit?.style?.styleInfo.style_id]) }}

@@ -4,7 +4,7 @@ import changeIcon from 'assets/img/change.png';
 import { useStyleList } from "components/StyleListProvider";
 import { changeStyle } from "utils/const";
 
-const StyleIcon = ({ style, placeNo, onClick, isChange }) => {
+const StyleIcon = ({ style, placeNo, onClick }) => {
     const { styleList, setMember } = useStyleList();
 
     let icon = plusIcon;
@@ -26,9 +26,9 @@ const StyleIcon = ({ style, placeNo, onClick, isChange }) => {
                 alt={'メンバー' + placeNo}
                 onClick={() => { onClick("style", placeNo) }}
             />
-            {changeStyle[style?.styleInfo.style_id] && isChange &&
+            {changeStyle[style?.styleInfo.style_id] &&
                 <img
-                    className="absolute top-[0px] right-[0px] w-[24px] h-[24px]"
+                    className="absolute bottom-[0px] left-[0px] w-[24px] h-[24px]"
                     src={changeIcon}
                     alt={"変更"}
                     onClick={() => { clickSetMember(changeStyle[style?.styleInfo.style_id]) }}

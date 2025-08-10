@@ -311,12 +311,12 @@ export function startAction(turn_data) {
         }, turn_data.unitList);
     }
     // フィールド判定
-    let old_field = turn_data.old_field;
+    let oldField = turn_data.oldField;
     let select_field = turn_data.userOperation.field;
-    if (old_field !== select_field && select_field) {
+    if (oldField !== select_field && select_field) {
         // 変更があった場合はフィールドターンをリセット
         turn_data.fieldTurn = 0;
-        turn_data.old_field = select_field;
+        turn_data.oldField = select_field;
     }
 
     let seq = sortActionSeq(turn_data);
@@ -1493,7 +1493,7 @@ export function initTurn(turnData) {
     // ターンごとに初期化
     turnData.triggerOverDrive = false;
     turnData.startOverDriveGauge = turnData.overDriveGauge;
-    turnData.old_field = turnData.field;
+    turnData.oldField = turnData.field;
     turnData.seqTurn++;
     setUserOperation(turnData);
 }

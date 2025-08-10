@@ -170,7 +170,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                                                             justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} isChange={true}/>
+                                                        <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} />
                                                     </li>
                                                 )}
                                             </Draggable>)

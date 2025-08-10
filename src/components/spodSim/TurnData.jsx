@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactModal from "react-modal";
 import { RANGE, CONDITIONS, ATTRIBUTE } from "utils/const";
-import { KB_NEXT } from "./const";
-import { getBuffList, getSkillData, deepClone } from "utils/common";
+import { KB_NEXT, ABILIRY_TIMING } from "./const";
+import { getBuffList, getSkillData, getStyleData, getAbilityInfo, deepClone } from "utils/common";
 import { FIELD_LIST } from "./const";
+import skillList from "data/skillList";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
@@ -18,16 +19,18 @@ import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
 const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = useRef(false);
-    const [turnData, setTurnData] = useState({
-        userOperation: turn.userOperation
-    });
+    // const [turnData, setTurnData] = useState({
+    //     userOperation: turn.userOperation
+    // });
 
     // 再描画
     const reRender = (userOperation, render) => {
         isNextInfluence.current = render;
         // OD再計算
         turn.addOverDriveGauge = getOverDrive(turn);
-        setTurnData({ ...turnData, userOperation: userOperation });
+        turn.userOperation = userOperation;
+        handlers.updateTurn(index, turn);
+        // setTurnData({ ...turnData, userOperation: userOperation });
     }
 
     // 敵の数変更
@@ -128,7 +131,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
 
     // ユニット選択/入れ替え
     const chengeSelectUnit = ((e, placeNo) => {
-        if (e.target.tagName === 'SELECT') {
+        if (e.target.tagName === 'SELECT' || e.target.classList.contains("style_change")) {
             e.stopPropagation();
             return;
         }
@@ -199,7 +202,37 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     // スタイル変更
     const chageStyle = (placeNo, styleId) => {
         let userOperation = { ...turn.userOperation };
-        userOperation.placeStyle[placeNo] = styleId
+        userOperation.placeStyle[placeNo] = styleId;
+        let styleInfo = getStyleData(styleId);
+        turn.unitList[placeNo].style.styleInfo = styleInfo;
+        let unit = turn.unitList[placeNo]
+        let member = unit.style;
+        unit.skillList = skillList.filter(obj =>
+            (obj.chara_id === member.styleInfo.chara_id || obj.chara_id === 0) &&
+            (obj.style_id === member.styleInfo.style_id || obj.style_id === 0) &&
+            obj.skill_active === 0 &&
+            !member.exclusionSkillList.includes(obj.skill_id)
+        ).map(obj => {
+            const copiedObj = deepClone(obj);
+            if (copiedObj.chara_id === 0) {
+                copiedObj.chara_id = member.styleInfo.chara_id;
+            }
+            return copiedObj;
+        });
+        // アビリティ設定
+        Object.values(ABILIRY_TIMING).forEach(timing => {
+            unit[`ability_${timing}`] = [];
+        });
+        ["0", "00", "1", "3", "03", "4", "5", "10"].forEach(numStr => {
+            const num = parseInt(numStr, 10);
+            if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
+                let abilityInfo = getAbilityInfo(styleInfo[`ability${numStr}`]);
+                if (!abilityInfo) {
+                    return;
+                }
+                unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
+            }
+        });
         reRender(userOperation, true);
     }
 
@@ -218,7 +251,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         if (!isLastTurn && isNextInfluence.current) {
             handlers.recreateTurn(index);
         }
-    }, [turnData, index, isLastTurn]);
+    }, [turn, index, isLastTurn]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
     const [modalSetting, setModalSetting] = useState({
@@ -261,7 +294,6 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         openModal(0, "buff", buffList);
     };
 
-
     const openModal = (index, type, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
@@ -294,20 +326,20 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(placeNo =>
-                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turnData.userOperation.selectedPlaceNo}
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
                             chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(placeNo =>
-                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turnData.userOperation.selectedPlaceNo}
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
                             chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
                     )}
                     <div>
-                        <select className="action_select" value={turnData.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
-                            {turnData.userOperation.kb_action === KB_NEXT.ACTION || !isCapturing ?
+                        <select className="action_select" value={turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
+                            {turn.userOperation.kb_action === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
-                            {turnData.userOperation.kb_action === KB_NEXT.ACTION_OD ||
+                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD ||
                                 (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD}>行動開始+OD</option> : null}
                         </select>

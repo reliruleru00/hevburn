@@ -47,6 +47,13 @@ const reducer = (state, action) => {
                 turnList: turnLsit,
             };
         }
+        case "UPDATE_TURN":
+            let turnList = [...state.turnList];
+            turnList[action.payload] = deepClone(action.turnData);
+            return {
+                ...state,
+                turnList: turnList
+            };
         default:
             return state;
     }
@@ -115,7 +122,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
         if (member) {
             saveMember(index);
 
-            unit.style = member;
+            unit.style = deepClone(member);
             unit.sp = member.initSp;
             unit.sp += member.chain + initSpAdd;
             unit.normalAttackElement = member.bracelet;
@@ -154,17 +161,17 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             ["0", "00", "1", "3", "03", "4", "5", "10"].forEach(numStr => {
                 const num = parseInt(numStr, 10);
                 if (member.styleInfo[`ability${numStr}`] && num <= member.limitCount) {
-                    let ability_info = getAbilityInfo(member.styleInfo[`ability${numStr}`]);
-                    if (!ability_info) {
+                    let abilityInfo = getAbilityInfo(member.styleInfo[`ability${numStr}`]);
+                    if (!abilityInfo) {
                         return;
                     }
-                    if (CONSTRAINTS_ABILITY.includes(ability_info.ability_id)) {
-                        constraintsList.push(ability_info.ability_id);
+                    if (CONSTRAINTS_ABILITY.includes(abilityInfo.ability_id)) {
+                        constraintsList.push(abilityInfo.ability_id);
                     }
-                    unit[`ability_${ability_info.activation_timing}`].push(ability_info);
-                    if (ability_info.ability_id === ABILITY_ID.BLUE_SKY) {
+                    unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
+                    if (abilityInfo.ability_id === ABILITY_ID.BLUE_SKY) {
                         // 蒼天
-                        turnInit.sp_cost_down = ability_info.effect_size;
+                        turnInit.sp_cost_down = abilityInfo.effect_size;
                     }
                 }
             });
@@ -327,7 +334,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                             <DetailSetting detailSetting={detailSetting} setDetailSetting={setDetailSetting} />
                         </div>
                         <div className="flex justify-center mt-2 text-sm">
-                            <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e => 
+                            <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e =>
                                 startBattle(update, setUpdate, setConstraints)} />
                         </div>
                         <div>

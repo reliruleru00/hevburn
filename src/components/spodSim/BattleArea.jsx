@@ -103,8 +103,14 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
         dispatch({ type: 'UPD_TURN_LIST', payload: seqTurn });
     }
 
+    // ターン更新
+    const updateTurn = (seqTurn, turnData) => {
+        // ターン更新
+        dispatch({ type: 'UPDATE_TURN', payload: seqTurn, turnData: turnData });
+    }
+
     // 引数のfuntionをまとめる
-    const handlers = { proceedTurn, returnTurn, recreateTurn };
+    const handlers = { proceedTurn, returnTurn, recreateTurn, updateTurn };
 
     const changeHideMode = (e) => {
         const hideMode = e.target.checked;

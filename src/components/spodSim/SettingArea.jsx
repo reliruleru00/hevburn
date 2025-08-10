@@ -20,31 +20,31 @@ const reducer = (state, action) => {
         case "INIT_TURN_LIST":
             return {
                 ...state,
-                turn_list: action.turn_list
+                turnList: action.turnList
             };
 
         case "ADD_TURN_LIST":
             return {
                 ...state,
-                turn_list: [...state.turn_list, action.payload]
+                turnList: [...state.turnList, action.payload]
             };
 
         case "DEL_TURN_LIST": {
             return {
                 ...state,
-                turn_list: state.turn_list.slice(0, action.payload + 1),
+                turnList: state.turnList.slice(0, action.payload + 1),
             };
         }
         case "UPD_TURN_LIST": {
             // 最終ターンの情報
-            const userOperationList = state.turn_list.map(turn => turn.user_operation);
-            let turnData = state.turn_list[action.payload];
-            let turnLsit = state.turn_list.slice(0, action.payload + 1)
+            const userOperationList = state.turnList.map(turn => turn.userOperation);
+            let turnData = state.turnList[action.payload];
+            let turnLsit = state.turnList.slice(0, action.payload + 1)
             recreateTurnData(turnLsit, turnData, userOperationList, false);
 
             return {
                 ...state,
-                turn_list: turnLsit,
+                turnList: turnLsit,
             };
         }
         default:
@@ -57,25 +57,25 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
     // 初期データ作成
     let turnInit = {
         turn_number: 0,
-        seq_turn: -1,
-        over_drive_number: 0,
-        end_drive_trigger_count: 0,
-        over_drive_max_turn: 0,
-        trigger_over_drive: false,
-        additional_turn: false,
-        additional_count: 0,
-        enemy_debuffList: [],
+        seqTurn: -1,
+        overDriveNumber: 0,
+        endDriveTriggerCount: 0,
+        overDriveMaxTurn: 0,
+        triggerOverDrive: false,
+        additionalTurn: false,
+        additionalCount: 0,
+        enemyDebuffList: [],
         unitList: [],
-        start_over_drive_gauge: 0,
-        step_over_drive_gauge: 0,
-        over_drive_gauge: 0,
-        add_over_drive_gauge: 0,
+        startOverDriveGauge: 0,
+        stepOverDriveGauge: 0,
+        overDriveGauge: 0,
+        addOverDriveGauge: 0,
         sp_cost_down: 0,
         enemy_count: 1,
-        finish_action: false,
+        finishAction: false,
         field: 0,
-        field_turn: 0,
-        user_operation: {}
+        fieldTurn: 0,
+        userOperation: {}
     }
     let unitList = [];
     let constraintsList = [];
@@ -87,31 +87,31 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             return false;
         }
         let unit = {
-            place_no: 99,
+            placeNo: 99,
             sp: 1,
             ep: 0,
             overDriveSp: 0,
-            add_sp: 0,
+            addSp: 0,
             sp_cost: 0,
             buffList: [],
-            additional_turn: false,
+            additionalTurn: false,
             normalAttackElement: 0,
             earringEffectSize: 0,
             skillList: [],
             passiveSkillList: [],
             blank: false,
             useSkillList: [],
-            buff_target_chara_id: null,
-            buff_effect_select_type: 0,
+            buffTargetCharaId: null,
+            buffEffectSelectType: 0,
             nextTurnMinSp: -1,
-            select_skill_id: 0,
-            init_skill_id: 0,
-            no_action: false,
+            selectSkillId: 0,
+            initSkillId: 0,
+            noAction: false,
             limitSp: 20,
             spCostUp: 0,
             spCostDown: 0,
         };
-        unit.place_no = index;
+        unit.placeNo = index;
         if (member) {
             saveMember(index);
 
@@ -139,9 +139,9 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
                 !member.exclusionSkillList.includes(obj.skill_id)
             )
             if (unit.style.styleInfo.role === ROLE.ADMIRAL) {
-                unit.init_skill_id = 4; // 指揮行動
+                unit.initSkillId = 4; // 指揮行動
             } else {
-                unit.init_skill_id = 1; // 通常攻撃
+                unit.initSkillId = 1; // 通常攻撃
             }
             // 曙
             if (checkPassiveExist(unit.passiveSkillList, 606)) {
@@ -184,13 +184,13 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
     // 初期設定を読み込み
     turnInit.field = Number(detailSetting.initField);
     if (turnInit.field > 0) {
-        turnInit.field_turn = -1;
+        turnInit.fieldTurn = -1;
     }
-    turnInit.over_drive_gauge = Number(detailSetting.initOverDrive);
+    turnInit.overDriveGauge = Number(detailSetting.initOverDrive);
     turnInit.frontSpAdd = Number(detailSetting.frontSpAdd);
     turnInit.backSpAdd = Number(detailSetting.backSpAdd);
-    turnInit.step_turn_over_drive = Number(detailSetting.stepTurnOverDrive);
-    turnInit.step_over_drive_gauge = Number(detailSetting.stepOverDriveGauge);
+    turnInit.stepTurnOverDrive = Number(detailSetting.stepTurnOverDrive);
+    turnInit.stepOverDriveGauge = Number(detailSetting.stepOverDriveGauge);
     turnInit.stepTurnSp = Number(detailSetting.stepTurnSp);
     turnInit.stepSpFrontAdd = Number(detailSetting.stepSpFrontAdd);
     turnInit.stepSpBackAdd = Number(detailSetting.stepSpBackAdd);
@@ -198,7 +198,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
 
     turnInit.enemy_count = Number(enemyInfo.enemy_count);
     turnInit.unitList = unitList;
-    turnInit.enemy_info = enemyInfo;
+    turnInit.enemyInfo = enemyInfo;
     // 戦闘開始アビリティ
     abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
     setUserOperation(turnInit);
@@ -213,9 +213,8 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     const [hideMode, setHideMode] = React.useState(false);
 
     const [simProc, dispatch] = React.useReducer(reducer, {
-        turn_list: [],
-        seq_last_turn: 0,
-        enemy_info: {}
+        turnList: [],
+        enemyInfo: {}
     });
     let enemyInfo = getEnemyInfo(enemyClass, enemySelect);
 
@@ -249,8 +248,8 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         setUpdate(update + 1);
         // 初期処理
         initTurn(turnInit, true);
-        let turn_list = [turnInit];
-        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list });
+        let turnList = [turnInit];
+        dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
     };
 
     const [modalIsOpen, setModalIsOpen] = React.useState(false);
@@ -262,7 +261,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     const loadData = (saveData, key, setKey) => {
         // 部隊情報上書き
         const updatedStyleList = [...styleList.selectStyleList];
-        saveData.unit_data_list.forEach((unit_data, index) => {
+        saveData.unitDataList.forEach((unit_data, index) => {
             if (unit_data) {
                 let memberInfo = loadMember(unit_data.style_id);
                 // メンバー情報作成
@@ -283,10 +282,10 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
             updatedStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
         // 制約事項更新
         setKey(key + 1);
-        let turn_list = [];
-        recreateTurnData(turn_list, turnInit, saveData.user_operation_list, true);
+        let turnList = [];
+        recreateTurnData(turnList, turnInit, saveData.userOperation_list, true);
         // 画面反映
-        dispatch({ type: "INIT_TURN_LIST", turn_list: turn_list });
+        dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
     }
 
     const [detailSetting, setDetailSetting] = React.useState({
@@ -346,7 +345,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                         </div>
                     </div>
             }
-            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turn_list} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} />
+            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turnList} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} />
         </>
     )
 };

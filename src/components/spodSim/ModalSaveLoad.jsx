@@ -15,11 +15,11 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             if (data_name === null) {
                 return;
             }
-            const userOperationList = turnList.map(turn => turn.user_operation);
+            const userOperationList = turnList.map(turn => turn.userOperation);
             let save_data = {
                 data_name: data_name,
-                unit_data_list: convertUnitDataList(),
-                user_operation_list: userOperationList,
+                unitDataList: convertUnitDataList(),
+                userOperation_list: userOperationList,
             }
             let compress = compressString(JSON.stringify(save_data));
             localStorage.setItem(`sim_data_${i}`, compress);
@@ -73,10 +73,10 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
 
     // 出力クリック
     const chickOutput = () => {
-        const userOperationList = turnList.map(turn => turn.user_operation);
+        const userOperationList = turnList.map(turn => turn.userOperation);
         let save_data = {
-            unit_data_list: convertUnitDataList(),
-            user_operation_list: userOperationList,
+            unitDataList: convertUnitDataList(),
+            userOperation_list: userOperationList,
         }
         let compress = compressString(JSON.stringify(save_data));
         let filename = "sim_data.sav";

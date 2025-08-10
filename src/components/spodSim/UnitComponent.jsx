@@ -6,6 +6,8 @@ import BuffIconComponent from "./BuffIconComponent";
 import { getSkillIdToAttackInfo, getSpCost, checkAbilityExist } from "./logic";
 import icons from 'assets/thumbnail';
 import crossIcon from 'assets/img/cross.png';
+import { changeStyle } from "utils/const";
+import changeIcon from 'assets/img/change.png';
 
 const UnitSp = ({ unit }) => {
     let unit_sp;
@@ -17,7 +19,7 @@ const UnitSp = ({ unit }) => {
         if (unit_sp > 99) unit_sp = 99;
 
         // ノヴァエリミネーション
-        if (unit.select_skill_id === SKILL_ID.NOVA_ELIMINATION) {
+        if (unit.selectSkillId === SKILL_ID.NOVA_ELIMINATION) {
             unit_ep -= unit.sp_cost;
         } else {
             unit_sp -= unit.sp_cost;
@@ -28,7 +30,7 @@ const UnitSp = ({ unit }) => {
     return (
         <>
             <div className={className}>
-                <span>{unit_sp + (unit.add_sp > 0 ? ("+" + unit.add_sp) : "")}</span>
+                <span>{unit_sp + (unit.addSp > 0 ? ("+" + unit.addSp) : "")}</span>
                 {
                     (unit.ep !== 0 ? <span className="unit_ep">{`EP${unit_ep}`}</span> : "")
                 }
@@ -37,7 +39,7 @@ const UnitSp = ({ unit }) => {
     )
 }
 
-const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_id, trigger_over_drive, chengeSkill, isCapturing }) => {
+const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId, triggerOverDrive, chengeSkill, isCapturing }) => {
     if (unit.blank) {
         return (
             <select className={"unit_skill invisible"} >
@@ -45,11 +47,11 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
         );
     }
     let skillList = unit.skillList
-    if (place_no < 3) {
+    if (placeNo < 3) {
         skillList = skillList.filter(skill => {
             if (skill.skill_id === SKILL_ID.WAKING_NIGHT) {
                 // 夜醒
-                return !turn.additional_turn;
+                return !turn.additionalTurn;
             }
             if (skill.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
                 // 通常攻撃
@@ -95,11 +97,11 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
     }
 
     const recoil = unit.buffList.filter((obj) => obj.buff_kind === BUFF.RECOIL);
-    let not_action = (recoil.length > 0 || !unit.style || (turn.additional_turn && !unit.additional_turn && place_no <= 2))
+    let not_action = (recoil.length > 0 || !unit.style || (turn.additionalTurn && !unit.additionalTurn && placeNo <= 2))
     let className = "unit_skill " + (not_action ? "invisible" : "");
     let physical = getCharaData(unit.style.styleInfo.chara_id).physical;
-    return (<select className={className} onChange={(e) => chengeSkill(Number(e.target.value), place_no)} value={unit.select_skill_id} >
-        {skillList.filter((obj) => obj.skill_id === unit.select_skill_id || !isCapturing).map(skill => {
+    return (<select className={className} onChange={(e) => chengeSkill(Number(e.target.value), placeNo)} value={unit.selectSkillId} >
+        {skillList.filter((obj) => obj.skill_id === unit.selectSkillId || !isCapturing).map(skill => {
             let text = skill.skill_name;
             const attackInfo = getSkillIdToAttackInfo(turn, skill.skill_id);
             let sp_cost = 0;
@@ -125,34 +127,43 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, place_no, select_skill_
     return prevProps.turn === nextProps.turn
         && prevProps.field === nextProps.field
         && prevProps.unit === nextProps.unit
-        && prevProps.place_no === nextProps.place_no && prevProps.select_skill_id === nextProps.select_skill_id
-        && prevProps.trigger_over_drive === nextProps.trigger_over_drive
+        && prevProps.placeNo === nextProps.placeNo && prevProps.selectSkillId === nextProps.selectSkillId
+        && prevProps.triggerOverDrive === nextProps.triggerOverDrive
         && prevProps.isCapturing === nextProps.isCapturing;
 });
 
-const UnitComponent = ({ turn, place_no, selected_place_no, chengeSkill, chengeSelectUnit, hideMode, isCapturing, clickBuffIcon }) => {
-    const filterUnit = turn.unitList.filter(unit => unit.place_no === place_no);
+const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill, chengeSelectUnit, hideMode, isCapturing, clickBuffIcon }) => {
+    const filterUnit = turn.unitList.filter(unit => unit.placeNo === placeNo);
     const unit = filterUnit[0];
 
-    let icon = icons[unit?.style?.styleInfo?.image_url.replace(/\.webp$/, "")] || crossIcon;
+    let icon = icons[unit?.style?.styleInfo?.image_url] || crossIcon;
     let loopLimit = 3;
     if (hideMode) {
         loopLimit = 4;
     }
-    let className = "unit_select " + (place_no === selected_place_no ? "unit_selected" : "");
+    let className = "relative unit_select " + (placeNo === selectedPlaceNo ? "unit_selected" : "");
+
     return (
-        <div className={className} onClick={(e) => { chengeSelectUnit(e, place_no) }}>
+        <div className={className} onClick={(e) => { chengeSelectUnit(e, placeNo) }}>
             <UnitSkillSelect turn={turn} field={turn.field}
-                unit={unit} place_no={place_no} chengeSkill={chengeSkill} select_skill_id={unit.select_skill_id} trigger_over_drive={turn.trigger_over_drive} isCapturing={isCapturing} />
+                unit={unit} placeNo={placeNo} chengeSkill={chengeSkill} selectSkillId={unit.selectSkillId} triggerOverDrive={turn.triggerOverDrive} isCapturing={isCapturing} />
             <div className="flex">
                 <div>
                     <img className="unit_style" src={icon} alt="" />
                     {
                         unit?.style?.styleInfo ? <UnitSp unit={unit} /> : null
                     }
+                    {changeStyle[unit?.style?.styleInfo.style_id] &&
+                        <img
+                            className="absolute bottom-[0px] left-[0px] w-[24px] h-[24px]"
+                            src={changeIcon}
+                            alt={"変更"}
+                            onClick={() => { chageStyle(placeNo, changeStyle[unit?.style?.styleInfo.style_id]) }}
+                        />
+                    }
                 </div>
-                {place_no <= 2 || hideMode ?
-                    <BuffIconComponent buffList={unit.buffList} loopLimit={loopLimit} loopStep={2} placeNo={place_no} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                {placeNo <= 2 || hideMode ?
+                    <BuffIconComponent buffList={unit.buffList} loopLimit={loopLimit} loopStep={2} placeNo={placeNo} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
                     : null
                 }
             </div>

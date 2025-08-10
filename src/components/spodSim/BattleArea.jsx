@@ -92,15 +92,15 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
     }
 
     // ターンを戻す
-    const returnTurn = (seq_turn) => {
+    const returnTurn = (seqTurn) => {
         // ターン削除
-        dispatch({ type: 'DEL_TURN_LIST', payload: seq_turn });
+        dispatch({ type: 'DEL_TURN_LIST', payload: seqTurn });
     }
 
     // ターン再生成
-    const recreateTurn = (seq_turn) => {
+    const recreateTurn = (seqTurn) => {
         // ターン削除
-        dispatch({ type: 'UPD_TURN_LIST', payload: seq_turn });
+        dispatch({ type: 'UPD_TURN_LIST', payload: seqTurn });
     }
 
     // 引数のfuntionをまとめる

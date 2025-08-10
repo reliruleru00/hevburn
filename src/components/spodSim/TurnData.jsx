@@ -19,182 +19,189 @@ import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = useRef(false);
     const [turnData, setTurnData] = useState({
-        user_operation: turn.user_operation
+        userOperation: turn.userOperation
     });
 
     // 再描画
-    const reRender = (user_operation, is_next_influence) => {
-        isNextInfluence.current = is_next_influence;
+    const reRender = (userOperation, render) => {
+        isNextInfluence.current = render;
         // OD再計算
-        turn.add_over_drive_gauge = getOverDrive(turn);
-        setTurnData({ ...turnData, user_operation: user_operation });
+        turn.addOverDriveGauge = getOverDrive(turn);
+        setTurnData({ ...turnData, userOperation: userOperation });
     }
 
     // 敵の数変更
     const chengeEnemyCount = (e) => {
-        let user_operation = turn.user_operation;
-        user_operation.enemy_count = Number(e.target.value);
+        let userOperation = { ...turn.userOperation };
+        userOperation.enemy_count = Number(e.target.value);
         turn.enemy_count = Number(e.target.value);
-        reRender(user_operation, true);
+        reRender(userOperation, true);
     }
 
     // フィールド変更
     const chengeField = (e) => {
-        let user_operation = turn.user_operation;
-        user_operation.field = Number(e.target.value);
+        let userOperation = { ...turn.userOperation };
+        userOperation.field = Number(e.target.value);
         turn.field = Number(e.target.value);
-        reRender(user_operation, true);
+        reRender(userOperation, true);
     }
 
     // 行動選択変更
     const chengeAction = (e) => {
-        let user_operation = turn.user_operation;
-        user_operation.kb_action = Number(e.target.value);
-        reRender(user_operation, true);
+        let userOperation = { ...turn.userOperation };
+        userOperation.kb_action = Number(e.target.value);
+        reRender(userOperation, true);
     }
 
     // スキル変更
-    const chengeSkill = (skill_id, place_no) => {
-        let user_operation = turn.user_operation;
-        let select_skill = user_operation.select_skill[place_no];
-        select_skill.skill_id = skill_id;
-        skillUpdate(turn, skill_id, place_no);
-        const unit = turn.unitList.filter(unit => unit.place_no === place_no)[0];
+    const chengeSkill = (skillId, placeNo) => {
+        let userOperation = { ...turn.userOperation };
+        let selectSkill = userOperation.select_skill[placeNo];
+        selectSkill.skill_id = skillId;
+        skillUpdate(turn, skillId, placeNo);
+        const unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];
 
-        const buffList = getBuffList(skill_id);
+        const buffList = getBuffList(skillId);
         const SELECT_RANGE = [RANGE.ALLY_UNIT, RANGE.SELF_AND_UNIT, RANGE.OTHER_UNIT];
         if (buffList.some(buff => SELECT_RANGE.includes(buff.range_area))) {
-            openModal(place_no, "target")
+            openModal(placeNo, "target")
         } else {
-            unit.buff_target_chara_id = null;
+            unit.buffTargetCharaId = null;
         }
 
-        let effect_type = 0;
-        let skill_info = getSkillData(skill_id);
+        let effectType = 0;
+        let skillInfo = getSkillData(skillId);
         const conditionsList = buffList.map(buff => buff.conditions).filter(condition => condition !== null);
-        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200) || skill_info.attribute_conditions === CONDITIONS.DESTRUCTION_OVER_200) {
-            effect_type = 2;
+        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200) || skillInfo.attribute_conditions === CONDITIONS.DESTRUCTION_OVER_200) {
+            effectType = 2;
         }
         if (conditionsList.includes(CONDITIONS.BREAK)) {
-            effect_type = 3;
+            effectType = 3;
         }
         if (conditionsList.includes(CONDITIONS.PERCENTAGE_30)) {
-            effect_type = 4;
+            effectType = 4;
         }
-        if (conditionsList.includes(CONDITIONS.HAS_SHADOW) || skill_info.attribute_conditions === CONDITIONS.HAS_SHADOW) {
-            effect_type = 5;
+        if (conditionsList.includes(CONDITIONS.HAS_SHADOW) || skillInfo.attribute_conditions === CONDITIONS.HAS_SHADOW) {
+            effectType = 5;
         }
-        if (conditionsList.includes(CONDITIONS.DOWN_TURN) || skill_info.attribute_conditions === CONDITIONS.DOWN_TURN) {
-            effect_type = 6;
+        if (conditionsList.includes(CONDITIONS.DOWN_TURN) || skillInfo.attribute_conditions === CONDITIONS.DOWN_TURN) {
+            effectType = 6;
         }
-        if (conditionsList.includes(CONDITIONS.BUFF_DISPEL) || skill_info.attribute_conditions === CONDITIONS.BUFF_DISPEL) {
-            effect_type = 7;
+        if (conditionsList.includes(CONDITIONS.BUFF_DISPEL) || skillInfo.attribute_conditions === CONDITIONS.BUFF_DISPEL) {
+            effectType = 7;
         }
-        if (conditionsList.includes(CONDITIONS.DP_OVER_100) || skill_info.attribute_conditions === CONDITIONS.DP_OVER_100) {
-            effect_type = 8;
+        if (conditionsList.includes(CONDITIONS.DP_OVER_100) || skillInfo.attribute_conditions === CONDITIONS.DP_OVER_100) {
+            effectType = 8;
         }
 
-        switch (skill_id) {
+        switch (skillId) {
             case 50: // トリック・カノン
-                effect_type = 1;
+                effectType = 1;
                 break;
             default:
                 break;
         }
 
-        if (effect_type !== 0) {
-            openModal(place_no, "effect", effect_type)
+        if (effectType !== 0) {
+            openModal(placeNo, "effect", effectType)
         } else {
-            unit.buff_effect_select_type = null;
+            unit.buffEffectSelectType = null;
         }
 
-        select_skill.buff_target_chara_id = unit.buff_target_chara_id;
-        select_skill.buff_effect_select_type = unit.buff_effect_select_type;
-        reRender(user_operation, true);
+        selectSkill.buffTargetCharaId = unit.buffTargetCharaId;
+        selectSkill.buffEffectSelectType = unit.buffEffectSelectType;
+        reRender(userOperation, true);
     }
 
     // OD発動/解除
     function triggerOverDrive(checked) {
-        const user_operation = turn.user_operation;;
+        const userOperation = turn.userOperation;;
         if (checked) {
             startOverDrive(turn);
-            user_operation.kb_action = KB_NEXT.ACTION;
+            userOperation.kb_action = KB_NEXT.ACTION;
         } else {
             removeOverDrive(turn);
         }
-        user_operation.trigger_over_drive = checked;
-        reRender(user_operation, true);
+        userOperation.triggerOverDrive = checked;
+        reRender(userOperation, true);
     }
 
     // ユニット選択/入れ替え
-    const chengeSelectUnit = ((e, place_no) => {
+    const chengeSelectUnit = ((e, placeNo) => {
         if (e.target.tagName === 'SELECT') {
             e.stopPropagation();
             return;
         }
-        let new_unit = getUnitData(turn, place_no);
+        let new_unit = getUnitData(turn, placeNo);
         if (new_unit.blank) {
             return;
         }
         // 追加ターンの制約
-        if (turn.additional_turn) {
-            if (2 < place_no) {
+        if (turn.additionalTurn) {
+            if (2 < placeNo) {
                 return;
             }
-            if (!new_unit.additional_turn) {
+            if (!new_unit.additionalTurn) {
                 return;
             }
         }
-        let user_operation = turn.user_operation;
-        let old_place_no = user_operation.selected_place_no;
-        let select_skill = user_operation.select_skill;
-        let place_style = user_operation.place_style;
-        let is_next_influence = false;
-        if (old_place_no !== -1) {
-            if (old_place_no !== place_no) {
-                let old_unit = getUnitData(turn, old_place_no)
+        let userOperation = turn.userOperation;
+        let old_placeNo = userOperation.selectedPlaceNo;
+        let select_skill = userOperation.select_skill;
+        let placeStyle = userOperation.placeStyle;
+        let render = false;
+        if (old_placeNo !== -1) {
+            if (old_placeNo !== placeNo) {
+                let old_unit = getUnitData(turn, old_placeNo)
                 if (new_unit && old_unit) {
-                    new_unit.place_no = old_place_no;
-                    old_unit.place_no = place_no;
+                    new_unit.placeNo = old_placeNo;
+                    old_unit.placeNo = placeNo;
                 }
-                if (place_no <= 2 && 3 <= old_place_no) {
+                if (placeNo <= 2 && 3 <= old_placeNo) {
                     // 前衛と後衛の交換
                     exchangeUnit(new_unit, old_unit, select_skill);
-                } else if (3 <= place_no && old_place_no <= 2) {
+                } else if (3 <= placeNo && old_placeNo <= 2) {
                     // 後衛と前衛の交換
                     exchangeUnit(old_unit, new_unit, select_skill);
                 } else {
                     // 前衛同士/後衛同士
-                    const tmp_skill = select_skill[place_no];
-                    select_skill[place_no] = select_skill[old_place_no]
-                    select_skill[old_place_no] = tmp_skill;
+                    const tmp_skill = select_skill[placeNo];
+                    select_skill[placeNo] = select_skill[old_placeNo]
+                    select_skill[old_placeNo] = tmp_skill;
                 }
 
-                const tmp_style = place_style[place_no];
-                place_style[place_no] = place_style[old_place_no]
-                place_style[old_place_no] = tmp_style;
-                is_next_influence = true;
+                const tmp_style = placeStyle[placeNo];
+                placeStyle[placeNo] = placeStyle[old_placeNo]
+                placeStyle[old_placeNo] = tmp_style;
+                render = true;
             }
-            place_no = -1;
+            placeNo = -1;
         }
-        user_operation.selected_place_no = place_no;
-        reRender(user_operation, is_next_influence);
+        userOperation.selectedPlaceNo = placeNo;
+        reRender(userOperation, render);
     })
 
     // 前衛後衛ユニット交換
     const exchangeUnit = ((old_front, old_back, select_skill) => {
         setInitSkill(old_back);
         setInitSkill(old_front);
-        select_skill[old_front.place_no] = { skill_id: old_front.select_skill_id };
-        select_skill[old_back.place_no] = { skill_id: old_back.select_skill_id };
+        select_skill[old_front.placeNo] = { skill_id: old_front.selectSkillId };
+        select_skill[old_back.placeNo] = { skill_id: old_back.selectSkillId };
     })
 
     // 備考編集
     const chengeRemark = ((e) => {
-        const user_operation = turn.user_operation;;
-        user_operation.remark = e.target.value;
-        reRender(user_operation, false);
+        const userOperation = turn.userOperation;;
+        userOperation.remark = e.target.value;
+        reRender(userOperation, false);
     })
+
+    // スタイル変更
+    const chageStyle = (placeNo, styleId) => {
+        let userOperation = { ...turn.userOperation };
+        userOperation.placeStyle[placeNo] = styleId
+        reRender(userOperation, true);
+    }
 
     // 次ターン
     function clickNextTurn() {
@@ -222,21 +229,21 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     });
 
     const handleSelectTarget = (chara_id) => {
-        const unit = turn.unitList.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
-        unit.buff_target_chara_id = chara_id;
-        turn.user_operation.select_skill[modalSetting.modalIndex].buff_target_chara_id = chara_id;
-        reRender(turn.user_operation, true);
+        const unit = turn.unitList.filter(unit => unit.placeNo === modalSetting.modalIndex)[0];
+        unit.buffTargetCharaId = chara_id;
+        turn.userOperation.select_skill[modalSetting.modalIndex].buffTargetCharaId = chara_id;
+        reRender(turn.userOperation, true);
     };
 
     const handleSelectEffect = (effect_type) => {
-        const unit = turn.unitList.filter(unit => unit.place_no === modalSetting.modalIndex)[0];
-        unit.buff_effect_select_type = effect_type;
-        turn.user_operation.select_skill[modalSetting.modalIndex].buff_effect_select_type = effect_type;
-        let skillInfo = getSkillData(unit.select_skill_id);
+        const unit = turn.unitList.filter(unit => unit.placeNo === modalSetting.modalIndex)[0];
+        unit.buffEffectSelectType = effect_type;
+        turn.userOperation.select_skill[modalSetting.modalIndex].buffEffectSelectType = effect_type;
+        let skillInfo = getSkillData(unit.selectSkillId);
 
         const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW, CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100];
         if (selectionConditions.includes(skillInfo.attribute_conditions)) {
-            if (unit.buff_effect_select_type === 1) {
+            if (unit.buffEffectSelectType === 1) {
                 let sp_cost = skillInfo.sp_cost;
                 if (skillInfo.skill_attribute === ATTRIBUTE.SP_HALF) {
                     sp_cost = Math.floor(sp_cost / 2);
@@ -247,7 +254,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                 unit.sp_cost = sp_cost + unit.spCostUp - unit.spCostDown;
             }
         }
-        reRender(turn.user_operation, true);
+        reRender(turn.userOperation, true);
     };
 
     const clickBuffIcon = (buffList) => {
@@ -282,26 +289,26 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     </div>
                     <OverDriveGauge turn={turn} />
                 </div>
-                <BuffIconComponent buffList={turn.enemy_debuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                <BuffIconComponent buffList={turn.enemyDebuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">
-                    {[0, 1, 2].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
-                            chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
+                    {[0, 1, 2].map(placeNo =>
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turnData.userOperation.selectedPlaceNo}
+                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
                     )}
                 </div>
                 <div className="flex back_area">
-                    {[3, 4, 5].map(place_no =>
-                        <UnitComponent turn={turn} key={`unit${place_no}`} place_no={place_no} selected_place_no={turnData.user_operation.selected_place_no}
-                            chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
+                    {[3, 4, 5].map(placeNo =>
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turnData.userOperation.selectedPlaceNo}
+                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
                     )}
                     <div>
-                        <select className="action_select" value={turnData.user_operation.kb_action} onChange={(e) => chengeAction(e)}>
-                            {turnData.user_operation.kb_action === KB_NEXT.ACTION || !isCapturing ?
+                        <select className="action_select" value={turnData.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
+                            {turnData.userOperation.kb_action === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
-                            {turnData.user_operation.kb_action === KB_NEXT.ACTION_OD ||
-                                (turn.over_drive_gauge + turn.add_over_drive_gauge >= 100 && turn.over_drive_max_turn === 0) ?
+                            {turnData.userOperation.kb_action === KB_NEXT.ACTION_OD ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD}>行動開始+OD</option> : null}
                         </select>
                         <div
@@ -309,20 +316,20 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                             style={{
                                 justifyContent: "flex-end",
                             }}>
-                            {turn.start_over_drive_gauge >= 100 && !turn.additional_turn && (turn.over_drive_number === 0 || turn.trigger_over_drive) ?
-                                <input type="checkbox" className="trigger_over_drive" checked={turn.trigger_over_drive} onChange={(e) => triggerOverDrive(e.target.checked)} />
+                            {turn.startOverDriveGauge >= 100 && !turn.additionalTurn && (turn.overDriveNumber === 0 || turn.triggerOverDrive) ?
+                                <input type="checkbox" className="trigger_over_drive" checked={turn.triggerOverDrive} onChange={(e) => triggerOverDrive(e.target.checked)} />
                                 : null}
                             {isLastTurn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
-                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => handlers.returnTurn(turn.seq_turn)} />
+                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => handlers.returnTurn(turn.seqTurn)} />
                             }
                         </div>
                     </div>
                 </div>
             </div>
             <div className="remark_area">
-                <textarea className="remaek_text" onChange={(e) => chengeRemark(e)} value={turn.user_operation.remark} />
+                <textarea className="remaek_text" onChange={(e) => chengeRemark(e)} value={turn.userOperation.remark} />
             </div>
             <div>
                 <ReactModal

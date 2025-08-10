@@ -2,11 +2,7 @@ import icons from 'assets/thumbnail';
 import plusIcon from 'assets/img/plus.png';
 import changeIcon from 'assets/img/change.png';
 import { useStyleList } from "components/StyleListProvider";
-
-const changeStyle = {
-    176: 177,
-    177: 176
-}
+import { changeStyle } from "utils/const";
 
 const StyleIcon = ({ style, placeNo, onClick, isChange }) => {
     const { styleList, setMember } = useStyleList();

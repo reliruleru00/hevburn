@@ -16,7 +16,7 @@ const ModalTargetSelection = ({ closeModal, onSelect, unitList }) => {
             <div className="flex">
                 {unitList
                     .slice() // 元の配列を変更しないようコピーを作成
-                    .sort((a, b) => a.place_no - b.place_no)
+                    .sort((a, b) => a.placeNo - b.placeNo)
                     .map((unit, index) => {
                         if (!unit.blank) {
                             let src = thumbnail[unit.style.styleInfo.image_url.replace(/\.(webp)$/, '')];

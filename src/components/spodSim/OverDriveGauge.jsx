@@ -3,18 +3,18 @@ import { getOverDrive } from "./logic";
 import overdriveIcons from 'assets/overdrive';
 
 const OverDriveGauge = ({ turn }) => {
-    let over_drive_gauge = turn.over_drive_gauge;
-    let add_over_drive_gauge = getOverDrive(turn);
-    turn.add_over_drive_gauge = add_over_drive_gauge;
-    over_drive_gauge += add_over_drive_gauge;
-    let gauge = Math.floor(turn.over_drive_gauge / 100);
+    let overDriveGauge = turn.overDriveGauge;
+    let addOverDriveGauge = getOverDrive(turn);
+    turn.addOverDriveGauge = addOverDriveGauge;
+    overDriveGauge += addOverDriveGauge;
+    let gauge = Math.floor(turn.overDriveGauge / 100);
     gauge = gauge > 3 ? 3 : gauge;
 
     return (
         <div className="flex">
             <label className="od_text">
-                <span className={turn.over_drive_gauge < 0 ? "od_minus" : ""}>{`${(turn.over_drive_gauge).toFixed(2)}%`}</span><br />⇒
-                <span className={over_drive_gauge < 0 ? "od_minus" : ""}>{`${over_drive_gauge.toFixed(2)}%`}</span>
+                <span className={turn.overDriveGauge < 0 ? "od_minus" : ""}>{`${(turn.overDriveGauge).toFixed(2)}%`}</span><br />⇒
+                <span className={overDriveGauge < 0 ? "od_minus" : ""}>{`${overDriveGauge.toFixed(2)}%`}</span>
             </label>
             <div className="inc_od_icon">
                 {gauge > 0 ?

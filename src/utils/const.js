@@ -200,7 +200,7 @@ export const ATTRIBUTE = {
 export const CONDITIONS = {
     FIRST_TURN: 1, // 1ターン目
     SKILL_INIT: 2, // 初回
-    ADDITIONAL_TURN: 3, // 追加ターン
+    additionalTurn: 3, // 追加ターン
     OVER_DRIVE: 4, // オーバードライブ中
     DESTRUCTION_OVER_200: 5, // 破壊率200%以上
     BREAK: 6, // ブレイク時
@@ -317,4 +317,10 @@ export const JEWEL_EXPLAIN = {
     5: "クリティカル率上昇スキルの効果量を上げる",
     6: "挑発・注目状態：ダメージ軽減",
     7: "ダメージ軽減",
+}
+
+
+export const changeStyle = {
+    176: 177,
+    177: 176
 }

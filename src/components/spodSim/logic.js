@@ -70,9 +70,9 @@ export function checkSp(turn_data, range_area, sp) {
 
 
 // スキルデータ更新
-export const skillUpdate = (turn_data, skill_id, place_no) => {
-    const unit = turn_data.unitList.filter(unit => unit.place_no === place_no)[0];
-    unit.select_skill_id = skill_id;
+export const skillUpdate = (turn_data, skill_id, placeNo) => {
+    const unit = turn_data.unitList.filter(unit => unit.placeNo === placeNo)[0];
+    unit.selectSkillId = skill_id;
     if (skill_id !== 0) {
         unit.sp_cost = getSpCost(turn_data, getSkillData(skill_id), unit);
     } else {
@@ -81,21 +81,21 @@ export const skillUpdate = (turn_data, skill_id, place_no) => {
 }
 
 // ユーザ操作の取得
-const updateUserOperation = (user_operation_list, turn_data) => {
-    let filtered = user_operation_list.filter((item) =>
+const updateUserOperation = (userOperation_list, turn_data) => {
+    let filtered = userOperation_list.filter((item) =>
         compereUserOperation(item, turn_data) === 0
     );
-    let user_operation = turn_data.user_operation;
+    let userOperation = turn_data.userOperation;
     if (filtered.length === 0) {
-        turn_data.user_operation.kb_action = KB_NEXT.ACTION;
-        user_operation_list.push(turn_data.user_operation);
+        turn_data.userOperation.kb_action = KB_NEXT.ACTION;
+        userOperation_list.push(turn_data.userOperation);
         // 表示確認用
-        user_operation_list.sort((a, b) => compereUserOperation(a, b));
+        userOperation_list.sort((a, b) => compereUserOperation(a, b));
     } else {
-        user_operation = filtered[0];
-        turn_data.user_operation = user_operation;
+        userOperation = filtered[0];
+        turn_data.userOperation = userOperation;
     }
-    user_operation.used = true;
+    userOperation.used = true;
 }
 
 // ユーザ操作をターンに反映
@@ -103,44 +103,44 @@ const reflectUserOperation = (turn_data, isLoadMode) => {
     // 配置変更
     turn_data.unitList.forEach((unit) => {
         if (unit.blank) return;
-        let operation_place_no = turn_data.user_operation.place_style.findIndex((item) =>
+        let operation_placeNo = turn_data.userOperation.placeStyle.findIndex((item) =>
             item === unit.style.styleInfo.style_id);
-        if (operation_place_no >= 0) {
-            if (turn_data.additional_turn) {
+        if (operation_placeNo >= 0) {
+            if (turn_data.additionalTurn) {
                 if (!isLoadMode) {
-                    if (operation_place_no !== unit.place_no) {
+                    if (operation_placeNo !== unit.placeNo) {
                         setInitSkill(unit);
-                        turn_data.user_operation.select_skill[unit.place_no].skill_id = unit.select_skill_id;
-                        turn_data.user_operation.place_style[unit.place_no] = unit.style.styleInfo.style_id;
+                        turn_data.userOperation.select_skill[unit.placeNo].skill_id = unit.selectSkillId;
+                        turn_data.userOperation.placeStyle[unit.placeNo] = unit.style.styleInfo.style_id;
                     }
                     return;
                 }
             }
-            unit.place_no = operation_place_no;
+            unit.placeNo = operation_placeNo;
         }
     })
     // オーバードライブ発動
-    if (turn_data.user_operation.trigger_over_drive && turn_data.over_drive_gauge > 100) {
+    if (turn_data.userOperation.triggerOverDrive && turn_data.overDriveGauge > 100) {
         startOverDrive(turn_data);
     }
     // スキル設定
     turn_data.unitList.forEach((unit) => {
         if (unit.blank) return;
-        const skill = turn_data.user_operation.select_skill[unit.place_no];
+        const skill = turn_data.userOperation.select_skill[unit.placeNo];
         if (skill) {
-            unit.buff_target_chara_id = skill.buff_target_chara_id;
-            unit.buff_effect_select_type = skill.buff_effect_select_type;
-            skillUpdate(turn_data, turn_data.user_operation.select_skill[unit.place_no].skill_id, unit.place_no);
+            unit.buffTargetCharaId = skill.buffTargetCharaId;
+            unit.buffEffectSelectType = skill.buffEffectSelectType;
+            skillUpdate(turn_data, turn_data.userOperation.select_skill[unit.placeNo].skill_id, unit.placeNo);
         }
     })
     // OD再計算
-    turn_data.add_over_drive_gauge = getOverDrive(turn_data);
+    turn_data.addOverDriveGauge = getOverDrive(turn_data);
     // 行動反映
-    if (turn_data.over_drive_gauge + turn_data.add_over_drive_gauge < 100) {
-        turn_data.user_operation.kb_action = KB_NEXT.ACTION;
+    if (turn_data.overDriveGauge + turn_data.addOverDriveGauge < 100) {
+        turn_data.userOperation.kb_action = KB_NEXT.ACTION;
     }
     // OD発動反映
-    turn_data.trigger_over_drive = turn_data.user_operation.trigger_over_drive;
+    turn_data.triggerOverDrive = turn_data.userOperation.triggerOverDrive;
 }
 
 // ユーザ操作の比較
@@ -148,17 +148,17 @@ const compereUserOperation = (comp1, comp2) => {
     if (comp1.turn_number !== comp2.turn_number) {
         return comp1.turn_number - comp2.turn_number;
     }
-    if (comp1.finish_action !== comp2.finish_action) {
-        return comp1.finish_action - comp2.finish_action;
+    if (comp1.finishAction !== comp2.finishAction) {
+        return comp1.finishAction - comp2.finishAction;
     }
-    if (comp1.end_drive_trigger_count !== comp2.end_drive_trigger_count) {
-        return comp1.end_drive_trigger_count - comp2.end_drive_trigger_count;
+    if (comp1.endDriveTriggerCount !== comp2.endDriveTriggerCount) {
+        return comp1.endDriveTriggerCount - comp2.endDriveTriggerCount;
     }
-    if (comp1.over_drive_number !== comp2.over_drive_number) {
-        return comp1.over_drive_number - comp2.over_drive_number;
+    if (comp1.overDriveNumber !== comp2.overDriveNumber) {
+        return comp1.overDriveNumber - comp2.overDriveNumber;
     }
-    if (comp1.additional_count !== comp2.additional_count) {
-        return comp1.additional_count - comp2.additional_count;
+    if (comp1.additionalCount !== comp2.additionalCount) {
+        return comp1.additionalCount - comp2.additionalCount;
     }
     return 0;
 }
@@ -278,7 +278,7 @@ export function getBuffIconImg(buffInfo) {
 // ユニットデータ取得
 export function getUnitData(turnData, index) {
     let unitList = turnData.unitList;
-    const filteredUnit = unitList.filter((obj) => obj.place_no === index);
+    const filteredUnit = unitList.filter((obj) => obj.placeNo === index);
     return filteredUnit.length > 0 ? filteredUnit[0] : undefined;
 }
 
@@ -300,22 +300,22 @@ export function getSkillIdToAttackInfo(turnData, skillId) {
 // 行動開始
 export function startAction(turn_data) {
     // 追加ターンフラグ削除
-    if (turn_data.additional_turn) {
-        turn_data.additional_turn = false;
+    if (turn_data.additionalTurn) {
+        turn_data.additionalTurn = false;
         unitLoop(function (unit) {
-            if (unit.additional_turn) {
-                unit.additional_turn = false;
+            if (unit.additionalTurn) {
+                unit.additionalTurn = false;
             } else {
-                unit.no_action = true;
+                unit.noAction = true;
             }
         }, turn_data.unitList);
     }
     // フィールド判定
     let old_field = turn_data.old_field;
-    let select_field = turn_data.user_operation.field;
+    let select_field = turn_data.userOperation.field;
     if (old_field !== select_field && select_field) {
         // 変更があった場合はフィールドターンをリセット
-        turn_data.field_turn = 0;
+        turn_data.fieldTurn = 0;
         turn_data.old_field = select_field;
     }
 
@@ -326,7 +326,7 @@ export function startAction(turn_data) {
     const front_cost_list = [];
     for (const skill_data of seq) {
         let skillInfo = skill_data.skillInfo;
-        let unit_data = getUnitData(turn_data, skill_data.place_no);
+        let unit_data = getUnitData(turn_data, skill_data.placeNo);
         let sp_cost = unit_data.sp_cost;
         // SP消費してから行動
         payCost(unit_data);
@@ -335,7 +335,7 @@ export function startAction(turn_data) {
         for (let i = 0; i < buffList.length; i++) {
             let buffInfo = buffList[i];
             if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
-                addBuffUnit(turn_data, buffInfo, skill_data.place_no, unit_data);
+                addBuffUnit(turn_data, buffInfo, skill_data.placeNo, unit_data);
             }
         }
         let attackInfo;
@@ -361,7 +361,7 @@ export function startAction(turn_data) {
                 for (let i = 0; i < buffList.length; i++) {
                     let buffInfo = buffList[i];
                     if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
-                        addBuffUnit(turn_data, buffInfo, skill_data.place_no, unit_data);
+                        addBuffUnit(turn_data, buffInfo, skill_data.placeNo, unit_data);
                     }
                 }
                 if (attackInfo) {
@@ -375,19 +375,19 @@ export function startAction(turn_data) {
         for (let i = 0; i < buffList.length; i++) {
             let buffInfo = buffList[i];
             if (buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind)) {
-                addBuffUnit(turn_data, buffInfo, skill_data.place_no, unit_data);
+                addBuffUnit(turn_data, buffInfo, skill_data.placeNo, unit_data);
             }
         }
         origin(turn_data, skillInfo, unit_data);
     }
 
     // 後衛の選択取得
-    [3, 4, 5].forEach(function (place_no) {
-        let unit_data = getUnitData(turn_data, place_no);
+    [3, 4, 5].forEach(function (placeNo) {
+        let unit_data = getUnitData(turn_data, placeNo);
         if (unit_data.blank) {
             return;
         }
-        let skill_id = unit_data.select_skill_id;
+        let skill_id = unit_data.selectSkillId;
         // 無し
         if (skill_id === SKILL.NONE) {
             return true;
@@ -416,7 +416,7 @@ export function startAction(turn_data) {
                 for (let i = 0; i < buffList.length; i++) {
                     let buffInfo = buffList[i];
                     if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
-                        addBuffUnit(turn_data, buffInfo, place_no, unit_data);
+                        addBuffUnit(turn_data, buffInfo, placeNo, unit_data);
                     }
                 }
                 consumeBuffUnit(turn_data, unit_data, attackInfo, skillInfo);
@@ -432,14 +432,14 @@ export function startAction(turn_data) {
         }
     });
 
-    turn_data.over_drive_gauge += turn_data.add_over_drive_gauge;
-    if (turn_data.over_drive_gauge > 300) {
-        turn_data.over_drive_gauge = 300;
+    turn_data.overDriveGauge += turn_data.addOverDriveGauge;
+    if (turn_data.overDriveGauge > 300) {
+        turn_data.overDriveGauge = 300;
     }
     // 残りフィールドターン
-    if (turn_data.field_turn > 1 && !turn_data.additional_turn) {
-        turn_data.field_turn--;
-    } else if (turn_data.field_turn === 1) {
+    if (turn_data.fieldTurn > 1 && !turn_data.additionalTurn) {
+        turn_data.fieldTurn--;
+    } else if (turn_data.fieldTurn === 1) {
         turn_data.field = 0;
     }
 }
@@ -475,7 +475,7 @@ function origin(turn_data, skillInfo, unit_data) {
     unit_data.useSkillList.push(skillInfo.skill_id);
     switch (skillInfo.skill_id) {
         case 177: // エリミネイト・ポッシブル
-            let target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === unit_data.buff_target_chara_id);
+            let target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === unit_data.buffTargetCharaId);
             target_unit_data[0].nextTurnMinSp = 3;
             break;
         case 617: // ドリーミー・ガーデン
@@ -499,7 +499,7 @@ export const getOverDrive = (turn) => {
 
     for (const skill_data of seq) {
         const skillInfo = skill_data.skillInfo;
-        const unit_data = getUnitData(tempTurn, skill_data.place_no);
+        const unit_data = getUnitData(tempTurn, skill_data.placeNo);
         const buffList = getBuffList(skillInfo.skill_id);
         const attackInfo = getSkillIdToAttackInfo(turn, skillInfo.skill_id);
         let unit_od_plus = 0;
@@ -521,13 +521,13 @@ export const getOverDrive = (turn) => {
             // 連撃、オギャり状態、チャージ処理
             const PROC_KIND = [BUFF.BABIED, BUFF.CHARGE];
             if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind) || PROC_KIND.includes(buffInfo.buff_kind)) {
-                addBuffUnit(tempTurn, buffInfo, skill_data.place_no, unit_data);
+                addBuffUnit(tempTurn, buffInfo, skill_data.placeNo, unit_data);
             }
         }
         let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
             // 通常攻撃
-            if (!isResist(turn.enemy_info, physical, unit_data.normalAttackElement, null)) {
+            if (!isResist(turn.enemyInfo, physical, unit_data.normalAttackElement, null)) {
                 unit_od_plus += calcODGain(3, 1, badies);
             }
         } else if (attackInfo) {
@@ -544,7 +544,7 @@ export const getOverDrive = (turn) => {
                     break;
             }
             front_cost_list.push(unit_data.sp_cost);
-            if (!isResist(turn.enemy_info, physical, attackInfo.attack_element, attackId)) {
+            if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackId)) {
                 let enemy_target = enemy_count;
                 if (attackInfo.range_area === 1) {
                     enemy_target = 1;
@@ -556,7 +556,7 @@ export const getOverDrive = (turn) => {
                     buffList.forEach(function (buffInfo) {
                         // 連撃のみ処理
                         if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind)) {
-                            addBuffUnit(tempTurn, buffInfo, skill_data.place_no, unit_data);
+                            addBuffUnit(tempTurn, buffInfo, skill_data.placeNo, unit_data);
                         }
                     });
                     let funnel_list = getFunnelList(unit_data);
@@ -567,19 +567,19 @@ export const getOverDrive = (turn) => {
         od_plus += unit_od_plus;
     }
     // // 後衛の選択取得
-    [3, 4, 5].forEach(function (place_no) {
-        let unit_data = getUnitData(tempTurn, place_no);
+    [3, 4, 5].forEach(function (placeNo) {
+        let unit_data = getUnitData(tempTurn, placeNo);
         if (unit_data.blank) {
             return;
         }
-        let skill_id = unit_data.select_skill_id;
+        let skill_id = unit_data.selectSkillId;
         if (skill_id === SKILL.NONE) {
             return true;
         }
         // 追撃
         if (skill_id === SKILL.PURSUIT) {
             let chara_data = getCharaData(unit_data.style.styleInfo.chara_id);
-            if (!isResist(turn.enemy_info, chara_data.physical, 0, 0)) {
+            if (!isResist(turn.enemyInfo, chara_data.physical, 0, 0)) {
                 od_plus += chara_data.pursuit * 2.5;
             }
             return true;
@@ -587,7 +587,7 @@ export const getOverDrive = (turn) => {
         let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
         // 自動追撃
         if (skill_id === SKILL.AUTO_PURSUIT) {
-            if (!isResist(turn.enemy_info, physical, 0, 0)) {
+            if (!isResist(turn.enemyInfo, physical, 0, 0)) {
                 let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                 front_cost_list.filter(cost => cost <= 8).forEach(cost => {
                     od_plus += chara_data.pursuit * 2.5
@@ -602,7 +602,7 @@ export const getOverDrive = (turn) => {
             if (attackInfo) {
                 let badies = checkBuffExist(unit_data.buffList, BUFF.BABIED) ? 20 : 0;
                 const earring = attackInfo.attack_id ? getearringEffectSize(attackInfo.hit_count, unit_data) : 0;
-                if (!isResist(turn.enemy_info, physical, attackInfo.attack_element, attackInfo.attack_id)) {
+                if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)) {
                     let enemy_target = enemy_count;
                     if (attackInfo.range_area === 1) {
                         enemy_target = 1;
@@ -613,7 +613,7 @@ export const getOverDrive = (turn) => {
             }
             if (skill_id === SKILL_ID.CAT_JET_SHOOTING) {
                 // ネコジェット・シャテキ後自動追撃
-                if (!isResist(turn.enemy_info, physical, 0, 0)) {
+                if (!isResist(turn.enemyInfo, physical, 0, 0)) {
                     let chara_data = getCharaData(unit_data.style.styleInfo.chara_id)
                     const validCosts = front_cost_list.filter(cost => cost <= 8);
                     validCosts.slice(0, Math.max(validCosts.length - 1, 0)).forEach(() => {
@@ -656,7 +656,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
     }
 
     // 追加ターン
-    if (turn_data.additional_turn) {
+    if (turn_data.additionalTurn) {
         // クイックリキャスト
         if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1506)) {
             spCostDown = 2;
@@ -671,7 +671,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
         }
     }
     // オーバードライブ中
-    if (turn_data.over_drive_max_turn > 0) {
+    if (turn_data.overDriveMaxTurn > 0) {
         // 獅子に鰭
         if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1521)) {
             spCostDown = 2;
@@ -739,8 +739,8 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
             return turn_data.turn_number === 1;
         case CONDITIONS.SKILL_INIT: // 初回
             return !unit_data.useSkillList.includes(skill_id)
-        case CONDITIONS.ADDITIONAL_TURN: // 追加ターン
-            return turn_data.additional_turn;
+        case CONDITIONS.additionalTurn: // 追加ターン
+            return turn_data.additionalTurn;
         case CONDITIONS.DESTRUCTION_OVER_200: // 破壊率200%以上
         case CONDITIONS.BREAK: // ブレイク時
         case CONDITIONS.HAS_SHADOW: // 影分身
@@ -748,15 +748,15 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
         case CONDITIONS.DOWN_TURN: // ダウンターン
         case CONDITIONS.BUFF_DISPEL: // バフ解除
         case CONDITIONS.DP_OVER_100: // DP100%以上
-            return unit_data.buff_effect_select_type === 1;
+            return unit_data.buffEffectSelectType === 1;
         case CONDITIONS.OVER_DRIVE: // オーバードライブ中
-            return turn_data.over_drive_max_turn > 0;
+            return turn_data.overDriveMaxTurn > 0;
         case CONDITIONS.DEFFENCE_DOWN: // 防御ダウン
-            return checkBuffExist(turn_data.enemy_debuffList, BUFF.DEFENSEDOWN);
+            return checkBuffExist(turn_data.enemyDebuffList, BUFF.DEFENSEDOWN);
         case CONDITIONS.FRAGILE: // 脆弱
-            return checkBuffExist(turn_data.enemy_debuffList, BUFF.FRAGILE);
+            return checkBuffExist(turn_data.enemyDebuffList, BUFF.FRAGILE);
         case CONDITIONS.TARGET_COVER: // 集中・挑発状態
-            return checkBuffExist(turn_data.enemy_debuffList, BUFF.PROVOKE) || checkBuffExist(turn_data.enemy_debuffList, BUFF.COVER);
+            return checkBuffExist(turn_data.enemyDebuffList, BUFF.PROVOKE) || checkBuffExist(turn_data.enemyDebuffList, BUFF.COVER);
         case CONDITIONS.FIELD_NONE: // フィールド無し
             return [FIELD.NORMAL, FIELD.RICE, FIELD.SANDSTORM].includes(turn_data.field);
         case CONDITIONS.FIELD_FIRE: // 火属性フィールド
@@ -782,7 +782,7 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
         case CONDITIONS.ENEMY_COUNT_3: // 敵3体
             return turn_data.enemy_count === 3;
         case CONDITIONS.SELECT_31A: // 31A選択
-            return CHARA_ID.MEMBER_31A.includes(unit_data.buff_target_chara_id);
+            return CHARA_ID.MEMBER_31A.includes(unit_data.buffTargetCharaId);
         case CONDITIONS.MEMBER_31C_3: // 31A3人以上
             return checkMember(turn_data.unitList, "31A") >= 3;
         case CONDITIONS.OVER_31C_3: // 31C3人以上
@@ -841,7 +841,7 @@ function getFieldElement(turn_data) {
 }
 
 // バフを追加
-function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
+function addBuffUnit(turn_data, buffInfo, placeNo, use_unit_data) {
     // 条件判定
     if (buffInfo.conditions !== null) {
         if (!judgmentCondition(buffInfo.conditions, buffInfo.conditions_id, turn_data, use_unit_data, buffInfo.skill_id)) {
@@ -853,7 +853,7 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
     switch (buffInfo.buff_id) {
         // 選択されなかった
         case 2: // トリック・カノン(攻撃力低下)
-            if (use_unit_data.buff_effect_select_type === 0) {
+            if (use_unit_data.buffEffectSelectType === 0) {
                 return;
             }
             break;
@@ -895,7 +895,7 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
         case BUFF.SHREDDING: // 速弾き
         case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
             // バフ追加
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             if (buffInfo.buff_kind === BUFF.ATTACKUP || buffInfo.buff_kind === BUFF.ELEMENT_ATTACKUP) {
                 // 先頭のバフ強化を消費する。
                 let index = use_unit_data.buffList.findIndex(function (buffInfo) {
@@ -944,7 +944,7 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
             break;
         case BUFF.MORALE: // 士気
             // バフ追加
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 if (unit_data.blank) {
@@ -986,17 +986,17 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
             }
             for (let i = 0; i < add_count; i++) {
                 let debuff = createBuffData(buffInfo, use_unit_data);
-                turn_data.enemy_debuffList.push(debuff);
+                turn_data.enemyDebuffList.push(debuff);
             }
             break;
         case BUFF.HEALSP: // SP追加
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             targetList.forEach(function (target_no) {
-                skillHealSp(turn_data, target_no, buffInfo.min_power, buffInfo.max_power, place_no, false, buffInfo.buff_id);
+                skillHealSp(turn_data, target_no, buffInfo.min_power, buffInfo.max_power, placeNo, false, buffInfo.buff_id);
             });
             break;
         case BUFF.HEALEP: // EP追加
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turn_data, target_no);
                 unitData.ep += buffInfo.min_power;
@@ -1006,36 +1006,36 @@ function addBuffUnit(turn_data, buffInfo, place_no, use_unit_data) {
             });
             break;
         case BUFF.ADDITIONALTURN: // 追加ターン
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turn_data, target_no);
-                unitData.additional_turn = true;
+                unitData.additionalTurn = true;
             });
-            turn_data.additional_turn = true;
+            turn_data.additionalTurn = true;
             break;
         case BUFF.FIELD: // フィールド
             turn_data.field = buffInfo.buff_element;
-            let field_turn = buffInfo.effect_count;
-            if (field_turn > 0) {
+            let fieldTurn = buffInfo.effect_count;
+            if (fieldTurn > 0) {
                 // 天長地久
                 if (checkAbilityExist(use_unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 603)) {
-                    field_turn = 0;
+                    fieldTurn = 0;
                 }
                 // 天長地久
                 if (checkAbilityExist(use_unit_data[`ability_${ABILIRY_TIMING.OTHER}`], 606) && checkBuffExist(use_unit_data.buffList, BUFF.MORALE, 6)) {
-                    field_turn = 0;
+                    fieldTurn = 0;
                 }
                 // メディテーション
                 if (checkPassiveExist(use_unit_data.passiveSkillList, 501)) {
-                    field_turn = 0;
+                    fieldTurn = 0;
                 }
             }
             // フィールド展開アビリティ
             abilityAction(ABILIRY_TIMING.FIELD_DEPLOY, turn_data);
-            turn_data.field_turn = field_turn;
+            turn_data.fieldTurn = fieldTurn;
             break;
         case BUFF.DISPEL: // ディスペル
-            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, place_no, use_unit_data.buff_target_chara_id);
+            targetList = getTargetList(turn_data, buffInfo.range_area, buffInfo.target_element, placeNo, use_unit_data.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unit_data = getUnitData(turn_data, target_no);
                 unit_data.buffList = unit_data.buffList.filter(function (buffInfo) {
@@ -1163,7 +1163,7 @@ function consumeBuffUnit(turn_data, unit_data, attack_info, skillInfo) {
                     if (buffInfo.buff_kind === BUFF.MINDEYE) {
                         // 弱点のみ消費
                         let physical = getCharaData(unit_data.style.styleInfo.chara_id).physical;
-                        if (!isWeak(turn_data.enemy_info, physical, attack_info.attack_element, attack_info.attack_id)) {
+                        if (!isWeak(turn_data.enemyInfo, physical, attack_info.attack_element, attack_info.attack_id)) {
                             continue;
                         }
                     }
@@ -1320,7 +1320,7 @@ export function getBuffKindName(buffInfo) {
 
 
 // ターゲットリスト追加
-function getTargetList(turn_data, range_area, target_element, place_no, buff_target_chara_id) {
+function getTargetList(turn_data, range_area, target_element, placeNo, buffTargetCharaId) {
     let targetList = [];
     let target_unit_data;
     switch (range_area) {
@@ -1332,9 +1332,9 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             break;
         case RANGE.ALLY_UNIT: // 味方単体
         case RANGE.OTHER_UNIT: // 自分以外の味方単体
-            target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === buff_target_chara_id);
+            target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === buffTargetCharaId);
             if (target_unit_data.length > 0) {
-                targetList.push(target_unit_data[0].place_no);
+                targetList.push(target_unit_data[0].placeNo);
             }
             break;
         case RANGE.ALLY_FRONT: // 味方前衛
@@ -1347,20 +1347,20 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
             targetList = [...Array(6).keys()];
             break;
         case RANGE.SELF: // 自分
-            targetList.push(place_no);
+            targetList.push(placeNo);
             break;
         case RANGE.SELF_OTHER: // 自分以外
-            targetList = [...Array(6).keys()].filter(num => num !== place_no);
+            targetList = [...Array(6).keys()].filter(num => num !== placeNo);
             break;
         case RANGE.SELF_AND_UNIT: // 味方単体
-            target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === buff_target_chara_id);
-            targetList.push(place_no);
+            target_unit_data = turn_data.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === buffTargetCharaId);
+            targetList.push(placeNo);
             if (target_unit_data.length > 0) {
-                targetList.push(target_unit_data[0].place_no);
+                targetList.push(target_unit_data[0].placeNo);
             }
             break;
         case RANGE.FRONT_OTHER: // 自分以外の前衛
-            targetList = [...Array(3).keys()].filter(num => num !== place_no);
+            targetList = [...Array(3).keys()].filter(num => num !== placeNo);
             break;
         case RANGE.MEMBER_31C: // 31Cメンバー
             targetList = getTargetPlaceList(turn_data.unitList, CHARA_ID.MEMBER_31C);
@@ -1392,9 +1392,9 @@ function getTargetList(turn_data, range_area, target_element, place_no, buff_tar
 // メンバーリスト作成
 function getTargetPlaceList(unitList, member_id_list) {
     return member_id_list.reduce((acc, member_id) => {
-        const place_no = charaIdToPlaceNo(unitList, member_id);
-        if (place_no !== null) { // nullを除外
-            acc.push(place_no);
+        const placeNo = charaIdToPlaceNo(unitList, member_id);
+        if (placeNo !== null) { // nullを除外
+            acc.push(placeNo);
         }
         return acc;
     }, []);
@@ -1403,7 +1403,7 @@ function getTargetPlaceList(unitList, member_id_list) {
 function charaIdToPlaceNo(unitList, member_id) {
     for (let unit of unitList) {
         if (unit.style?.styleInfo?.chara_id === member_id) {
-            return unit.place_no;
+            return unit.placeNo;
         }
     }
     return null;
@@ -1416,14 +1416,14 @@ const sortActionSeq = (turn_data) => {
 
     // 前衛のスキルを取得
     turn_data.unitList.forEach((unit, index) => {
-        let skill_id = unit.select_skill_id;
-        let place_no = unit.place_no;
+        let skill_id = unit.selectSkillId;
+        let placeNo = unit.placeNo;
         // 前衛以外
-        if (skill_id === 0 || 3 <= place_no) {
+        if (skill_id === 0 || 3 <= placeNo) {
             return true;
         }
         // 追加ターン以外
-        if (turn_data.additional_turn && !unit.additional_turn) {
+        if (turn_data.additionalTurn && !unit.additionalTurn) {
             return true;
         }
         // 行動不能
@@ -1433,7 +1433,7 @@ const sortActionSeq = (turn_data) => {
         let skillInfo = getSkillData(skill_id);
         let skill_data = {
             skillInfo: skillInfo,
-            place_no: place_no
+            placeNo: placeNo
         };
         let attackInfo = getSkillIdToAttackInfo(turn_data, skill_id);
         if (attackInfo || skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
@@ -1442,8 +1442,8 @@ const sortActionSeq = (turn_data) => {
             buff_seq.push(skill_data);
         }
     });
-    attack_seq.sort((a, b) => a.place_no - b.place_no);
-    buff_seq.sort((a, b) => a.place_no - b.place_no);
+    attack_seq.sort((a, b) => a.placeNo - b.placeNo);
+    buff_seq.sort((a, b) => a.placeNo - b.placeNo);
     // バフとアタックの順序を結合
     return buff_seq.concat(attack_seq);
 }
@@ -1456,7 +1456,7 @@ export const recreateTurnData = (turnList, turnData, userOperationList, isLoadMo
         item.used = compereUserOperation(item, turnData) <= 0;
     })
 
-    while (compereUserOperation(turnData.user_operation, userOperationList[userOperationList.length - 1]) < 0) {
+    while (compereUserOperation(turnData.userOperation, userOperationList[userOperationList.length - 1]) < 0) {
         // 現ターン処理
         turnData = deepClone(turnData);
         startAction(turnData);
@@ -1473,12 +1473,12 @@ export const recreateTurnData = (turnList, turnData, userOperationList, isLoadMo
 // ターン初期処理
 export function initTurn(turnData) {
     unitSort(turnData);
-    if (turnData.additional_turn) {
+    if (turnData.additionalTurn) {
         turnProceed(KB_NEXT.ADDITIONALTURN, turnData);
         // 追加ターン開始
         abilityAction(ABILIRY_TIMING.ADDITIONALTURN, turnData);
     } else {
-        let kbAction = turnData.user_operation.kb_action;
+        let kbAction = turnData.userOperation.kb_action;
         if (kbAction === KB_NEXT.ACTION) {
             // 行動開始時
             abilityAction(ABILIRY_TIMING.ACTION_START, turnData);
@@ -1491,10 +1491,10 @@ export function initTurn(turnData) {
     }
 
     // ターンごとに初期化
-    turnData.trigger_over_drive = false;
-    turnData.start_over_drive_gauge = turnData.over_drive_gauge;
+    turnData.triggerOverDrive = false;
+    turnData.startOverDriveGauge = turnData.overDriveGauge;
     turnData.old_field = turnData.field;
-    turnData.seq_turn++;
+    turnData.seqTurn++;
     setUserOperation(turnData);
 }
 
@@ -1520,18 +1520,18 @@ const unitOrderLoop = (func, unitList) => {
 // 1:通常戦闘,2:後打ちOD,3:追加ターン
 const turnProceed = (kb_next, turn) => {
     let turnProgress = false;
-    turn.enemy_debuffList.sort((a, b) => a.buff_kind - b.buff_kind);
+    turn.enemyDebuffList.sort((a, b) => a.buff_kind - b.buff_kind);
     if (kb_next === KB_NEXT.ACTION) {
         // オーバードライブ
-        if (turn.over_drive_max_turn > 0) {
-            turn.over_drive_number++;
+        if (turn.overDriveMaxTurn > 0) {
+            turn.overDriveNumber++;
             unitLoop(unitOverDriveTurnProceed, turn.unitList)
-            if (turn.over_drive_max_turn < turn.over_drive_number) {
+            if (turn.overDriveMaxTurn < turn.overDriveNumber) {
                 // オーバードライブ終了
-                turn.over_drive_max_turn = 0;
-                turn.over_drive_number = 0;
-                turn.end_drive_trigger_count++;
-                if (turn.finish_action) {
+                turn.overDriveMaxTurn = 0;
+                turn.overDriveNumber = 0;
+                turn.endDriveTriggerCount++;
+                if (turn.finishAction) {
                     turnProgress = true;
                     nextTurn(turn);
                 }
@@ -1540,31 +1540,31 @@ const turnProceed = (kb_next, turn) => {
             turnProgress = true;
             nextTurn(turn);
         }
-        turn.additional_count = 0;
+        turn.additionalCount = 0;
     } else if (kb_next === KB_NEXT.ADDITIONALTURN) {
         // 追加ターン
-        turn.additional_count++;
+        turn.additionalCount++;
     } else {
         // 行動開始＋OD発動
         startOverDrive(turn);
-        turn.finish_action = true;
-        turn.end_drive_trigger_count = 0;
+        turn.finishAction = true;
+        turn.endDriveTriggerCount = 0;
         unitLoop(unitOverDriveTurnProceed, turn.unitList);
     }
     unitLoop(function (unit) {
-        if (unit.no_action) {
-            unit.no_action = false;
+        if (unit.noAction) {
+            unit.noAction = false;
             return;
         }
         buffConsumption(turnProgress, unit);
-        unitTurnInit(turn.additional_turn, unit);
+        unitTurnInit(turn.additionalTurn, unit);
     }, turn.unitList);
     return turnProgress
 }
 
 export const setUserOperation = (turn) => {
     // 初期値を設定
-    turn.user_operation = {
+    turn.userOperation = {
         field: null,
         enemy_count: null,
         select_skill: turn.unitList.map(function (unit) {
@@ -1572,19 +1572,19 @@ export const setUserOperation = (turn) => {
                 return null;
             }
             setInitSkill(unit)
-            return { skill_id: unit.select_skill_id };
+            return { skill_id: unit.selectSkillId };
         }),
-        place_style: turn.unitList.map(function (unit) {
+        placeStyle: turn.unitList.map(function (unit) {
             return unit.blank ? 0 : unit.style.styleInfo.style_id;
         }),
-        trigger_over_drive: false,
-        selected_place_no: -1,
+        triggerOverDrive: false,
+        selectedPlaceNo: -1,
         kb_action: KB_NEXT.ACTION,
-        finish_action: turn.finish_action,
-        end_drive_trigger_count: turn.end_drive_trigger_count,
+        finishAction: turn.finishAction,
+        endDriveTriggerCount: turn.endDriveTriggerCount,
         turn_number: turn.turn_number,
-        additional_count: turn.additional_count,
-        over_drive_number: turn.over_drive_number,
+        additionalCount: turn.additionalCount,
+        overDriveNumber: turn.overDriveNumber,
         remark: "",
     }
 }
@@ -1594,16 +1594,16 @@ const nextTurn = (turn) => {
     unitLoop(unitTurnProceed, turn.unitList, turn);
 
     turn.turn_number++;
-    turn.finish_action = false;
-    turn.end_drive_trigger_count = 0;
+    turn.finishAction = false;
+    turn.endDriveTriggerCount = 0;
     abilityAction(ABILIRY_TIMING.RECEIVE_DAMAGE, turn);
-    if (turn.turn_number % turn.step_turn_over_drive === 0) {
-        turn.over_drive_gauge += turn.step_over_drive_gauge;
-        if (turn.over_drive_gauge < -300) {
-            turn.over_drive_gauge = -300;
+    if (turn.turn_number % turn.stepTurnOverDrive === 0) {
+        turn.overDriveGauge += turn.stepOverDriveGauge;
+        if (turn.overDriveGauge < -300) {
+            turn.overDriveGauge = -300;
         }
-        if (turn.over_drive_gauge > 300) {
-            turn.over_drive_gauge = 300;
+        if (turn.overDriveGauge > 300) {
+            turn.overDriveGauge = 300;
         }
     }
     // 敵のデバフ消費
@@ -1611,63 +1611,63 @@ const nextTurn = (turn) => {
 }
 
 const unitSort = (turn) => {
-    turn.unitList.sort((a, b) => a.place_no - b.place_no);
+    turn.unitList.sort((a, b) => a.placeNo - b.placeNo);
 }
 
 export const getTurnNumber = (turn) => {
     const defalt_turn = "ターン" + turn.turn_number;
     // 追加ターン
-    if (turn.additional_turn) {
+    if (turn.additionalTurn) {
         return `${defalt_turn} 追加ターン`;
     }
     // オーバードライブ中
-    if (turn.over_drive_number > 0) {
-        return `${defalt_turn} OverDrive${turn.over_drive_number}/${turn.over_drive_max_turn}`;
+    if (turn.overDriveNumber > 0) {
+        return `${defalt_turn} OverDrive${turn.overDriveNumber}/${turn.overDriveMaxTurn}`;
     }
     return defalt_turn;
 }
 
 export const addOverDrive = (add_od_gauge, turn) => {
-    turn.over_drive_gauge += add_od_gauge;
-    if (turn.over_drive_gauge > 300) {
-        turn.over_drive_gauge = 300;
+    turn.overDriveGauge += add_od_gauge;
+    if (turn.overDriveGauge > 300) {
+        turn.overDriveGauge = 300;
     }
 }
 
 export const startOverDrive = (turn) => {
-    let over_drive_level = Math.floor(turn.over_drive_gauge / 100)
-    turn.over_drive_number = 1;
-    turn.over_drive_max_turn = over_drive_level;
-    turn.over_drive_gauge = 0;
-    turn.add_over_drive_gauge = 0;
+    let over_drive_level = Math.floor(turn.overDriveGauge / 100)
+    turn.overDriveNumber = 1;
+    turn.overDriveMaxTurn = over_drive_level;
+    turn.overDriveGauge = 0;
+    turn.addOverDriveGauge = 0;
 
     let sp_list = [0, 5, 12, 20];
     unitLoop(function (unit) {
         unit.overDriveSp = sp_list[over_drive_level];
-        unit.sp_cost = getSpCost(turn, getSkillData(unit.select_skill_id), unit);
+        unit.sp_cost = getSpCost(turn, getSkillData(unit.selectSkillId), unit);
     }, turn.unitList);
     abilityAction(ABILIRY_TIMING.OD_START, turn);
-    turn.trigger_over_drive = true;
+    turn.triggerOverDrive = true;
 }
 
 export const removeOverDrive = (turn) => {
-    turn.over_drive_number = 0;
-    turn.over_drive_max_turn = 0;
-    turn.over_drive_gauge = turn.start_over_drive_gauge;
-    turn.add_over_drive_gauge = 0;
+    turn.overDriveNumber = 0;
+    turn.overDriveMaxTurn = 0;
+    turn.overDriveGauge = turn.startOverDriveGauge;
+    turn.addOverDriveGauge = 0;
 
     unitLoop(function (unit) {
         unit.overDriveSp = 0;
-        unit.sp_cost = getSpCost(turn, getSkillData(unit.select_skill_id), unit);
+        unit.sp_cost = getSpCost(turn, getSkillData(unit.selectSkillId), unit);
     }, turn.unitList);
-    turn.trigger_over_drive = false;
+    turn.triggerOverDrive = false;
 }
 
 const debuffConsumption = (turn) => {
-    for (let i = turn.enemy_debuffList.length - 1; i >= 0; i--) {
-        let debuff = turn.enemy_debuffList[i];
+    for (let i = turn.enemyDebuffList.length - 1; i >= 0; i--) {
+        let debuff = turn.enemyDebuffList[i];
         if (debuff.rest_turn === 1) {
-            turn.enemy_debuffList.splice(i, 1);
+            turn.enemyDebuffList.splice(i, 1);
         } else {
             debuff.rest_turn -= 1;
         }
@@ -1683,12 +1683,12 @@ export const abilityAction = (action_kbn, turn) => {
 /** TurnDataここまで */
 
 /** UnitDataここから */
-const unitTurnInit = (additional_turn, unit) => {
-    unit.buff_effect_select_type = 0;
-    if (!additional_turn || unit.additional_turn) {
+const unitTurnInit = (additionalTurn, unit) => {
+    unit.buffEffectSelectType = 0;
+    if (!additionalTurn || unit.additionalTurn) {
         setInitSkill(unit);
     } else {
-        unit.select_skill_id = SKILL.NONE;
+        unit.selectSkillId = SKILL.NONE;
     }
 }
 
@@ -1702,14 +1702,14 @@ const unitTurnProceed = (unit, turn) => {
     }
     if (unit.sp < unit.limitSp) {
         unit.sp += 2;
-        if (unit.place_no < 3) {
+        if (unit.placeNo < 3) {
             unit.sp += turn.frontSpAdd;
         } else {
             unit.sp += turn.backSpAdd;
         }
         if ((turn.turn_number + 1) % turn.stepTurnSp === 0) {
             unit.sp += turn.stepSpAllAdd;
-            if (unit.place_no < 3) {
+            if (unit.placeNo < 3) {
                 unit.sp += turn.stepSpFrontAdd;
             } else {
                 unit.sp += turn.stepSpBackAdd;
@@ -1739,20 +1739,20 @@ function targetCountInclude(turnData, targetElement) {
 }
 
 export const setInitSkill = (unit) => {
-    if (unit.place_no < 3) {
-        unit.select_skill_id = unit.init_skill_id;
+    if (unit.placeNo < 3) {
+        unit.selectSkillId = unit.initSkillId;
         unit.sp_cost = 0;
     } else {
         if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1530)) {
             // 湯めぐり
-            unit.select_skill_id = SKILL.AUTO_PURSUIT;
+            unit.selectSkillId = SKILL.AUTO_PURSUIT;
         } else {
-            unit.select_skill_id = SKILL.NONE;
+            unit.selectSkillId = SKILL.NONE;
         }
         unit.sp_cost = 0;
     }
-    unit.buff_effect_select_type = null;
-    unit.buff_target_chara_id = null;
+    unit.buffEffectSelectType = null;
+    unit.buffTargetCharaId = null;
 }
 
 const unitOverDriveTurnProceed = (unit) => {
@@ -1800,7 +1800,7 @@ const payCost = (unit) => {
     if (unit.sp + unit.overDriveSp > 99) {
         unit.sp = 99 - unit.overDriveSp;
     }
-    if (unit.select_skill_id === 591) {
+    if (unit.selectSkillId === 591) {
         // ノヴァエリミネーション
         unit.ep -= unit.sp_cost;
     } else {
@@ -1882,20 +1882,20 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
     // 被ダメージ時
     if (action_kbn === ABILIRY_TIMING.RECEIVE_DAMAGE) {
         // 前衛のみ
-        if (unit.place_no >= 3) {
+        if (unit.placeNo >= 3) {
             action_list = [];
         }
     }
     action_list.forEach((ability, index) => {
         // 前衛
-        if (ability.activation_place === 1 && unit.place_no >= 3) {
+        if (ability.activation_place === 1 && unit.placeNo >= 3) {
             return true;
         }
         // 後衛
-        if (ability.activation_place === 2 && unit.place_no < 3) {
+        if (ability.activation_place === 2 && unit.placeNo < 3) {
             return true;
         }
-        let targetList = getTargetList(turn_data, ability.range_area, ability.target_element, unit.place_no, null);
+        let targetList = getTargetList(turn_data, ability.range_area, ability.target_element, unit.placeNo, null);
         let buff;
         switch (ability.conditions) {
             case "火属性フィールド":
@@ -1919,12 +1919,12 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 }
                 break;
             case "OD100%未満":
-                if (turn_data.over_drive_gauge >= 100) {
+                if (turn_data.overDriveGauge >= 100) {
                     return;
                 }
                 break;
             case "OD0%未満":
-                if (turn_data.over_drive_gauge >= 0) {
+                if (turn_data.overDriveGauge >= 0) {
                     return;
                 }
                 break;
@@ -1977,7 +1977,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                             switch (ability.ability_id) {
                                 case 1109: // 吉報
                                 case 1119: // 旺盛
-                                    unit_data.add_sp += ability.effect_size;
+                                    unit_data.addSp += ability.effect_size;
                                     break;
                                 case 1112: // 好機
                                     if (unit_data.sp <= 3) {
@@ -2020,7 +2020,7 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                         if (ability.skill_id) {
                             switch (ability.skill_id) {
                                 case 524: // 痛気持ちいぃ～！
-                                    unit_data.add_sp += ability.effect_size;
+                                    unit_data.addSp += ability.effect_size;
                                     break;
                                 default:
                                     unit_data.sp += ability.effect_size;
@@ -2073,9 +2073,9 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     return;
                 }
                 ability.used = true;
-                turn_data.over_drive_gauge += ability.effect_size;
-                if (turn_data.over_drive_gauge > 300) {
-                    turn_data.over_drive_gauge = 300;
+                turn_data.overDriveGauge += ability.effect_size;
+                if (turn_data.overDriveGauge > 300) {
+                    turn_data.overDriveGauge = 300;
                 }
                 break;
             case EFFECT.ARROWCHERRYBLOSSOMS: // 桜花の矢
@@ -2112,9 +2112,9 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 }
                 break;
             case EFFECT.ADDITIONALTURN: // 追加ターン
-                if (turn_data.additional_count === 0) {
-                    unit.additional_turn = true;
-                    turn_data.additional_turn = true;
+                if (turn_data.additionalCount === 0) {
+                    unit.additionalTurn = true;
+                    turn_data.additionalTurn = true;
                 }
                 break;
             default:

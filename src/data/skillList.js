@@ -561,6 +561,8 @@ const skilLlist = [
     {"skill_id":659,"skill_name":"咲き昇る宵の幻","chara_id":45,"style_id":174,"sp_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":660,"skill_name":"神業レシーブ","chara_id":48,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":661,"skill_name":"飛沫きらめく水浅葱","chara_id":48,"style_id":175,"sp_cost":14,"skill_active":0,"skill_kind":1,"skill_attribute":11,"attribute_conditions":2},
+    {"skill_id":662,"skill_name":"ナイトキルエッジ","chara_id":5,"style_id":177,"sp_cost":14,"skill_active":0,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
+    {"skill_id":663,"skill_name":"シンメトリー・リベレーション","chara_id":5,"style_id":176,"sp_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":12,"attribute_conditions":10},
     {"skill_id":8001,"skill_name":"チャージ","chara_id":501,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":9,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":8002,"skill_name":"心眼","chara_id":501,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":9,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":8003,"skill_name":"連撃＋","chara_id":501,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":9,"skill_attribute":null,"attribute_conditions":null},

@@ -107,7 +107,7 @@ export function getEnemyResist(attackInfo, state) {
     let element_resist = enemyInfo[`element_${attackInfo.attack_element}`]
         - correction[`element_${attackInfo.attack_element}`] + state.resistDown[attackInfo.attack_element];
     if (attackInfo.penetration) {
-        physical_resist = attackInfo.penetration;
+        physical_resist = 100 + attackInfo.penetration;
         element_resist = 100;
     }
     return [physical_resist, element_resist];

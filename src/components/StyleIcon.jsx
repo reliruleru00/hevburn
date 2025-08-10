@@ -1,22 +1,44 @@
 import icons from 'assets/thumbnail';
 import plusIcon from 'assets/img/plus.png';
+import changeIcon from 'assets/img/change.png';
+import { useStyleList } from "components/StyleListProvider";
 
-const StyleIcon = ({ style, place_no, onClick }) => {
+const changeStyle = {
+    176: 177,
+    177: 176
+}
+
+const StyleIcon = ({ style, placeNo, onClick, isChange }) => {
+    const { styleList, setMember } = useStyleList();
+
     let icon = plusIcon;
     if (style && style.styleInfo && style.styleInfo.image_url) {
-        const imageName = style.styleInfo.image_url.replace(/\.(webp)$/, '');
+        const imageName = style.styleInfo.image_url;
         icon = icons[imageName] || plusIcon;
     }
 
+    const clickSetMember = (styleId) => {
+        setMember(placeNo, styleId);
+        localStorage.setItem(`troops_${styleList.selectTroops}_${placeNo}`, styleId);
+    }
+
     return (
-        <>
+        <div className="relative">
             <img
                 className="showmodal select_style"
                 src={icon}
-                alt={'メンバー' + place_no}
-                onClick={() => { onClick("style", place_no) }}
+                alt={'メンバー' + placeNo}
+                onClick={() => { onClick("style", placeNo) }}
             />
-        </>
+            {changeStyle[style?.styleInfo.style_id] && isChange &&
+                <img
+                    className="absolute top-[0px] right-[0px] w-[24px] h-[24px]"
+                    src={changeIcon}
+                    alt={"変更"}
+                    onClick={() => { clickSetMember(changeStyle[style?.styleInfo.style_id]) }}
+                />
+            }
+        </div>
     )
 };
 

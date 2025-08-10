@@ -207,6 +207,7 @@ export const CONDITIONS = {
     PERCENTAGE_30: 7, // 確率30%
     DOWN_TURN: 8, // ダウンターン
     BUFF_DISPEL: 9, // バフ解除
+    SUPER_DOWN: 10, // 超ダウン
     DEFFENCE_DOWN: 11, // 防御ダウン中
     FRAGILE: 12, // 脆弱中
     TARGET_COVER: 13, // 集中・挑発状態

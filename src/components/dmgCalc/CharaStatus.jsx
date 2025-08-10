@@ -170,7 +170,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                                                             justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <StyleIcon style={style} place_no={index} onClick={() => { openModal(index, "style") }} />
+                                                        <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} isChange={true}/>
                                                     </li>
                                                 )}
                                             </Draggable>)
@@ -257,7 +257,7 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     return (
                         <div key={`chara_no${index}`}>
                             <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                                {rarity <= 1 ?
+                                {rarity <= 1 || rarity <= 99 ?
                                     Array.from({ length: 5 }, (_, i) => (
                                         <option value={i} key={`limit_${i}`}>{i}</option>
                                     ))

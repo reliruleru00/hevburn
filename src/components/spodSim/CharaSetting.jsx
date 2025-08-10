@@ -144,7 +144,7 @@ const CharaSetting = () => {
                                                         justifyContent: 'center',
                                                     }}
                                                 >
-                                                    <StyleIcon style={style} place_no={index} onClick={() => { openModal(index, "style") }} />
+                                                    <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} isChange={false} />
                                                 </li>
                                             )}
                                         </Draggable>)

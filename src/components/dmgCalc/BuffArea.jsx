@@ -669,6 +669,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 "00": memberInfo.styleInfo.ability00,
                 "1": memberInfo.styleInfo.ability1,
                 "3": memberInfo.styleInfo.ability3,
+                "03": memberInfo.styleInfo.ability03,
                 "5": memberInfo.styleInfo.ability5,
                 "10": memberInfo.styleInfo.ability10
             };

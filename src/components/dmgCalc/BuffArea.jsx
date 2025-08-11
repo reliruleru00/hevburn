@@ -234,7 +234,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
         setBuffSettingMap(updateMap);
         refBuffSettingMap.current = updateMap;
-    }, [styleList, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
+    }, [styleList, state.enemyInfo, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
 
     // スキルレベル変更
     const handleChangeSkillLv = (buffKindKey, buffKey, lv, index) => {
@@ -354,7 +354,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
         } else {
             outNotExistBuff();
         }
-    }, [selectList, attackInfo?.attack_id, state.enemyInfo]);
+    }, [selectList, attackInfo?.attack_id, state.enemyInfo.enemy_name]);
 
     useEffect(() => {
         // 山脇様のしもべ変更
@@ -669,7 +669,6 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 "00": memberInfo.styleInfo.ability00,
                 "1": memberInfo.styleInfo.ability1,
                 "3": memberInfo.styleInfo.ability3,
-                "03": memberInfo.styleInfo.ability03,
                 "5": memberInfo.styleInfo.ability5,
                 "10": memberInfo.styleInfo.ability10
             };

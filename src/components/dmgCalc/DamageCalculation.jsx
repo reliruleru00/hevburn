@@ -52,9 +52,16 @@ const setCollect = (state, action) => {
         const kind = action.grade[`effect_kind${i}`];
         if (kind) {
             const size = action.grade[`effect_size${i}`];
+            const conditions = action.grade[`conditions${i}`];
             updated[kind] = action.checked ? size : 0;
             if (kind === "destruction_limit") {
                 newMaxDamageRate = state.enemyInfo.destruction_limit + updated.destruction_limit + (state.strongBreak ? 300 : 0);
+            }
+            if (kind === "defense_rate") {
+                updated[kind] = {
+                    size : action.checked ? size : 0,
+                    conditions : conditions
+                }
             }
         }
     }

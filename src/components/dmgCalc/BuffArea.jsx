@@ -116,7 +116,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
 
     const { buffGroup, abilityList, passiveList } = useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
-    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList]);
+    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak]);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);
@@ -274,8 +274,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
     }
 
     // 上から2番目のbuffを子にセット
-    const selectBestBuff = () => {
-        Object.keys(buffKeyList).forEach((buffKey) => {
+    const selectBestBuff = (selectbuffKeyList) => {
+        Object.keys(selectbuffKeyList).forEach((buffKey) => {
             let buffKind = Number(buffKey.split('-')[1]);
             let kindBuffList = buffGroup[buffKind] ? buffGroup[buffKind][0] : [];
             kindBuffList = filteredOrb(kindBuffList, false);
@@ -346,10 +346,19 @@ const BuffArea = ({ attackInfo, state, dispatch,
     }, [state.enemyInfo, attackInfo?.attack_id, resistDownEffectSize]);
 
     useEffect(() => {
+        if (attackInfo) {
+            let resistKey = {};
+            resistKey[getBuffKey(BUFF.MINDEYE)] = []
+            resistKey[getBuffKey(BUFF.FRAGILE)] = []
+            selectBestBuff(resistKey);
+        }
+    }, [isWeak]);
+
+    useEffect(() => {
         if (checkUpdate) {
             setSelectBuffKeyMap(buffKeyList);
             if (attackInfo) {
-                selectBestBuff();
+                selectBestBuff(buffKeyList);
             }
         } else {
             outNotExistBuff();

@@ -34,6 +34,7 @@ export const BUFF_ID = {
 }
 
 export const ABILITY_ID = {
+    KIREAJI: 602, // キレアジ
     ADMIRAL_COMMON: 299, // 指揮行動
     BLUE_SKY: 510, // 蒼天
     AUTO_PURSUIT: 1530 // 自動追撃,

@@ -6,10 +6,17 @@ import ModalStyleSelection from "components/ModalStyleSelection";
 import StyleIcon from "components/StyleIcon";
 import { getBuffIdToBuff, getSkillData } from "utils/common";
 import { STATUS_KBN } from "utils/const";
+import { getCostVariable, getCharaIdToMember } from "./logic";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import editIcon from 'assets/img/edit.png';
 
-const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
+const CharaStatus = ({ argument: {
+    attackInfo,
+    selectBuffKeyMap,
+    buffSettingMap,
+    abilitySettingMap,
+    passiveSettingMap
+} }) => {
     const { styleList, setStyleList, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
 
     // 設定変更
@@ -217,18 +224,30 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                                 results.push(STATUS_KBN[attackInfo["ref_status_" + i]]);
                             }
                         }
-                        spCost[attackInfo.skill_id] = 1;
+                        let magn = 1;
+                        if (attackInfo.collect?.sphalf) {
+                            magn = 0.5;
+                        } else if (attackInfo.collect?.spzero) {
+                            magn = 0;
+                        }
+                        spCost[attackInfo.skill_id] = magn;
                     }
-                    for (const [, values] of Object.entries(selectBuffKeyMap)) {
+                    for (const values of Object.values(selectBuffKeyMap)) {
                         let tempCount = {};
-                        for (const entry of values) {
-                            if (!entry) continue;
-                            const [, buffId, useCharaId] = entry.split("_");
+                        for (const [key, buffKey] of Object.entries(values)) {
+                            if (!buffKey) continue;
+                            const [, buffId, useCharaId] = buffKey.split("_");
                             if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
                             if (!buffInfo) continue;
-
-                            tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + 1;
+                            const buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
+                            let magn = 1;
+                            if (buffSetting.collect?.sphalf) {
+                                magn = 0.5;
+                            } else if (buffSetting.collect?.spzero) {
+                                magn = 0;
+                            }
+                            tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + magn;
 
                             for (let i = 1; i <= 2; i++) {
                                 const statusKey = buffInfo[`ref_status_${i}`];
@@ -248,10 +267,11 @@ const CharaStatus = ({ attackInfo, selectBuffKeyMap }) => {
                     let intClassName = "status " + (results.includes("int") ? "status_active" : "");
                     let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
                     let sp_cost = 0;
+                    let attackMemberInfo = getCharaIdToMember(styleList, attackInfo?.chara_id);
                     for (const [key, value] of Object.entries(spCost)) {
                         let skill = getSkillData(key);
                         if (skill) {
-                            sp_cost += skill.sp_cost * value;
+                            sp_cost += getCostVariable(skill.sp_cost, attackMemberInfo, abilitySettingMap, passiveSettingMap) * value;
                         }
                     }
                     return (

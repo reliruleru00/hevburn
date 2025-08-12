@@ -1,12 +1,12 @@
 import React from "react";
 import {
-    BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN
+    BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN, ATTRIBUTE
 } from "utils/const";
 import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
-    getCharaIdToMember, getEffectSize, getStatUp
+    getCharaIdToMember, getEffectSize, getStatUp, getCostVariable
 } from "./logic";
-import { getPassiveInfo, getAbilityInfo } from "utils/common";
+import { getSkillData, getPassiveInfo, getAbilityInfo } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
 import { JEWEL_TYPE } from "utils/const";
 
@@ -28,6 +28,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     const isBuffChart = BUFF_LIST.includes(buffInfo.buff_kind);
     const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
     const buffSetting = buffSettingMap[buffInfo.buff_kind][index][buffInfo.key];
+    const skillInfo = getSkillData(buffInfo.skill_id);
     const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
 
     const changeBuffSetting = (item, value) => {
@@ -115,6 +116,14 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         jewelLv = memberInfo.jewelLv;
     }
 
+    let spCost = skillInfo.sp_cost;
+    if (buffSetting.collect?.sphalf) {
+        spCost = Math.ceil(spCost / 2);
+    } else if (buffSetting.collect?.spzero) {
+        spCost = 0;
+    }
+    spCost = getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap)
+
     return (
         <div className="modal text-left p-6 mx-auto">
             <div>
@@ -128,6 +137,30 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                 <span>{getBuffEffectDisplay(buffInfo, buffSetting.skill_lv)}</span>
                 <div></div>
                 <span>(スキルLv{buffSetting.skill_lv})</span>
+                <div>消費SP</div>
+                <span>{spCost}</span>
+                {skillInfo.skill_attribute === ATTRIBUTE.SP_HALF &&
+                    <>
+                        <span>消費SP半減</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="sphalf" checked={buffSetting.collect?.sphalf}
+                                onChange={(e) => changeBuffSetting("sphalf", e.target.checked)}
+                            />
+                            <label htmlFor="sphalf" className="checkbox01"></label>
+                        </div>
+                    </>
+                }
+                {skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO &&
+                    <>
+                        <span>消費SP無し</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="spzero" checked={buffSetting.collect?.spzero}
+                                onChange={(e) => changeBuffSetting("spzero", e.target.checked)}
+                            />
+                            <label htmlFor="spzero" className="checkbox01"></label>
+                        </div>
+                    </>
+                }
                 {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
                     <>
                         <span>参照ステータス</span>

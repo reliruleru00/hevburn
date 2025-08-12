@@ -10,13 +10,9 @@ import PredictionScore from "./PredictionScore";
 import DamageResult from "./DamageResult";
 import BuffArea from "./BuffArea";
 import { ENEMY_CLASS } from "utils/const";
-import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
 
 const setEnemy = (state, action) => {
     const enemy = action.enemyInfo;
-    if (enemy.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-        enemy.enemy_stat = SCORE_STATUS[20];
-    }
     return {
         ...state,
         enemyInfo: enemy,
@@ -189,9 +185,6 @@ const DamageCalculation = () => {
         return enemySelect ? Number(enemySelect) : 1;
     });
     let initEnemyInfo = getEnemyInfo(enemyClass, enemySelect);
-    if (initEnemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-        initEnemyInfo.enemy_stat = SCORE_STATUS[20];
-    }
     const initialState = {
         enemyInfo: initEnemyInfo,
         hpRate: 100,
@@ -266,11 +259,16 @@ const DamageCalculation = () => {
         setBuffSettingMap(newBuffSettingMap);
     }
 
+    const argument = {attackInfo, state, dispatch, otherSetting,
+        selectBuffKeyMap, setSelectBuffKeyMap,
+        buffSettingMap, setBuffSettingMap,
+        abilitySettingMap, setAbilitySettingMap,
+        passiveSettingMap, setPassiveSettingMap};
     return (
         <div className="damage_frame pt-3">
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
-                    <CharaStatus attackInfo={attackInfo} selectBuffKeyMap={selectBuffKeyMap} />
+                    <CharaStatus argument={argument} />
                     <AttackList attackInfo={attackInfo} setAttackInfo={setAttackInfo}
                         selectSKillLv={selectSKillLv} setSelectSKillLv={setSelectSKillLv}
                         abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} state={state} dispatch={dispatch} />
@@ -283,11 +281,7 @@ const DamageCalculation = () => {
                         : null
                     }
                 </div>
-                <BuffArea attackInfo={attackInfo} state={state} dispatch={dispatch}
-                    selectBuffKeyMap={selectBuffKeyMap} setSelectBuffKeyMap={setSelectBuffKeyMap}
-                    buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
-                    abilitySettingMap={abilitySettingMap} setAbilitySettingMap={setAbilitySettingMap}
-                    passiveSettingMap={passiveSettingMap} setPassiveSettingMap={setPassiveSettingMap} />
+                <BuffArea argument={argument} />
             </div>
             <DamageResult damageResult={damageResult} enemyInfo={state.enemyInfo} dispatch={dispatch} />
         </div>

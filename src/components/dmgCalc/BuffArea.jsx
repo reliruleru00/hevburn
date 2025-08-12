@@ -6,11 +6,12 @@ import {
     , CHARA_ID, STYLE_ID, BUFF_ID, ABILITY_ID
 } from "utils/const";
 import {
-    DEBUFF_LIST, 
+    DEBUFF_LIST,
     getCharaIdToMember, getEffectSize, getSumEffectSize,
     getBuffKey, getBestBuffKeys, checkDuplicationChara,
     isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList, filteredOrb,
-    getEnemyResist} from "./logic";
+    getEnemyResist
+} from "./logic";
 import { getCharaData, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
@@ -76,11 +77,13 @@ const TROOP_KBN = {
     SUB: "2",
 }
 
-const BuffArea = ({ attackInfo, state, dispatch,
+const BuffArea = ({ argument: {
+    attackInfo, state, dispatch,
     selectBuffKeyMap, setSelectBuffKeyMap,
     buffSettingMap, setBuffSettingMap,
     abilitySettingMap, setAbilitySettingMap,
-    passiveSettingMap, setPassiveSettingMap }) => {
+    passiveSettingMap, setPassiveSettingMap
+} }) => {
 
     const { styleList } = useStyleList();
     const [checkUpdate, setCheckUpdate] = useState(true);
@@ -307,7 +310,7 @@ const BuffArea = ({ attackInfo, state, dispatch,
     }
 
     // 選択内から最良を設定
-    const setBestBuff = (buffKey, buffKind, buffItemList) => {        
+    const setBestBuff = (buffKey, buffKind, buffItemList) => {
         const bestKeys = getBestBuffKeys(buffKind, buffItemList, refBuffSettingMap.current);
         handleSelectChange(buffKey, bestKeys);
     }
@@ -543,9 +546,8 @@ const BuffArea = ({ attackInfo, state, dispatch,
             <div className="mt-1 mx-auto text-left">
                 <div className="font-bold">＜＜注意事項＞＞</div>
                 <ul>
-                    <li>
-                        ・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「詳細」ボタンで設定してください。
-                    </li>
+                    <li>・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「詳細」ボタンで設定してください。</li>
+                    <li>・一括設定は現在表示されているスキルのみに適用されます。</li>
                 </ul>
                 <div className="mx-auto text-right">
                     <a

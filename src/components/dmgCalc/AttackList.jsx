@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import ReactModal from "react-modal";
 import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
-import { getCharaData } from "utils/common";
-import { SKILL_ID, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
-import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient } from "./logic";
+import { getCharaData, getSkillData } from "utils/common";
+import { SKILL_ID, ATTRIBUTE, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
+import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient, getCostVariable } from "./logic";
 import attribute from 'assets/attribute';
 import { AttackLineChart } from "./SimpleLineChart";
 
@@ -215,12 +215,15 @@ const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
     );
 }
 
+
 const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, state, abilitySettingMap, passiveSettingMap, closeModal }) => {
     const minPower = attackInfo.min_power * (1 + 0.05 * (selectSKillLv - 1));
     const maxPower = attackInfo.max_power * (1 + 0.02 * (selectSKillLv - 1));
 
     const memberInfo = getCharaIdToMember(styleList, attackInfo.chara_id);
     const enemyInfo = state.enemyInfo;
+    const skillInfo = getSkillData(attackInfo.skill_id);
+
     let statUp = getStatUp(styleList, state, memberInfo, attackInfo.collect, abilitySettingMap, passiveSettingMap);
     let enemyStatDown = 0;
     if (attackInfo.collect?.hacking) {
@@ -255,6 +258,14 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     if (jewelType === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
+
+    let spCost = skillInfo.sp_cost;
+    if (attackInfo.collect?.sphalf) {
+        spCost = Math.ceil(spCost / 2);
+    } else if (attackInfo.collect?.spzero) {
+        spCost = 0;
+    }
+    spCost = getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap);
     return (
         <div className="modal text-left mx-auto p-6">
             <div>
@@ -282,6 +293,28 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
                 <span>{attackInfo.destruction}%</span>
                 <span>HIT数</span>
                 <span>{attackInfo.hit_count}</span>
+                <span>消費SP</span>
+                <span>{spCost}</span>
+                {skillInfo.skill_attribute === ATTRIBUTE.SP_HALF &&
+                    <>
+                        <span>消費SP半減</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="sphalf" checked={attackInfo.collect?.sphalf}
+                                onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, sphalf: e.target.checked } })} />
+                            <label htmlFor="sphalf" className="checkbox01"></label>
+                        </div>
+                    </>
+                }
+                {skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO &&
+                    <>
+                        <span>消費SP無し</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="spzero" checked={attackInfo.collect?.spzero}
+                                onChange={(e) => setAttackInfo({ ...attackInfo, collect: { ...attackInfo.collect, spzero: e.target.checked } })} />
+                            <label htmlFor="spzero" className="checkbox01"></label>
+                        </div>
+                    </>
+                }
                 <span>参照ステータス</span>
                 <span>
                     {attackInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[attackInfo.ref_status_1]}`}>

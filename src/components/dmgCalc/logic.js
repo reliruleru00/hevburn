@@ -228,17 +228,39 @@ export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, a
     return effectSize * (1 + strengthen / 100);
 }
 
+// コスト変更
+export function getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap) {
+    let costVariable = 0;
+    // 蒼天
+    const blueSky = Object.values(abilitySettingMap)
+        .filter(ability => ability.ability_id === ABILITY_ID.BLUE_SKY)
+        .filter(ability => ability.checked).length > 0;
+    // ルビー・パヒューム
+    const rubyPerfume = Object.values(passiveSettingMap)
+        .filter(passive => passive.skill_id === SKILL_ID.RUBY_PERFUME)
+        .filter(passive => passive.checked).length > 0;
+    // 彩鳳連理
+    const SaihoRenri = Object.values(passiveSettingMap)
+        .filter(passive => passive.skill_id === SKILL_ID.SAIO_RENRI)
+        .filter(passive => passive.checked).length > 0 && isRangeAreaInclude(null, RANGE.MEMBER_31E, memberInfo.styleInfo.chara_id);
+    // 行くぞ！丸山部隊
+    const maruyama = Object.values(passiveSettingMap)
+        .filter(passive => passive.skill_id === SKILL_ID.MARUYAMA_MEMBER)
+        .filter(passive => passive.checked).length > 0 && isRangeAreaInclude(null, RANGE.MARUYAMA_MEMBER, memberInfo.styleInfo.chara_id);
+
+    if (blueSky || SaihoRenri || maruyama) {
+        costVariable -= 1;
+    }
+    if (rubyPerfume) {
+        costVariable += 2;
+    }
+    spCost += costVariable;
+    spCost = spCost < 0 ? 0 : spCost;
+    return spCost;
+}
+
 // バフ強化効果量取得
 function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
-    let sp_cost_down = 0;
-    // // 蒼天
-    // if ($("#ability_all72").prop("checked")) {
-    //     sp_cost_down = 1;
-    // }
-    // // ハイブースト状態
-    // if ($("#skill_passive635").prop("checked")) {
-    //     sp_cost_down = -2;
-    // }
     let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
@@ -1012,7 +1034,7 @@ function isRangeAreaInclude(charaId, rangeArea, targetCharaId) {
         case RANGE.MEMBER_31E:
             return CHARA_ID.MEMBER_31E.includes(targetCharaId);
         case RANGE.MARUYAMA_MEMBER:
-            return CHARA_ID.MEMBER_31E.includes(targetCharaId);
+            return CHARA_ID.MARUYAMA.includes(targetCharaId);
         case RANGE.RUKA_SHARO:
             return CHARA_ID.RUKA_SHARO.includes(targetCharaId);
         default:

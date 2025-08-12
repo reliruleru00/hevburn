@@ -9,10 +9,13 @@ const ScoreSetting = ({ state, dispatch }) => {
     const [checkedGrades, setCheckedGrades] = React.useState({});
 
     let enemyInfo = state.enemyInfo;
+
+    /* eslint-disable react-hooks/exhaustive-deps */
     React.useEffect(() => {
         setCheckedGrades([]);
         handleScoreChange(40);
     }, [enemyInfo.sub_no]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     let filteredGrade = scoreGrade.filter((obj) => obj.score_attack_no === enemyInfo.sub_no);
     const uniqueHalf = [...new Set(filteredGrade.map(item => item.half))];

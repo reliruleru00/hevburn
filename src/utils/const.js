@@ -17,8 +17,10 @@ export const STYLE_ID = {
 }
 
 export const SKILL_ID = {
-    DANCING_COOL_BREEZE: 390,	// 爽籟に舞う仁慈
+    DANCING_COOL_BREEZE: 390, // 爽籟に舞う仁慈
     WAKING_NIGHT: 495, // 夜醒
+    SAIO_RENRI: 546,	// 彩鳳連理
+    MARUYAMA_MEMBER: 547, // 行くぞ！丸山部隊
     NOVA_ELIMINATION: 591, // ノヴァエリミネーション
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ

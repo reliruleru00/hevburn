@@ -581,26 +581,26 @@ function getExp(rowData) {
         {
             value: rowData["score_attack"],
             increments: [
-                { threshold: 100000, exp: 100 },
-                { threshold: 200000, exp: 100 },
-                { threshold: 400000, exp: 200 },
-                { threshold: 600000, exp: 300 },
+                { threshold: 100000, exp: 50 },
+                { threshold: 200000, exp: 50 },
+                { threshold: 400000, exp: 100 },
+                { threshold: 600000, exp: 200 },
                 { threshold: 800000, exp: 500 },
                 { threshold: 1000000, exp: 1000 },
                 { threshold: 1200000, exp: 1500 },
                 { threshold: 1400000, exp: 2000 },
-                { threshold: 1600000, exp: 1500 },
-                { threshold: 1800000, exp: 2000 },
-                { threshold: 2000000, exp: 2500 },
-                { threshold: 2200000, exp: 3500 },
+                { threshold: 1600000, exp: 2500 },
+                { threshold: 1800000, exp: 3000 },
+                { threshold: 2000000, exp: 3500 },
+                { threshold: 2200000, exp: 4000 },
                 { threshold: 2400000, exp: 4500 },
             ]
         },
         {
             value: rowData["battle_count"],
             increments: [
-                { threshold: 10, exp: 100 },
-                { threshold: 100, exp: 200 },
+                { threshold: 10, exp: 50 },
+                { threshold: 100, exp: 100 },
                 { threshold: 1000, exp: 500 },
                 { threshold: 5000, exp: 1000 },
                 { threshold: 10000, exp: 2000 },
@@ -611,12 +611,12 @@ function getExp(rowData) {
         {
             value: rowData["dungeon_count"],
             increments: [
-                { threshold: 5, exp: 100 },
-                { threshold: 50, exp: 200 },
+                { threshold: 5, exp: 50 },
+                { threshold: 50, exp: 100 },
                 { threshold: 100, exp: 500 },
                 { threshold: 250, exp: 1000 },
                 { threshold: 500, exp: 2000 },
-                { threshold: 750, exp: 1000 },
+                { threshold: 750, exp: 2500 },
                 { threshold: 1000, exp: 3000 },
             ]
         },
@@ -725,10 +725,10 @@ function getExp(rowData) {
                 { threshold: 1000000, exp: 1000 },
                 { threshold: 1200000, exp: 1500 },
                 { threshold: 1400000, exp: 2000 },
-                { threshold: 1600000, exp: 1500 },
-                { threshold: 1800000, exp: 2000 },
-                { threshold: 2000000, exp: 2500 },
-                { threshold: 2200000, exp: 3500 },
+                { threshold: 1600000, exp: 2500 },
+                { threshold: 1800000, exp: 3000 },
+                { threshold: 2000000, exp: 3500 },
+                { threshold: 2200000, exp: 4000 },
                 { threshold: 2400000, exp: 4500 },
             ]
         },
@@ -752,7 +752,7 @@ function getExp(rowData) {
                 { threshold: 100, exp: 500 },
                 { threshold: 250, exp: 1000 },
                 { threshold: 500, exp: 2000 },
-                { threshold: 750, exp: 1000 },
+                { threshold: 750, exp: 2500 },
                 { threshold: 1000, exp: 3000 },
             ]
         },
@@ -830,7 +830,7 @@ function getExp(rowData) {
 
 function rankUp(exp) {
     let rank = 1;
-    while (rank < 10 && exp >= rank * 500) {
+    while (rank < 15 && exp >= rank * 500) {
         exp -= rank * 500;
         rank++;
     }
@@ -869,7 +869,7 @@ function getTitleColumns() {
                 if (rowData['exp'] != exp) {
                     let result = rankUp(exp);
                     rank = result["rank"];
-                    if (rank < 10) {
+                    if (rank < 15) {
                         rowData["next_rank"] = rank * 500 - result["remainingExp"];
                     } else {
                         rowData["next_rank"] = 0;
@@ -998,17 +998,19 @@ function getTitleColumns() {
             },
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.NumericRenderer.apply(this, arguments);
-                if (value >= 1000000) {
+                if (value >= 2400000) {
                     $(td).addClass("achievement7");
-                } else if (value >= 800000) {
+                } else if (value >= 2000000) {
                     $(td).addClass("achievement6");
-                } else if (value >= 600000) {
+                } else if (value >= 1600000) {
                     $(td).addClass("achievement5");
-                } else if (value >= 400000) {
+                } else if (value >= 1200000) {
                     $(td).addClass("achievement4");
-                } else if (value >= 200000) {
+                } else if (value >= 1000000) {
+                    $(td).addClass("achievement3");
+                } else if (value >= 600000) {
                     $(td).addClass("achievement2");
-                } else if (value >= 100000) {
+                } else if (value >= 400000) {
                     $(td).addClass("achievement1");
                 }
             },
@@ -1024,16 +1026,18 @@ function getTitleColumns() {
             },
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.NumericRenderer.apply(this, arguments);
-                if (value >= 10000) {
+                if (value >= 20000) {
                     $(td).addClass("achievement7");
-                } else if (value >= 5000) {
+                } else if (value >= 15000) {
                     $(td).addClass("achievement6");
-                } else if (value >= 1000) {
+                } else if (value >= 10000) {
                     $(td).addClass("achievement5");
-                } else if (value >= 100) {
+                } else if (value >= 5000) {
                     $(td).addClass("achievement4");
-                } else if (value >= 10) {
+                } else if (value >= 1000) {
                     $(td).addClass("achievement2");
+                } else if (value >= 100) {
+                    $(td).addClass("achievement1");
                 }
             },
             width: 50,
@@ -1043,14 +1047,16 @@ function getTitleColumns() {
             className: "htCenter rightLine",
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.TextRenderer.apply(this, arguments);
-                if (value >= 500) {
+                if (value >= 1000) {
                     $(td).addClass("achievement7");
-                } else if (value >= 250) {
+                } else if (value >= 500) {
                     $(td).addClass("achievement6");
-                } else if (value >= 100) {
+                } else if (value >= 250) {
                     $(td).addClass("achievement5");
-                } else if (value >= 50) {
+                } else if (value >= 100) {
                     $(td).addClass("achievement4");
+                } else if (value >= 50) {
+                    $(td).addClass("achievement3");
                 } else if (value >= 5) {
                     $(td).addClass("achievement2");
                 }

@@ -2,7 +2,7 @@ import React from "react";
 import scoreGrade from "data/scoreGrade";
 import bonusList from "data/scoreBonus";
 import attribute from 'assets/attribute';
-import { SCORE_STATUS } from "data/scoreData";
+import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
 
 const ScoreSetting = ({ state, dispatch }) => {
     const selectHalf = state.score.half
@@ -11,6 +11,7 @@ const ScoreSetting = ({ state, dispatch }) => {
     let enemyInfo = state.enemyInfo;
     React.useEffect(() => {
         setCheckedGrades([]);
+        handleScoreChange(40);
     }, [enemyInfo.sub_no]);
 
     let filteredGrade = scoreGrade.filter((obj) => obj.score_attack_no === enemyInfo.sub_no);
@@ -33,7 +34,10 @@ const ScoreSetting = ({ state, dispatch }) => {
     // レベル変更
     const handleScoreChange = (lv) => {
         let status = SCORE_STATUS[Number(lv) - 20]
-        dispatch({ type: "SET_SCORE_LV", lv, status });
+        let scoreAttack = getScoreAttack(enemyInfo.sub_no);
+        let max_dp = getScoreHpDp(Number(lv), scoreAttack, "dp_rate").toString();
+        let max_hp = getScoreHpDp(Number(lv), scoreAttack, "hp_rate");
+        dispatch({ type: "SET_SCORE_LV", lv, status, max_dp, max_hp });
     }
 
     // グレード変更

@@ -10,7 +10,7 @@ import PredictionScore from "./PredictionScore";
 import DamageResult from "./DamageResult";
 import BuffArea from "./BuffArea";
 import { ENEMY_CLASS } from "utils/const";
-import { SCORE_STATUS } from "data/scoreData";
+import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
 
 const setEnemy = (state, action) => {
     const enemy = action.enemyInfo;
@@ -25,6 +25,7 @@ const setEnemy = (state, action) => {
         damageRate: enemy.destruction_limit,
         maxDamageRate: enemy.destruction_limit,
         strongBreak: false,
+        superDown: false,
         correction: Object.fromEntries(Object.keys(state.correction).map(k => [k, 0])),
         resistDown: [0, 0, 0, 0, 0, 0],
     };
@@ -55,12 +56,13 @@ const setCollect = (state, action) => {
             const conditions = action.grade[`conditions${i}`];
             updated[kind] = action.checked ? size : 0;
             if (kind === "destruction_limit") {
-                newMaxDamageRate = state.enemyInfo.destruction_limit + updated.destruction_limit + (state.strongBreak ? 300 : 0);
+                newMaxDamageRate = state.enemyInfo.destruction_limit + updated.destruction_limit
+                    + (state.strongBreak ? 300 : 0) + (state.superDown ? 300 : 0);
             }
             if (kind === "defense_rate") {
                 updated[kind] = {
-                    size : action.checked ? size : 0,
-                    conditions : conditions
+                    size: action.checked ? size : 0,
+                    conditions: conditions
                 }
             }
         }
@@ -92,8 +94,9 @@ const reducer = (state, action) => {
         case "STRONG_BREAK": {
             const base = Number(state.enemyInfo.destruction_limit || 0);
             const correction = Number(state.correction.destruction_limit || 0);
-            const bonus = action.checked ? 300 : 0;
-            const limit = base + correction + bonus;
+            const strongBreak = action.checked ? 300 : 0;
+            const superDown = state.superDown ? 300 : 0;
+            const limit = base + correction + strongBreak + superDown;
             return {
                 ...state,
                 strongBreak: action.checked,
@@ -102,10 +105,29 @@ const reducer = (state, action) => {
                 dpRate: Array(state.enemyInfo.max_dp.split(",").length).fill(0),
             };
         }
+        case "SUPER_DOWN": {
+            const base = Number(state.enemyInfo.destruction_limit || 0);
+            const correction = Number(state.correction.destruction_limit || 0);
+            const strongBreak = state.strongBreak ? 300 : 0;
+            const superDown = action.checked ? 300 : 0;
+            const limit = base + correction + strongBreak + superDown;
+            return {
+                ...state,
+                superDown: action.checked,
+                maxDamageRate: limit,
+                damageRate: limit,
+                dpRate: Array(state.enemyInfo.max_dp.split(",").length).fill(0),
+            };
+        }
         case "SET_SCORE_LV":
             return {
                 ...state,
-                enemyInfo: { ...state.enemyInfo, enemy_stat: action.status },
+                enemyInfo: {
+                    ...state.enemyInfo,
+                    enemy_stat: action.status,
+                    max_dp: action.max_dp,
+                    max_hp: action.max_hp
+                },
                 score: { ...state.score, lv: action.lv }
             };
 
@@ -177,6 +199,7 @@ const DamageCalculation = () => {
         damageRate: initEnemyInfo.destruction_limit,
         maxDamageRate: initEnemyInfo.destruction_limit,
         strongBreak: false,
+        superDown: false,
         score: {
             lv: 40,
             turnCount: 1,

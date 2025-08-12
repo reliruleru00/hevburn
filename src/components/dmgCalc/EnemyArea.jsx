@@ -1,6 +1,5 @@
 import React from "react";
 import { removeComma, getApplyGradient } from "./logic";
-import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
 import { ENEMY_CLASS } from "utils/const";
 import attribute from 'assets/attribute';
 
@@ -40,18 +39,13 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
         dispatch({ type: "SET_DP", index, value });
     };
 
-    const handleCheckStrongBreak = (checked) => {
-        dispatch({ type: "STRONG_BREAK", checked });
+    const handleCheckDamageRate = (type, checked) => {
+        dispatch({ type: type, checked });
     };
 
     // HP補正
     let maxHp = Number(enemyInfo.max_hp);
     let enemyStat = Number(enemyInfo.enemy_stat);
-    if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-        let scoreAttack = getScoreAttack(enemyInfo.sub_no);
-        maxHp = getScoreHpDp(state.score.lv, scoreAttack, "hp_rate");
-        enemyStat = SCORE_STATUS[state.score.lv - 20];
-    }
     maxHp = Math.floor(maxHp * (1 + state.correction.hp_rate / 100));
     let backgroundHp = getApplyGradient("#7C4378", state.hpRate)
 
@@ -88,8 +82,12 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                     <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.damageRate}
                         onChange={(e) => handleEnemyDamageRateChange(e.target.value)} />
                     <div className="text-right col-span-2 ml-14">
-                        <input type="checkbox" id="strong_break" onChange={(e) => handleCheckStrongBreak(e.target.checked)} checked={state.strongBreak} />
+                        <input type="checkbox" id="strong_break" onChange={(e) => handleCheckDamageRate("STRONG_BREAK", e.target.checked)} checked={state.strongBreak} />
                         <label className="checkbox01 text-xs font-bold" htmlFor="strong_break">強ブレイク</label>
+                    </div>
+                    <div className="text-right col-span-2 ml-14">
+                        <input type="checkbox" id="super_down" onChange={(e) => handleCheckDamageRate("SUPER_DOWN", e.target.checked)} checked={state.superDown} />
+                        <label className="checkbox01 text-xs font-bold" htmlFor="super_down">超ダウン</label>
                     </div>
                     <div className="text-right enemy_label">破壊係数</div>
                     <input type="number" className="text-center" id="enemy_destruction" min="1" value={destruction} readOnly={!isFreeInput}
@@ -105,10 +103,6 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                                 let range_id = "dp_range_" + no;
                                 let dp_rate = state.dpRate[no];
                                 let maxDp = Number(max_dp_list[no]);
-                                if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
-                                    let scoreAttack = getScoreAttack(enemyInfo.sub_no);
-                                    maxDp = getScoreHpDp(state.score.lv, scoreAttack, "dp_rate");
-                                }
                                 maxDp = Math.floor(maxDp * (1 + state.correction.dp_rate / 100));
                                 let background = getApplyGradient("#4F7C8B", dp_rate)
                                 return (

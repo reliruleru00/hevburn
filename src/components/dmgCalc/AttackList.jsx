@@ -253,19 +253,14 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     let status = molecule / denominator;
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
+    // 宝珠レベル
     let jewelLv = 0;
     const jewelType = memberInfo.styleInfo.jewel_type;
     if (jewelType === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
-
-    let spCost = skillInfo.sp_cost;
-    if (attackInfo.collect?.sphalf) {
-        spCost = Math.ceil(spCost / 2);
-    } else if (attackInfo.collect?.spzero) {
-        spCost = 0;
-    }
-    spCost = getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap);
+    // 消費SP
+    let spCost = getCostVariable(skillInfo.sp_cost, attackInfo.collect, memberInfo, abilitySettingMap, passiveSettingMap);
     return (
         <div className="modal text-left mx-auto p-6">
             <div>

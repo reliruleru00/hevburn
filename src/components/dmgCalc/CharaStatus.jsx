@@ -6,7 +6,7 @@ import ModalStyleSelection from "components/ModalStyleSelection";
 import StyleIcon from "components/StyleIcon";
 import { getBuffIdToBuff, getSkillData } from "utils/common";
 import { STATUS_KBN } from "utils/const";
-import { getCostVariable, getCharaIdToMember } from "./logic";
+import { getCostVariable } from "./logic";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import editIcon from 'assets/img/edit.png';
 
@@ -267,11 +267,10 @@ const CharaStatus = ({ argument: {
                     let intClassName = "status " + (results.includes("int") ? "status_active" : "");
                     let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
                     let sp_cost = 0;
-                    let attackMemberInfo = getCharaIdToMember(styleList, attackInfo?.chara_id);
                     for (const [key, value] of Object.entries(spCost)) {
                         let skill = getSkillData(key);
                         if (skill) {
-                            sp_cost += getCostVariable(skill.sp_cost, attackMemberInfo, abilitySettingMap, passiveSettingMap) * value;
+                            sp_cost += getCostVariable(skill.sp_cost, {}, style, abilitySettingMap, passiveSettingMap) * value;
                         }
                     }
                     return (

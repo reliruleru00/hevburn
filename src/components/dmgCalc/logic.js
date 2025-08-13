@@ -1,13 +1,11 @@
 import {
     ELEMENT, BUFF, RANGE, CHARA_ID, EFFECT, ENEMY_CLASS, CONDITIONS
     , ALONE_ACTIVATION_BUFF_KIND, ALONE_ACTIVATION_ABILITY_LIST
-    , SKILL_ID, ABILITY_ID, JEWEL_TYPE
-} from '../../utils/const';
-import enemyList from "../../data/enemyList";
-import scoreBonusList from "../../data/scoreBonus";
-import { getCharaData } from "../../utils/common";
-import { getBuffIdToBuff, getPassiveInfo, getAbilityInfo } from "../../utils/common";
-import { STATUS_KBN } from '../../utils/const';
+    , SKILL_ID, ABILITY_ID, JEWEL_TYPE, STATUS_KBN
+} from 'utils/const';
+import enemyList from "data/enemyList";
+import scoreBonusList from "data/scoreBonus";
+import { getCharaData, getBuffIdToBuff, getPassiveInfo, getAbilityInfo } from "utils/common";
 
 export const BUFF_KBN = {
     0: "power_up",
@@ -160,9 +158,9 @@ export const filteredOrb = (buffList, isOrb) => {
 }
 
 // 効果量取得
-export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, kbn) {
+export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap) {
     // バフ強化
-    let strengthen = getStrengthen(buff, abilitySettingMap, passiveSettingMap);
+    let strengthen = getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap);
     let effectSize = 0;
     if (buff.kbn === "buff") {
         // バフ
@@ -229,8 +227,13 @@ export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, a
 }
 
 // コスト変更
-export function getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap) {
+export function getCostVariable(spCost, collect, memberInfo, abilitySettingMap, passiveSettingMap) {
     let costVariable = 0;
+    if (collect?.sphalf) {
+        spCost = Math.ceil(spCost / 2);
+    } else if (collect?.spzero) {
+        spCost = 0;
+    }
     // 蒼天
     const blueSky = Object.values(abilitySettingMap)
         .filter(ability => ability.ability_id === ABILITY_ID.BLUE_SKY)
@@ -260,7 +263,7 @@ export function getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSe
 }
 
 // バフ強化効果量取得
-function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
+function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap) {
     let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
@@ -292,7 +295,16 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
         Object.values(abilitySettingMap)
             .filter(ability => ability.chara_id === charaId)
             .filter(ability => ability.checked)
-            .forEach((ability) => {
+            .filter(ability => {
+                if (ability.ability_id === ABILITY_ID.MOROIUO) {
+                    // モロイウオ
+                    let spCost = getCostVariable(buff.sp_cost, buffSetting.collect, memberInfo, abilitySettingMap, passiveSettingMap)
+                    if (spCost > 8) {
+                        return false;
+                    }
+                }
+                return true;
+            }).forEach((ability) => {
                 let abilityInfo = getAbilityInfo(ability.ability_id);
                 if (abilityInfo.effect_type === EFFECT.GIVEDEFFENCEDEBUFFUP) {
                     strengthen += abilityInfo.effect_size;
@@ -352,6 +364,9 @@ function getStrengthen(buff, abilitySettingMap, passiveSettingMap) {
                     strengthen += passiveInfo.effect_size;
                 }
             })
+    }
+    if (buffSetting.collect?.strengthen) {
+        strengthen += 20;
     }
     return strengthen;
 }
@@ -924,14 +939,7 @@ function getSumAbilityEffectSize(handlers, effectType) {
     let activationNoneEffectSize = 0;
     let activationPhysicalEffectSize = 0;
     let activationElementEffectSize = 0;
-    let spCostSwing = 0;
-    // if ($("#ability_all72").prop("checked")) {
-    //     sp_cost_down = 1;
-    // }
-    // // ハイブースト状態
-    // if ($("#skill_passive635").prop("checked")) {
-    //     sp_cost_down = -2;
-    // }
+
     Object.keys(abilitySettingMap).forEach(function (key) {
         let data = abilitySettingMap[key];
         if (data.checked) {
@@ -942,7 +950,8 @@ function getSumAbilityEffectSize(handlers, effectType) {
                 if (abilityId === ABILITY_ID.KIREAJI) {
                     // キレアジ
                     const attackInfo = handlers.attackInfo;
-                    if (attackInfo.sp_cost + spCostSwing > 8) {
+                    let spCost = getCostVariable(attackInfo.sp_cost, attackInfo.collect, memberInfo, abilitySettingMap, passiveSettingMap)
+                    if (spCost > 8) {
                         effectSize = 0;
                     }
                 }

@@ -8,7 +8,7 @@ import {
 } from "./logic";
 import { getSkillData, getPassiveInfo, getAbilityInfo } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
-import { JEWEL_TYPE } from "utils/const";
+import { CHARA_ID, JEWEL_TYPE } from "utils/const";
 
 const BUFF_KIND_TO_JEWEL_TYPE = {
     [BUFF.ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
@@ -108,6 +108,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     const abilityList = getAbilityListByBuff(buffInfo.buff_kind, charaId);
     const passiveList = getPassiveListByBuff(buffInfo.buff_kind, charaId);
 
+    // 宝珠レベル
     let jewelLv = 0;
     const kind = buffInfo.buff_kind;
     const jewelType = memberInfo.styleInfo.jewel_type;
@@ -116,14 +117,19 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         jewelLv = memberInfo.jewelLv;
     }
 
-    let spCost = skillInfo.sp_cost;
-    if (buffSetting.collect?.sphalf) {
-        spCost = Math.ceil(spCost / 2);
-    } else if (buffSetting.collect?.spzero) {
-        spCost = 0;
-    }
-    spCost = getCostVariable(spCost, memberInfo, abilitySettingMap, passiveSettingMap)
+    // 消費SP
+    let spCost = getCostVariable(skillInfo.sp_cost, buffSetting.collect, memberInfo, abilitySettingMap, passiveSettingMap)
 
+    // バフ強化
+    let strengthen = false;
+    if ([BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_kind)) {
+
+    }
+    if (isDebuff) {
+        if (charaId === CHARA_ID.MIYA) {
+            strengthen = true;
+        }
+    }
     return (
         <div className="modal text-left p-6 mx-auto">
             <div>
@@ -161,6 +167,17 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                         </div>
                     </>
                 }
+                {strengthen &&
+                    <>
+                        <span>強化</span>
+                        <div className="text-center status_checkbox">
+                            <input type="checkbox" id="strengthen" checked={buffSetting.collect?.strengthen}
+                                onChange={(e) => changeBuffSetting("strengthen", e.target.checked)}
+                            />
+                            <label htmlFor="strengthen" className="checkbox01"></label>
+                        </div>
+                    </>
+                }
                 {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
                     <>
                         <span>参照ステータス</span>
@@ -176,10 +193,16 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                 }
             </div>
             {isBuffChart &&
-                <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                <>
+                    <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                    <div className="text-right text-sm">※バフ強化適用前の効果量です</div>
+                </>
             }
             {isDebuff &&
-                <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                <>
+                    <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                    <div className="text-right text-sm">※バフ強化適用前の効果量です</div>
+                </>
             }
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
                 <>
@@ -236,7 +259,9 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                             const abilityInfo = getAbilityInfo(ability.ability_id);
                             return (
                                 <div key={key} className="explain">
-                                    <input type="checkbox" className="ability" id={key} checked={abilitySettingMap[key].checked} />
+                                    <input type="checkbox" className="ability" id={key}
+                                        checked={abilitySettingMap[key].checked}
+                                        disabled={abilitySettingMap[key].disabled} />
                                     <label htmlFor={key}
                                         className="checkbox01">
                                         {`${abilityInfo.ability_name}:${abilityInfo.ability_short_explan}`}

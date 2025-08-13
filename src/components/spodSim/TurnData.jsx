@@ -74,7 +74,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         let effectType = 0;
         let skillInfo = getSkillData(skillId);
         const conditionsList = buffList.map(buff => buff.conditions).filter(condition => condition !== null);
-        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200) || skillInfo.attribute_conditions === CONDITIONS.DESTRUCTION_OVER_200) {
+        if (conditionsList.includes(CONDITIONS.DESTRUCTION_OVER_200) || skillInfo.conditions === CONDITIONS.DESTRUCTION_OVER_200) {
             effectType = 2;
         }
         if (conditionsList.includes(CONDITIONS.BREAK)) {
@@ -83,19 +83,19 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         if (conditionsList.includes(CONDITIONS.PERCENTAGE_30)) {
             effectType = 4;
         }
-        if (conditionsList.includes(CONDITIONS.HAS_SHADOW) || skillInfo.attribute_conditions === CONDITIONS.HAS_SHADOW) {
+        if (conditionsList.includes(CONDITIONS.HAS_SHADOW) || skillInfo.conditions === CONDITIONS.HAS_SHADOW) {
             effectType = 5;
         }
-        if (conditionsList.includes(CONDITIONS.DOWN_TURN) || skillInfo.attribute_conditions === CONDITIONS.DOWN_TURN) {
+        if (conditionsList.includes(CONDITIONS.DOWN_TURN) || skillInfo.conditions === CONDITIONS.DOWN_TURN) {
             effectType = 6;
         }
-        if (conditionsList.includes(CONDITIONS.BUFF_DISPEL) || skillInfo.attribute_conditions === CONDITIONS.BUFF_DISPEL) {
+        if (conditionsList.includes(CONDITIONS.BUFF_DISPEL) || skillInfo.conditions === CONDITIONS.BUFF_DISPEL) {
             effectType = 7;
         }
-        if (conditionsList.includes(CONDITIONS.DP_OVER_100) || skillInfo.attribute_conditions === CONDITIONS.DP_OVER_100) {
+        if (conditionsList.includes(CONDITIONS.DP_OVER_100) || skillInfo.conditions === CONDITIONS.DP_OVER_100) {
             effectType = 8;
         }
-        if (conditionsList.includes(CONDITIONS.SUPER_DOWN) || skillInfo.attribute_conditions === CONDITIONS.SUPER_DOWN) {
+        if (conditionsList.includes(CONDITIONS.SUPER_DOWN) || skillInfo.conditions === CONDITIONS.SUPER_DOWN) {
             effectType = 9;
         }
 
@@ -278,7 +278,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
 
         const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW,
         CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100, CONDITIONS.SUPER_DOWN];
-        if (selectionConditions.includes(skillInfo.attribute_conditions)) {
+        if (selectionConditions.includes(skillInfo.conditions)) {
             if (unit.buffEffectSelectType === 1) {
                 let spCost = getSpCost(turn, skillInfo, unit)
                 unit.sp_cost = spCost;

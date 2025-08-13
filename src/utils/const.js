@@ -219,37 +219,28 @@ export const CONDITIONS = {
     FRAGILE: 12, // 脆弱中
     TARGET_COVER: 13, // 集中・挑発状態
     FIELD_NONE: 14, // フィールドなし
-    FIELD_FIRE: 15, // 火属性フィールド
-    FIELD_ICE: 16, // 氷属性フィールド
-    FIELD_THUNDER: 17, // 雷属性フィールド
-    FIELD_LIGHT: 18, // 光属性フィールド
-    FIELD_DARK: 19, // 闇属性フィールド
+    FIELD_ELEMENT: 15, // 属性フィールド
     HAS_CHARGE: 21, // チャージ中
     HAS_SHADOW: 22, // 影分身中
     HAS_DODGE: 23, // 回避状態
     TOKEN_OVER_4: 24, // トークン4つ以上
     DP_OVER_100: 25, // DP100％以上
     SP_UNDER_0_ALL: 26, // SP0以下の味方がいる
-    SARVANT_OVER3: 27, // 山脇様のしもべ3人以上
-    SARVANT_OVER5: 28, // 山脇様のしもべ5人以上
-    SARVANT_OVER6: 29, // 山脇様のしもべ6人以上
+    SARVANT_OVER: 27, // 山脇様のしもべ3人以上
     MORALE_OVER_6: 30, // 士気Lv6以上
     OVER_31A_3: 31, // 31A3人以上
     OVER_31C_3: 33, // 31C3人以上
     OVER_31D_3: 34, // 31D3人以上
     OVER_31E_3: 35, // 31E3人以上
     SELECT_31A: 37, // 31A選択
+    SELECT_CHARA: 38, // 特定キャラを選択
     FIELD_NOT_FIRE: 41, // 火属性以外フィールド
     DIVA_BLESS: 42, // 歌姫の加護
     NOT_DIVA_BLESS: 43, // 歌姫の加護以外
     NOT_NEGATIVE: 44, // ネガティブ以外
     HAS_MAEKUP: 45, // メイクアップ状態
-    ENEMY_COUNT_1: 51, // 敵1体
-    ENEMY_COUNT_2: 52, // 敵2体
-    ENEMY_COUNT_3: 53, // 敵3体
-    USE_COUNT_2: 54, // 2回目以降
-    USE_COUNT_3: 55, // 3回目以降
-    USE_COUNT_4: 56, // 4回目以降
+    ENEMY_COUNT: 51, // 敵数指定
+    USE_COUNT: 52, // 回数以降
 }
 
 /** 敵リスト*/

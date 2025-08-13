@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { ROLE, ABILITY_ID } from "utils/const";
+import { ROLE } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
@@ -77,7 +77,6 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
         stepOverDriveGauge: 0,
         overDriveGauge: 0,
         addOverDriveGauge: 0,
-        sp_cost_down: 0,
         enemy_count: 1,
         finishAction: false,
         field: 0,
@@ -115,8 +114,6 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             initSkillId: 0,
             noAction: false,
             limitSp: 20,
-            spCostUp: 0,
-            spCostDown: 0,
         };
         unit.placeNo = index;
         if (member) {
@@ -158,7 +155,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
             Object.values(ABILIRY_TIMING).forEach(timing => {
                 unit[`ability_${timing}`] = [];
             });
-            ["0", "00", "1", "3", "03", "4", "5", "10"].forEach(numStr => {
+            ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
                 const num = parseInt(numStr, 10);
                 if (member.styleInfo[`ability${numStr}`] && num <= member.limitCount) {
                     let abilityInfo = getAbilityInfo(member.styleInfo[`ability${numStr}`]);
@@ -169,10 +166,6 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
                         constraintsList.push(abilityInfo.ability_id);
                     }
                     unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
-                    if (abilityInfo.ability_id === ABILITY_ID.BLUE_SKY) {
-                        // 蒼天
-                        turnInit.sp_cost_down = abilityInfo.effect_size;
-                    }
                 }
             });
             unit.passiveSkillList.forEach(skill => {

@@ -3,47 +3,47 @@ import {
     SINGLE_BUFF_LIST, ELEMENT_NAME, BUFF_FUNNEL_LIST
 } from "./const";
 import {
-    CHARA_ID, SKILL_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
+    CHARA_ID, SKILL_ID, ABILITY_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
     ALONE_ACTIVATION_ABILITY_LIST, ALONE_ACTIVATION_BUFF_KIND,
 
 } from "utils/const";
-import { getCharaData, getSkillData, getAttackInfo, getBuffList, getBuffIdToBuff, deepClone } from "utils/common";
+import { getCharaData, getSkillData, getAttackInfo, getBuffList, deepClone } from "utils/common";
 import skillAttack from "data/skillAttack";
 
 // アビリティ存在チェック
-export function checkAbilityExist(ability_list, ability_id) {
-    let exist_list = ability_list.filter(function (ability_info) {
-        return ability_info.ability_id === ability_id;
+export function checkAbilityExist(abilityList, abilityId) {
+    let existList = abilityList.filter(function (abilityInfo) {
+        return abilityInfo.ability_id === abilityId;
     });
-    return exist_list.length > 0;
+    return existList.length > 0;
 }
 
 // パッシブ存在チェック
-export function checkPassiveExist(passive_list, skill_id) {
-    let exist_list = passive_list.filter(function (passive) {
-        return passive.skill_id === skill_id;
+export function checkPassiveExist(passiveList, skillId) {
+    let existList = passiveList.filter(function (passive) {
+        return passive.skill_id === skillId;
     });
-    return exist_list.length > 0;
+    return existList.length > 0;
 }
 
 // バフ存在チェック
-export function checkBuffExist(buffList, buff_kind, lv = 6) {
-    let exist_list = buffList.filter(function (buffInfo) {
-        return buffInfo.buff_kind === buff_kind;
+export function checkBuffExist(buffList, buffKind, lv = 6) {
+    let existList = buffList.filter(function (buffInfo) {
+        return buffInfo.buff_kind === buffKind;
     });
-    if (buff_kind === BUFF.MORALE) {
-        return exist_list.length > 0 && exist_list[0].lv >= lv;
+    if (buffKind === BUFF.MORALE) {
+        return existList.length > 0 && existList[0].lv >= lv;
     } else {
-        return exist_list.length > 0;
+        return existList.length > 0;
     }
 }
 
 // バフ存在チェック
 export function checkBuffIdExist(buffList, buff_id) {
-    let exist_list = buffList.filter(function (buffInfo) {
+    let existList = buffList.filter(function (buffInfo) {
         return buffInfo.buff_id === buff_id;
     });
-    return exist_list.length > 0;
+    return existList.length > 0;
 }
 
 // メンバー存在チェック
@@ -412,7 +412,7 @@ export function startAction(turn_data) {
                 // SP消費してから行動
                 payCost(unit_data);
 
-                let buffList = getBuffIdToBuff(skillInfo.skill_id);
+                let buffList = getBuffList(skillInfo.skill_id);
                 for (let i = 0; i < buffList.length; i++) {
                     let buffInfo = buffList[i];
                     if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
@@ -634,7 +634,7 @@ const calcODGain = (hitCount, enemyTarget, badies = 0, earring = 0, funnelCount 
 };
 
 // 消費SP取得
-export function getSpCost(turn_data, skillInfo, unit) {
+export function getSpCost(turnData, skillInfo, unit) {
     if (!skillInfo) {
         return 0;
     }
@@ -646,19 +646,19 @@ export function getSpCost(turn_data, skillInfo, unit) {
     if (spCost === 0) {
         return spCost;
     }
-    let spCostDown = turn_data.sp_cost_down;
+    let spCostDown = 0;
     let spCostUp = 0;
-    if (harfSpSkill(turn_data, skillInfo, unit)) {
+    if (harfSpSkill(turnData, skillInfo, unit)) {
         spCost = Math.ceil(spCost / 2);
     }
-    if (ZeroSpSkill(turn_data, skillInfo, unit)) {
+    if (ZeroSpSkill(turnData, skillInfo, unit)) {
         return 0;
     }
 
     // 追加ターン
-    if (turn_data.additionalTurn) {
+    if (turnData.additionalTurn) {
         // クイックリキャスト
-        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1506)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], ABILITY_ID.QUICK_RECAST)) {
             spCostDown = 2;
         }
         // 優美なる剣舞
@@ -671,7 +671,7 @@ export function getSpCost(turn_data, skillInfo, unit) {
         }
     }
     // オーバードライブ中
-    if (turn_data.overDriveMaxTurn > 0) {
+    if (turnData.overDriveMaxTurn > 0) {
         // 獅子に鰭
         if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1521)) {
             spCostDown = 2;
@@ -692,6 +692,26 @@ export function getSpCost(turn_data, skillInfo, unit) {
     if (checkBuffExist(unit.buffList, BUFF.HIGH_BOOST)) {
         spCostUp = 2;
     }
+
+    turnData.unitList.forEach((unitData) => {
+        if (!unitData.blank) {
+            // 蒼天
+            if (checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], ABILITY_ID.BLUE_SKY)) {
+                spCostDown = 1;
+            }
+            // 彩鳳連理
+            if (CHARA_ID.MEMBER_31E.includes(unit.style.styleInfo.chara_id)
+                && checkPassiveExist(unitData.passiveSkillList, SKILL_ID.SAIO_RENRI)) {
+                spCostDown = 1;
+            }
+            // 行くぞ！丸山部隊
+            if (CHARA_ID.MARUYAMA.includes(unit.style.styleInfo.chara_id)
+                && checkPassiveExist(unitData.passiveSkillList, SKILL_ID.MARUYAMA_MEMBER)) {
+                spCostDown = 1;
+            }
+        }
+    })
+
     // カラスの鳴き声で
     if (skillInfo.skill_id === 578) {
         const count = unit.useSkillList.filter(value => value === 578).length;
@@ -748,6 +768,7 @@ function judgmentCondition(conditions, conditionsId, turn_data, unit_data, skill
         case CONDITIONS.DOWN_TURN: // ダウンターン
         case CONDITIONS.BUFF_DISPEL: // バフ解除
         case CONDITIONS.DP_OVER_100: // DP100%以上
+        case CONDITIONS.SUPER_DOWN: // 超ダウン
             return unit_data.buffEffectSelectType === 1;
         case CONDITIONS.OVER_DRIVE: // オーバードライブ中
             return turn_data.overDriveMaxTurn > 0;
@@ -1026,7 +1047,7 @@ function addBuffUnit(turn_data, buffInfo, placeNo, use_unit_data) {
                     fieldTurn = 0;
                 }
                 // メディテーション
-                if (checkPassiveExist(use_unit_data.passiveSkillList, 501)) {
+                if (checkPassiveExist(use_unit_data.passiveSkillList, SKILL_ID.MEDITATION)) {
                     fieldTurn = 0;
                 }
             }
@@ -1717,7 +1738,7 @@ const unitTurnProceed = (unit, turn) => {
         }
         if (checkBuffExist(unit.buffList, BUFF.FIRE_MARK)) {
             // 火の印6人
-            if (targetCountInclude(turn, ELEMENT.FIEE) >= 5) {
+            if (targetCountInclude(turn, ELEMENT.FIRE) > 5) {
                 unit.sp += 1;
             }
         }
@@ -1877,16 +1898,16 @@ const getFunnelList = (unit) => {
 }
 
 const abilityActionUnit = (turn_data, action_kbn, unit) => {
-    let action_list = [];
-    action_list = unit[`ability_${action_kbn}`];
+    let actionList = [];
+    actionList = unit[`ability_${action_kbn}`];
     // 被ダメージ時
     if (action_kbn === ABILIRY_TIMING.RECEIVE_DAMAGE) {
         // 前衛のみ
         if (unit.placeNo >= 3) {
-            action_list = [];
+            actionList = [];
         }
     }
-    action_list.forEach((ability, index) => {
+    actionList.forEach((ability, index) => {
         // 前衛
         if (ability.activation_place === 1 && unit.placeNo >= 3) {
             return true;
@@ -1937,6 +1958,15 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                     }
                 }
                 break;
+            case "火の印レベルが6以上":
+                for (let i = 0; i < 6; i++) {
+                    let unit = turn_data.unitList[i];
+                    if (unit.blank) return;
+                    if (!checkBuffExist(unit.buffList, BUFF.FIRE_MARK)) {
+                        return;
+                    }
+                }
+                break;
             case "破壊率が200%以上":
             case "トークン4つ以上":
             case "敵のバフ解除":
@@ -1965,8 +1995,9 @@ const abilityActionUnit = (turn_data, action_kbn, unit) => {
                 });
                 break;
             case EFFECT.HEALSP: // SP回復
-                if (ability.used && ability.ability_id === 1528) {
-                    // 戦場の華
+                // 戦場の華,猛火の進撃
+                const onlyUseSpList = [1528, 1023]
+                if (ability.used && onlyUseSpList.includes(ability.ability_id)) {
                     return;
                 }
                 ability.used = true;

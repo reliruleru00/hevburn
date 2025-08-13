@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactModal from "react-modal";
-import { RANGE, CONDITIONS, ATTRIBUTE } from "utils/const";
-import { KB_NEXT, ABILIRY_TIMING } from "./const";
+import { RANGE, CONDITIONS } from "utils/const";
+import { KB_NEXT, ABILIRY_TIMING, FIELD_LIST } from "./const";
 import { getBuffList, getSkillData, getStyleData, getAbilityInfo, deepClone } from "utils/common";
-import { FIELD_LIST } from "./const";
 import skillList from "data/skillList";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
@@ -13,7 +12,7 @@ import BuffIconComponent from "./BuffIconComponent";
 import OverDriveGauge from "./OverDriveGauge";
 import {
     getOverDrive, startOverDrive, removeOverDrive, skillUpdate, getUnitData, getTurnNumber,
-    startAction, setInitSkill
+    startAction, setInitSkill, getSpCost
 } from "./logic";
 import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
@@ -95,6 +94,9 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         }
         if (conditionsList.includes(CONDITIONS.DP_OVER_100) || skillInfo.attribute_conditions === CONDITIONS.DP_OVER_100) {
             effectType = 8;
+        }
+        if (conditionsList.includes(CONDITIONS.SUPER_DOWN) || skillInfo.attribute_conditions === CONDITIONS.SUPER_DOWN) {
+            effectType = 9;
         }
 
         switch (skillId) {
@@ -274,17 +276,12 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         turn.userOperation.select_skill[modalSetting.modalIndex].buffEffectSelectType = effect_type;
         let skillInfo = getSkillData(unit.selectSkillId);
 
-        const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW, CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100];
+        const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW,
+        CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100, CONDITIONS.SUPER_DOWN];
         if (selectionConditions.includes(skillInfo.attribute_conditions)) {
             if (unit.buffEffectSelectType === 1) {
-                let sp_cost = skillInfo.sp_cost;
-                if (skillInfo.skill_attribute === ATTRIBUTE.SP_HALF) {
-                    sp_cost = Math.floor(sp_cost / 2);
-                }
-                if (skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO) {
-                    sp_cost = 0;
-                }
-                unit.sp_cost = sp_cost + unit.spCostUp - unit.spCostDown;
+                let spCost = getSpCost(turn, skillInfo, unit)
+                unit.sp_cost = spCost;
             }
         }
         reRender(turn.userOperation, true);

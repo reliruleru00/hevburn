@@ -33,6 +33,9 @@ const ModalEffectSelection = ({ closeModal, onSelect, effectType }) => {
         case 8:
             value = ["DP100%未満", "DP100%以上"];
             break;
+        case 9:
+            value = ["超ダウンなし", "超ダウンあり"];
+            break;
         default:
             break;
     }

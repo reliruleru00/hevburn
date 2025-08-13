@@ -20,6 +20,7 @@ export const SKILL_ID = {
     DANCING_COOL_BREEZE: 390, // 爽籟に舞う仁慈
     PIRATES_CANON: 478, // 豪快！パイレーツキャノン
     WAKING_NIGHT: 495, // 夜醒
+    MEDITATION: 501, // メディテーション
     SAIO_RENRI: 546, // 彩鳳連理
     MARUYAMA_MEMBER: 547, // 行くぞ！丸山部隊
     NOVA_ELIMINATION: 591, // ノヴァエリミネーション
@@ -41,6 +42,7 @@ export const ABILITY_ID = {
     KIREAJI: 602, // キレアジ
     ADMIRAL_COMMON: 299, // 指揮行動
     BLUE_SKY: 510, // 蒼天
+    QUICK_RECAST: 1506, // クイックリキャスト
     AUTO_PURSUIT: 1530 // 自動追撃,
 }
 

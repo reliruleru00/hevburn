@@ -172,7 +172,7 @@ const styleList = [
     {"style_id":172,"chara_id":30,"rarity":1,"style_name":"さざなみ・フィールグッド","image_url":"MuOhshimaPrivate_R3_Thumbnail","role":7,"element":0,"jewel_type":6,"ability0":1701,"ability1":1139,"ability3":1403},
     {"style_id":173,"chara_id":7,"rarity":0,"style_name":"ヒカル・Mermaid Vacation","image_url":"EAoiSwim2025_R3_Thumbnail","role":6,"element":5,"jewel_type":4,"ability0":514,"ability00":606,"ability1":1101,"ability3":1614},
     {"style_id":174,"chara_id":45,"rarity":0,"style_name":"汐風に誘われて","image_url":"MKiryuSwim2025_R3_Thumbnail","role":2,"element":1,"jewel_type":1,"ability0":1801,"ability1":1101,"ability3":1023},
-    {"style_id":175,"chara_id":48,"rarity":0,"style_name":"夏陽炎の名勝負","image_url":"SKuraSwim2025_R3_Thumbnail","role":1,"element":1,"jewel_type":1,"ability0":1532,"ability1":1101,"ability3":1613},
+    {"style_id":175,"chara_id":48,"rarity":0,"style_name":"夏陽炎の名勝負","image_url":"SKuraSwim2025_R3_Thumbnail","role":1,"element":0,"jewel_type":1,"ability0":1532,"ability1":1101,"ability3":1613},
     {"style_id":176,"chara_id":5,"rarity":0,"style_name":"CODE:Virtual Killer","image_url":"KAsakuraTwins_R3_Thumbnail","role":3,"element":0,"jewel_type":1,"ability0":1144,"ability1":1101,"ability3":269,"ability4":1211},
     {"style_id":177,"chara_id":5,"rarity":9,"style_name":"CODE:Virtual Killer","image_url":"KAsakuraTwinsAnother_R3_Thumbnail","role":3,"element":0,"jewel_type":1,"ability0":607,"ability1":1101,"ability3":1533},
     {"style_id":5001,"chara_id":1,"rarity":2,"style_name":"戦場のフレット","image_url":"RKayamoriDefault_R2_Thumbnail","role":1,"element":0,"jewel_type":1,"ability3":1502},

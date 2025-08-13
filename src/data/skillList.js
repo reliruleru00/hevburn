@@ -557,7 +557,7 @@ const skilLlist = [
     {"skill_id":655,"skill_name":"くぎづけ♡ラブリービーム","chara_id":7,"style_id":173,"sp_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":11,"attribute_conditions":30},
     {"skill_id":656,"skill_name":"ぽかぽかリフレッシュ","chara_id":12,"style_id":0,"sp_cost":3,"skill_active":0,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":657,"skill_name":"爆裂サーブ","chara_id":44,"style_id":0,"sp_cost":10,"skill_active":0,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
-    {"skill_id":658,"skill_name":"夏のひより","chara_id":45,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
+    {"skill_id":658,"skill_name":"夏のひより","chara_id":45,"style_id":174,"sp_cost":0,"skill_active":1,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":659,"skill_name":"咲き昇る宵の幻","chara_id":45,"style_id":174,"sp_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":660,"skill_name":"神業レシーブ","chara_id":48,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":0,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":661,"skill_name":"飛沫きらめく水浅葱","chara_id":48,"style_id":175,"sp_cost":14,"skill_active":0,"skill_kind":1,"skill_attribute":11,"attribute_conditions":2},

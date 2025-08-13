@@ -423,6 +423,18 @@ export function isAloneActivation(buffInfo) {
     return false;
 }
 
+// 選択式のバフ
+export function isSelectBuff(buffInfo) {
+    if (!buffInfo) {
+        return false;
+    }
+    // 豪快！パイレーツキャノン
+    if (buffInfo.skill_id === SKILL_ID.PIRATES_CANON) {
+        return true;
+    }
+    return false;
+}
+
 // バフの最良選択
 export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
     let combinedScore = 0;
@@ -437,7 +449,22 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
         !max || buffSettingMap[buffKind][0][buff.key]?.effect_size > buffSettingMap[buffKind][0][max.key]?.effect_size ? buff : max, null);
 
     // 単独発動以外の中から、effect_sizeでソートして上位2件を取得
-    const normalBuffs = kindBuffList.filter(buffInfo => !isAloneActivation(buffInfo));
+    const normalBuffs = kindBuffList
+        .filter(buffInfo => !isAloneActivation(buffInfo))
+        .reduce((map, buffInfo) => {
+            if (isSelectBuff(buffInfo)) {
+                // 重複排除モード
+                const current = map.get(buffInfo.skill_id);
+                if (!current || buffInfo.buff_id < current.buff_id) {
+                    map.set(buffInfo.skill_id, buffInfo);
+                }
+            } else {
+                // 重複許容モード（skill_idを無視してユニークキーを作る）
+                map.set(`${buffInfo.skill_id}_${map.size}`, buffInfo);
+            }
+            return map;
+        }, new Map()).values()
+
     const sortedNormalBuffs = [...normalBuffs].sort(
         (a, b) => {
             if (buffSettingMap[buffKind][0][b.key]?.effect_size === buffSettingMap[buffKind][0][a.key]?.effect_size) {

@@ -396,7 +396,6 @@ export function isOnlyBuff(attackInfo, buffInfo) {
 
 // 他スキルに使用出来ない攻撃バフ
 export function isOnlyUse(attackInfo, buffInfo) {
-
     if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_kind)) {
         return false;
     }
@@ -542,6 +541,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
 
     let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
     let enemyDefenceRate = getEnemyDefenceRate(state);
+    let overdrive = 1 + Number(otherSetting.overdrive) / 10;
 
     // 表示用
     let funnel = 1 + funnelList.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
@@ -573,7 +573,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     let criticalRate = getCriticalRate(handlers);
     let criticalBuff = getCriticalBuff(handlers);
 
-    let fixed = token * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate;
+    let fixed = token * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate * overdrive;
     const normalAvgResult =
         calculateDamage(state, skillPower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
     const normalMinResult =
@@ -611,6 +611,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
         physical: convertToPercentage(physical / 100),
         element: convertToPercentage(element / 100),
         token: convertToPercentage(token),
+        overdrive: convertToPercentage(overdrive),
         damageRate: state.damageRate + "%",
         criticalRate: convertToPercentage(criticalRate / 100),
         criticalBuff: convertToPercentage(criticalBuff),
@@ -974,7 +975,8 @@ function getSumAbilityEffectSize(handlers, effectType) {
             let abilityInfo = getAbilityInfo(abilityId);
             if (abilityInfo.effect_type === effectType) {
                 let effectSize = abilityInfo.effect_size;
-                if (abilityId === ABILITY_ID.KIREAJI) {
+                const UNDER_SP8 = [ABILITY_ID.KIREAJI, ABILITY_ID.EVIL_ARMY];
+                if (UNDER_SP8.includes(abilityId)) {
                     // キレアジ
                     const attackInfo = handlers.attackInfo;
                     let spCost = getCostVariable(attackInfo.sp_cost, attackInfo.collect, memberInfo, abilitySettingMap, passiveSettingMap)

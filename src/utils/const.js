@@ -39,6 +39,7 @@ export const BUFF_ID = {
 
 export const ABILITY_ID = {
     MOROIUO: 506, // モロイウオ
+    EVIL_ARMY: 511, // 悪の軍団は最強でゲス！
     KIREAJI: 602, // キレアジ
     ADMIRAL_COMMON: 299, // 指揮行動
     BLUE_SKY: 510, // 蒼天

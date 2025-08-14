@@ -116,6 +116,10 @@ const DamageDetail = ({ mode, enemyInfo, detail, result, dispatch, closeModal })
                     <div className="magnification">×破壊率</div>
                     <input type="text" className="text-center magnification_value" value={detail.damageRate} readOnly />
                 </div>
+                <div>
+                    <div className="magnification">×オーバードライブ</div>
+                    <input type="text" className="text-center magnification_value" value={detail.overdrive} readOnly />
+                </div>
                 {mode === "critical" && (
                     <div>
                         <div className="magnification">×クリティカル倍率</div>

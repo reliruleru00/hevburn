@@ -196,8 +196,12 @@ const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
         } else {
             val = 400;
         }
-        setServantCount(servantCount);
         const newAttackInfo = { ...attackInfo, servantCount: servantCount, penetration: val };
+        if (!newAttackInfo.collect) {
+            newAttackInfo.collect = {};
+        }
+        newAttackInfo.collect.sphalf = servantCount >= 3;
+        setServantCount(servantCount);
         setAttackInfo(newAttackInfo);
     }
 

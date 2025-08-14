@@ -240,7 +240,10 @@ const CharaStatus = ({ argument: {
                             if (Number(useCharaId) !== charaId) continue;
                             const buffInfo = getBuffIdToBuff(Number(buffId));
                             if (!buffInfo) continue;
-                            const buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
+                            let buffSetting = {};
+                            if (buffSettingMap[buffInfo.buff_kind]) {
+                                buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
+                            }
                             let magn = 1;
                             if (buffSetting.collect?.sphalf) {
                                 magn = 0.5;

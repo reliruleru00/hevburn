@@ -37,8 +37,10 @@ export const ELEMENT_NAME = ["無", "火", "氷", "雷", "光", "闇"];
 
 export const KB_NEXT = {
     ACTION: 1,
-    ACTION_OD: 2,
-    ADDITIONALTURN: 3,
+    ADDITIONALTURN: 2,
+    ACTION_OD_1: 3,
+    ACTION_OD_2: 4,
+    ACTION_OD_3: 5,
 };
 
 export const BUFF_FUNNEL_LIST = [

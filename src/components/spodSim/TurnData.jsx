@@ -7,6 +7,7 @@ import skillList from "data/skillList";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
+import ModalTriggerOverDrive from "./ModalTriggerOverDrive";
 import BuffDetailListComponent from "./ModalBuffDetailLlist";
 import BuffIconComponent from "./BuffIconComponent";
 import OverDriveGauge from "./OverDriveGauge";
@@ -18,9 +19,6 @@ import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
 const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = useRef(false);
-    // const [turnData, setTurnData] = useState({
-    //     userOperation: turn.userOperation
-    // });
 
     // 再描画
     const reRender = (userOperation, render) => {
@@ -29,7 +27,6 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         turn.addOverDriveGauge = getOverDrive(turn);
         turn.userOperation = userOperation;
         handlers.updateTurn(index, turn);
-        // setTurnData({ ...turnData, userOperation: userOperation });
     }
 
     // 敵の数変更
@@ -66,7 +63,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         const buffList = getBuffList(skillId);
         const SELECT_RANGE = [RANGE.ALLY_UNIT, RANGE.SELF_AND_UNIT, RANGE.OTHER_UNIT];
         if (buffList.some(buff => SELECT_RANGE.includes(buff.range_area))) {
-            openModal(placeNo, "target")
+            openModal("target", placeNo);
         } else {
             unit.buffTargetCharaId = null;
         }
@@ -108,7 +105,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         }
 
         if (effectType !== 0) {
-            openModal(placeNo, "effect", effectType)
+            openModal("effect", placeNo, effectType)
         } else {
             unit.buffEffectSelectType = null;
         }
@@ -119,10 +116,10 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     }
 
     // OD発動/解除
-    function triggerOverDrive(checked) {
+    function triggerOverDrive(checked, overDriveLevel) {
         const userOperation = turn.userOperation;;
         if (checked) {
-            startOverDrive(turn);
+            startOverDrive(turn, overDriveLevel);
             userOperation.kb_action = KB_NEXT.ACTION;
         } else {
             removeOverDrive(turn);
@@ -225,7 +222,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         Object.values(ABILIRY_TIMING).forEach(timing => {
             unit[`ability_${timing}`] = [];
         });
-        ["0", "00", "1", "3", "03", "4", "5", "10"].forEach(numStr => {
+        ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
             const num = parseInt(numStr, 10);
             if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
                 let abilityInfo = getAbilityInfo(styleInfo[`ability${numStr}`]);
@@ -240,12 +237,10 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
 
     // 次ターン
     function clickNextTurn() {
-        turn.is_last_turn = false;
-        let turn_data = deepClone(turn);
-        turn_data.is_last_turn = true;
-        startAction(turn_data);
+        let turnData = deepClone(turn);
+        startAction(turnData);
         // ターン開始処理
-        handlers.proceedTurn(turn_data, true);
+        handlers.proceedTurn(turnData, true);
     };
 
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -288,10 +283,22 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     };
 
     const clickBuffIcon = (buffList) => {
-        openModal(0, "buff", buffList);
+        openModal("buff", 0, buffList);
     };
 
-    const openModal = (index, type, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
+    const handleOverDrive = (checked) => {
+        if (checked) {
+            if (Math.floor(turn.startOverDriveGauge / 100) >= 2) {
+                openModal("overdrive");
+            } else {
+                triggerOverDrive(checked, 1);
+            }
+        } else {
+            triggerOverDrive(checked);
+        }
+    };
+
+    const openModal = (type, index, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
     return (
@@ -336,9 +343,15 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                         <select className="action_select" value={turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
                             {turn.userOperation.kb_action === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
-                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD ||
+                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_1 ||
                                 (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
-                                <option value={KB_NEXT.ACTION_OD}>行動開始+OD</option> : null}
+                                <option value={KB_NEXT.ACTION_OD_1}>行動開始+OD1</option> : null}
+                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_2 ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
+                                <option value={KB_NEXT.ACTION_OD_2}>行動開始+OD2</option> : null}
+                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_3 ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
+                                <option value={KB_NEXT.ACTION_OD_3}>行動開始+OD3</option> : null}
                         </select>
                         <div
                             className="flex"
@@ -346,7 +359,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                                 justifyContent: "flex-end",
                             }}>
                             {turn.startOverDriveGauge >= 100 && !turn.additionalTurn && (turn.overDriveNumber === 0 || turn.triggerOverDrive) ?
-                                <input type="checkbox" className="trigger_over_drive" checked={turn.triggerOverDrive} onChange={(e) => triggerOverDrive(e.target.checked)} />
+                                <input type="checkbox" className="trigger_over_drive" checked={turn.triggerOverDrive} onChange={(e) => handleOverDrive(e.target.checked)} />
                                 : null}
                             {isLastTurn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
@@ -374,7 +387,9 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                                 <ModalEffectSelection closeModal={closeModal} onSelect={handleSelectEffect} effectType={modalSetting.effect_type} />
                                 : modalSetting.modalType === "buff" ?
                                     <BuffDetailListComponent buffList={modalSetting.effect_type} />
-                                    : null
+                                    : modalSetting.modalType === "overdrive" ?
+                                        <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
+                                        : null
                     }
                 </ReactModal>
             </div>

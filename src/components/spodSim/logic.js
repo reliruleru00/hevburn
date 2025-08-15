@@ -1516,10 +1516,10 @@ const unitOrderLoop = (func, unitList) => {
 }
 
 // 1:通常戦闘,2:後打ちOD,3:追加ターン
-const turnProceed = (kb_next, turn) => {
+const turnProceed = (kbNext, turn) => {
     let turnProgress = false;
     turn.enemyDebuffList.sort((a, b) => a.buff_kind - b.buff_kind);
-    if (kb_next === KB_NEXT.ACTION) {
+    if (kbNext === KB_NEXT.ACTION) {
         // オーバードライブ
         if (turn.overDriveMaxTurn > 0) {
             turn.overDriveNumber++;
@@ -1539,12 +1539,18 @@ const turnProceed = (kb_next, turn) => {
             nextTurn(turn);
         }
         turn.additionalCount = 0;
-    } else if (kb_next === KB_NEXT.ADDITIONALTURN) {
+    } else if (kbNext === KB_NEXT.ADDITIONALTURN) {
         // 追加ターン
         turn.additionalCount++;
     } else {
         // 行動開始＋OD発動
-        startOverDrive(turn);
+        if (kbNext === KB_NEXT.ACTION_OD_1) {
+            startOverDrive(turn, 1);
+        } else if (kbNext === KB_NEXT.ACTION_OD_2) {
+            startOverDrive(turn, 2);
+        } else if (kbNext === KB_NEXT.ACTION_OD_3) {
+            startOverDrive(turn, 3);
+        }
         turn.finishAction = true;
         turn.endDriveTriggerCount = 0;
         unitLoop(unitOverDriveTurnProceed, turn.unitList);
@@ -1632,16 +1638,15 @@ export const addOverDrive = (add_od_gauge, turn) => {
     }
 }
 
-export const startOverDrive = (turn) => {
-    let over_drive_level = Math.floor(turn.overDriveGauge / 100)
+export const startOverDrive = (turn, overDriveLevel) => {
     turn.overDriveNumber = 1;
-    turn.overDriveMaxTurn = over_drive_level;
-    turn.overDriveGauge = 0;
+    turn.overDriveMaxTurn = overDriveLevel;
+    turn.overDriveGauge = turn.overDriveGauge - overDriveLevel * 100;
     turn.addOverDriveGauge = 0;
 
     let sp_list = [0, 5, 12, 20];
     unitLoop(function (unit) {
-        unit.overDriveSp = sp_list[over_drive_level];
+        unit.overDriveSp = sp_list[overDriveLevel];
         unit.sp_cost = getSpCost(turn, getSkillData(unit.selectSkillId), unit);
     }, turn.unitList);
     abilityAction(ABILIRY_TIMING.OD_START, turn);

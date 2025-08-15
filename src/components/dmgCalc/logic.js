@@ -537,7 +537,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     debuff += fragile;
 
     let damageRateUp = getDamagerateEffectSize(handlers, attackInfo.hit_count);
-    let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap);
+    let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap);
 
     let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
     let enemyDefenceRate = getEnemyDefenceRate(state);
@@ -824,7 +824,7 @@ function getSumDebuffEffectSize(handlers) {
 }
 
 // 合計連撃効果量取得
-function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
+function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap) {
     let funnel_list = [];
 
     // スキルデバフ合計
@@ -844,7 +844,22 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
         })
     }
 
-    Object.keys(abilitySettingMap).forEach(function (key) {
+    Object.keys(passiveSettingMap).forEach(function (key) {
+        let data = passiveSettingMap[key];
+        if (data.checked) {
+            let skillId = Number(data.skill_id)
+            let passiveInfo = getPassiveInfo(skillId);
+            if (passiveInfo.effect_type === EFFECT.FUNNEL) {
+                let size = passiveInfo.effect_size;
+                let loop = passiveInfo.effect_count;
+                for (let i = 0; i < loop; i++) {
+                    funnel_list.push(size);
+                }
+            }
+        }
+    })
+
+        Object.keys(abilitySettingMap).forEach(function (key) {
         let data = abilitySettingMap[key];
         if (data.checked) {
             let abilityId = Number(data.ability_id)
@@ -858,6 +873,7 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap) {
             }
         }
     })
+
 
     // 降順でソート
     funnel_list.sort(function (a, b) {

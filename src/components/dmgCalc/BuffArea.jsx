@@ -62,6 +62,7 @@ const TARGET_KIND = [
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
     EFFECT.HIGH_BOOST, // ハイブースト状態
     EFFECT.FIRE_MARK, // 火の印
+    EFFECT.FUNNEL, // 連撃
 ]
 const SUB_TARGET_KIND = [
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開

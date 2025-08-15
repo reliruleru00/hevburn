@@ -1122,10 +1122,10 @@ function isAloneActivation(buffInfo) {
 }
 
 // 攻撃時にバフ消費
-function consumeBuffUnit(turnData, unitData, attack_info, skillInfo) {
+function consumeBuffUnit(turnData, unitData, attackInfo) {
     let consume_kind = [];
     let consume_count = 2
-    if (attack_info) {
+    if (attackInfo.attack_id !== 0) {
         // 連撃消費
         getFunnelList(unitData);
     }
@@ -1145,7 +1145,7 @@ function consumeBuffUnit(turnData, unitData, attack_info, skillInfo) {
         if (countWithFilter < consume_count) {
             switch (buffInfo.buff_kind) {
                 case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-                    if (attack_info.attack_element !== buffInfo.buff_element) {
+                    if (attackInfo.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
                 // fallthrough
@@ -1155,13 +1155,13 @@ function consumeBuffUnit(turnData, unitData, attack_info, skillInfo) {
                 case BUFF.DAMAGERATEUP: // 破壊率アップ
                 case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
                     // スキルでのみ消費
-                    if (attack_info.attack_id === 0) {
+                    if (attackInfo.attack_id === 0) {
                         continue;
                     }
                     if (buffInfo.buff_kind === BUFF.MINDEYE) {
                         // 弱点のみ消費
                         let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
-                        if (!isWeak(turnData.enemyInfo, physical, attack_info.attack_element, attack_info.attack_id)) {
+                        if (!isWeak(turnData.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)) {
                             continue;
                         }
                     }
@@ -1169,7 +1169,7 @@ function consumeBuffUnit(turnData, unitData, attack_info, skillInfo) {
                     break;
                 case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
                 case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-                    if (attack_info.attack_element !== buffInfo.buff_element) {
+                    if (attackInfo.attack_element !== buffInfo.buff_element) {
                         continue;
                     }
                 // fallthrough
@@ -1177,10 +1177,6 @@ function consumeBuffUnit(turnData, unitData, attack_info, skillInfo) {
                 case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
                     // 通常攻撃でも消費
                     buffList.splice(i, 1);
-                    // 星屑の航路は消費しない。
-                    if (buffInfo.skill_id === 67 || buffInfo.skill_id === 491) {
-                        continue;
-                    }
                     break;
                 default:
                     // 上記以外のバフ消費しない
@@ -1823,59 +1819,59 @@ const getearringEffectSize = (hit_count, unit) => {
 
 const getFunnelList = (unit) => {
     let ret = [];
-    let buff_funnel_list = unit.buffList.filter(function (buffInfo) {
+    let buffFunnelList = unit.buffList.filter(function (buffInfo) {
         return BUFF.FUNNEL === buffInfo.buff_kind && !isAloneActivation(buffInfo);
     });
-    let buff_unit_funnel_list = unit.buffList.filter(function (buffInfo) {
+    let buffUnitFunnelList = unit.buffList.filter(function (buffInfo) {
         return BUFF.FUNNEL === buffInfo.buff_kind && isAloneActivation(buffInfo);
     });
-    let ability_list = unit.buffList.filter(function (buffInfo) {
+    let abilityList = unit.buffList.filter(function (buffInfo) {
         return BUFF.ABILITY_FUNNEL === buffInfo.buff_kind;
     });
 
     // effect_sumで降順にソート
-    buff_funnel_list.sort(function (a, b) {
+    buffFunnelList.sort(function (a, b) {
         return b.effect_sum - a.effect_sum;
     });
-    buff_unit_funnel_list.sort(function (a, b) {
+    buffUnitFunnelList.sort(function (a, b) {
         return b.effect_sum - a.effect_sum;
     });
-    ability_list.sort(function (a, b) {
+    abilityList.sort(function (a, b) {
         return b.effect_sum - a.effect_sum;
     });
     // 単独発動の効果値判定
-    let buff_total = buff_funnel_list.slice(0, 2).reduce(function (sum, element) {
+    let buff_total = buffFunnelList.slice(0, 2).reduce(function (sum, element) {
         return sum + element["effect_sum"];
     }, 0);
-    let buff_unit_total = buff_unit_funnel_list.slice(0, 1).reduce(function (sum, element) {
+    let buff_unit_total = buffUnitFunnelList.slice(0, 1).reduce(function (sum, element) {
         return sum + element["effect_sum"];
     }, 0);
     if (buff_total <= buff_unit_total) {
-        ret = buff_unit_funnel_list.slice(0, 1)
+        ret = buffUnitFunnelList.slice(0, 1)
     } else {
-        ret = buff_funnel_list.slice(0, 2)
-        buff_funnel_list = buff_funnel_list.slice(2);
+        ret = buffFunnelList.slice(0, 2)
+        buffFunnelList = buffFunnelList.slice(2);
     }
     // アビリティを追加
-    if (ability_list.length > 0) {
-        ret.push(ability_list[0]);
+    if (abilityList.length > 0) {
+        ret.push(abilityList[0]);
     }
 
     // 新しいリストを作成
-    let result_list = [];
+    let resultList = [];
 
     // 各要素のeffect_count分effect_unitを追加
     ret.forEach(function (item) {
         for (let i = 0; i < item.max_power; i++) {
-            result_list.push(item.effect_size);
+            resultList.push(item.effect_size);
         }
-        item.use_funnel = true;
+        item.useFunnel = true;
     });
     // 使用後にリストから削除
     unit.buffList = unit.buffList.filter(function (item) {
-        return !item.use_funnel || isAloneActivation(item) || ALONE_ACTIVATION_ABILITY_LIST.includes(item.ability_id);
+        return !item.useFunnel || isAloneActivation(item) || ALONE_ACTIVATION_ABILITY_LIST.includes(item.ability_id);
     })
-    return result_list;
+    return resultList;
 }
 
 const abilityActionUnit = (turnData, action_kbn, unit) => {
@@ -1959,9 +1955,8 @@ const abilityActionUnit = (turnData, action_kbn, unit) => {
         switch (ability.effect_type) {
             case EFFECT.FUNNEL: // 連撃数アップ
                 buff = {};
-                buff.ability_id = ability.ability_id;
                 buff.buff_kind = BUFF.ABILITY_FUNNEL;
-                buff.buff_name = ability.ability_name;
+                buff.buff_name = ability.ability_name || ability.passive_name;
                 buff.buff_element = 0;
                 buff.max_power = ability.effect_count;
                 buff.effect_size = ability.effect_size;

@@ -87,7 +87,7 @@ const updateUserOperation = (userOperationList, turnData) => {
     );
     let userOperation = turnData.userOperation;
     if (filtered.length === 0) {
-        turnData.userOperation.kb_action = KB_NEXT.ACTION;
+        turnData.userOperation.kbAction = KB_NEXT.ACTION;
         userOperationList.push(turnData.userOperation);
         // 表示確認用
         userOperationList.sort((a, b) => compereUserOperation(a, b));
@@ -110,7 +110,7 @@ const reflectUserOperation = (turnData, isLoadMode) => {
                 if (!isLoadMode) {
                     if (operation_placeNo !== unit.placeNo) {
                         setInitSkill(unit);
-                        turnData.userOperation.select_skill[unit.placeNo].skill_id = unit.selectSkillId;
+                        turnData.userOperation.selectSkill[unit.placeNo].skill_id = unit.selectSkillId;
                         turnData.userOperation.placeStyle[unit.placeNo] = unit.style.styleInfo.style_id;
                     }
                     return;
@@ -126,18 +126,18 @@ const reflectUserOperation = (turnData, isLoadMode) => {
     // スキル設定
     turnData.unitList.forEach((unit) => {
         if (unit.blank) return;
-        const skill = turnData.userOperation.select_skill[unit.placeNo];
+        const skill = turnData.userOperation.selectSkill[unit.placeNo];
         if (skill) {
             unit.buffTargetCharaId = skill.buffTargetCharaId;
             unit.buffEffectSelectType = skill.buffEffectSelectType;
-            skillUpdate(turnData, turnData.userOperation.select_skill[unit.placeNo].skill_id, unit.placeNo);
+            skillUpdate(turnData, turnData.userOperation.selectSkill[unit.placeNo].skill_id, unit.placeNo);
         }
     })
     // OD再計算
     turnData.addOverDriveGauge = getOverDrive(turnData);
     // 行動反映
     if (turnData.overDriveGauge + turnData.addOverDriveGauge < 100) {
-        turnData.userOperation.kb_action = KB_NEXT.ACTION;
+        turnData.userOperation.kbAction = KB_NEXT.ACTION;
     }
     // OD発動反映
     turnData.triggerOverDrive = turnData.userOperation.triggerOverDrive;
@@ -145,8 +145,8 @@ const reflectUserOperation = (turnData, isLoadMode) => {
 
 // ユーザ操作の比較
 const compereUserOperation = (comp1, comp2) => {
-    if (comp1.turn_number !== comp2.turn_number) {
-        return comp1.turn_number - comp2.turn_number;
+    if (comp1.turnNumber !== comp2.turnNumber) {
+        return comp1.turnNumber - comp2.turnNumber;
     }
     if (comp1.finishAction !== comp2.finishAction) {
         return comp1.finishAction - comp2.finishAction;
@@ -492,7 +492,7 @@ function origin(turnData, skillInfo, unitData) {
 export const getOverDrive = (turn) => {
     // OD上昇量取得
     const seq = sortActionSeq(turn);
-    const enemy_count = turn.enemy_count;
+    const enemyCount = turn.enemyCount;
     let odPlus = 0;
     const tempTurn = deepClone(turn);
     const front_cost_list = [];
@@ -545,7 +545,7 @@ export const getOverDrive = (turn) => {
             }
             front_cost_list.push(unitData.sp_cost);
             if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackId)) {
-                let enemy_target = enemy_count;
+                let enemy_target = enemyCount;
                 if (attackInfo.range_area === 1) {
                     enemy_target = 1;
                 }
@@ -603,7 +603,7 @@ export const getOverDrive = (turn) => {
                 let badies = checkBuffExist(unitData.buffList, BUFF.BABIED) ? 20 : 0;
                 const earring = attackInfo.attack_id ? getearringEffectSize(attackInfo.hit_count, unitData) : 0;
                 if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)) {
-                    let enemy_target = enemy_count;
+                    let enemy_target = enemyCount;
                     if (attackInfo.range_area === 1) {
                         enemy_target = 1;
                     }
@@ -756,7 +756,7 @@ function ZeroSpSkill(turnData, skillInfo, unitData) {
 function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_id) {
     switch (conditions) {
         case CONDITIONS.FIRST_TURN: // 1ターン目
-            return turnData.turn_number === 1;
+            return turnData.turnNumber === 1;
         case CONDITIONS.SKILL_INIT: // 初回
             return !unitData.useSkillList.includes(skill_id)
         case CONDITIONS.additionalTurn: // 追加ターン
@@ -789,7 +789,7 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
         case CONDITIONS.MORALE_OVER_6: // 士気Lv6以上
             return checkBuffExist(unitData.buffList, BUFF.MORALE, conditionsId);
         case CONDITIONS.ENEMY_COUNT: // 敵数指定
-            return turnData.enemy_count === conditionsId;
+            return turnData.enemyCount === conditionsId;
         case CONDITIONS.SELECT_31A: // 31A選択
             return CHARA_ID.MEMBER_31A.includes(unitData.buffTargetCharaId);
         case CONDITIONS.OVER_31A_3: // 31A3人以上
@@ -973,7 +973,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, use_unitData) {
             // デバフ追加
             let add_count = 1;
             if (buffInfo.range_area === RANGE.ENEMY_ALL) {
-                add_count = turnData.enemy_count;
+                add_count = turnData.enemyCount;
             }
             // デバフ強化を消費する。
             let index = use_unitData.buffList.findIndex(function (buffInfo) {
@@ -1475,7 +1475,7 @@ export function initTurn(turnData) {
         // 追加ターン開始
         abilityAction(ABILIRY_TIMING.ADDITIONALTURN, turnData);
     } else {
-        let kbAction = turnData.userOperation.kb_action;
+        let kbAction = turnData.userOperation.kbAction || turnData.userOperation.kb_action;
         if (kbAction === KB_NEXT.ACTION) {
             // 行動開始時
             abilityAction(ABILIRY_TIMING.ACTION_START, turnData);
@@ -1569,8 +1569,8 @@ export const setUserOperation = (turn) => {
     // 初期値を設定
     turn.userOperation = {
         field: null,
-        enemy_count: null,
-        select_skill: turn.unitList.map(function (unit) {
+        enemyCount: null,
+        selectSkill: turn.unitList.map(function (unit) {
             if (unit.blank) {
                 return null;
             }
@@ -1582,10 +1582,10 @@ export const setUserOperation = (turn) => {
         }),
         triggerOverDrive: false,
         selectedPlaceNo: -1,
-        kb_action: KB_NEXT.ACTION,
+        kbAction: KB_NEXT.ACTION,
         finishAction: turn.finishAction,
         endDriveTriggerCount: turn.endDriveTriggerCount,
-        turn_number: turn.turn_number,
+        turnNumber: turn.turnNumber,
         additionalCount: turn.additionalCount,
         overDriveNumber: turn.overDriveNumber,
         remark: "",
@@ -1596,11 +1596,11 @@ const nextTurn = (turn) => {
     // 通常進行
     unitLoop(unitTurnProceed, turn.unitList, turn);
 
-    turn.turn_number++;
+    turn.turnNumber++;
     turn.finishAction = false;
     turn.endDriveTriggerCount = 0;
     abilityAction(ABILIRY_TIMING.RECEIVE_DAMAGE, turn);
-    if (turn.turn_number % turn.stepTurnOverDrive === 0) {
+    if (turn.turnNumber % turn.stepTurnOverDrive === 0) {
         turn.overDriveGauge += turn.stepOverDriveGauge;
         if (turn.overDriveGauge < -300) {
             turn.overDriveGauge = -300;
@@ -1618,7 +1618,7 @@ const unitSort = (turn) => {
 }
 
 export const getTurnNumber = (turn) => {
-    const defalt_turn = "ターン" + turn.turn_number;
+    const defalt_turn = "ターン" + turn.turnNumber;
     // 追加ターン
     if (turn.additionalTurn) {
         return `${defalt_turn} 追加ターン`;
@@ -1709,7 +1709,7 @@ const unitTurnProceed = (unit, turn) => {
         } else {
             unit.sp += turn.backSpAdd;
         }
-        if ((turn.turn_number + 1) % turn.stepTurnSp === 0) {
+        if ((turn.turnNumber + 1) % turn.stepTurnSp === 0) {
             unit.sp += turn.stepSpAllAdd;
             if (unit.placeNo < 3) {
                 unit.sp += turn.stepSpFrontAdd;

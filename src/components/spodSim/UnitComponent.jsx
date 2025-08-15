@@ -163,7 +163,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                     }
                 </div>
                 {placeNo <= 2 || hideMode ?
-                    <BuffIconComponent buffList={unit.buffList} loopLimit={loopLimit} loopStep={2} placeNo={placeNo} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                    <BuffIconComponent buffList={unit.buffList} loopLimit={loopLimit} loopStep={2} placeNo={placeNo} turnNumber={turn.turnNumber} clickBuffIcon={clickBuffIcon} />
                     : null
                 }
             </div>

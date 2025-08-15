@@ -63,7 +63,7 @@ const reducer = (state, action) => {
 function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints) {
     // 初期データ作成
     let turnInit = {
-        turn_number: 0,
+        turnNumber: 0,
         seqTurn: -1,
         overDriveNumber: 0,
         endDriveTriggerCount: 0,
@@ -77,7 +77,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
         stepOverDriveGauge: 0,
         overDriveGauge: 0,
         addOverDriveGauge: 0,
-        enemy_count: 1,
+        enemyCount: 1,
         finishAction: false,
         field: 0,
         fieldTurn: 0,
@@ -206,7 +206,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
     turnInit.stepSpBackAdd = Number(detailSetting.stepSpBackAdd);
     turnInit.stepSpAllAdd = Number(detailSetting.stepSpAllAdd);
 
-    turnInit.enemy_count = Number(enemyInfo.enemy_count);
+    turnInit.enemyCount = Number(enemyInfo.enemy_count);
     turnInit.unitList = unitList;
     turnInit.enemyInfo = enemyInfo;
     // 戦闘開始アビリティ
@@ -317,11 +317,11 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
             if (unitData) {
                 let memberInfo = loadMember(unitData.style_id);
                 // メンバー情報作成
-                memberInfo.limitCount = unitData.limitCount || unitData.limit_count;
+                memberInfo.limitCount = unitData.limitCount;
                 memberInfo.earring = unitData.earring;
                 memberInfo.bracelet = unitData.bracelet;
                 memberInfo.chain = unitData.chain;
-                memberInfo.initSp = unitData.initSp || unitData.init_sp;
+                memberInfo.initSp = unitData.initSp;
                 memberInfo.morale = unitData.morale;
                 memberInfo.exclusionSkillList = unitData.exclusionSkillList || unitData.exclusion_skill_list;
                 updatedStyleList[index] = memberInfo;

@@ -26,14 +26,27 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         // OD再計算
         turn.addOverDriveGauge = getOverDrive(turn);
         turn.userOperation = userOperation;
+        if ([KB_NEXT.ACTION_OD_1, KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
+            if (turn.overDriveGauge + turn.addOverDriveGauge < 100) {
+                userOperation.kbAction = KB_NEXT.ACTION;
+            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 200){
+                if ([KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
+                    userOperation.kbAction = KB_NEXT.ACTION_OD_1;
+                }
+            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 300){
+                if ([KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
+                    userOperation.kbAction = KB_NEXT.ACTION_OD_2;
+                }
+            }
+        }
         handlers.updateTurn(index, turn);
     }
 
     // 敵の数変更
     const chengeEnemyCount = (e) => {
         let userOperation = { ...turn.userOperation };
-        userOperation.enemy_count = Number(e.target.value);
-        turn.enemy_count = Number(e.target.value);
+        userOperation.enemyCount = Number(e.target.value);
+        turn.enemyCount = Number(e.target.value);
         reRender(userOperation, true);
     }
 
@@ -48,14 +61,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     // 行動選択変更
     const chengeAction = (e) => {
         let userOperation = { ...turn.userOperation };
-        userOperation.kb_action = Number(e.target.value);
+        userOperation.kbAction = Number(e.target.value);
         reRender(userOperation, true);
     }
 
     // スキル変更
     const chengeSkill = (skillId, placeNo) => {
         let userOperation = { ...turn.userOperation };
-        let selectSkill = userOperation.select_skill[placeNo];
+        let selectSkill = userOperation.selectSkill[placeNo];
         selectSkill.skill_id = skillId;
         skillUpdate(turn, skillId, placeNo);
         const unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];
@@ -120,7 +133,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         const userOperation = turn.userOperation;;
         if (checked) {
             startOverDrive(turn, overDriveLevel);
-            userOperation.kb_action = KB_NEXT.ACTION;
+            userOperation.kbAction = KB_NEXT.ACTION;
             userOperation.overDriveLevel = turn.overDriveLevel;;
         } else {
             removeOverDrive(turn);
@@ -150,7 +163,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         }
         let userOperation = turn.userOperation;
         let old_placeNo = userOperation.selectedPlaceNo;
-        let select_skill = userOperation.select_skill;
+        let selectSkill = userOperation.selectSkill;
         let placeStyle = userOperation.placeStyle;
         let render = false;
         if (old_placeNo !== -1) {
@@ -162,15 +175,15 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                 }
                 if (placeNo <= 2 && 3 <= old_placeNo) {
                     // 前衛と後衛の交換
-                    exchangeUnit(new_unit, old_unit, select_skill);
+                    exchangeUnit(new_unit, old_unit, selectSkill);
                 } else if (3 <= placeNo && old_placeNo <= 2) {
                     // 後衛と前衛の交換
-                    exchangeUnit(old_unit, new_unit, select_skill);
+                    exchangeUnit(old_unit, new_unit, selectSkill);
                 } else {
                     // 前衛同士/後衛同士
-                    const tmp_skill = select_skill[placeNo];
-                    select_skill[placeNo] = select_skill[old_placeNo]
-                    select_skill[old_placeNo] = tmp_skill;
+                    const tmp_skill = selectSkill[placeNo];
+                    selectSkill[placeNo] = selectSkill[old_placeNo]
+                    selectSkill[old_placeNo] = tmp_skill;
                 }
 
                 const tmp_style = placeStyle[placeNo];
@@ -185,11 +198,11 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     })
 
     // 前衛後衛ユニット交換
-    const exchangeUnit = ((old_front, old_back, select_skill) => {
+    const exchangeUnit = ((old_front, old_back, selectSkill) => {
         setInitSkill(old_back);
         setInitSkill(old_front);
-        select_skill[old_front.placeNo] = { skill_id: old_front.selectSkillId };
-        select_skill[old_back.placeNo] = { skill_id: old_back.selectSkillId };
+        selectSkill[old_front.placeNo] = { skill_id: old_front.selectSkillId };
+        selectSkill[old_back.placeNo] = { skill_id: old_back.selectSkillId };
     })
 
     // 備考編集
@@ -262,14 +275,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const handleSelectTarget = (chara_id) => {
         const unit = turn.unitList.filter(unit => unit.placeNo === modalSetting.modalIndex)[0];
         unit.buffTargetCharaId = chara_id;
-        turn.userOperation.select_skill[modalSetting.modalIndex].buffTargetCharaId = chara_id;
+        turn.userOperation.selectSkill[modalSetting.modalIndex].buffTargetCharaId = chara_id;
         reRender(turn.userOperation, true);
     };
 
     const handleSelectEffect = (effect_type) => {
         const unit = turn.unitList.filter(unit => unit.placeNo === modalSetting.modalIndex)[0];
         unit.buffEffectSelectType = effect_type;
-        turn.userOperation.select_skill[modalSetting.modalIndex].buffEffectSelectType = effect_type;
+        turn.userOperation.selectSkill[modalSetting.modalIndex].buffEffectSelectType = effect_type;
         let skillInfo = getSkillData(unit.selectSkillId);
 
         const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW,
@@ -311,9 +324,9 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                         <div className="left flex">
                             <img className="enemy_icon" src={enemyIcon} alt="ENEMY" />
                             <div>
-                                <select className="enemy_count" value={turn.enemy_count} onChange={(e) => chengeEnemyCount(e)}>
-                                    {[1, 2, 3].filter(value => value === turn.enemy_count || !isCapturing)
-                                        .map(enemy_count => <option value={enemy_count} key={`enemy_count${enemy_count}`}>{`${enemy_count}体`}</option>)}
+                                <select className="enemy_count" value={turn.enemyCount} onChange={(e) => chengeEnemyCount(e)}>
+                                    {[1, 2, 3].filter(value => value === turn.enemyCount || !isCapturing)
+                                        .map(enemyCount => <option value={enemyCount} key={`enemy_count${enemyCount}`}>{`${enemyCount}体`}</option>)}
                                 </select>
                                 <span className="ml-1">場</span>
                                 <select className="enemy_count" value={turn.field} onChange={(e) => chengeField(e)}>
@@ -326,7 +339,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                     </div>
                     <OverDriveGauge turn={turn} />
                 </div>
-                <BuffIconComponent buffList={turn.enemyDebuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turn_number} clickBuffIcon={clickBuffIcon} />
+                <BuffIconComponent buffList={turn.enemyDebuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turnNumber} clickBuffIcon={clickBuffIcon} />
             </div>
             <div className="party_member">
                 <div className="flex front_area">
@@ -341,17 +354,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                             chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
                     )}
                     <div>
-                        <select className="action_select" value={turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
-                            {turn.userOperation.kb_action === KB_NEXT.ACTION || !isCapturing ?
+                        <select className="action_select" value={turn.userOperation.kbAction || turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
+                            {turn.userOperation.kbAction === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
-                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_1 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
+                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_1}>行動開始+OD1</option> : null}
-                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_2 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
+                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_2}>行動開始+OD2</option> : null}
-                            {turn.userOperation.kb_action === KB_NEXT.ACTION_OD_3 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
+                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_3}>行動開始+OD3</option> : null}
                         </select>
                         <div
@@ -389,7 +399,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                                 : modalSetting.modalType === "buff" ?
                                     <BuffDetailListComponent buffList={modalSetting.effect_type} />
                                     : modalSetting.modalType === "overdrive" &&
-                                        <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
+                                    <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
                     }
                 </ReactModal>
             </div>

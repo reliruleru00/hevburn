@@ -1,10 +1,9 @@
 import React from "react";
-import { useStyleList } from "components/StyleListProvider";
 import { compressString, decompressString } from "utils/common";
+import { KB_NEXT } from "./const";
 
 const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdate }) => {
     const NONE = "無し"
-    const { styleList } = useStyleList();
 
     const handleClick = (i, name) => {
         if (mode === "save") {
@@ -31,7 +30,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
     };
 
     const loadSimData = (jsonstr) => {
-        let saveData = []
+        let saveData = [];
         if (jsonstr) {
             let ret = window.confirm("部隊情報が上書きされますが、よろしでしょうか？");
             if (!ret) {
@@ -40,6 +39,8 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             handleClose();
             let decompress = decompressString(jsonstr)
             saveData = JSON.parse(decompress);
+            // 旧形式から新形式に変更
+            converSaveData(saveData);
             loadData(saveData, update, setUpdate);
         }
     }
@@ -131,7 +132,8 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
     for (let i = 0; i < 10; i++) {
         let loadData = loadStorage(i);
         if (loadData) {
-            save.push(loadData.dataName || loadData.data_name);
+            let dataName = loadData.dataName || "読み取り不可データ";
+            save.push(dataName);
         } else {
             if (mode === "save") {
                 save.push(NONE);
@@ -167,3 +169,37 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
 };
 
 export default ModalSaveLoad;
+
+const converSaveData = (saveData) => {
+    if (saveData.unit_data_list) {
+        saveData.unitDataList = saveData.unit_data_list.map((item, index) => {
+            return {
+                style_id: item.style_id,
+                limitCount: item.limit_count,
+                earring: item.earring,
+                bracelet: item.bracelet,
+                chain: item.chain,
+                initSp: item.init_sp,
+                morale: 0,
+                exclusionSkillList: item.exclusion_skill_list || [],
+            };
+        });
+        saveData.userOperationList = saveData.user_operation_list.map((item, index) => {
+            return {
+                additionalCount: item.additional_count,
+                endDriveTriggerCount: item.end_drive_trigger_count,
+                enemyCount: item.enemy_count,
+                field: item.field,
+                finishAction: item.finish_action,
+                overDriveNumber: item.over_drive_number,
+                placeStyle: item.place_style,
+                remark: item.remark,
+                selectSkill: item.select_skill,
+                selectedPlaceNo: item.selected_place_no,
+                triggerOverDrive: item.trigger_over_drive,
+                turnNumber: item.turn_number,
+                kbAction: item.kb_action === KB_NEXT.ACTION_OD_OLD ? KB_NEXT.ACTION_OD_1 : item.kb_action,
+            }
+        });
+    }
+}

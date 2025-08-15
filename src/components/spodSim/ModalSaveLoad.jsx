@@ -11,17 +11,17 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             if (name === NONE) {
                 name = "データ" + (i + 1);
             }
-            let data_name = window.prompt("保存名称を入力してください", name);
-            if (data_name === null) {
+            let dataName = window.prompt("保存名称を入力してください", name);
+            if (dataName === null) {
                 return;
             }
             const userOperationList = turnList.map(turn => turn.userOperation);
-            let save_data = {
-                data_name: data_name,
-                unitDataList: convertUnitDataList(),
-                userOperation_list: userOperationList,
+            let saveData = {
+                dataName: dataName,
+                unitDataList: convertUnitDataList(turnList[0]),
+                userOperationList: userOperationList,
             }
-            let compress = compressString(JSON.stringify(save_data));
+            let compress = compressString(JSON.stringify(saveData));
             localStorage.setItem(`sim_data_${i}`, compress);
             handleClose();
         } else if (mode === "load") {
@@ -31,7 +31,7 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
     };
 
     const loadSimData = (jsonstr) => {
-        let save_data = []
+        let saveData = []
         if (jsonstr) {
             let ret = window.confirm("部隊情報が上書きされますが、よろしでしょうか？");
             if (!ret) {
@@ -39,23 +39,24 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
             }
             handleClose();
             let decompress = decompressString(jsonstr)
-            save_data = JSON.parse(decompress);
-            loadData(save_data, update, setUpdate);
+            saveData = JSON.parse(decompress);
+            loadData(saveData, update, setUpdate);
         }
     }
 
     // メンバー情報からユニットデータに変換
-    function convertUnitDataList() {
-        return styleList.selectStyleList.map((style) => {
-            if (style) {
+    function convertUnitDataList(turnData) {
+        return turnData.unitList.map((unit) => {
+            if (unit?.style) {
                 return {
-                    style_id: style.styleInfo.style_id,
-                    limitCount: style.limitCount,
-                    earring: style.earring,
-                    bracelet: style.bracelet,
-                    chain: style.chain,
-                    initSp: style.initSp,
-                    exclusionSkillList: style.exclusionSkillList,
+                    style_id: unit.style.styleInfo.style_id,
+                    limitCount: unit.style.limitCount,
+                    earring: unit.style.earring,
+                    bracelet: unit.style.bracelet,
+                    chain: unit.style.chain,
+                    initSp: unit.style.initSp,
+                    morale: unit.style.morale,
+                    exclusionSkillList: unit.style.exclusionSkillList,
                 }
             }
             return undefined;
@@ -74,11 +75,11 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
     // 出力クリック
     const chickOutput = () => {
         const userOperationList = turnList.map(turn => turn.userOperation);
-        let save_data = {
-            unitDataList: convertUnitDataList(),
-            userOperation_list: userOperationList,
+        let saveData = {
+            unitDataList: convertUnitDataList(turnList[0]),
+            userOperationList: userOperationList,
         }
-        let compress = compressString(JSON.stringify(save_data));
+        let compress = compressString(JSON.stringify(saveData));
         let filename = "sim_data.sav";
         downloadStringAsFile(compress, filename);
         handleClose();
@@ -128,9 +129,9 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
 
     let save = [];
     for (let i = 0; i < 10; i++) {
-        let load_data = loadStorage(i);
-        if (load_data) {
-            save.push(load_data.data_name);
+        let loadData = loadStorage(i);
+        if (loadData) {
+            save.push(loadData.dataName || loadData.data_name);
         } else {
             if (mode === "save") {
                 save.push(NONE);

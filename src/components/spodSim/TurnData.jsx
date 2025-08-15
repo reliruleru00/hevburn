@@ -121,6 +121,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         if (checked) {
             startOverDrive(turn, overDriveLevel);
             userOperation.kb_action = KB_NEXT.ACTION;
+            userOperation.overDriveLevel = turn.overDriveLevel;;
         } else {
             removeOverDrive(turn);
         }
@@ -387,9 +388,8 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                                 <ModalEffectSelection closeModal={closeModal} onSelect={handleSelectEffect} effectType={modalSetting.effect_type} />
                                 : modalSetting.modalType === "buff" ?
                                     <BuffDetailListComponent buffList={modalSetting.effect_type} />
-                                    : modalSetting.modalType === "overdrive" ?
+                                    : modalSetting.modalType === "overdrive" &&
                                         <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
-                                        : null
                     }
                 </ReactModal>
             </div>

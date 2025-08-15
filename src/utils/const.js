@@ -10,10 +10,11 @@ export const CHARA_ID = {
 }
 
 export const STYLE_ID = {
-    ONLY_MOON_LIGHT: 145,
-    WEDING_SHARO: 123,
-    UNISON_BUNGO: 161,
-    SERVANT: [162, 163]
+    ONLY_MOON_LIGHT: 145,   // 月光月歌
+    WEDING_SHARO: 123,  // ウェディングシャロ
+    UNISON_BUNGO: 161,  // ユニソン豊後
+    SERVANT: [162, 163],    // 下僕天音、聖羅
+    UNISON_KARENCHAN: 177,  // ユニソンカレンチャン
 }
 
 export const SKILL_ID = {

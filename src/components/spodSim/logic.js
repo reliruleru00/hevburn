@@ -81,16 +81,16 @@ export const skillUpdate = (turnData, skill_id, placeNo) => {
 }
 
 // ユーザ操作の取得
-const updateUserOperation = (userOperation_list, turnData) => {
-    let filtered = userOperation_list.filter((item) =>
+const updateUserOperation = (userOperationList, turnData) => {
+    let filtered = userOperationList.filter((item) =>
         compereUserOperation(item, turnData) === 0
     );
     let userOperation = turnData.userOperation;
     if (filtered.length === 0) {
         turnData.userOperation.kb_action = KB_NEXT.ACTION;
-        userOperation_list.push(turnData.userOperation);
+        userOperationList.push(turnData.userOperation);
         // 表示確認用
-        userOperation_list.sort((a, b) => compereUserOperation(a, b));
+        userOperationList.sort((a, b) => compereUserOperation(a, b));
     } else {
         userOperation = filtered[0];
         turnData.userOperation = userOperation;
@@ -121,7 +121,7 @@ const reflectUserOperation = (turnData, isLoadMode) => {
     })
     // オーバードライブ発動
     if (turnData.userOperation.triggerOverDrive && turnData.overDriveGauge > 100) {
-        startOverDrive(turnData);
+        startOverDrive(turnData, turnData.userOperation.overDriveLevel);
     }
     // スキル設定
     turnData.unitList.forEach((unit) => {
@@ -1459,7 +1459,6 @@ export const recreateTurnData = (turnList, turnData, userOperationList, isLoadMo
         turnData = deepClone(turnData);
         startAction(turnData);
         initTurn(turnData, false);
-        // proceedTurn(turnData, false);
         turnList.push(turnData);
         // ユーザ操作の更新
         updateUserOperation(userOperationList, turnData);

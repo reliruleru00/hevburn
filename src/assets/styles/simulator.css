@@ -127,6 +127,14 @@ img.select_style {
     transition: background 0.3s ease, transform 0.1s ease;
 }
 
+.battle_setting {
+    width: 90px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+}
+
 /* 敵情報 */
 .surround_area {
     border: solid gray 2px;

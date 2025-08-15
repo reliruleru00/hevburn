@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { ROLE, BUFF } from "utils/const";
+import { STYLE_ID, ROLE, BUFF } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
@@ -179,7 +179,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
                 let morale = {
                     buff_kind: BUFF.MORALE,
                     buff_element: 0,
-                    rest_turn: -1,  
+                    rest_turn: -1,
                     lv: member.morale,
                     buff_name: "初期設定",
                 }
@@ -217,6 +217,45 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
     return turnInit;
 }
 
+const checkStartBattle = (styleList) => {
+    for (let i = 0; i < styleList.selectStyleList.length; i++) {
+        let style = styleList.selectStyleList[i]?.styleInfo;
+        if (NOT_USE_STYLE.includes(style?.style_id)) {
+            let chara_data = getCharaData(style.chara_id);
+            alert(`[${style.style_name}]${chara_data.chara_name}は現在使用できません。`);
+            return false;
+        }
+    };
+    // 後衛が居る場合、前衛に空き不可
+    const hasBlankFront = styleList.selectStyleList.some(function (style, index) {
+        return style === undefined && index <= 2
+    });
+    const hasBack = styleList.selectStyleList.some(function (style, index) {
+        return style !== undefined && index >= 3
+    });
+    if (hasBlankFront && hasBack) {
+        alert("後衛がいるとき 前衛には3名必要です。");
+        return false;
+    }
+
+    const countAdmiral = styleList.selectStyleList.filter(function (style, index) {
+        return style?.styleInfo?.role === ROLE.ADMIRAL
+    }).length;
+    if (countAdmiral > 1) {
+        alert("アドミラルは部隊に1人のみ設定可能です。");
+        return false;
+    }
+
+    const hasKarenchan = styleList.selectStyleList.some(function (style, index) {
+        return style?.styleInfo?.style_id === STYLE_ID.UNISON_KARENCHAN
+    });
+    if (hasKarenchan) {
+        alert("ユニゾン朝倉は、カレンチャンで開始できません。");
+        return false;
+    }
+    return true;
+}
+
 const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect }) => {
     const { styleList, setStyleList, saveMember, loadMember } = useStyleList();
 
@@ -230,23 +269,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
 
     // 戦闘開始前処理
     const startBattle = (update, setUpdate, setConstraints) => {
-        for (let i = 0; i < styleList.selectStyleList.length; i++) {
-            let style = styleList.selectStyleList[i]?.styleInfo;
-            if (NOT_USE_STYLE.includes(style?.style_id)) {
-                let chara_data = getCharaData(style.chara_id);
-                alert(`[${style.style_name}]${chara_data.chara_name}は現在使用できません。`);
-                return;
-            }
-        };
-        // 後衛が居る場合、前衛に空き不可
-        const hasBlankFront = styleList.selectStyleList.some(function (style, index) {
-            return style === undefined && index <= 2
-        });
-        const hasBack = styleList.selectStyleList.some(function (style, index) {
-            return style !== undefined && index >= 3
-        });
-        if (hasBlankFront && hasBack) {
-            alert("後衛がいるとき 前衛には3名必要です");
+        if (!checkStartBattle(styleList)) {
             return;
         }
 
@@ -262,6 +285,25 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
     };
 
+    // 戦闘開始前処理
+    const restartBattle = (update, setUpdate, setConstraints) => {
+        if (!checkStartBattle(styleList)) {
+            return;
+        }
+
+        /** 戦闘開始処理 */
+        const userOperationList = simProc.turnList.map(turn => turn.userOperation);
+        // 初期データ作成
+        let turnInit = getInitBattleData(
+            styleList.selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
+        // 制約事項更新
+        setUpdate(update + 1);
+        let turnList = [];
+        recreateTurnData(turnList, turnInit, userOperationList, true);
+        // 画面反映
+        dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
+    };
+
     const [modalIsOpen, setModalIsOpen] = React.useState(false);
     const openModal = () => setModalIsOpen(true);
     const closeModal = () => setModalIsOpen(false);
@@ -271,16 +313,17 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     const loadData = (saveData, key, setKey) => {
         // 部隊情報上書き
         const updatedStyleList = [...styleList.selectStyleList];
-        saveData.unitDataList.forEach((unit_data, index) => {
-            if (unit_data) {
-                let memberInfo = loadMember(unit_data.style_id);
+        saveData.unitDataList.forEach((unitData, index) => {
+            if (unitData) {
+                let memberInfo = loadMember(unitData.style_id);
                 // メンバー情報作成
-                memberInfo.limitCount = unit_data.limitCount || unit_data.limit_count;
-                memberInfo.earring = unit_data.earring;
-                memberInfo.bracelet = unit_data.bracelet;
-                memberInfo.chain = unit_data.chain;
-                memberInfo.initSp = unit_data.initSp || unit_data.init_sp;
-                memberInfo.exclusionSkillList = unit_data.exclusionSkillList || unit_data.exclusion_skill_list;
+                memberInfo.limitCount = unitData.limitCount || unitData.limit_count;
+                memberInfo.earring = unitData.earring;
+                memberInfo.bracelet = unitData.bracelet;
+                memberInfo.chain = unitData.chain;
+                memberInfo.initSp = unitData.initSp || unitData.init_sp;
+                memberInfo.morale = unitData.morale;
+                memberInfo.exclusionSkillList = unitData.exclusionSkillList || unitData.exclusion_skill_list;
                 updatedStyleList[index] = memberInfo;
             } else {
                 updatedStyleList[index] = undefined;
@@ -293,7 +336,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         // 制約事項更新
         setKey(key + 1);
         let turnList = [];
-        recreateTurnData(turnList, turnInit, saveData.userOperation_list, true);
+        recreateTurnData(turnList, turnInit, saveData.userOperationList, true);
         // 画面反映
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
     }
@@ -339,6 +382,10 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                         <div className="flex justify-center mt-2 text-sm">
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e =>
                                 startBattle(update, setUpdate, setConstraints)} />
+                            {simProc.turnList.length > 0 &&
+                                <input className="battle_setting ml-4" defaultValue="設定を反映" type="button" onClick={e =>
+                                    restartBattle(update, setUpdate, setConstraints)} />
+                            }
                         </div>
                         <div>
                             <ConstraintsList constraints={constraints} />

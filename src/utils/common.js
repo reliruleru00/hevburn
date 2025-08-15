@@ -24,7 +24,7 @@ export function getStyleData(styleId) {
 export function getEnemyInfo(enemyClass, enemySelect) {
   const filteredEnemy = enemyList.filter((obj) =>
     obj.enemy_class === Number(enemyClass) && obj.enemy_class_no === Number(enemySelect));
-  return filteredEnemy.length > 0 ? filteredEnemy[0] : enemyList[0];
+  return filteredEnemy.length > 0 ? filteredEnemy[0] : undefined;
 }
 
 // スキルデータ取得

@@ -175,16 +175,31 @@ const DamageCalculation = () => {
     const [selectSKillLv, setSelectSKillLv] = useState(undefined);
     const [buffSettingMap, setBuffSettingMap] = useState({});
 
-    // 敵選択
-    const [enemyClass, setEnemyClass] = useState(() => {
-        let enemyClass = localStorage.getItem("enemy_class");
-        return enemyClass ? Number(enemyClass) : 1;
-    });
-    const [enemySelect, setEnemySelect] = useState(() => {
-        let enemySelect = localStorage.getItem("enemy_select");
-        return enemySelect ? Number(enemySelect) : 1;
-    });
-    let initEnemyInfo = getEnemyInfo(enemyClass, enemySelect);
+    // 初期値を決める関数
+    const getInitialEnemyData = () => {
+        let enemyClass = Number(localStorage.getItem("enemy_class")) || 1;
+        let enemySelect = Number(localStorage.getItem("enemy_select")) || 1;
+
+        let info = getEnemyInfo(enemyClass, enemySelect);
+
+        // undefined の場合は 1,1 に強制
+        if (!info) {
+            enemyClass = 1;
+            enemySelect = 1;
+            localStorage.setItem("enemy_class", "1");
+            localStorage.setItem("enemy_select", "1");
+            info = getEnemyInfo(enemyClass, enemySelect);
+        }
+
+        return { enemyClass, enemySelect, info };
+    };
+
+    // 初期データ取得
+    const { enemyClass: initialClass, enemySelect: initialSelect, info: initEnemyInfo } = getInitialEnemyData();
+
+    // 状態管理
+    const [enemyClass, setEnemyClass] = useState(initialClass);
+    const [enemySelect, setEnemySelect] = useState(initialSelect);
     const initialState = {
         enemyInfo: initEnemyInfo,
         hpRate: 100,
@@ -259,11 +274,13 @@ const DamageCalculation = () => {
         setBuffSettingMap(newBuffSettingMap);
     }
 
-    const argument = {attackInfo, state, dispatch, otherSetting,
+    const argument = {
+        attackInfo, state, dispatch, otherSetting,
         selectBuffKeyMap, setSelectBuffKeyMap,
         buffSettingMap, setBuffSettingMap,
         abilitySettingMap, setAbilitySettingMap,
-        passiveSettingMap, setPassiveSettingMap};
+        passiveSettingMap, setPassiveSettingMap
+    };
     return (
         <div className="damage_frame pt-3">
             <div className="display_area mx-auto">

@@ -1,6 +1,6 @@
 import icons from 'assets/thumbnail';
 import plusIcon from 'assets/img/plus.png';
-import changeIcon from 'assets/img/change.png';
+import changeIcon from 'assets/img/IconSwitchSkill.png';
 import { useStyleList } from "components/StyleListProvider";
 import { changeStyle } from "utils/const";
 

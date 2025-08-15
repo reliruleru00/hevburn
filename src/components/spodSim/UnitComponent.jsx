@@ -7,7 +7,7 @@ import { getSkillIdToAttackInfo, getSpCost, checkAbilityExist } from "./logic";
 import icons from 'assets/thumbnail';
 import crossIcon from 'assets/img/cross.png';
 import { changeStyle } from "utils/const";
-import changeIcon from 'assets/img/change.png';
+import changeIcon from 'assets/img/IconSwitchSkill.png';
 
 const UnitSp = ({ unit }) => {
     let unit_sp;
@@ -155,7 +155,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                     }
                     {changeStyle[unit?.style?.styleInfo.style_id] &&
                         <img
-                            className="absolute style_change bottom-[0px] left-[0px] w-[24px] h-[24px]"
+                            className="absolute style_change bottom-[0px] left-[0px] w-[24px] h-[24px] cursor-grab"
                             src={changeIcon}
                             alt={"変更"}
                             onClick={() => { chageStyle(placeNo, changeStyle[unit?.style?.styleInfo.style_id]) }}

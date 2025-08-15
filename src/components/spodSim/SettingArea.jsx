@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { ROLE } from "utils/const";
+import { ROLE, BUFF } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
@@ -175,6 +175,16 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
                 }
                 unit[`ability_${passive_info.activation_timing}`].push(passive_info);
             });
+            if (member.morale > 0) {
+                let morale = {
+                    buff_kind: BUFF.MORALE,
+                    buff_element: 0,
+                    rest_turn: -1,  
+                    lv: member.morale,
+                    buff_name: "初期設定",
+                }
+                unit.buffList.push(morale);
+            }
         } else {
             unit.blank = true;
         }

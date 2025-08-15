@@ -64,9 +64,8 @@ input[type="text"]:not(:read-only) {
     border: solid 1px #000;
 }
 
-.damage_frame select {
+select {
     border: solid 1px #000;
-    height: 21px;
 }
 
 /* 部隊/ステータス */

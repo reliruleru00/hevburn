@@ -19,11 +19,6 @@ div.sim_frame {
     }
 }
 
- .sim_frame > select {
-    border: solid 1px #000;
-    height: 21px;
-}
-
 /* 部隊/ステータス */
 input.troops_btn {
     width: 40px;
@@ -74,37 +69,6 @@ img.select_style {
 .dragging {
     opacity: 0.5;
     /* ドラッグ中は半透明に */
-}
-
-.label_status {
-    line-height: 22px;
-    display: block;
-}
-
-.sim_frame select {
-    border: solid 1px #000;
-    height: 21px;
-}
-
-.limit,
-.earring,
-.bracelet,
-.chain,
-.init_sp,
-.passive {
-    height: 22px;
-    width: 60px;
-    margin-left: 3px;
-    text-align: center;
-}
-
-.init_sp {
-    border: #000 1px solid;
-}
-
-.passive {
-    margin-top: 2px;
-    height: 20px;
 }
 
 .limit:disabled {

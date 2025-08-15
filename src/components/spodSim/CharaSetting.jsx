@@ -161,6 +161,7 @@ const CharaSetting = () => {
                 <span className="label_status text-xs leading-5 whitespace-nowrap">ブレスレット</span>
                 <span className="label_status">チェーン</span>
                 <span className="label_status">初期SP</span>
+                <span className="label_status">初期士気</span>
                 <span className="label_status">スキル</span>
             </div>
             {styleList.selectStyleList.map((value, index) => {
@@ -171,10 +172,11 @@ const CharaSetting = () => {
                 let earring = style ? style.earring : 0;
                 let initSp = style ? style.initSp : 1;
                 let limit = style ? style.limitCount : 0;
+                let morale = style ? style.morale ? style.morale : 0 : 0;
 
                 return (
                     <div key={`chara_no${index}`} >
-                        <select className="limit" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
+                        <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
                             {rarity <= 1 || rarity === 9 ?
                                 Array.from({ length: 5 }, (_, i) => (
                                     <option value={i} key={`limit_${i}`}>{i}</option>
@@ -184,24 +186,29 @@ const CharaSetting = () => {
                             {rarity === 2 ? <option value="10">10</option> : null}
                             {rarity === 3 ? <option value="20">20</option> : null}
                         </select>
-                        <select className="earring" value={earring} onChange={(e) => { setSetting(index, "earring", e.target.value) }}>
+                        <select className="status" value={earring} onChange={(e) => { setSetting(index, "earring", e.target.value) }}>
                             <option value="0">無し</option>
                             {EARRING_LIST.map((value, index) => (
                                 <option value={value} key={`earring_${index}`}>{value}%</option>
                             ))}
                         </select>
-                        <select className="bracelet" value={bracelet} onChange={(e) => { setSetting(index, "bracelet", e.target.value) }}>
+                        <select className="status" value={bracelet} onChange={(e) => { setSetting(index, "bracelet", e.target.value) }}>
                             {BRACELET_LIST.map((value, index) => (
                                 <option value={index} key={`bracelet_${index}`}>{value}</option>
                             ))}
                         </select>
-                        <select className="chain" value={chain} onChange={(e) => { setSetting(index, "chain", e.target.value) }}>
+                        <select className="status" value={chain} onChange={(e) => { setSetting(index, "chain", e.target.value) }}>
                             {Array.from({ length: 4 }, (_, i) => (
                                 <option value={i} key={`chain_${i}`}>SP+{i}</option>
                             ))}
                         </select>
-                        <input className="init_sp" value={initSp} type="number" onChange={(e) => { setSetting(index, "initSp", e.target.value) }} />
-                        <input className="passive" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
+                        <input className="status" value={initSp} type="number" onChange={(e) => { setSetting(index, "initSp", e.target.value) }} />
+                        <select className="status" value={morale} onChange={(e) => { setSetting(index, "morale", e.target.value) }}>
+                            {Array.from({ length: 11 }, (_, i) => (
+                                <option value={i} key={`morale_${i}`}>{i}</option>
+                            ))}
+                        </select>
+                        <input className="status" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
                     </div>
                 )
             }

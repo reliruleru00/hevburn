@@ -2,6 +2,7 @@ import React from "react";
 import scoreGrade from "data/scoreGrade";
 import bonusList from "data/scoreBonus";
 import attribute from 'assets/attribute';
+import { ENEMY_CLASS } from "utils/const";
 import { getScoreAttack, getScoreHpDp, SCORE_STATUS } from "data/scoreData";
 
 const ScoreSetting = ({ state, dispatch }) => {
@@ -12,8 +13,10 @@ const ScoreSetting = ({ state, dispatch }) => {
 
     /* eslint-disable react-hooks/exhaustive-deps */
     React.useEffect(() => {
-        setCheckedGrades([]);
-        handleScoreChange(40);
+        if (enemyInfo.enemyClass === ENEMY_CLASS.SCORE_ATTACK) {
+            setCheckedGrades([]);
+            handleScoreChange(40);
+        }
     }, [enemyInfo.sub_no]);
     /* eslint-enable react-hooks/exhaustive-deps */
 

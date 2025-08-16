@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { STYLE_ID, ROLE, BUFF } from "utils/const";
+import { ROLE, BUFF } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY } from "./const";
 import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";

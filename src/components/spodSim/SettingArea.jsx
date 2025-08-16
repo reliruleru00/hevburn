@@ -245,14 +245,6 @@ const checkStartBattle = (styleList) => {
         alert("アドミラルは部隊に1人のみ設定可能です。");
         return false;
     }
-
-    const hasKarenchan = styleList.selectStyleList.some(function (style, index) {
-        return style?.styleInfo?.style_id === STYLE_ID.UNISON_KARENCHAN
-    });
-    if (hasKarenchan) {
-        alert("ユニゾン朝倉は、カレンチャンで開始できません。");
-        return false;
-    }
     return true;
 }
 

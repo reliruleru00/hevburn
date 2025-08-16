@@ -4,11 +4,13 @@ import {
 } from "./const";
 import {
     CHARA_ID, SKILL_ID, ABILITY_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
-    ALONE_ACTIVATION_BUFF_KIND,
-
+    ALONE_ACTIVATION_BUFF_KIND, changeStyle
 } from "utils/const";
-import { getCharaData, getSkillData, getAttackInfo, getBuffList, deepClone } from "utils/common";
+import {
+    getCharaData, getSkillData, getAbilityInfo, getAttackInfo, getBuffList, deepClone, getStyleData
+} from "utils/common";
 import skillAttack from "data/skillAttack";
+import skillList from "data/skillList";
 
 // アビリティ存在チェック
 export function checkAbilityExist(abilityList, abilityId) {
@@ -98,17 +100,54 @@ const updateUserOperation = (userOperationList, turnData) => {
     userOperation.used = true;
 }
 
+export const changeStyleInfo = (unit, styleId) => {
+    let styleInfo = getStyleData(styleId);
+    unit.style.styleInfo = styleInfo;
+    let member = unit.style;
+    unit.skillList = skillList.filter(obj =>
+        (obj.chara_id === member.styleInfo.chara_id || obj.chara_id === 0) &&
+        (obj.style_id === member.styleInfo.style_id || obj.style_id === 0) &&
+        obj.skill_active === 0 &&
+        !member.exclusionSkillList.includes(obj.skill_id)
+    ).map(obj => {
+        const copiedObj = deepClone(obj);
+        if (copiedObj.chara_id === 0) {
+            copiedObj.chara_id = member.styleInfo.chara_id;
+        }
+        return copiedObj;
+    });
+    // アビリティ設定
+    Object.values(ABILIRY_TIMING).forEach(timing => {
+        unit[`ability_${timing}`] = [];
+    });
+    ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
+        const num = parseInt(numStr, 10);
+        if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
+            let abilityInfo = getAbilityInfo(styleInfo[`ability${numStr}`]);
+            if (!abilityInfo) {
+                return;
+            }
+            unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
+        }
+    });
+}
+
 // ユーザ操作をターンに反映
 const reflectUserOperation = (turnData, isLoadMode) => {
     // 配置変更
     turnData.unitList.forEach((unit) => {
         if (unit.blank) return;
-        let operation_placeNo = turnData.userOperation.placeStyle.findIndex((item) =>
-            item === unit.style.styleInfo.style_id);
-        if (operation_placeNo >= 0) {
+        let operationPlaceNo = turnData.userOperation.placeStyle.findIndex((item) =>
+            item === unit.style.styleInfo.style_id || item === changeStyle[unit.style.styleInfo.style_id]);
+        let styleId = unit.style.styleInfo.style_id;
+        let operationStyleId = turnData.userOperation.placeStyle[operationPlaceNo];
+        if (styleId !== operationStyleId) {
+            changeStyleInfo(unit, operationStyleId);
+        }
+        if (operationPlaceNo >= 0) {
             if (turnData.additionalTurn) {
                 if (!isLoadMode) {
-                    if (operation_placeNo !== unit.placeNo) {
+                    if (operationPlaceNo !== unit.placeNo) {
                         setInitSkill(unit);
                         turnData.userOperation.selectSkill[unit.placeNo].skill_id = unit.selectSkillId;
                         turnData.userOperation.placeStyle[unit.placeNo] = unit.style.styleInfo.style_id;
@@ -116,7 +155,7 @@ const reflectUserOperation = (turnData, isLoadMode) => {
                     return;
                 }
             }
-            unit.placeNo = operation_placeNo;
+            unit.placeNo = operationPlaceNo;
         }
     })
     // オーバードライブ発動
@@ -127,11 +166,14 @@ const reflectUserOperation = (turnData, isLoadMode) => {
     turnData.unitList.forEach((unit) => {
         if (unit.blank) return;
         const skill = turnData.userOperation.selectSkill[unit.placeNo];
-        if (skill) {
+        const hasSkill = unit.skillList.some(obj => obj.skill_id === skill.skill_id);
+        if (hasSkill && skill) {
             unit.buffTargetCharaId = skill.buffTargetCharaId;
             unit.buffEffectSelectType = skill.buffEffectSelectType;
-            skillUpdate(turnData, turnData.userOperation.selectSkill[unit.placeNo].skill_id, unit.placeNo);
+        } else {
+            turnData.userOperation.selectSkill[unit.placeNo].skill_id = unit.initSkillId;
         }
+        skillUpdate(turnData, turnData.userOperation.selectSkill[unit.placeNo].skill_id, unit.placeNo);
     })
     // OD再計算
     turnData.addOverDriveGauge = getOverDrive(turnData);

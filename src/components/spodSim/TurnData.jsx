@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactModal from "react-modal";
 import { RANGE, CONDITIONS } from "utils/const";
-import { KB_NEXT, ABILIRY_TIMING, FIELD_LIST } from "./const";
-import { getBuffList, getSkillData, getStyleData, getAbilityInfo, deepClone } from "utils/common";
-import skillList from "data/skillList";
+import { KB_NEXT, FIELD_LIST } from "./const";
+import { getBuffList, getSkillData, deepClone } from "utils/common";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
@@ -13,7 +12,7 @@ import BuffIconComponent from "./BuffIconComponent";
 import OverDriveGauge from "./OverDriveGauge";
 import {
     getOverDrive, startOverDrive, removeOverDrive, skillUpdate, getUnitData, getTurnNumber,
-    startAction, setInitSkill, getSpCost
+    startAction, setInitSkill, getSpCost, changeStyleInfo
 } from "./logic";
 import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
@@ -29,11 +28,11 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
         if ([KB_NEXT.ACTION_OD_1, KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
             if (turn.overDriveGauge + turn.addOverDriveGauge < 100) {
                 userOperation.kbAction = KB_NEXT.ACTION;
-            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 200){
+            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 200) {
                 if ([KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
                     userOperation.kbAction = KB_NEXT.ACTION_OD_1;
                 }
-            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 300){
+            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 300) {
                 if ([KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
                     userOperation.kbAction = KB_NEXT.ACTION_OD_2;
                 }
@@ -216,36 +215,8 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const chageStyle = (placeNo, styleId) => {
         let userOperation = { ...turn.userOperation };
         userOperation.placeStyle[placeNo] = styleId;
-        let styleInfo = getStyleData(styleId);
-        turn.unitList[placeNo].style.styleInfo = styleInfo;
-        let unit = turn.unitList[placeNo]
-        let member = unit.style;
-        unit.skillList = skillList.filter(obj =>
-            (obj.chara_id === member.styleInfo.chara_id || obj.chara_id === 0) &&
-            (obj.style_id === member.styleInfo.style_id || obj.style_id === 0) &&
-            obj.skill_active === 0 &&
-            !member.exclusionSkillList.includes(obj.skill_id)
-        ).map(obj => {
-            const copiedObj = deepClone(obj);
-            if (copiedObj.chara_id === 0) {
-                copiedObj.chara_id = member.styleInfo.chara_id;
-            }
-            return copiedObj;
-        });
-        // アビリティ設定
-        Object.values(ABILIRY_TIMING).forEach(timing => {
-            unit[`ability_${timing}`] = [];
-        });
-        ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
-            const num = parseInt(numStr, 10);
-            if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
-                let abilityInfo = getAbilityInfo(styleInfo[`ability${numStr}`]);
-                if (!abilityInfo) {
-                    return;
-                }
-                unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
-            }
-        });
+        let unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];
+        changeStyleInfo(unit, styleId);
         reRender(userOperation, true);
     }
 
@@ -357,11 +328,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                         <select className="action_select" value={turn.userOperation.kbAction || turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
                             {turn.userOperation.kbAction === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
-                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
+                            {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_1 ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_1}>行動開始+OD1</option> : null}
-                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
+                            {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_2 ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_2}>行動開始+OD2</option> : null}
-                            {(turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
+                            {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_3 ||
+                                (turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_3}>行動開始+OD3</option> : null}
                         </select>
                         <div

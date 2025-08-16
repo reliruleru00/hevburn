@@ -545,12 +545,12 @@ export const getOverDrive = (turn) => {
             }
             front_cost_list.push(unitData.sp_cost);
             if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackId)) {
-                let enemy_target = enemyCount;
+                let enemyTarget = enemyCount;
                 if (attackInfo.range_area === 1) {
-                    enemy_target = 1;
+                    enemyTarget = 1;
                 }
-                let funnel_list = getFunnelList(unitData);
-                unitOdPlus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
+                let funnelList = getFunnelList(unitData);
+                unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
                 // EXスキル連続使用
                 if (checkBuffExist(unitData.buffList, BUFF.EX_DOUBLE) && (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE)) {
                     buffList.forEach(function (buffInfo) {
@@ -559,8 +559,8 @@ export const getOverDrive = (turn) => {
                             addBuffUnit(tempTurn, buffInfo, skill_data.placeNo, unitData);
                         }
                     });
-                    let funnel_list = getFunnelList(unitData);
-                    unitOdPlus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
+                    let funnelList = getFunnelList(unitData);
+                    unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
                 }
             }
         }
@@ -603,12 +603,12 @@ export const getOverDrive = (turn) => {
                 let badies = checkBuffExist(unitData.buffList, BUFF.BABIED) ? 20 : 0;
                 const earring = attackInfo.attack_id ? getearringEffectSize(attackInfo.hit_count, unitData) : 0;
                 if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)) {
-                    let enemy_target = enemyCount;
+                    let enemyTarget = enemyCount;
                     if (attackInfo.range_area === 1) {
-                        enemy_target = 1;
+                        enemyTarget = 1;
                     }
-                    let funnel_list = getFunnelList(unitData);
-                    odPlus += calcODGain(attackInfo.hit_count, enemy_target, badies, earring, funnel_list.length);
+                    let funnelList = getFunnelList(unitData);
+                    odPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
                 }
             }
             if (skill_id === SKILL_ID.CAT_JET_SHOOTING) {
@@ -629,8 +629,8 @@ export const getOverDrive = (turn) => {
 // OD計算
 const calcODGain = (hitCount, enemyTarget, badies = 0, earring = 0, funnelCount = 0) => {
     const correction = 1 + (badies + earring) / 100;
-    const hit_od = Math.floor(2.5 * correction * 100) / 100;
-    return (hitCount * hit_od * enemyTarget) + (funnelCount * hit_od * enemyTarget);
+    const hitOd = Math.floor(2.5 * correction * 100) / 100;
+    return (hitCount * hitOd * enemyTarget) + (funnelCount * hitOd * enemyTarget);
 };
 
 // 消費SP取得
@@ -1082,7 +1082,7 @@ function skillHealSp(turnData, targetNo, addSp, limitSp, usePlaceNo, isRecursion
     }
 }
 
-function createBuffData(buffInfo, use_unitData) {
+function createBuffData(buffInfo, useUnitData) {
     let buff = {};
     buff.buff_kind = buffInfo.buff_kind;
     buff.buff_element = buffInfo.buff_element;
@@ -1100,12 +1100,12 @@ function createBuffData(buffInfo, use_unitData) {
         case BUFF.FRAGILE: // 脆弱
         case BUFF.DEFENSEDP: // DP防御力ダウン 
             // ダブルリフト
-            if (checkAbilityExist(use_unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1516)) {
+            if (checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], 1516)) {
                 buff.rest_turn++;
             }
             break;
         case BUFF.FUNNEL: // 連撃
-            buff.effect_sum = buffInfo.effect_size * buffInfo.max_power;
+            buff.effectSum = buffInfo.effect_size * buffInfo.max_power;
             break;
         default:
             break;
@@ -1829,22 +1829,22 @@ const getFunnelList = (unit) => {
         return BUFF.ABILITY_FUNNEL === buffInfo.buff_kind;
     });
 
-    // effect_sumで降順にソート
+    // effectSumで降順にソート
     buffFunnelList.sort(function (a, b) {
-        return b.effect_sum - a.effect_sum;
+        return b.effectSum - a.effectSum;
     });
     buffUnitFunnelList.sort(function (a, b) {
-        return b.effect_sum - a.effect_sum;
+        return b.effectSum - a.effectSum;
     });
     abilityList.sort(function (a, b) {
-        return b.effect_sum - a.effect_sum;
+        return b.effectSum - a.effectSum;
     });
     // 単独発動の効果値判定
     let buff_total = buffFunnelList.slice(0, 2).reduce(function (sum, element) {
-        return sum + element["effect_sum"];
+        return sum + element["effectSum"];
     }, 0);
     let buff_unit_total = buffUnitFunnelList.slice(0, 1).reduce(function (sum, element) {
-        return sum + element["effect_sum"];
+        return sum + element["effectSum"];
     }, 0);
     if (buff_total <= buff_unit_total) {
         ret = buffUnitFunnelList.slice(0, 1)
@@ -1869,7 +1869,7 @@ const getFunnelList = (unit) => {
     });
     // 使用後にリストから削除
     unit.buffList = unit.buffList.filter(function (item) {
-        return !item.useFunnel || isAloneActivation(item) || ALONE_ACTIVATION_ABILITY_LIST.includes(item.ability_id);
+        return !item.useFunnel || isAloneActivation(item) || item.always;
     })
     return resultList;
 }
@@ -1954,14 +1954,18 @@ const abilityActionUnit = (turnData, action_kbn, unit) => {
         }
         switch (ability.effect_type) {
             case EFFECT.FUNNEL: // 連撃数アップ
+            case EFFECT.FUNNEL_ALWAYS: // 連撃数(永続)アップ
                 buff = {};
                 buff.buff_kind = BUFF.ABILITY_FUNNEL;
                 buff.buff_name = ability.ability_name || ability.passive_name;
                 buff.buff_element = 0;
                 buff.max_power = ability.effect_count;
                 buff.effect_size = ability.effect_size;
-                buff.effect_sum = ability.effect_size * ability.effect_count;
+                buff.effectSum = ability.effect_size * ability.effect_count;
                 buff.rest_turn = -1;
+                if (ability.effect_type === EFFECT.FUNNEL_ALWAYS) {
+                    buff.always = true;
+                }
                 unit.buffList.push(buff);
                 break;
             case EFFECT.OVERDRIVE_SP: // ODSPアップ

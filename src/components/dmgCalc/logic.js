@@ -844,12 +844,13 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSett
         })
     }
 
+    const EFFECT_FUNNEL = [EFFECT.FUNNEL, EFFECT.FUNNEL_ALWAYS];
     Object.keys(passiveSettingMap).forEach(function (key) {
         let data = passiveSettingMap[key];
         if (data.checked) {
             let skillId = Number(data.skill_id)
             let passiveInfo = getPassiveInfo(skillId);
-            if (passiveInfo.effect_type === EFFECT.FUNNEL) {
+            if (EFFECT_FUNNEL.includes(passiveInfo.effect_type)) {
                 let size = passiveInfo.effect_size;
                 let loop = passiveInfo.effect_count;
                 for (let i = 0; i < loop; i++) {
@@ -859,12 +860,12 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSett
         }
     })
 
-        Object.keys(abilitySettingMap).forEach(function (key) {
+    Object.keys(abilitySettingMap).forEach(function (key) {
         let data = abilitySettingMap[key];
         if (data.checked) {
             let abilityId = Number(data.ability_id)
             let abilityInfo = getAbilityInfo(abilityId);
-            if (abilityInfo.effect_type === EFFECT.FUNNEL) {
+            if (EFFECT_FUNNEL.includes(abilityInfo.effect_type)) {
                 let size = abilityInfo.effect_size;
                 let loop = abilityInfo.effect_count;
                 for (let i = 0; i < loop; i++) {

@@ -132,6 +132,7 @@ export const EFFECT = {
     FIELD_DEPLOYMENT: 7, // フィールド展開
     CHARGE: 8, // チャージ
     OVERDRIVE_SP: 9, // ODSPアップ
+    FUNNEL_ALWAYS: 10, // 連撃数(永続)アップ
     DEFFENCEUP: 11, // 防御力アップ
     HEALSP: 12, // SP回復
     HEALDP: 13, // DP回復

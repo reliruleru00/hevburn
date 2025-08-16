@@ -63,6 +63,7 @@ const TARGET_KIND = [
     EFFECT.HIGH_BOOST, // ハイブースト状態
     EFFECT.FIRE_MARK, // 火の印
     EFFECT.FUNNEL, // 連撃
+    EFFECT.FUNNEL_ALWAYS, // 連撃(永続)
 ]
 const SUB_TARGET_KIND = [
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開

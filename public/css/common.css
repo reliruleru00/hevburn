@@ -95,31 +95,30 @@ input[type=checkbox].switch {
 input[type="checkbox"].switch {
     --size: 20px;
     --scale: 0.8;
-
     appearance: none;
     cursor: pointer;
-    margin: 2px 0px 0px 0px;
+    margin: 2px 0 0 0;
     height: var(--size);
     aspect-ratio: 2;
     border-radius: var(--size);
-    background-color: #444444;
+    background-color: #444;
+}
 
-    &::before {
-        content: "";
-        display: block;
-        height: var(--size);
-        aspect-ratio: 1;
-        border-radius: var(--size);
-        background-color: #FFFFFF;
-        transform: scale(var(--scale));
-        transition: 0.2s;
-    }
+input[type="checkbox"].switch::before {
+    content: "";
+    display: block;
+    height: var(--size);
+    aspect-ratio: 1;
+    border-radius: var(--size);
+    background-color: #fff;
+    transform: scale(var(--scale));
+    transition: 0.2s;
+}
 
-    &:checked {
-        background-color: #24B441;
+input[type="checkbox"].switch:checked {
+    background-color: #24b441;
+}
 
-        &::before {
-            transform: translateX(var(--size)) scale(var(--scale));
-        }
-    }
+input[type="checkbox"].switch:checked::before {
+    transform: translateX(var(--size)) scale(var(--scale));
 }

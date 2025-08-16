@@ -6,7 +6,7 @@ import {
     , CHARA_ID, STYLE_ID, BUFF_ID, ABILITY_ID
 } from "utils/const";
 import {
-    DEBUFF_LIST,
+    DEBUFF_LIST, TROOP_KBN,
     getCharaIdToMember, getEffectSize, getSumEffectSize,
     getBuffKey, getBestBuffKeys, checkDuplicationChara,
     isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList, filteredOrb,
@@ -70,14 +70,9 @@ const SUB_TARGET_KIND = [
     EFFECT.STATUSUP_VALUE, // 能力固定上昇
     EFFECT.STATUSUP_RATE, // 能力%上昇
     EFFECT.FIELD_STRENGTHEN, // フィールド強化
-    EFFECT.GIVEATTACKBUFFUP, // 攻撃力バフ強化
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
+    EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
-
-const TROOP_KBN = {
-    MAIN: "1",
-    SUB: "2",
-}
 
 const BuffArea = ({ argument: {
     attackInfo, state, dispatch,
@@ -139,6 +134,7 @@ const BuffArea = ({ argument: {
                         buff_id: buff.buff_id,
                         skill_lv: buff.max_lv,
                         buffInfo: buff,
+                        troopKbn: buff.troopKbn,
                     };
                 });
                 initialList.push(innerMap);
@@ -214,6 +210,7 @@ const BuffArea = ({ argument: {
                 skill_id: passive.skill_id,
                 chara_id: passive.chara_id,
                 name: passive.chara_name,
+                troopKbn: passive.troopKbn,
                 checked: true,
             }
         });
@@ -620,6 +617,7 @@ function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, d
 // バフ、アビリティ、パッシブ追加
 function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buffList, abilityList, passiveList, troopKbn) {
     let attackCharaId = attackInfo?.chara_id;
+    let attackMemberInfo = getCharaIdToMember(styleList, attackCharaId);
 
     targetStyleList
         .filter(memberInfo => memberInfo)
@@ -659,6 +657,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 buff.chara_name = charaName;
                 buff.use_chara_id = charaId;
                 buff.kbn = "buff";
+                buff.troopKbn = troopKbn;
             });
             buffList.push(...newStyleBuffList);
 
@@ -698,8 +697,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
 
                 if (troopKbn === TROOP_KBN.SUB) {
                     // 他部隊のアビリティは一部のみ許可
-                    if ([EFFECT.FIELD_DEPLOYMENT, EFFECT.FIELD_STRENGTHEN,
-                    EFFECT.GIVEATTACKBUFFUP, EFFECT.GIVEDEFFENCEDEBUFFUP].includes(abilityInfo.effect_type)) {
+                    if (!SUB_TARGET_KIND.includes(abilityInfo.effect_type)) {
                         return;
                     }
                 }
@@ -714,6 +712,11 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 if (abilityInfo.range_area === RANGE.SELF && charaId !== attackCharaId) return;
                 if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) return;
                 if (abilityInfo.physical !== 0 && abilityInfo.physical !== attackInfo.attack_physical) return;
+                if (attackMemberInfo) {
+                    if (abilityInfo.target_element !== 0 &&
+                        abilityInfo.target_element !== attackMemberInfo.styleInfo.element &&
+                        abilityInfo.target_element !== attackMemberInfo.styleInfo.element2) return;
+                }
 
                 const buffType = buffTypeMap[abilityInfo.effect_type];
                 if (buffType) {
@@ -738,6 +741,12 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             stylePassiveList.forEach(skill => {
                 const passive = getPassiveInfo(skill.skill_id);
                 if (!passive || !TARGET_KIND.includes(passive.effect_type)) return;
+                if (troopKbn === TROOP_KBN.SUB) {
+                    // 他部隊のアビリティは一部のみ許可
+                    if (!SUB_TARGET_KIND.includes(passive.effect_type)) {
+                        return;
+                    }
+                }
 
                 if (passive.range_area === RANGE.FIELD) {
                     addBuffAbility("passive", passive.skill_id, charaId, passive.passive_name, BUFF.FIELD, 0, passive.effect_size);
@@ -746,6 +755,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     passive.memberInfo = memberInfo;
                     passive.chara_id = charaId;
                     passive.chara_name = charaName;
+                    passive.troopKbn = troopKbn;
                     passiveList.push(passive);
                 }
             });

@@ -17,12 +17,12 @@ const StyleListContext = createContext({
 
 const initialMember = {
   styleInfo: null,
-  str: 400,
-  dex: 400,
-  con: 400,
-  mnd: 400,
-  int: 400,
-  luk: 400,
+  str: 600,
+  dex: 600,
+  con: 600,
+  mnd: 600,
+  int: 600,
+  luk: 600,
   jewelLv: 5,
   limitCount: 2,
   earring: 0,

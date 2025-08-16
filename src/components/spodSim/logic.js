@@ -4,7 +4,7 @@ import {
 } from "./const";
 import {
     CHARA_ID, SKILL_ID, ABILITY_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
-    ALONE_ACTIVATION_ABILITY_LIST, ALONE_ACTIVATION_BUFF_KIND,
+    ALONE_ACTIVATION_BUFF_KIND,
 
 } from "utils/const";
 import { getCharaData, getSkillData, getAttackInfo, getBuffList, deepClone } from "utils/common";

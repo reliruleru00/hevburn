@@ -4,7 +4,7 @@ import {
 } from "utils/const";
 import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
-    getCharaIdToMember, getEffectSize, getStatUp, getCostVariable
+    getCharaIdToMember, getCharaIdToTroopKbn, getEffectSize, getStatUp, getCostVariable
 } from "./logic";
 import { getSkillData, getPassiveInfo, getAbilityInfo } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
@@ -123,10 +123,17 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     // バフ強化
     let strengthen = false;
     if ([BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_kind)) {
-
+        let troopsBuff = getCharaIdToTroopKbn(styleList, CHARA_ID.STRENGTH_BUFF);
+        if (buffInfo.troopKbn === troopsBuff) {
+            strengthen = true;
+        }
     }
     if (isDebuff) {
         if (charaId === CHARA_ID.MIYA) {
+            strengthen = true;
+        }
+        let troopsDebuff = getCharaIdToTroopKbn(styleList, CHARA_ID.STRENGTH_DEBUFF);
+        if (buffInfo.troopKbn === troopsDebuff) {
             strengthen = true;
         }
     }
@@ -201,7 +208,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             {isDebuff &&
                 <>
                     <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
-                    <div className="text-right text-sm">※バフ強化適用前の効果量です</div>
+                    <div className="text-right text-sm">※デバフ強化適用前の効果量です</div>
                 </>
             }
             {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (

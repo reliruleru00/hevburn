@@ -45,6 +45,10 @@ export const DEBUFF_LIST = [
 
 export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
 export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
+export const TROOP_KBN = {
+    MAIN: "1",
+    SUB: "2",
+}
 
 // 倍率表示
 function convertToPercentage(value) {
@@ -160,7 +164,7 @@ export const filteredOrb = (buffList, isOrb) => {
 // 効果量取得
 export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap) {
     // バフ強化
-    let strengthen = getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap);
+    let strengthen = getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap);
     let effectSize = 0;
     if (buff.kbn === "buff") {
         // バフ
@@ -241,6 +245,7 @@ export function getCostVariable(spCost, collect, memberInfo, abilitySettingMap, 
     // ルビー・パヒューム
     const rubyPerfume = Object.values(passiveSettingMap)
         .filter(passive => passive.skill_id === SKILL_ID.RUBY_PERFUME)
+        .filter(passive => passive.troopKbn === TROOP_KBN.MAIN)
         .filter(passive => passive.checked).length > 0;
     // 彩鳳連理
     const SaihoRenri = Object.values(passiveSettingMap)
@@ -263,7 +268,7 @@ export function getCostVariable(spCost, collect, memberInfo, abilitySettingMap, 
 }
 
 // バフ強化効果量取得
-function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap) {
+function getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap) {
     let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
@@ -280,6 +285,7 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
             })
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
+            .filter(passive => passive.troopKbn === TROOP_KBN.MAIN)
             .forEach((passive) => {
                 switch (passive.skill_id) {
                     case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
@@ -321,7 +327,9 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
                 }
                 switch (passive.skill_id) {
                     case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
-                        strengthen += 20;
+                        if (getCharaIdToTroopKbn(styleList, charaId) === passive.troopKbn) {
+                            strengthen += 20;
+                        }
                         break;
                     default:
                         break;
@@ -329,14 +337,15 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
             })
     }
     // 防御ダウン以外のデバフスキル
-    let other_debuff = [BUFF.FRAGILE, BUFF.RESISTDOWN];
-    if (other_debuff.includes(buff.buff_kind)) {
+    if ([BUFF.FRAGILE, BUFF.RESISTDOWN].includes(buff.buff_kind)) {
         Object.values(passiveSettingMap)
             .filter(passive => passive.checked)
             .forEach((passive) => {
                 switch (passive.skill_id) {
                     case SKILL_ID.RUBY_PERFUME: // ハイブースト状態
-                        strengthen += 20;
+                        if (getCharaIdToTroopKbn(styleList, charaId) === passive.troopKbn) {
+                            strengthen += 20;
+                        }
                         break;
                     default:
                         break;
@@ -944,9 +953,9 @@ function getCriticalBuff(handlers) {
 // トークン効果量
 function getSumTokenEffectSize(attackInfo, attackMemberInfo) {
     // トークン
-    let token_count = attackMemberInfo.token ? attackMemberInfo.token : 0;
+    let tokenCount = attackMemberInfo.token ? attackMemberInfo.token : 0;
     if (attackInfo.token_power_up === 1) {
-        return 1 + token_count * 16 / 100;
+        return 1 + tokenCount * 16 / 100;
     }
     return 1;
 }
@@ -1038,7 +1047,7 @@ function getSumAbilityEffectSize(handlers, effectType) {
                 }
             }
             // ハイブースト状態
-            if (skillId === SKILL_ID.RUBY_PERFUME && effectType === EFFECT.ATTACKUP) {
+            if (skillId === SKILL_ID.RUBY_PERFUME && effectType === EFFECT.ATTACKUP && data.troopKbn === TROOP_KBN.MAIN) {
                 abilityEffectSize += 180;
             } else {
                 abilityEffectSize += effectSize;
@@ -1125,6 +1134,24 @@ export function getCharaIdToMember(styleList, charaId) {
     // }
     return member;
 }
+
+// キャラIDがメインかサブか判定
+export function getCharaIdToTroopKbn(styleList, charaId) {
+    const filteredMember = (styleList) => {
+        const filterList = styleList.filter((obj) => obj?.styleInfo?.chara_id === charaId);
+        return filterList.length > 0 ? filterList[0] : undefined;
+    }
+    let member = filteredMember(styleList.selectStyleList);
+    if (member) {
+        return TROOP_KBN.MAIN;
+    }
+    member = filteredMember(styleList.subStyleList)
+    if (member) {
+        return TROOP_KBN.SUB;
+    }
+    return undefined;
+}
+
 
 // 敵ステータス更新
 export function updateEnemyStatus(enemy_class_no, enemyInfo) {

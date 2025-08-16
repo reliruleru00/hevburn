@@ -7,6 +7,8 @@ export const CHARA_ID = {
     SHADOW_CLONE: [17, 18],
     RISA: 22,
     MIYA: 45,
+    STRENGTH_BUFF: 4,
+    STRENGTH_DEBUFF: 11,
 }
 
 export const STYLE_ID = {
@@ -112,7 +114,7 @@ export const BUFF = {
     SHREDDING: 37, // 速弾き
     NAGATIVE: 38, // ネガティブ
     YAMAWAKI_SERVANT: 39, // 山脇様のしもべ 
-    HIGH_BOOST: 40, // ハイブースト 
+    HIGH_BOOST: 40, // ハイブースト状態
     SHADOW_CLONE: 41, // 影分身
     MAKEUP: 42, // メイクアップ
     FIRE_MARK: 43, // 火の印 

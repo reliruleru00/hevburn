@@ -3,13 +3,15 @@ import plusIcon from 'assets/img/plus.png';
 import changeIcon from 'assets/img/IconSwitchSkill.png';
 import { useStyleList } from "components/StyleListProvider";
 import { changeStyle } from "utils/const";
+import { getStyleData } from "utils/common";
 
-const StyleIcon = ({ style, placeNo, onClick }) => {
+const StyleIcon = ({ styleId, placeNo, onClick, styleClass = "select_style" }) => {
     const { styleList, setMember } = useStyleList();
 
     let icon = plusIcon;
-    if (style && style.styleInfo && style.styleInfo.image_url) {
-        const imageName = style.styleInfo.image_url;
+    const style = getStyleData(styleId);
+    if (style &&  style.image_url) {
+        const imageName = style.image_url;
         icon = icons[imageName] || plusIcon;
     }
 
@@ -21,17 +23,17 @@ const StyleIcon = ({ style, placeNo, onClick }) => {
     return (
         <div className="relative">
             <img
-                className="showmodal select_style"
+                className={`showmodal ${styleClass}`}
                 src={icon}
                 alt={'メンバー' + placeNo}
                 onClick={() => { onClick("style", placeNo) }}
             />
-            {changeStyle[style?.styleInfo.style_id] &&
+            {changeStyle[styleId] && styleClass === "select_style" &&
                 <img
                     className="absolute bottom-[0px] left-[0px] w-[24px] h-[24px]"
                     src={changeIcon}
                     alt={"変更"}
-                    onClick={() => { clickSetMember(changeStyle[style?.styleInfo.style_id]) }}
+                    onClick={() => { clickSetMember(changeStyle[styleId]) }}
                 />
             }
         </div>

@@ -718,22 +718,8 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
     if (memberInfo.styleInfo.jewel_type === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
-    let molecule = 0;
-    let denominator = 0;
-    if (attackInfo.ref_status_1 !== 0) {
-        molecule += (memberInfo[STATUS_KBN[attackInfo.ref_status_1]] + statUp) * 2;
-        denominator += 2;
-    }
-    if (attackInfo.ref_status_2 !== 0) {
-        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_2]] + statUp;
-        denominator += 1;
-    }
-    if (attackInfo.ref_status_3 !== 0) {
-        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_3]] + statUp;
-        denominator += 1;
-    }
     let enemyStat = enemyInfo.enemy_stat - enemyStatDown;
-    let status = molecule / denominator;
+    let status = getStatus(attackInfo, memberInfo, statUp);
     return calcAttackEffectSize(attackInfo, status, enemyStat, selectSKillLv, jewelLv)
 }
 
@@ -1186,6 +1172,33 @@ export function updateEnemyStatus(enemy_class_no, enemyInfo) {
 //     // setEnemyStatus(new_enemyInfo)
 // }
 
+export const getStatus = (info, memberInfo, statUp) => {
+    let molecule = 0;
+    let denominator = 0;
+    if (info.ref_status_1 !== 0) {
+        molecule += (memberInfo[STATUS_KBN[info.ref_status_1]] + statUp) * 2;
+        if (memberInfo.support?.styleId) {
+            molecule += memberInfo.support[STATUS_KBN[info.ref_status_1]] * 2;
+        }
+        denominator += 2;
+    }
+    if (info.ref_status_2 && info.ref_status_2 !== 0) {
+        molecule += memberInfo[STATUS_KBN[info.ref_status_2]] + statUp;
+        if (memberInfo.support?.styleId) {
+            molecule += memberInfo.support[STATUS_KBN[info.ref_status_2]];
+        }
+        denominator += 1;
+    }
+    if (info.ref_status_3 && info.ref_status_3 !== 0) {
+        molecule += memberInfo[STATUS_KBN[info.ref_status_3]] + statUp;
+        if (memberInfo.support?.styleId) {
+            molecule += memberInfo.support[STATUS_KBN[info.ref_status_3]];
+        }
+        denominator += 1;
+    }
+    return molecule / denominator;
+}
+
 // バフ効果量取得
 function getBuffEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, targetJewelType, abilitySettingMap, passiveSettingMap) {
     let jewelLv = 0;
@@ -1199,7 +1212,7 @@ function getBuffEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, 
     }
     // ステータス
     let statUp = getStatUp(styleList, state, memberInfo, buffSetting.collect, abilitySettingMap, passiveSettingMap);
-    let status = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
+    let status = getStatus(buffInfo, memberInfo, statUp);
     return calcBuffEffectSize(buffInfo, status, skillLv, jewelLv);
 }
 
@@ -1243,8 +1256,6 @@ function getDebuffEffectSize(styleList, buffInfo, buffSetting, memberInfo, state
     }
     // ステータス
     let statUp = getStatUp(styleList, state, memberInfo, buffSetting.collect, abilitySettingMap, passiveSettingMap);
-    let status1 = memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp;
-    let status2 = memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
     let enemyInfo = state.enemyInfo;
     let enemyStat = Number(enemyInfo.enemy_stat);
     let enemyStatDown = 0;
@@ -1256,7 +1267,7 @@ function getDebuffEffectSize(styleList, buffInfo, buffSetting, memberInfo, state
     enemyStat -= enemyStatDown;
 
     let skillLv = buffSetting.skill_lv;
-    let status = (status1 * 2 + status2) / 3;
+    let status = getStatus(buffInfo, memberInfo, statUp);
     return calcDebuffEffectSize(buffInfo, status, enemyStat, skillLv, jewelLv);
 }
 

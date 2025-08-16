@@ -17,7 +17,9 @@ const CharaStatus = ({ argument: {
     abilitySettingMap,
     passiveSettingMap
 } }) => {
-    const { styleList, setStyleList, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
+    const { styleList, setStyleList, saveSupportStyle, loadSupportStyle,
+        setMember, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
+    const [supportTroops, setSupportTroops] = useState(false);
 
     // 設定変更
     const setSetting = (index, item, value) => {
@@ -108,6 +110,11 @@ const CharaStatus = ({ argument: {
         setModalSetting({ isOpen: false });
     };
 
+    const clickSupportMember = (index) => {
+        openModal(index, "support")
+        setNarrowStyle({ ...narrowStyle, element: styleList.selectStyleList[index].styleInfo.element });
+    }
+
     const [narrowStyle, setNarrowStyle] = useState({
         physical: null,
         element: null,
@@ -118,6 +125,55 @@ const CharaStatus = ({ argument: {
         buff_2: -1,
         buff_3: -1,
     });
+
+    const clickSetMember = (index, style_id) => {
+        setMember(index, style_id);
+        localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, style_id);
+        closeModal();
+    }
+
+    const clickRemoveMember = (index) => {
+        localStorage.removeItem(`troops_${styleList.selectTroops}_${index}`);
+        removeMember(index);
+        closeModal();
+    }
+
+    // 設定変更
+    const setSupportSetting = (index, item, value) => {
+        if (styleList.selectStyleList[index]) {
+            const updatedStyleList = [...styleList.selectStyleList];
+            updatedStyleList[index] = {
+                ...updatedStyleList[index],
+                support: {
+                    ...updatedStyleList[index].support,
+                    [item]: Number(value)
+                }
+            };
+            saveSupportStyle(updatedStyleList[index].support);
+            setLastUpdatedIndex(index);
+            setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+        }
+    }
+
+    const clickSetSupportMember = (index, styleId) => {
+        const updatedStyleList = [...styleList.selectStyleList];
+        updatedStyleList[index] = {
+            ...updatedStyleList[index],
+            support: loadSupportStyle(styleId)
+        };
+        setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+        closeModal();
+    }
+
+    const clickRemoveSupportMember = (index) => {
+        const updatedStyleList = [...styleList.selectStyleList];
+        updatedStyleList[index] = {
+            ...updatedStyleList[index],
+            support: { styleId: null }
+        };
+        setStyleList({ ...styleList, selectStyleList: updatedStyleList });
+        closeModal();
+    }
 
     return (
         <>
@@ -137,9 +193,13 @@ const CharaStatus = ({ argument: {
                     })}
                 </div>
                 <span className="mt-1 small_font">部隊名</span>
-                <div className="col-span-6 flex justify-center">
+                <div className="col-span-3 flex justify-center">
                     <span className="text-base">{styleList.troopsName ? styleList.troopsName : `部隊${styleList.selectTroops}`}</span>
                     <input type="image" className="w-6 h-6" src={editIcon} onClick={editTroopsName} alt="編集" />
+                </div>
+                <div className="col-span-3 flex justify-center">
+                    <input type="checkbox" className="switch" id="mode_switch" onChange={(e) => setSupportTroops(e.target.checked)} />
+                    <label htmlFor="mode_switch" className="text-base">サポート設定</label>
                 </div>
                 <div className="mt-2">
                     <span className="small_font">スタイル</span>
@@ -177,7 +237,7 @@ const CharaStatus = ({ argument: {
                                                             justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} />
+                                                        <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index} onClick={() => { openModal(index, "style") }} />
                                                     </li>
                                                 )}
                                             </Draggable>)
@@ -188,134 +248,196 @@ const CharaStatus = ({ argument: {
                         </Droppable>
                     </DragDropContext>
                 </div>
-                <div>
-                    <span className="label_status">限界突破</span>
-                    <span className="label_status">力</span>
-                    <span className="label_status">器用さ</span>
-                    <span className="label_status">体力</span>
-                    <span className="label_status">精神</span>
-                    <span className="label_status">知性</span>
-                    <span className="label_status">運</span>
-                    <span className="label_status">宝珠Lv</span>
-                    <span className="label_status">トークン</span>
-                    <span className="label_status">士気</span>
-                    <span className="label_status">スキル</span>
-                    <span className="label_status">消費SP</span>
-                </div>
-                {styleList.selectStyleList.map((value, index) => {
-                    let style = value;
-                    let charaId = style ? style.styleInfo.chara_id : 0;
-                    let rarity = style ? style.styleInfo.rarity : 0;
-                    let str = style ? style.str : 600;
-                    let dex = style ? style.dex : 600;
-                    let con = style ? style.con : 600;
-                    let mnd = style ? style.mnd : 600;
-                    let int = style ? style.int : 600;
-                    let luk = style ? style.luk : 600;
-                    let limit = style ? style.limitCount : 2;
-                    let jewel = style ? style.jewelLv : 0;
-                    let token = style ? style.token ? style.token : 0 : 0;
-                    let morale = style ? style.morale ? style.morale : 0 : 0;
-                    let results = [];
-                    let spCost = {};
-                    if (attackInfo && attackInfo.chara_id === charaId) {
-                        for (let i = 1; i <= 3; i++) {
-                            if (STATUS_KBN[attackInfo["ref_status_" + i]]) {
-                                results.push(STATUS_KBN[attackInfo["ref_status_" + i]]);
-                            }
-                        }
-                        let magn = 1;
-                        if (attackInfo.collect?.sphalf) {
-                            magn = 0.5;
-                        } else if (attackInfo.collect?.spzero) {
-                            magn = 0;
-                        }
-                        spCost[attackInfo.skill_id] = magn;
-                    }
-                    for (const values of Object.values(selectBuffKeyMap)) {
-                        let tempCount = {};
-                        for (const [key, buffKey] of Object.entries(values)) {
-                            if (!buffKey) continue;
-                            const [, buffId, useCharaId] = buffKey.split("_");
-                            if (Number(useCharaId) !== charaId) continue;
-                            const buffInfo = getBuffIdToBuff(Number(buffId));
-                            if (!buffInfo) continue;
-                            let buffSetting = {};
-                            if (buffSettingMap[buffInfo.buff_kind]) {
-                                buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
-                            }
-                            let magn = 1;
-                            if (buffSetting.collect?.sphalf) {
-                                magn = 0.5;
-                            } else if (buffSetting.collect?.spzero) {
-                                magn = 0;
-                            }
-                            tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + magn;
-
-                            for (let i = 1; i <= 2; i++) {
-                                const statusKey = buffInfo[`ref_status_${i}`];
-                                if (STATUS_KBN[statusKey] && buffInfo.min_power !== buffInfo.max_power) {
-                                    results.push(STATUS_KBN[statusKey]);
-                                }
-                            }
-                        }
-                        for (const [skillId, count] of Object.entries(tempCount)) {
-                            spCost[skillId] = Math.max(spCost[skillId] ?? 0, count);
-                        }
-                    };
-                    let strClassName = "status " + (results.includes("str") ? "status_active" : "");
-                    let dexClassName = "status " + (results.includes("dex") ? "status_active" : "");
-                    let conClassName = "status " + (results.includes("con") ? "status_active" : "");
-                    let mndClassName = "status " + (results.includes("mnd") ? "status_active" : "");
-                    let intClassName = "status " + (results.includes("int") ? "status_active" : "");
-                    let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
-                    let sp_cost = 0;
-                    for (const [key, value] of Object.entries(spCost)) {
-                        let skill = getSkillData(key);
-                        if (skill) {
-                            sp_cost += getCostVariable(skill.sp_cost, {}, style, abilitySettingMap, passiveSettingMap) * value;
-                        }
-                    }
-                    return (
-                        <div key={`chara_no${index}`}>
-                            <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                                {rarity <= 1 || rarity <= 99 ?
-                                    Array.from({ length: 5 }, (_, i) => (
-                                        <option value={i} key={`limit_${i}`}>{i}</option>
-                                    ))
-                                    : null
-                                }
-                                {rarity === 2 ? <option value="10">10</option> : null}
-                                {rarity === 3 ? <option value="20">20</option> : null}
-                            </select>
-                            <input className={strClassName} value={str} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
-                            <input className={dexClassName} value={dex} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
-                            <input className={conClassName} value={con} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
-                            <input className={mndClassName} value={mnd} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
-                            <input className={intClassName} value={int} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
-                            <input className={lukClassName} value={luk} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
-                            <select className="status" value={jewel} onChange={(e) => { setSetting(index, "jewelLv", e.target.value) }}>
-                                {Array.from({ length: 6 }, (_, i) => (
-                                    <option value={i} key={`jewel_${i}`}>{i}</option>
-                                ))}
-                            </select>
-                            <select className="status" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} >
-                                {Array.from({ length: 11 }, (_, i) => (
-                                    <option value={i} key={`token_${i}`}>{i}</option>
-                                ))}
-                            </select>
-                            <select className="status" value={morale} onChange={(e) => { setSetting(index, "morale", e.target.value) }}>
-                                {Array.from({ length: 11 }, (_, i) => (
-                                    <option value={i} key={`morale_${i}`}>{i}</option>
-                                ))}
-                            </select>
-                            <input className="status show_skill" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
-                            <div>
-                                <span>{sp_cost}</span>
-                            </div>
+                {!supportTroops &&
+                    <>
+                        <div>
+                            <span className="label_status">限界突破</span>
+                            <span className="label_status">力</span>
+                            <span className="label_status">器用さ</span>
+                            <span className="label_status">体力</span>
+                            <span className="label_status">精神</span>
+                            <span className="label_status">知性</span>
+                            <span className="label_status">運</span>
+                            <span className="label_status">宝珠Lv</span>
+                            <span className="label_status">トークン</span>
+                            <span className="label_status">士気</span>
+                            <span className="label_status">スキル</span>
+                            <span className="label_status">消費SP</span>
                         </div>
-                    )
-                })}
+
+                        {styleList.selectStyleList.map((value, index) => {
+                            let style = value;
+                            let charaId = style ? style.styleInfo.chara_id : 0;
+                            let rarity = style ? style.styleInfo.rarity : 0;
+                            let str = style ? style.str : 600;
+                            let dex = style ? style.dex : 600;
+                            let con = style ? style.con : 600;
+                            let mnd = style ? style.mnd : 600;
+                            let int = style ? style.int : 600;
+                            let luk = style ? style.luk : 600;
+                            let limit = style ? style.limitCount : 2;
+                            let jewel = style ? style.jewelLv : 0;
+                            let token = style ? style.token ? style.token : 0 : 0;
+                            let morale = style ? style.morale ? style.morale : 0 : 0;
+                            let results = [];
+                            let spCost = {};
+                            if (attackInfo && attackInfo.chara_id === charaId) {
+                                for (let i = 1; i <= 3; i++) {
+                                    if (STATUS_KBN[attackInfo["ref_status_" + i]]) {
+                                        results.push(STATUS_KBN[attackInfo["ref_status_" + i]]);
+                                    }
+                                }
+                                let magn = 1;
+                                if (attackInfo.collect?.sphalf) {
+                                    magn = 0.5;
+                                } else if (attackInfo.collect?.spzero) {
+                                    magn = 0;
+                                }
+                                spCost[attackInfo.skill_id] = magn;
+                            }
+                            for (const values of Object.values(selectBuffKeyMap)) {
+                                let tempCount = {};
+                                for (const [key, buffKey] of Object.entries(values)) {
+                                    if (!buffKey) continue;
+                                    const [, buffId, useCharaId] = buffKey.split("_");
+                                    if (Number(useCharaId) !== charaId) continue;
+                                    const buffInfo = getBuffIdToBuff(Number(buffId));
+                                    if (!buffInfo) continue;
+                                    let buffSetting = {};
+                                    if (buffSettingMap[buffInfo.buff_kind]) {
+                                        buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
+                                    }
+                                    let magn = 1;
+                                    if (buffSetting.collect?.sphalf) {
+                                        magn = 0.5;
+                                    } else if (buffSetting.collect?.spzero) {
+                                        magn = 0;
+                                    }
+                                    tempCount[buffInfo.skill_id] = (tempCount[buffInfo.skill_id] ?? 0) + magn;
+
+                                    for (let i = 1; i <= 2; i++) {
+                                        const statusKey = buffInfo[`ref_status_${i}`];
+                                        if (STATUS_KBN[statusKey] && buffInfo.min_power !== buffInfo.max_power) {
+                                            results.push(STATUS_KBN[statusKey]);
+                                        }
+                                    }
+                                }
+                                for (const [skillId, count] of Object.entries(tempCount)) {
+                                    spCost[skillId] = Math.max(spCost[skillId] ?? 0, count);
+                                }
+                            };
+                            let strClassName = "status " + (results.includes("str") ? "status_active" : "");
+                            let dexClassName = "status " + (results.includes("dex") ? "status_active" : "");
+                            let conClassName = "status " + (results.includes("con") ? "status_active" : "");
+                            let mndClassName = "status " + (results.includes("mnd") ? "status_active" : "");
+                            let intClassName = "status " + (results.includes("int") ? "status_active" : "");
+                            let lukClassName = "status " + (results.includes("luk") ? "status_active" : "");
+                            let sp_cost = 0;
+                            for (const [key, value] of Object.entries(spCost)) {
+                                let skill = getSkillData(key);
+                                if (skill) {
+                                    sp_cost += getCostVariable(skill.sp_cost, {}, style, abilitySettingMap, passiveSettingMap) * value;
+                                }
+                            }
+                            return (
+                                <div key={`chara_no${index}`}>
+                                    <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
+                                        {rarity <= 1 || rarity <= 99 ?
+                                            Array.from({ length: 5 }, (_, i) => (
+                                                <option value={i} key={`limit_${i}`}>{i}</option>
+                                            ))
+                                            : null
+                                        }
+                                        {rarity === 2 ? <option value="10">10</option> : null}
+                                        {rarity === 3 ? <option value="20">20</option> : null}
+                                    </select>
+                                    <input className={strClassName} value={str} type="number" onChange={(e) => { setSetting(index, "str", e.target.value) }} />
+                                    <input className={dexClassName} value={dex} type="number" onChange={(e) => { setSetting(index, "dex", e.target.value) }} />
+                                    <input className={conClassName} value={con} type="number" onChange={(e) => { setSetting(index, "con", e.target.value) }} />
+                                    <input className={mndClassName} value={mnd} type="number" onChange={(e) => { setSetting(index, "mnd", e.target.value) }} />
+                                    <input className={intClassName} value={int} type="number" onChange={(e) => { setSetting(index, "int", e.target.value) }} />
+                                    <input className={lukClassName} value={luk} type="number" onChange={(e) => { setSetting(index, "luk", e.target.value) }} />
+                                    <select className="status" value={jewel} onChange={(e) => { setSetting(index, "jewelLv", e.target.value) }}>
+                                        {Array.from({ length: 6 }, (_, i) => (
+                                            <option value={i} key={`jewel_${i}`}>{i}</option>
+                                        ))}
+                                    </select>
+                                    <select className="status" value={token} onChange={(e) => { setSetting(index, "token", e.target.value) }} >
+                                        {Array.from({ length: 11 }, (_, i) => (
+                                            <option value={i} key={`token_${i}`}>{i}</option>
+                                        ))}
+                                    </select>
+                                    <select className="status" value={morale} onChange={(e) => { setSetting(index, "morale", e.target.value) }}>
+                                        {Array.from({ length: 11 }, (_, i) => (
+                                            <option value={i} key={`morale_${i}`}>{i}</option>
+                                        ))}
+                                    </select>
+                                    <input className="status show_skill" defaultValue="設定" type="button" onClick={() => showSkillList(index)} />
+                                    <div>
+                                        <span>{sp_cost}</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </>
+                }
+                {supportTroops &&
+                    <>
+                        <div className="mt-2">
+                            <span className="small_font">サポート</span>
+                        </div>
+                        {styleList.selectStyleList.map((style, index) => {
+                            const styleId = style?.support?.styleId;
+                            return (
+                                <div key={`style_${index}`} className="cursor-pointer flex items-center justify-center">
+                                    <StyleIcon styleId={styleId} placeNo={index} onClick={() => { clickSupportMember(index) }} styleClass="support_style" />
+                                </div>
+                            )
+                        })}
+                        <div>
+                            <span className="label_status">限界突破</span>
+                            <span className="label_status">力</span>
+                            <span className="label_status">器用さ</span>
+                            <span className="label_status">体力</span>
+                            <span className="label_status">精神</span>
+                            <span className="label_status">知性</span>
+                            <span className="label_status">運</span>
+                        </div>
+
+                        {styleList.selectStyleList.map((style, index) => {
+                            const support = style?.support;
+                            let rarity = support?.rarity ? support.rarity : 0;
+                            let str = support?.str ? support.str : 40;
+                            let dex = support?.dex ? support.dex : 40;
+                            let con = support?.con ? support.con : 40;
+                            let mnd = support?.mnd ? support.mnd : 40;
+                            let int = support?.int ? support.int : 40;
+                            let luk = support?.luk ? support.luk : 40;
+                            let limit = support?.limitCount ? support.limitCount : 2;
+
+                            return (
+                                <div key={`suppport_chara_no${index}`}>
+                                    <select className="status" value={limit} onChange={(e) => { setSupportSetting(index, "limitCount", e.target.value) }}>
+                                        {rarity <= 1 || rarity <= 99 ?
+                                            Array.from({ length: 5 }, (_, i) => (
+                                                <option value={i} key={`limit_${i}`}>{i}</option>
+                                            ))
+                                            : null
+                                        }
+                                        {rarity === 2 ? <option value="10">10</option> : null}
+                                        {rarity === 3 ? <option value="20">20</option> : null}
+                                    </select>
+                                    <input className="status" value={str} type="number" onChange={(e) => { setSupportSetting(index, "str", e.target.value) }} />
+                                    <input className="status" value={dex} type="number" onChange={(e) => { setSupportSetting(index, "dex", e.target.value) }} />
+                                    <input className="status" value={con} type="number" onChange={(e) => { setSupportSetting(index, "con", e.target.value) }} />
+                                    <input className="status" value={mnd} type="number" onChange={(e) => { setSupportSetting(index, "mnd", e.target.value) }} />
+                                    <input className="status" value={int} type="number" onChange={(e) => { setSupportSetting(index, "int", e.target.value) }} />
+                                    <input className="status" value={luk} type="number" onChange={(e) => { setSupportSetting(index, "luk", e.target.value) }} />
+                                </div>
+                            )
+                        })}
+                    </>
+                }
                 <div>
                     <ReactModal
                         isOpen={modalSetting.isOpen}
@@ -327,7 +449,14 @@ const CharaStatus = ({ argument: {
                             modalSetting.modalType === "skill" ?
                                 <ModalSkillSelectList index={modalSetting.modalIndex} closeModal={closeModal} />
                                 :
-                                <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal} narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle} />
+                                modalSetting.modalType === "style" ?
+                                    <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal}
+                                        narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle}
+                                        clickSetMember={clickSetMember} clickRemoveMember={clickRemoveMember} />
+                                    :
+                                    <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal}
+                                        narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle}
+                                        clickSetMember={clickSetSupportMember} clickRemoveMember={clickRemoveSupportMember} />
                         }
                     </ReactModal>
                 </div>

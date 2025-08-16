@@ -4,7 +4,7 @@ import {
 } from "utils/const";
 import {
     DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
-    getCharaIdToMember, getCharaIdToTroopKbn, getEffectSize, getStatUp, getCostVariable
+    getCharaIdToMember, getCharaIdToTroopKbn, getEffectSize, getStatUp, getStatus, getCostVariable
 } from "./logic";
 import { getSkillData, getPassiveInfo, getAbilityInfo } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
@@ -54,19 +54,8 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             enemyStatDown = 20;
         }
     }
-
-    let molecule = 0;
-    let denominator = 0;
-    if (buffInfo.ref_status_1 !== 0) {
-        molecule += (memberInfo[STATUS_KBN[buffInfo.ref_status_1]] + statUp) * 2;
-        denominator += 2;
-    }
-    if (buffInfo.ref_status_2 !== 0) {
-        molecule += memberInfo[STATUS_KBN[buffInfo.ref_status_2]] + statUp;
-        denominator += 1;
-    }
-    let status = molecule / denominator;
-
+    let status = getStatus(buffInfo, memberInfo, statUp) 
+    
     const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];

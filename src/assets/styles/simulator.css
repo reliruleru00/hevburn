@@ -59,13 +59,6 @@ input.troops_btn.selected_troops {
     width: 482px;
 }
 
-img.select_style {
-    width: 64px;
-    height: 64px;
-    margin-left: 2px;
-    cursor: pointer;
-}
-
 .dragging {
     opacity: 0.5;
     /* ドラッグ中は半透明に */
@@ -100,12 +93,6 @@ img.select_style {
         width: 100%;
         max-width: 400px;
         min-width: 375px;
-    }
-
-    img.select_style {
-        width: 53px;
-        height: 53px;
-        margin-left: 4px;
     }
 
     .limit,

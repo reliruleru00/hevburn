@@ -115,7 +115,14 @@ input.troops_btn.selected_troops {
 img.select_style {
     width: 64px;
     height: 64px;
-    margin-left: 4px;
+    margin-left: 2px;
+    cursor: pointer;
+}
+
+img.support_style {
+    width: 32px;
+    height: 32px;
+    margin-left: 2px;
 }
 
 img.sub_style {
@@ -186,6 +193,30 @@ img.sub_style {
     cursor: pointer;
     color: #333;
     transition: transform 0.2s, color 0.2s;
+}
+
+/* サポート部隊 */
+.trigger_support {
+    display: flex !important;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+    appearance: none;
+    background-color: #e2e2e2;
+    border-radius: 100vh;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+.trigger_support:checked {
+    background-color: #149f14;
+    color: white;
+    transform: scale(1.05);
+}
+
+.trigger_support:before {
+    content: 'サポート部隊';
 }
 
 /* 攻撃技 */

@@ -1,5 +1,4 @@
 import React from "react";
-import { useStyleList } from "components/StyleListProvider";
 import allStyleList from "data/styleList";
 import skillBuff from "data/skillBuff";
 import { getCharaData } from "utils/common";
@@ -11,8 +10,7 @@ import troop from 'assets/troop';
 
 import 'assets/styles/styleSelection.css';
 
-const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle }) => {
-    const { styleList, setMember, removeMember } = useStyleList();
+const ModalStyleSelection = ({ index, narrowStyle, setNarrowStyle, clickSetMember, clickRemoveMember }) => {
 
     const PHYSICAL_LIST = { 1: "slash", 2: "stab", 3: "strike" };
     const ELEMENT_LIST = { 0: "none", 1: "fire", 2: "ice", 3: "thunder", 4: "light", 5: "dark" };
@@ -80,17 +78,6 @@ const ModalStyleSelection = ({ index, closeModal, narrowStyle, setNarrowStyle })
         return !target_out_range.includes(buff_info.range_area);
     }
 
-    const clickRemoveMember = (index) => {
-        localStorage.removeItem(`troops_${styleList.selectTroops}_${index}`);
-        removeMember(index);
-        closeModal();
-    }
-
-    const clickSetMember = (index, style_id) => {
-        setMember(index, style_id);
-        localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, style_id);
-        closeModal();
-    }
     return (
         <div className="modal_inner stylelist">
             <div className="modal_inner_headline">

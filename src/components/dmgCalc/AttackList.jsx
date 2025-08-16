@@ -4,7 +4,7 @@ import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
 import { getCharaData, getSkillData } from "utils/common";
 import { SKILL_ID, ATTRIBUTE, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN } from 'utils/const';
-import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient, getCostVariable } from "./logic";
+import { getCharaIdToMember, getSkillPower, getStatUp, getApplyGradient, getCostVariable, getStatus } from "./logic";
 import attribute from 'assets/attribute';
 import { AttackLineChart } from "./SimpleLineChart";
 
@@ -239,22 +239,8 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     let skillPower = getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown);
     let criticalPower = getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, criticalStatDown);
 
-    let molecule = 0;
-    let denominator = 0;
-    if (attackInfo.ref_status_1 !== 0) {
-        molecule += (memberInfo[STATUS_KBN[attackInfo.ref_status_1]] + statUp) * 2;
-        denominator += 2;
-    }
-    if (attackInfo.ref_status_2 !== 0) {
-        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_2]] + statUp;
-        denominator += 1;
-    }
-    if (attackInfo.ref_status_3 !== 0) {
-        molecule += memberInfo[STATUS_KBN[attackInfo.ref_status_3]] + statUp;
-        denominator += 1;
-    }
     let enemyStat = enemyInfo.enemy_stat;
-    let status = molecule / denominator;
+    let status = getStatus(attackInfo, memberInfo, statUp);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
     // 宝珠レベル

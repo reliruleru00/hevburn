@@ -10,7 +10,7 @@ const CharaSetting = () => {
     const BRACELET_LIST = ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"];
     const EARRING_LIST = [10, 12, 15];
 
-    const { styleList, setStyleList, loadTroops, removeMember } = useStyleList();
+    const { styleList, setStyleList, loadTroops, setMember, removeMember } = useStyleList();
 
     // 設定変更
     const setSetting = (index, item, value) => {
@@ -92,6 +92,18 @@ const CharaSetting = () => {
         buff_3: -1,
     });
 
+    const clickSetMember = (index, style_id) => {
+        setMember(index, style_id);
+        localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, style_id);
+        closeModal();
+    }
+
+    const clickRemoveMember = (index) => {
+        localStorage.removeItem(`troops_${styleList.selectTroops}_${index}`);
+        removeMember(index);
+        closeModal();
+    }
+
     return (
         <div className="grid grid-cols-7 text-center gap-y-px gap-x-0" id="chara_setting">
             <span className="mt-3 mb-3 small_font">部隊選択</span>
@@ -144,7 +156,7 @@ const CharaSetting = () => {
                                                         justifyContent: 'center',
                                                     }}
                                                 >
-                                                    <StyleIcon style={style} placeNo={index} onClick={() => { openModal(index, "style") }} />
+                                                    <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index} onClick={() => { openModal(index, "style") }} />
                                                 </li>
                                             )}
                                         </Draggable>)
@@ -224,7 +236,9 @@ const CharaSetting = () => {
                         modalSetting.modalType === "skill" ?
                             <ModalSkillSelectList index={modalSetting.modalIndex} closeModal={closeModal} />
                             :
-                            <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal} narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle} />
+                            <ModalStyleSelection index={modalSetting.modalIndex} closeModal={closeModal}
+                                narrowStyle={narrowStyle} setNarrowStyle={setNarrowStyle}
+                                clickSetMember={clickSetMember} clickRemoveMember={clickRemoveMember} />
                     }
                 </ReactModal>
             </div>

@@ -375,7 +375,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e =>
                                 startBattle(update, setUpdate, setConstraints)} />
                             {simProc.turnList.length > 0 &&
-                                <input className="battle_setting ml-4" defaultValue="設定を反映" type="button" onClick={e =>
+                                <input className="battle_setting ml-4" defaultValue="設定のみ反映" type="button" onClick={e =>
                                     restartBattle(update, setUpdate, setConstraints)} />
                             }
                         </div>

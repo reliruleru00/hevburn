@@ -3,6 +3,7 @@ import ReactModal from 'react-modal';
 import StyleChecker from 'components/styleChecker/StyleChecker';
 import HeaderNav from 'components/HeaderNav';
 import 'assets/styles/checker.css';
+import { HeadProvider, Title, Meta } from 'react-head';
 
 const StyleCheckerPage = () => {
   useEffect(() => {
@@ -11,6 +12,12 @@ const StyleCheckerPage = () => {
 
   return (
     <>
+      <HeadProvider>
+        <div>
+          <Title>スタイル所持率チェッカー</Title>
+          <Meta name="description" content="スタイル所持率チェッカー" />
+        </div>
+      </HeadProvider>
       <HeaderNav />
       <StyleChecker />
     </>

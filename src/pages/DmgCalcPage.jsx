@@ -5,6 +5,7 @@ import DamageCalculation from 'components/dmgCalc/DamageCalculation';
 import { updateEnemyStatus } from 'components/dmgCalc/logic';
 import HeaderNav from 'components/HeaderNav';
 import 'assets/styles/damage.css';
+import { HeadProvider, Title, Meta } from 'react-head';
 
 const DmgCalcPage = () => {
 
@@ -25,6 +26,12 @@ const DmgCalcPage = () => {
 
   return (
     <>
+      <HeadProvider>
+        <div>
+          <Title>ダメージ計算ツール</Title>
+          <Meta name="description" content="ダメージ計算ツール" />
+        </div>
+      </HeadProvider>
       <HeaderNav />
       <StyleListProvider>
         <DamageCalculation />

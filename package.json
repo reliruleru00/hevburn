@@ -12,6 +12,7 @@
     "pako": "^2.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-head": "^3.4.2",
     "react-modal": "^3.16.3",
     "react-router-dom": "^7.7.0",
     "react-scripts": "5.0.1",

@@ -598,7 +598,8 @@ const BuffArea = ({ argument: {
                         modal.buffInfo.kbn === "buff" ?
                             <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
                                 index={modal.index} buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
-                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} closeModal={closeModal} />
+                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} 
+                                resonanceList={resonanceList} closeModal={closeModal} />
                             :
                             <AbilityDetail buffInfo={modal.buffInfo} closeModal={closeModal} />
                     )

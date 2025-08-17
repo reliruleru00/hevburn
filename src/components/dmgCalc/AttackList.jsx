@@ -44,6 +44,7 @@ const AttackList = ({ attackInfo, setAttackInfo, selectSKillLv, setSelectSKillLv
                 skill.chara_id === charaId &&
                 (skill.style_id === styleId || skill.style_id === 0) &&
                 (!checkSpecial || skill.attack_id < 1000)
+            ).filter(skill => !(memberInfo.exclusionSkillList.includes(skill.skill_id))
             ).sort((x, y) => y.style_id - x.style_id || y.skill_id - x.skill_id);
             if (matchedSkill.length > 0) {
                 memberAttackList.push(...matchedSkill);

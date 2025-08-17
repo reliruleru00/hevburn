@@ -306,7 +306,7 @@ const CharaStatus = ({ argument: {
                                     const buffInfo = getBuffIdToBuff(Number(buffId));
                                     if (!buffInfo) continue;
                                     let buffSetting = {};
-                                    if (buffSettingMap[buffInfo.buff_kind]) {
+                                    if (buffSettingMap[buffInfo.buff_kind] && buffSettingMap[buffInfo.buff_kind][key][buffKey]) {
                                         buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
                                     }
                                     let magn = 1;
@@ -338,7 +338,7 @@ const CharaStatus = ({ argument: {
                             for (const [key, value] of Object.entries(spCost)) {
                                 let skill = getSkillData(key);
                                 if (skill) {
-                                    sp_cost += getCostVariable(skill.sp_cost, {}, style, abilitySettingMap, passiveSettingMap) * value;
+                                    sp_cost += Math.floor(getCostVariable(skill.sp_cost, {}, style, abilitySettingMap, passiveSettingMap) * value);
                                 }
                             }
                             return (

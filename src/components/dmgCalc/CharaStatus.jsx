@@ -17,7 +17,7 @@ const CharaStatus = ({ argument: {
     abilitySettingMap,
     passiveSettingMap
 } }) => {
-    const { styleList, setStyleList, saveSupportStyle, loadSupportStyle,
+    const { styleList, setStyleList, saveStyle, saveSupportStyle, loadSupportStyle,
         setMember, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
     const [supportTroops, setSupportTroops] = useState(false);
 
@@ -161,6 +161,7 @@ const CharaStatus = ({ argument: {
             ...updatedStyleList[index],
             support: loadSupportStyle(styleId)
         };
+        saveStyle(updatedStyleList[index]);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
         closeModal();
     }
@@ -171,6 +172,7 @@ const CharaStatus = ({ argument: {
             ...updatedStyleList[index],
             support: { styleId: null }
         };
+        saveStyle(updatedStyleList[index]);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
         closeModal();
     }
@@ -388,11 +390,15 @@ const CharaStatus = ({ argument: {
                         </div>
                         {styleList.selectStyleList.map((style, index) => {
                             const styleId = style?.support?.styleId;
-                            return (
-                                <div key={`style_${index}`} className="cursor-pointer flex items-center justify-center">
-                                    <StyleIcon styleId={styleId} placeNo={index} onClick={() => { clickSupportMember(index) }} styleClass="support_style" />
-                                </div>
-                            )
+                            if (style?.styleInfo?.style_id) {
+                                return (
+                                    <div key={`style_${index}`} className="cursor-pointer flex items-center justify-center">
+                                        <StyleIcon styleId={styleId} placeNo={index} onClick={() => { clickSupportMember(index) }} styleClass="support_style" />
+                                    </div>
+                                )
+                            } else {
+                                return <div></div>
+                            }
                         })}
                         <div>
                             <span className="label_status">限界突破</span>
@@ -406,35 +412,38 @@ const CharaStatus = ({ argument: {
 
                         {styleList.selectStyleList.map((style, index) => {
                             const support = style?.support;
-                            let rarity = support?.rarity ? support.rarity : 0;
-                            let str = support?.str ? support.str : 40;
-                            let dex = support?.dex ? support.dex : 40;
-                            let con = support?.con ? support.con : 40;
-                            let mnd = support?.mnd ? support.mnd : 40;
-                            let int = support?.int ? support.int : 40;
-                            let luk = support?.luk ? support.luk : 40;
-                            let limit = support?.limitCount ? support.limitCount : 2;
-
-                            return (
-                                <div key={`suppport_chara_no${index}`}>
-                                    <select className="status" value={limit} onChange={(e) => { setSupportSetting(index, "limitCount", e.target.value) }}>
-                                        {rarity <= 1 || rarity <= 99 ?
-                                            Array.from({ length: 5 }, (_, i) => (
-                                                <option value={i} key={`limit_${i}`}>{i}</option>
-                                            ))
-                                            : null
-                                        }
-                                        {rarity === 2 ? <option value="10">10</option> : null}
-                                        {rarity === 3 ? <option value="20">20</option> : null}
-                                    </select>
-                                    <input className="status" value={str} type="number" onChange={(e) => { setSupportSetting(index, "str", e.target.value) }} />
-                                    <input className="status" value={dex} type="number" onChange={(e) => { setSupportSetting(index, "dex", e.target.value) }} />
-                                    <input className="status" value={con} type="number" onChange={(e) => { setSupportSetting(index, "con", e.target.value) }} />
-                                    <input className="status" value={mnd} type="number" onChange={(e) => { setSupportSetting(index, "mnd", e.target.value) }} />
-                                    <input className="status" value={int} type="number" onChange={(e) => { setSupportSetting(index, "int", e.target.value) }} />
-                                    <input className="status" value={luk} type="number" onChange={(e) => { setSupportSetting(index, "luk", e.target.value) }} />
-                                </div>
-                            )
+                            if (support && support.styleId) {
+                                let rarity = support ? support.rarity : 0;
+                                let str = support ? support.str : 40;
+                                let dex = support ? support.dex : 40;
+                                let con = support ? support.con : 40;
+                                let mnd = support ? support.mnd : 40;
+                                let int = support ? support.int : 40;
+                                let luk = support ? support.luk : 40;
+                                let limit = support ? support.limitCount : 2;
+                                return (
+                                    <div key={`suppport_chara_no${index}`}>
+                                        <select className="status" value={limit} onChange={(e) => { setSupportSetting(index, "limitCount", e.target.value) }}>
+                                            {rarity <= 1 || rarity <= 99 ?
+                                                Array.from({ length: 5 }, (_, i) => (
+                                                    <option value={i} key={`limit_${i}`}>{i}</option>
+                                                ))
+                                                : null
+                                            }
+                                            {rarity === 2 ? <option value="10">10</option> : null}
+                                            {rarity === 3 ? <option value="20">20</option> : null}
+                                        </select>
+                                        <input className="status" value={str} type="number" onChange={(e) => { setSupportSetting(index, "str", e.target.value) }} />
+                                        <input className="status" value={dex} type="number" onChange={(e) => { setSupportSetting(index, "dex", e.target.value) }} />
+                                        <input className="status" value={con} type="number" onChange={(e) => { setSupportSetting(index, "con", e.target.value) }} />
+                                        <input className="status" value={mnd} type="number" onChange={(e) => { setSupportSetting(index, "mnd", e.target.value) }} />
+                                        <input className="status" value={int} type="number" onChange={(e) => { setSupportSetting(index, "int", e.target.value) }} />
+                                        <input className="status" value={luk} type="number" onChange={(e) => { setSupportSetting(index, "luk", e.target.value) }} />
+                                    </div>
+                                )
+                            } else {
+                                return <div></div>
+                            }
                         })}
                     </>
                 }

@@ -162,6 +162,7 @@ export const EFFECT = {
     FIRE_MARK: 43, // 火の印 
     NEGATIVE: 51, // ネガティブ
     HEALEP: 52, // EP回復
+    ATTACKUP_AND_DAMAGERATEUP: 53, // 攻撃力＋破壊率アップ
 }
 
 /** フィールド */

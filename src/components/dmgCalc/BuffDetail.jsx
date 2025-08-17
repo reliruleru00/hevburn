@@ -21,7 +21,7 @@ const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHAR
 BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP];
 
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
-    abilitySettingMap, passiveSettingMap, closeModal }) => {
+    abilitySettingMap, passiveSettingMap, resonanceList, closeModal }) => {
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
@@ -38,7 +38,8 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             buffSetting["collect"] = {};
         }
         buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
-        buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+        buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+            abilitySettingMap, passiveSettingMap, resonanceList);
 
         setBuffSettingMap(updateSettingMap);
     };
@@ -54,9 +55,10 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             enemyStatDown = 20;
         }
     }
-    let status = getStatus(buffInfo, memberInfo, statUp) 
-    
-    const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+    let status = getStatus(buffInfo, memberInfo, statUp)
+
+    const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, 
+        abilitySettingMap, passiveSettingMap, resonanceList);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
 

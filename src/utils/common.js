@@ -7,6 +7,7 @@ import skillBuff from "data/skillBuff";
 import enemyList from 'data/enemyList';
 import skillPassive from "data/skillPassive";
 import abilityList from "data/abilityList";
+import abilityResonance from "data/abilityResonance";
 
 // キャラ名取得
 export function getCharaData(charaId) {
@@ -61,6 +62,12 @@ export function getAbilityInfo(abilityId) {
 export function getPassiveInfo(skillId) {
   const filteredPassive = skillPassive.filter((obj) => obj.skill_id === Number(skillId));
   return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
+}
+
+// パッシブ情報取得
+export function getResonanceInfo(resonanceId) {
+  const filteredResonance = abilityResonance.filter((obj) => obj.resonance_id === Number(resonanceId));
+  return filteredResonance.length > 0 ? filteredResonance[0] : undefined;
 }
 
 // 文字列を圧縮

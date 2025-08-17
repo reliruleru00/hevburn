@@ -60,7 +60,7 @@ const reducer = (state, action) => {
 };
 
 // 戦闘初期データ作成
-function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints) {
+function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting, setConstraints) {
     // 初期データ作成
     let turnInit = {
         turnNumber: 0,
@@ -117,7 +117,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveMember, detailSetting
         };
         unit.placeNo = index;
         if (member) {
-            saveMember(index);
+            saveStyle(member);
 
             unit.style = deepClone(member);
             unit.sp = member.initSp;
@@ -249,7 +249,7 @@ const checkStartBattle = (styleList) => {
 }
 
 const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect }) => {
-    const { styleList, setStyleList, saveMember, loadMember } = useStyleList();
+    const { styleList, setStyleList, saveStyle, loadMember } = useStyleList();
 
     const [hideMode, setHideMode] = React.useState(false);
 
@@ -268,7 +268,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         /** 戦闘開始処理 */
         // 初期データ作成
         let turnInit = getInitBattleData(
-            styleList.selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
+            styleList.selectStyleList, enemyInfo, saveStyle, detailSetting, setConstraints);
         // 制約事項更新
         setUpdate(update + 1);
         // 初期処理
@@ -287,7 +287,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         const userOperationList = simProc.turnList.map(turn => turn.userOperation);
         // 初期データ作成
         let turnInit = getInitBattleData(
-            styleList.selectStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
+            styleList.selectStyleList, enemyInfo, saveStyle, detailSetting, setConstraints);
         // 制約事項更新
         setUpdate(update + 1);
         let turnList = [];
@@ -324,7 +324,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
         // 初期データ作成
         let turnInit = getInitBattleData(
-            updatedStyleList, enemyInfo, saveMember, detailSetting, setConstraints);
+            updatedStyleList, enemyInfo, saveStyle, detailSetting, setConstraints);
         // 制約事項更新
         setKey(key + 1);
         let turnList = [];

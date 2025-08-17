@@ -12,10 +12,11 @@ import {
     isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList, filteredOrb,
     getEnemyResist
 } from "./logic";
-import { getCharaData, getPassiveInfo, getAbilityInfo, deepClone } from "utils/common";
+import { getCharaData, getStyleData, getPassiveInfo, getResonanceInfo, getAbilityInfo, deepClone } from "utils/common";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
 import PassiveCheckbox from "./PassiveCheckbox";
+import Resonance from "./Resonance";
 import BuffBulkSetting from "./BuffBulkSetting";
 import BuffDetail from "./BuffDetail";
 import skillList from "data/skillList";
@@ -79,7 +80,8 @@ const BuffArea = ({ argument: {
     selectBuffKeyMap, setSelectBuffKeyMap,
     buffSettingMap, setBuffSettingMap,
     abilitySettingMap, setAbilitySettingMap,
-    passiveSettingMap, setPassiveSettingMap
+    passiveSettingMap, setPassiveSettingMap,
+    resonanceList, setResonanceList,
 } }) => {
 
     const { styleList } = useStyleList();
@@ -114,9 +116,18 @@ const BuffArea = ({ argument: {
         return style?.styleInfo.style_id + style?.exclusionSkillList.map(skill => skill).join(',');
     }).join(',');
 
+    let supportList = styleList.selectStyleList.map(style => {
+        return style?.support?.styleId + "," + style?.support?.limitCount;
+    }).join(',');
+
     const { buffGroup, abilityList, passiveList } = useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
     }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak]);
+
+    const resonance = useMemo(() => {
+        return generateResonanceList(styleList, attackInfo);
+    }, [attackInfo?.attack_id, selectList, supportList]);
+    setResonanceList(resonance);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);
@@ -229,14 +240,15 @@ const BuffArea = ({ argument: {
                     let buffSetting = buffInnerList[buffKey];
                     let buff = buffSetting.buffInfo;
                     const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
-                    buffSetting.effect_size = getEffectSize(styleList, buff, buffSetting, memberInfo, state, newAbilitySettingMap, newPassiveSettingMap);
+                    buffSetting.effect_size = getEffectSize(styleList, buff, buffSetting, memberInfo, state,
+                        newAbilitySettingMap, newPassiveSettingMap, resonanceList);
                 })
             });
         });
 
         setBuffSettingMap(updateMap);
         refBuffSettingMap.current = updateMap;
-    }, [styleList, state.enemyInfo, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList]);
+    }, [styleList, state.enemyInfo, state.hard.tearsOfDreams, abilitySettingMap, passiveSettingMap, passiveList, resonanceList]);
 
     // スキルレベル変更
     const handleChangeSkillLv = (buffKindKey, buffKey, lv, index) => {
@@ -247,7 +259,8 @@ const BuffArea = ({ argument: {
             settingBuff.skill_lv = lv
             let buff = buffGroup[buffKind][index].filter(buff => buff.key === buffKey)[0];
             const memberInfo = getCharaIdToMember(styleList, buff.use_chara_id);
-            settingBuff.effect_size = getEffectSize(styleList, buff, settingBuff, memberInfo, state, abilitySettingMap, passiveSettingMap);
+            settingBuff.effect_size = getEffectSize(styleList, buff, settingBuff, memberInfo, state,
+                abilitySettingMap, passiveSettingMap, resonanceList);
         })
         setBuffSettingMap(updateMap);
     };
@@ -534,9 +547,20 @@ const BuffArea = ({ argument: {
                         </tr>
                         <tr>
                             <td className="kind pc_only">パッシブ</td>
-                            <td className="text-left" colSpan="4" id="skill_passive">
+                            <td className="text-left" colSpan="4">
                                 <PassiveCheckbox passiveList={passiveList}
                                     passiveSettingMap={passiveSettingMap} handlePassiveChange={handlePassiveChange} />
+                            </td>
+                        </tr>
+                        <tr className="sp_only">
+                            <td className="kind" colSpan="5">
+                                共鳴アビリティ
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="kind pc_only">共鳴</td>
+                            <td className="text-left" colSpan="4">
+                                <Resonance resonanceList={resonanceList} />
                             </td>
                         </tr>
                     </tbody>
@@ -615,6 +639,36 @@ function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, d
         return acc;
     }, {});
     return { buffList, buffGroup, abilityList, passiveList };
+}
+
+// レゾナンスリスト作成
+function generateResonanceList(styleList, attackInfo) {
+    let attackCharaId = attackInfo?.chara_id;
+
+    const resonanceList = [];
+    styleList.selectStyleList
+        .filter(memberInfo => memberInfo)
+        .forEach(memberInfo => {
+            const charaId = memberInfo.styleInfo.chara_id;
+            const charaName = getCharaData(charaId).chara_short_name;
+
+            // レゾナンス判定
+            if (memberInfo.styleInfo.rarity === 0 && memberInfo.support?.styleId) {
+                let support = getStyleData(memberInfo.support.styleId);
+                if (support?.ability_resonance) {
+                    const resonance = getResonanceInfo(support.ability_resonance);
+                    if (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP) {
+                        if (attackCharaId !== charaId) {
+                            return;
+                        }
+                    }
+                    resonance.charaName = charaName;
+                    resonance.limitCount = memberInfo.support.limitCount;
+                    resonanceList.push(resonance);
+                }
+            }
+        });
+    return resonanceList;
 }
 
 // バフ、アビリティ、パッシブ追加

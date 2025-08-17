@@ -162,9 +162,9 @@ export const filteredOrb = (buffList, isOrb) => {
 }
 
 // 効果量取得
-export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap) {
+export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, resonanceList) {
     // バフ強化
-    let strengthen = getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap);
+    let strengthen = getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap, resonanceList);
     let effectSize = 0;
     if (buff.kbn === "buff") {
         // バフ
@@ -268,7 +268,7 @@ export function getCostVariable(spCost, collect, memberInfo, abilitySettingMap, 
 }
 
 // バフ強化効果量取得
-function getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap) {
+function getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap, resonanceList) {
     let charaId = buff.use_chara_id;
     let strengthen = 0;
     // 攻撃力アップ/属性攻撃力アップ
@@ -295,6 +295,13 @@ function getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingM
                         break;
                 }
             })
+        resonanceList.forEach(resonance => {
+            if (resonance.effect_type === EFFECT.GIVEATTACKBUFFUP) {
+                const limitCount = resonance.limitCount;
+                const effectSize = resonance[`effect_limit_${limitCount}`];
+                strengthen += effectSize;
+            }
+        })
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
     if (KIND_DEFENSEDOWN.includes(buff.buff_kind)) {
@@ -335,6 +342,13 @@ function getStrengthen(styleList, buff, buffSetting, memberInfo, abilitySettingM
                         break;
                 }
             })
+        resonanceList.forEach(resonance => {
+            if (resonance.effect_type === EFFECT.GIVEDEFFENCEDEBUFFUP) {
+                const limitCount = resonance.limitCount;
+                const effectSize = resonance[`effect_limit_${limitCount}`];
+                strengthen += effectSize;
+            }
+        })
     }
     // 防御ダウン以外のデバフスキル
     if ([BUFF.FRAGILE, BUFF.RESISTDOWN].includes(buff.buff_kind)) {
@@ -503,7 +517,7 @@ export function getBestBuffKeys(buffKind, kindBuffList, buffSettingMap) {
 
 // ダメージ計算結果取得
 export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
-    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting) {
+    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting) {
     if (!attackInfo) {
         return null;
     }
@@ -530,7 +544,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSKillLv,
     const memberInfo = attackMemberInfo;
     const handlers = {
         attackInfo, memberInfo, styleList,
-        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting, state
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting, state
     };
     let [physical, element] = getEnemyResist(attackInfo, state);
     let isWeak = physical * element > 10000;
@@ -971,6 +985,7 @@ function getSumAbilityEffectSize(handlers, effectType) {
     const memberInfo = handlers.memberInfo;
     const abilitySettingMap = handlers.abilitySettingMap;
     const passiveSettingMap = handlers.passiveSettingMap;
+    const resonanceList = handlers.resonanceList;
 
     let abilityEffectSize = 0;
     let sumNoneEffectSize = 0;
@@ -1069,6 +1084,15 @@ function getSumAbilityEffectSize(handlers, effectType) {
             }
         }
     });
+
+    resonanceList.forEach(resonance => {
+        if (resonance.effect_type === effectType || 
+            ([EFFECT.ATTACKUP, EFFECT.DAMAGERATEUP].includes(effectType) && (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP))) {
+            const limitCount = resonance.limitCount;
+            const effectSize = resonance[`effect_limit_${limitCount}`];
+            abilityEffectSize += effectSize;
+        }
+    })
     return abilityEffectSize;
 }
 
@@ -1381,7 +1405,7 @@ export function getStatUp(styleList, state, memberInfo, collect, abilitySettingM
     let fightingspirit = collect?.fightingspirit ? 20 : 0;
     // パッシブ(能力固定上昇)
     const handlers = {
-        memberInfo, styleList, abilitySettingMap, passiveSettingMap, state
+        memberInfo, styleList, abilitySettingMap, passiveSettingMap, state, resonanceList: []
     };
     let passiveStatusUp = getSumAbilityEffectSize(handlers, EFFECT.STATUSUP_VALUE);
     return tearsOfDreams + scoreBonus + (morale > fightingspirit ? morale : fightingspirit) + passiveStatusUp;

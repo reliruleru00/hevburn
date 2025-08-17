@@ -240,6 +240,7 @@ const DamageCalculation = () => {
     const [selectBuffKeyMap, setSelectBuffKeyMap] = useState({});
     const [abilitySettingMap, setAbilitySettingMap] = useState([]);
     const [passiveSettingMap, setPassiveSettingMap] = useState([]);
+    const [resonanceList, setResonanceList] = useState([]);
 
     const [otherSetting, setOtherSetting] = useState({
         ring: "0",
@@ -254,7 +255,7 @@ const DamageCalculation = () => {
     });
 
     let damageResult = getDamageResult(attackInfo, styleList, state, selectSKillLv,
-        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, otherSetting);
+        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting);
 
     const bulkSetting = (collect) => {
         setAttackInfo({ ...attackInfo, collect: collect })
@@ -267,7 +268,8 @@ const DamageCalculation = () => {
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
-                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap);
+                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, 
+                        abilitySettingMap, passiveSettingMap, resonanceList);
                 })
             })
         );
@@ -279,7 +281,8 @@ const DamageCalculation = () => {
         selectBuffKeyMap, setSelectBuffKeyMap,
         buffSettingMap, setBuffSettingMap,
         abilitySettingMap, setAbilitySettingMap,
-        passiveSettingMap, setPassiveSettingMap
+        passiveSettingMap, setPassiveSettingMap,
+        resonanceList, setResonanceList
     };
     return (
         <div className="damage_frame pt-3">

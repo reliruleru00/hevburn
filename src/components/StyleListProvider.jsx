@@ -233,10 +233,6 @@ const StyleListProvider = ({ children }) => {
     setStyleList({ ...styleList, selectStyleList: updatedList });
   };
 
-  const saveMember = (index) => {
-    saveStyle(styleList.selectStyleList[index]);
-  };
-
   const loadMember = (styleId) => {
     return loadStyle(styleId);
   };
@@ -256,10 +252,11 @@ const StyleListProvider = ({ children }) => {
         loadSubTroops,
         setMember,
         removeMember,
-        saveMember,
         saveSupportStyle,
         loadSupportStyle,
         loadMember,
+        saveStyle,
+        loadStyle,
         setStyle,
         setLastUpdatedIndex,
       }}

@@ -239,7 +239,9 @@ const CharaStatus = ({ argument: {
                                                             justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index} onClick={() => { openModal(index, "style") }} />
+                                                        <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index} 
+                                                            supportStyleId={!supportTroops && style?.support?.styleId} 
+                                                            onClick={() => { openModal(index, "style") }} />
                                                     </li>
                                                 )}
                                             </Draggable>)

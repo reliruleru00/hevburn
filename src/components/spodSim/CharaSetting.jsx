@@ -6,7 +6,7 @@ import ModalStyleSelection from "components/ModalStyleSelection";
 import StyleIcon from "components/StyleIcon";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
-const CharaSetting = () => {
+const CharaSetting = ({ setSettingUpdate }) => {
     const BRACELET_LIST = ["無し", "火撃", "氷撃", "雷撃", "光撃", "闇撃"];
     const EARRING_LIST = [10, 12, 15];
 
@@ -29,6 +29,7 @@ const CharaSetting = () => {
         styleList.selectStyleList.forEach((style, index) => {
             localStorage.removeItem(`troops_${styleList.selectTroops}_${index}`);
         })
+        setSettingUpdate(false);
         setStyleList({ ...styleList, selectStyleList: Array(6).fill(undefined) });
     }
 
@@ -44,6 +45,7 @@ const CharaSetting = () => {
         let selectTroops = e.target.value;
         localStorage.setItem('select_troops', selectTroops);
         loadTroops(selectTroops);
+        setSettingUpdate(false);
     }
 
     // メンバー入れ替え
@@ -95,12 +97,14 @@ const CharaSetting = () => {
     const clickSetMember = (index, style_id) => {
         setMember(index, style_id);
         localStorage.setItem(`troops_${styleList.selectTroops}_${index}`, style_id);
+        setSettingUpdate(false);
         closeModal();
     }
 
     const clickRemoveMember = (index) => {
         localStorage.removeItem(`troops_${styleList.selectTroops}_${index}`);
         removeMember(index);
+        setSettingUpdate(false);
         closeModal();
     }
 

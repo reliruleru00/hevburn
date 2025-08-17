@@ -252,6 +252,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
     const { styleList, setStyleList, saveStyle, loadMember } = useStyleList();
 
     const [hideMode, setHideMode] = React.useState(false);
+    const [settingUpdate, setSettingUpdate] = React.useState(false);
 
     const [simProc, dispatch] = React.useReducer(reducer, {
         turnList: [],
@@ -275,6 +276,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         initTurn(turnInit, true);
         let turnList = [turnInit];
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
+        setSettingUpdate(true);
     };
 
     // 戦闘開始前処理
@@ -363,7 +365,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                         <div className="unit_setting_area">
                             <input className="w-20" defaultValue="注意事項" type="button"
                                 onClick={openModal} />
-                            <CharaSetting />
+                            <CharaSetting setSettingUpdate={setSettingUpdate} />
                         </div>
                         <div>
                             <EnemyArea enemyInfo={enemyInfo} enemyClass={enemyClass}
@@ -374,7 +376,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                         <div className="flex justify-center mt-2 text-sm">
                             <input className="battle_start" defaultValue="戦闘開始" type="button" onClick={e =>
                                 startBattle(update, setUpdate, setConstraints)} />
-                            {simProc.turnList.length > 0 &&
+                            {settingUpdate &&
                                 <input className="battle_setting ml-4" defaultValue="設定のみ反映" type="button" onClick={e =>
                                     restartBattle(update, setUpdate, setConstraints)} />
                             }

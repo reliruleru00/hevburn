@@ -142,6 +142,12 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
         loopLimit = 4;
     }
     let className = "relative unit_select " + (placeNo === selectedPlaceNo ? "unit_selected" : "");
+    const selectSkill = turn.userOperation.selectSkill[placeNo];
+    let targetIcon = undefined;
+    if (selectSkill && selectSkill.skill_id && selectSkill.buffTargetCharaId) {
+        const targetUnit = turn.unitList.filter(unit => unit?.style?.styleInfo.chara_id === selectSkill.buffTargetCharaId)[0];
+        targetIcon = icons[targetUnit?.style?.styleInfo?.image_url]
+    }
 
     return (
         <div className={className} onClick={(e) => { chengeSelectUnit(e, placeNo) }}>
@@ -160,6 +166,15 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                             alt={"変更"}
                             onClick={() => { chageStyle(placeNo, changeStyle[unit?.style?.styleInfo.style_id]) }}
                         />
+                    }
+                    {targetIcon &&
+                        <div className="absolute bottom-0 left-[24px] w-[24px] h-[24px] rounded-full ring-2 ring-red-500 overflow-hidden">
+                            <img
+                                className="absolute style_change"
+                                src={targetIcon}
+                                alt={"対象"}
+                            />
+                        </div>
                     }
                 </div>
                 {placeNo <= 2 || hideMode ?

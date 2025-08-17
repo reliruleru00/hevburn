@@ -5,14 +5,20 @@ import { useStyleList } from "components/StyleListProvider";
 import { changeStyle } from "utils/const";
 import { getStyleData } from "utils/common";
 
-const StyleIcon = ({ styleId, placeNo, onClick, styleClass = "select_style" }) => {
+const StyleIcon = ({ styleId, placeNo, onClick, styleClass = "select_style", supportStyleId = undefined }) => {
     const { styleList, setMember } = useStyleList();
 
     let icon = plusIcon;
     const style = getStyleData(styleId);
-    if (style &&  style.image_url) {
+    if (style && style.image_url) {
         const imageName = style.image_url;
         icon = icons[imageName] || plusIcon;
+    }
+    let supportIcon = null;
+    if (supportStyleId) {
+        const supportStyle = getStyleData(supportStyleId);
+        const imageName = supportStyle.image_url;
+        supportIcon = icons[imageName] || plusIcon;
     }
 
     const clickSetMember = (styleId) => {
@@ -35,6 +41,15 @@ const StyleIcon = ({ styleId, placeNo, onClick, styleClass = "select_style" }) =
                     alt={"変更"}
                     onClick={() => { clickSetMember(changeStyle[styleId]) }}
                 />
+            }
+            {supportIcon &&
+                <div className="absolute bottom-0 right-0 w-[24px] h-[24px] rounded-full ring-2 ring-blue-500 overflow-hidden">
+                    <img
+                        className="w-full h-full"
+                        src={supportIcon}
+                        alt="サポート"
+                    />
+                </div>
             }
         </div>
     )

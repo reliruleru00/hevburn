@@ -240,7 +240,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSKillLv, styleList, sta
     let skillPower = getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, enemyStatDown);
     let criticalPower = getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, enemyInfo, criticalStatDown);
 
-    let enemyStat = enemyInfo.enemy_stat;
+    let enemyStat = Number(enemyInfo.enemy_stat);
     let status = getStatus(attackInfo, memberInfo, statUp);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];

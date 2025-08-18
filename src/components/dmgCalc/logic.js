@@ -732,7 +732,7 @@ export function getSkillPower(attackInfo, selectSKillLv, memberInfo, statUp, ene
     if (memberInfo.styleInfo.jewel_type === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
-    let enemyStat = enemyInfo.enemy_stat - enemyStatDown;
+    let enemyStat = Math.max(enemyInfo.enemy_stat - enemyStatDown, 0);
     let status = getStatus(attackInfo, memberInfo, statUp);
     return calcAttackEffectSize(attackInfo, status, enemyStat, selectSKillLv, jewelLv)
 }
@@ -1055,7 +1055,8 @@ function getSumAbilityEffectSize(handlers, effectType) {
             }
 
             // 火の印
-            if (skillId === SKILL_ID.SUMMER_FINE_WEATHER && memberInfo.styleInfo.element === ELEMENT.FIRE) {
+            if (skillId === SKILL_ID.SUMMER_FINE_WEATHER &&
+                [memberInfo.styleInfo.element, memberInfo.styleInfo.element2].includes(ELEMENT.FIRE)) {
                 let fireCount = targetCountInclude(styleList, passiveInfo.target_element);
                 switch (effectType) {
                     case EFFECT.ATTACKUP:
@@ -1086,7 +1087,7 @@ function getSumAbilityEffectSize(handlers, effectType) {
     });
 
     resonanceList.forEach(resonance => {
-        if (resonance.effect_type === effectType || 
+        if (resonance.effect_type === effectType ||
             ([EFFECT.ATTACKUP, EFFECT.DAMAGERATEUP].includes(effectType) && (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP))) {
             const limitCount = resonance.limitCount;
             const effectSize = resonance[`effect_limit_${limitCount}`];
@@ -1201,23 +1202,14 @@ export const getStatus = (info, memberInfo, statUp) => {
     let denominator = 0;
     if (info.ref_status_1 !== 0) {
         molecule += (memberInfo[STATUS_KBN[info.ref_status_1]] + statUp) * 2;
-        if (memberInfo.support?.styleId) {
-            molecule += memberInfo.support[STATUS_KBN[info.ref_status_1]] * 2;
-        }
         denominator += 2;
     }
     if (info.ref_status_2 && info.ref_status_2 !== 0) {
         molecule += memberInfo[STATUS_KBN[info.ref_status_2]] + statUp;
-        if (memberInfo.support?.styleId) {
-            molecule += memberInfo.support[STATUS_KBN[info.ref_status_2]];
-        }
         denominator += 1;
     }
     if (info.ref_status_3 && info.ref_status_3 !== 0) {
         molecule += memberInfo[STATUS_KBN[info.ref_status_3]] + statUp;
-        if (memberInfo.support?.styleId) {
-            molecule += memberInfo.support[STATUS_KBN[info.ref_status_3]];
-        }
         denominator += 1;
     }
     return molecule / denominator;
@@ -1288,7 +1280,7 @@ function getDebuffEffectSize(styleList, buffInfo, buffSetting, memberInfo, state
     } else if (buffSetting.collect?.misfortune) {
         enemyStatDown = 20;
     }
-    enemyStat -= enemyStatDown;
+    enemyStat = Math.max(enemyStat - enemyStatDown, 0);
 
     let skillLv = buffSetting.skill_lv;
     let status = getStatus(buffInfo, memberInfo, statUp);

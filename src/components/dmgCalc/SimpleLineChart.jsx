@@ -11,7 +11,7 @@ export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, 
     const tickMinPower = Math.floor(minPower + attackInfo.min_power * (jewelLv * 0.02));
     const tickMaxPower = Math.floor(maxPower + attackInfo.max_power * (jewelLv * 0.02));
 
-    let min = Math.min(status, enemyStat) - 80;
+    let min = Math.max(Math.min(status, enemyStat) - 80, 0);
     let max = Math.max(status, enemyStat + skillStat + 100) + 50;
     for (let x = min; x <= max; x++) {
         data1.push({ x: x, y: calcAttackEffectSize(attackInfo, x, enemyStat - enemyStatDown, skillLv, jewelLv) });

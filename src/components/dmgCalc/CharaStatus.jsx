@@ -17,7 +17,7 @@ const CharaStatus = ({ argument: {
     abilitySettingMap,
     passiveSettingMap
 } }) => {
-    const { styleList, setStyleList, saveStyle, saveSupportStyle, loadSupportStyle,
+    const { styleList, setStyleList, saveStyle, loadStyle,
         setMember, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
     const [supportTroops, setSupportTroops] = useState(false);
 
@@ -149,7 +149,7 @@ const CharaStatus = ({ argument: {
                     [item]: Number(value)
                 }
             };
-            saveSupportStyle(updatedStyleList[index].support);
+            saveStyle(updatedStyleList[index].support, false);
             setLastUpdatedIndex(index);
             setStyleList({ ...styleList, selectStyleList: updatedStyleList });
         }
@@ -159,7 +159,8 @@ const CharaStatus = ({ argument: {
         const updatedStyleList = [...styleList.selectStyleList];
         updatedStyleList[index] = {
             ...updatedStyleList[index],
-            support: loadSupportStyle(styleId)
+            supportStyleId: styleId,
+            support: loadStyle(styleId)
         };
         saveStyle(updatedStyleList[index]);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
@@ -170,7 +171,8 @@ const CharaStatus = ({ argument: {
         const updatedStyleList = [...styleList.selectStyleList];
         updatedStyleList[index] = {
             ...updatedStyleList[index],
-            support: { styleId: null }
+            supportStyleId: undefined,
+            support: {}
         };
         saveStyle(updatedStyleList[index]);
         setStyleList({ ...styleList, selectStyleList: updatedStyleList });
@@ -239,8 +241,8 @@ const CharaStatus = ({ argument: {
                                                             justifyContent: 'center',
                                                         }}
                                                     >
-                                                        <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index} 
-                                                            supportStyleId={!supportTroops && style?.support?.styleId} 
+                                                        <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index}
+                                                            supportStyleId={!supportTroops && style?.support?.styleId}
                                                             onClick={() => { openModal(index, "style") }} />
                                                     </li>
                                                 )}
@@ -391,8 +393,8 @@ const CharaStatus = ({ argument: {
                             <span className="small_font">サポート</span>
                         </div>
                         {styleList.selectStyleList.map((style, index) => {
-                            const styleId = style?.support?.styleId;
-                            if (style?.styleInfo?.style_id) {
+                            const styleId = style?.supportStyleId;
+                            if (style?.styleInfo?.style_id && style?.styleInfo?.rarity <= 1) {
                                 return (
                                     <div key={`style_${index}`} className="cursor-pointer flex items-center justify-center">
                                         <StyleIcon styleId={styleId} placeNo={index} onClick={() => { clickSupportMember(index) }} styleClass="support_style" />
@@ -404,24 +406,12 @@ const CharaStatus = ({ argument: {
                         })}
                         <div>
                             <span className="label_status">限界突破</span>
-                            <span className="label_status">力</span>
-                            <span className="label_status">器用さ</span>
-                            <span className="label_status">体力</span>
-                            <span className="label_status">精神</span>
-                            <span className="label_status">知性</span>
-                            <span className="label_status">運</span>
                         </div>
 
                         {styleList.selectStyleList.map((style, index) => {
-                            const support = style?.support;
-                            if (support && support.styleId) {
-                                let rarity = support ? support.rarity : 0;
-                                let str = support ? support.str : 40;
-                                let dex = support ? support.dex : 40;
-                                let con = support ? support.con : 40;
-                                let mnd = support ? support.mnd : 40;
-                                let int = support ? support.int : 40;
-                                let luk = support ? support.luk : 40;
+                            if (style?.supportStyleId) {
+                                const support = style?.support;
+                                let rarity = support ? support.styleInfo.rarity : 0;
                                 let limit = support ? support.limitCount : 2;
                                 return (
                                     <div key={`suppport_chara_no${index}`}>
@@ -435,16 +425,10 @@ const CharaStatus = ({ argument: {
                                             {rarity === 2 ? <option value="10">10</option> : null}
                                             {rarity === 3 ? <option value="20">20</option> : null}
                                         </select>
-                                        <input className="status" value={str} type="number" onChange={(e) => { setSupportSetting(index, "str", e.target.value) }} />
-                                        <input className="status" value={dex} type="number" onChange={(e) => { setSupportSetting(index, "dex", e.target.value) }} />
-                                        <input className="status" value={con} type="number" onChange={(e) => { setSupportSetting(index, "con", e.target.value) }} />
-                                        <input className="status" value={mnd} type="number" onChange={(e) => { setSupportSetting(index, "mnd", e.target.value) }} />
-                                        <input className="status" value={int} type="number" onChange={(e) => { setSupportSetting(index, "int", e.target.value) }} />
-                                        <input className="status" value={luk} type="number" onChange={(e) => { setSupportSetting(index, "luk", e.target.value) }} />
                                     </div>
                                 )
                             } else {
-                                return <div></div>
+                                return <div key={`suppport_chara_no${index}`}></div>
                             }
                         })}
                     </>

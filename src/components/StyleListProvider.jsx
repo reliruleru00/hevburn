@@ -30,10 +30,11 @@ const initialMember = {
   chain: 3,
   initSp: 1,
   exclusionSkillList: [],
+  supportStyleId: undefined,
 };
 
 // ----------------- 保存/読み込み処理 -----------------
-const saveStyle = (memberInfo) => {
+const saveStyle = (memberInfo, skill = true) => {
   if (!memberInfo || !memberInfo.styleInfo) return;
 
   const { style_id } = memberInfo.styleInfo;
@@ -51,11 +52,13 @@ const saveStyle = (memberInfo) => {
     memberInfo.bracelet,
     memberInfo.chain,
     memberInfo.initSp,
-    memberInfo.support?.styleId,
+    memberInfo.supportStyleId,
   ].join(",");
 
   localStorage.setItem(`style_${style_id}`, saveItem);
-  saveExclusionSkill(memberInfo);
+  if (skill) {
+    saveExclusionSkill(memberInfo);
+  }
 };
 
 const loadStyle = (styleId) => {
@@ -78,7 +81,7 @@ const loadStyle = (styleId) => {
     memberInfo.initSp = Number(items[12]) || 1;
     if (items.length > 13) {
       const styleId = Number(items[13]);
-      memberInfo.support = loadSupportStyle(styleId);
+      memberInfo.supportStyleId = styleId;
     }
   }
 
@@ -87,58 +90,6 @@ const loadStyle = (styleId) => {
 
   return memberInfo;
 };
-
-const saveSupportStyle = (support) => {
-  if (support?.styleId) {
-    const styleId = support?.styleId
-    const saveSupportItem = [
-      support.rarity,
-      support.str,
-      support.dex,
-      support.con,
-      support.mnd,
-      support.int,
-      support.luk,
-      support.limitCount,
-    ].join(",");
-    localStorage.setItem(`support_style_${styleId}`, saveSupportItem);
-  }
-}
-
-const loadSupportStyle = (styleId) => {
-  if (styleId) {
-    const saveSupportItem = localStorage.getItem(`support_style_${styleId}`);
-    if (saveSupportItem) {
-      const supportItems = saveSupportItem.split(",");
-      const support = {
-        styleId: styleId,
-        rarity: Number(supportItems[0]),
-        limitCount: Number(supportItems[7]),
-      }
-      statusKbn.forEach((key, i) => {
-        if (i === 0) return;
-        support[key] = Number(supportItems[i]);
-      });
-      return support;
-    } else {
-      // 初期値
-      const styleInfo = getStyleData(styleId);
-      const rarity = styleInfo.rarity;
-      return {
-        styleId: styleId,
-        rarity: rarity,
-        str: 40,
-        dex: 40,
-        con: 40,
-        mnd: 40,
-        int: 40,
-        luk: 40,
-        limitCount: rarity <= 1 ? 2 : rarity === 2 ? 10 : 20,
-      };
-    }
-  }
-  return { styleId: null };
-}
 
 const saveExclusionSkill = (memberInfo) => {
   const styleId = memberInfo.styleInfo.style_id;
@@ -165,6 +116,7 @@ const loadTroopsList = (troopsNo) => {
 
 const setStyleMember = (list, troops, index, styleId) => {
   const memberInfo = loadStyle(styleId);
+  memberInfo.support = loadStyle(memberInfo.supportStyleId);
   if (!memberInfo) return;
   const styleInfo = memberInfo.styleInfo;
 
@@ -252,8 +204,6 @@ const StyleListProvider = ({ children }) => {
         loadSubTroops,
         setMember,
         removeMember,
-        saveSupportStyle,
-        loadSupportStyle,
         loadMember,
         saveStyle,
         loadStyle,

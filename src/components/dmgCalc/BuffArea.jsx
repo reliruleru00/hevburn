@@ -598,7 +598,7 @@ const BuffArea = ({ argument: {
                         modal.buffInfo.kbn === "buff" ?
                             <BuffDetail buffInfo={modal.buffInfo} styleList={styleList} state={state}
                                 index={modal.index} buffSettingMap={buffSettingMap} setBuffSettingMap={setBuffSettingMap}
-                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap} 
+                                abilitySettingMap={abilitySettingMap} passiveSettingMap={passiveSettingMap}
                                 resonanceList={resonanceList} closeModal={closeModal} />
                             :
                             <AbilityDetail buffInfo={modal.buffInfo} closeModal={closeModal} />
@@ -654,17 +654,17 @@ function generateResonanceList(styleList, attackInfo) {
             const charaName = getCharaData(charaId).chara_short_name;
 
             // レゾナンス判定
-            if (memberInfo.styleInfo.rarity === 0 && memberInfo.support?.styleId) {
-                let support = getStyleData(memberInfo.support.styleId);
-                if (support?.ability_resonance) {
-                    const resonance = getResonanceInfo(support.ability_resonance);
+            if (memberInfo.styleInfo.rarity === 0 && memberInfo.supportStyleId) {
+                const support = memberInfo.support;
+                if (support.styleInfo.ability_resonance) {
+                    const resonance = getResonanceInfo(support.styleInfo.ability_resonance);
                     if (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP) {
                         if (attackCharaId !== charaId) {
                             return;
                         }
                     }
                     resonance.charaName = charaName;
-                    resonance.limitCount = memberInfo.support.limitCount;
+                    resonance.limitCount = support.limitCount;
                     resonanceList.push(resonance);
                 }
             }

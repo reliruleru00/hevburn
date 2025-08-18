@@ -348,7 +348,7 @@ const CharaStatus = ({ argument: {
                             return (
                                 <div key={`chara_no${index}`}>
                                     <select className="status" value={limit} onChange={(e) => { setSetting(index, "limitCount", e.target.value) }}>
-                                        {rarity <= 1 || rarity <= 99 ?
+                                        {rarity <= 1 || rarity === 9 ?
                                             Array.from({ length: 5 }, (_, i) => (
                                                 <option value={i} key={`limit_${i}`}>{i}</option>
                                             ))
@@ -416,7 +416,7 @@ const CharaStatus = ({ argument: {
                                 return (
                                     <div key={`suppport_chara_no${index}`}>
                                         <select className="status" value={limit} onChange={(e) => { setSupportSetting(index, "limitCount", e.target.value) }}>
-                                            {rarity <= 1 || rarity <= 99 ?
+                                            {rarity <= 1 || rarity === 9 ?
                                                 Array.from({ length: 5 }, (_, i) => (
                                                     <option value={i} key={`limit_${i}`}>{i}</option>
                                                 ))

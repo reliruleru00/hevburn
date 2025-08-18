@@ -232,7 +232,8 @@ export const CONDITIONS = {
     TOKEN_OVER_4: 24, // トークン4つ以上
     DP_OVER_100: 25, // DP100％以上
     SP_UNDER_0_ALL: 26, // SP0以下の味方がいる
-    SARVANT_OVER: 27, // 山脇様のしもべ3人以上
+    SARVANT_OVER: 27, // 山脇様のしもべ
+    FIRE_MARK: 28, // 火の印
     MORALE_OVER_6: 30, // 士気Lv6以上
     OVER_31A_3: 31, // 31A3人以上
     OVER_31C_3: 33, // 31C3人以上

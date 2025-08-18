@@ -127,7 +127,9 @@ const BuffArea = ({ argument: {
     const resonance = useMemo(() => {
         return generateResonanceList(styleList, attackInfo);
     }, [attackInfo?.attack_id, selectList, supportList]);
-    setResonanceList(resonance);
+    useEffect(() => {
+        setResonanceList(resonance);
+    }, [resonance]);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);

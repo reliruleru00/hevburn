@@ -857,13 +857,13 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
         case CONDITIONS.SP_UNDER_0_ALL: // SP0以下の味方がいる
             return checkSp(turnData, RANGE.ALLY_ALL, 0);
         case CONDITIONS.SARVANT_OVER: // 山脇様のしもべ
-            let servant_count = 0;
-            turnData.unitList.forEach((unit) => {
-                if (checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)) {
-                    servant_count++;
-                };
-            })
-            return servant_count >= conditionsId;
+            return turnData.unitList.filter((unit) =>
+                checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)
+            ).length >= conditionsId;
+        case CONDITIONS.FIRE_MARK: // 山脇様のしもべ
+            return turnData.unitList.filter((unit) =>
+                checkBuffExist(unit.buffList, BUFF.FIRE_MARK)
+            ).length >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skill_id).length;
         default:

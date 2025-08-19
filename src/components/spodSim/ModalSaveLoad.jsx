@@ -160,9 +160,9 @@ const ModalSaveLoad = ({ mode, handleClose, turnList, loadData, update, setUpdat
                     ))}
                 </ul>
                 {mode === "save" ?
-                    <input type="button" className="text-sm w-[120px]" onClick={chickOutput} value="ファイルへ出力" />
+                    <input type="button" className="text-sm" onClick={chickOutput} value="ファイルへ出力" />
                     :
-                    <input type="button" className="text-sm w-[120px]" onClick={chickRead} value="ファイルから読み込み" />
+                    <input type="button" className="text-sm" onClick={chickRead} value="ファイルから読み込み" />
                 }
             </div>
         </div>

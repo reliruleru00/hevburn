@@ -242,7 +242,7 @@ const CharaStatus = ({ argument: {
                                                         }}
                                                     >
                                                         <StyleIcon styleId={style?.styleInfo.style_id} placeNo={index}
-                                                            supportStyleId={!supportTroops && style?.support?.styleId}
+                                                            supportStyleId={!supportTroops && style?.supportStyleId}
                                                             onClick={() => { openModal(index, "style") }} />
                                                     </li>
                                                 )}

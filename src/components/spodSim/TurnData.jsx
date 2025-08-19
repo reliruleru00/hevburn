@@ -349,7 +349,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
                             {isLastTurn ?
                                 <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
                                 :
-                                <input className="turn_button return_turn" defaultValue="ここに戻す" type="button" onClick={() => handlers.returnTurn(turn.seqTurn)} />
+                                <input className="turn_button return_turn" defaultValue="戻す" type="button" onClick={() => handlers.returnTurn(turn.seqTurn)} />
                             }
                         </div>
                     </div>

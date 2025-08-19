@@ -100,7 +100,7 @@ const ModalSkillSelectList = ({ index, closeModal }) => {
                 }
                 <div>
                     <span>■オーブスキル</span>
-                    <input className="w-32 text-sm" defaultValue="オーブのみ全て外す" type="button" onClick={clickOrbReleaseBtn} />
+                    <input className="ml-2 text-sm" defaultValue="オーブのみ全て外す" type="button" onClick={clickOrbReleaseBtn} />
                 </div>
                 {orbSkillList.map((skill) =>
                     <SkillCheckComponent key={`skill${skill.skill_id}`} skill={skill} exclusionSkillList={skillSet.exclusionSkillList} changeSkillList={changeSkillList} />

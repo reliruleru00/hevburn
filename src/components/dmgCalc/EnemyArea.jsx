@@ -14,7 +14,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
         const newEnemyInfo = enemyInfo;
         let newValue = removeComma(value);
         newEnemyInfo[key] = newValue;
-        dispatch({ type: "SET_ENEMY", enemyInfo: newEnemyInfo });
+        dispatch({ type: "UPDATE_ENEMY", enemyInfo: newEnemyInfo });
     };
 
     const handleMaxDpEnemyChange = (index, value) => {
@@ -23,7 +23,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
         const newMaxDp = newMaxDpList.join(",")
         const newEnemyInfo = enemyInfo;
         newEnemyInfo["max_dp"] = newMaxDp;
-        dispatch({ type: "SET_ENEMY", enemyInfo: newEnemyInfo });
+        dispatch({ type: "UPDATE_ENEMY", enemyInfo: newEnemyInfo });
     };
 
     const handleEnemyDamageRateChange = (value) => {
@@ -41,6 +41,12 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
 
     const handleCheckDamageRate = (type, checked) => {
         dispatch({ type: type, checked });
+    };
+
+    const handleMaxDamageRate = (value) => {
+        const newEnemyInfo = enemyInfo;
+        newEnemyInfo["destruction_limit"] = value;
+        dispatch({ type: "MAX_DAMAGE_RATE", enemyInfo: newEnemyInfo });
     };
 
     // HP補正
@@ -63,7 +69,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
         target.value = enemyInfo[id];
         setFocus(id);
     };
-    const handleElementBlur = () => {
+    const handleBlur = () => {
         setFocus(undefined);
     };
 
@@ -77,7 +83,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         onChange={(e) => handleEnemyChange("enemy_stat", e.target.value)} />
                     <div className="text-right enemy_label">破壊率上限</div>
                     <input type="number" className="w-10 text-center" value={state.maxDamageRate} id="enemy_destruction_limit" readOnly={!isFreeInput}
-                        onChange={(e) => handleEnemyChange("destruction_limit", e.target.value)} />
+                        onChange={(e) => handleMaxDamageRate(e.target.value)} />
                     <div className="text-right enemy_label">破壊率</div>
                     <input type="number" className="text-center" id="enemy_destruction_rate" min="100" value={state.damageRate}
                         onChange={(e) => handleEnemyDamageRateChange(e.target.value)} />
@@ -107,8 +113,12 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                                 let background = getApplyGradient("#4F7C8B", dp_rate)
                                 return (
                                     <div className="dp_gauge" key={enemy_id}>
-                                        <input type="text" className="w-20 text-right comma" value={Number(maxDp).toLocaleString()} id={enemy_id} pattern="\d*" readOnly={!isFreeInput}
-                                            onChange={(e) => handleMaxDpEnemyChange(no, e.target.value)} />
+                                        <input type="text" className="w-20 text-right comma"
+                                            value={focus === enemy_id ? maxDp : Number(maxDp).toLocaleString()}
+                                            id={enemy_id} pattern="\d*" readOnly={!isFreeInput}
+                                            onChange={(e) => handleMaxDpEnemyChange(no, e.target.value)}
+                                            onFocus={() => setFocus(enemy_id)}
+                                            onBlur={() => handleBlur()} />
                                         <input type="range" className="enemy_dp_range dp_range" value={dp_rate} id={range_id} max="100" min="0" step="1" onChange={(e) => handleDpChange(no, e.target.value)}
                                             style={{ background: background }}
                                         />
@@ -122,8 +132,11 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         <div className="w-5">HP</div>
                         <div>
                             <div className="flex">
-                                <input type="text" id="enemy_hp" className="w-20 text-right comma" value={maxHp.toLocaleString()} readOnly={!isFreeInput}
-                                    onChange={(e) => handleEnemyChange("max_hp", e.target.value)} />
+                                <input type="text" id="enemy_hp" className="w-20 text-right comma"
+                                    value={focus === "enemy_hp" ? maxHp : maxHp.toLocaleString()} readOnly={!isFreeInput}
+                                    onChange={(e) => handleEnemyChange("max_hp", e.target.value)}
+                                    onFocus={() => setFocus("enemy_hp")}
+                                    onBlur={() => handleBlur()} />
                                 <input type="range" className="hp_range" value={state.hpRate} id="hp_range" max="100" min="0" step="1" onChange={(e) => handleHpChange(e.target.value)}
                                     style={{ background: backgroundHp }}
                                 />
@@ -147,14 +160,14 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
                         let select = attackInfo?.attack_physical === Number(key) ? " selected" : "";
                         return (<div key={id} className={select}>
-                            <input className="enemy_type_icon" src={src} type="image" alt=""/>
+                            <input className="enemy_type_icon" src={src} type="image" alt="" />
                             <input className={`enemy_type_value ${addClass}`}
                                 readOnly={!isFreeInput}
                                 type="text"
                                 value={val}
                                 onChange={(e) => handleEnemyChange("physical_" + key, e.target.value)}
                                 onFocus={(e) => handleElementFocus("physical_" + key, e.target)}
-                                onBlur={(e) => handleElementBlur()} />
+                                onBlur={(e) => handleBlur()} />
                         </div>)
                     })}
                     {Object.keys(ELEMENT_LIST).map(key => {
@@ -162,7 +175,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         let id = `element_${key}`;
                         let correction = state.correction[`element_${key}`];
                         let val = enemyInfo[id]
-                        if (!focus) {
+                        if (focus !== id) {
                             // 属性打ち消し
                             if (val < 100 && state.resistDown[key] > 0) {
                                 val = 100;
@@ -177,14 +190,14 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         let addClass = val < 100 ? "enemy_resist" : val > 100 ? "enemy_weak" : "";
                         let select = attackInfo?.attack_element === Number(key) ? " selected" : "";
                         return (<div key={id} className={select}>
-                            <input className="enemy_type_icon" src={src} type="image" alt=""/>
+                            <input className="enemy_type_icon" src={src} type="image" alt="" />
                             <input className={`enemy_type_value ${addClass}`}
                                 readOnly={!isFreeInput}
                                 type="text"
                                 value={val}
-                                onChange={(e) => handleEnemyChange("element_" + key, e.target.value)}
-                                onFocus={(e) => handleElementFocus("element_" + key, e.target)}
-                                onBlur={(e) => handleElementBlur()} />
+                                onChange={(e) => handleEnemyChange(id, e.target.value)}
+                                onFocus={(e) => handleElementFocus(id, e.target)}
+                                onBlur={(e) => handleBlur()} />
                         </div>)
                     })}
                 </div>

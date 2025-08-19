@@ -860,7 +860,7 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return turnData.unitList.filter((unit) =>
                 checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)
             ).length >= conditionsId;
-        case CONDITIONS.FIRE_MARK: // 山脇様のしもべ
+        case CONDITIONS.FIRE_MARK: // 火の印
             return turnData.unitList.filter((unit) =>
                 checkBuffExist(unit.buffList, BUFF.FIRE_MARK)
             ).length >= conditionsId;

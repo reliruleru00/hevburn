@@ -1165,9 +1165,9 @@ export function getCharaIdToTroopKbn(styleList, charaId) {
 
 
 // 敵ステータス更新
-export function updateEnemyStatus(enemy_class_no, enemyInfo) {
+export function updateEnemyStatus(enemyClassNo, enemyInfo) {
     const enemyClass = 99;
-    let filteredEnemy = enemyList.filter((obj) => obj.enemy_class === enemyClass && obj.enemy_class_no === enemy_class_no);
+    let filteredEnemy = enemyList.filter((obj) => obj.enemy_class === enemyClass && obj.enemy_class_no === enemyClassNo);
     let index = enemyList.findIndex((obj) => obj === filteredEnemy[0]);
     Object.assign(enemyList[index], enemyInfo);
 }

@@ -14,35 +14,21 @@ const EnmeySelect = ({ enemyClass, enemySelect, handleChange, isFreeInput }) => 
         handleChange(Number(enemyClass), Number(newSelect));
     };
 
-    let class_List = enemyList.filter((obj) => obj.enemy_class === enemyClass);
-    let enemy_status = enemyList.filter((obj) => obj.enemy_class === enemyClass && obj.enemy_class_no === enemySelect)[0];
-    if (!enemy_status) {
-        enemy_status = enemyList[0];
+    let classList = enemyList.filter((obj) => obj.enemy_class === enemyClass);
+    let enemyInfo = enemyList.filter((obj) => obj.enemy_class === enemyClass && obj.enemy_class_no === enemySelect)[0];
+    if (!enemyInfo) {
+        enemyInfo = enemyList[0];
     }
 
     // 敵保存ボタンクリック
     const clickEnemySave = () => {
-        // let enemy_class_no = Number($("#enemy_list option:selected").val());
-        // let enemy_name = window.prompt("敵名称を入力してください", "敵" + enemy_class_no);
-        // if (enemy_name === null) {
-        //     return;
-        // }
-        // let enemyInfo = {};
-        // enemyInfo.enemy_name = enemy_name
-        // enemyInfo.enemy_stat = $("#enemy_stat").val();
-        // enemyInfo.max_dp = removeComma($("#enemy_dp_0").val()) + "," + removeComma($("#enemy_dp_1").val()) + "," + removeComma($("#enemy_dp_2").val()) + "," + removeComma($("#enemy_dp_3").val());
-        // enemyInfo.max_hp = removeComma($("#enemy_hp").val());
-        // let enemyInfo_status_list = ["destruction_limit", "destruction"];
-        // enemyInfo_status_list.forEach(value => {
-        //     enemyInfo[value] = $("#enemy_" + value).val();
-        // });
-        // let enemyInfo_resist_list = ["physical_1", "physical_2", "physical_3", "element_0", "element_1", "element_2", "element_3", "element_4", "element_5",];
-        // enemyInfo_resist_list.forEach(value => {
-        //     enemyInfo[value] = $("#enemy_" + value).data("init");
-        // });
-        // $("#enemy_list option:selected").text(enemy_name);
-        // updateEnemyStatus(enemy_class_no, enemyInfo);
-        // localStorage.setItem("free_enemy_" + enemy_class_no, JSON.stringify(enemyInfo));
+        let enemyName = window.prompt("敵名称を入力してください", enemyInfo.enemy_name || ("敵" + enemySelect));
+        if (enemyName === null) {
+            return;
+        }
+        enemyInfo.enemy_name = enemyName;
+        localStorage.setItem("free_enemy_" + enemySelect, JSON.stringify(enemyInfo));
+        handleChange(Number(enemyClass), Number(enemySelect));
     }
 
     return (
@@ -67,7 +53,7 @@ const EnmeySelect = ({ enemyClass, enemySelect, handleChange, isFreeInput }) => 
                         : null}
                 </select>
                 <select id="enemy_list" value={enemySelect} onChange={(e) => handleSelectChange(e.target.value)}>
-                    {class_List.map((value) => {
+                    {classList.map((value) => {
                         let text = value.enemy_name;
                         if (enemyClass === ENEMY_CLASS.SCORE_ATTACK) {
                             text = `#${value.sub_no} ${value.enemy_name}`;
@@ -79,7 +65,7 @@ const EnmeySelect = ({ enemyClass, enemySelect, handleChange, isFreeInput }) => 
                         )
                     })}
                 </select>
-                <select value={enemy_status.enemy_count} disabled id="enemy_select_count" >
+                <select value={enemyInfo.enemy_count} disabled id="enemy_select_count" >
                     <option value="1">1体</option>
                     <option value="2">2体</option>
                     <option value="3">3体</option>

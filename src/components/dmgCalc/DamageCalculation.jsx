@@ -87,6 +87,19 @@ const reducer = (state, action) => {
                 dpRate: value > 100 ? Array(state.enemyInfo.max_dp.split(",").length).fill(0) : state.dpRate,
             };
         }
+        case "MAX_DAMAGE_RATE": {
+            const base = Number(action.enemyInfo.destruction_limit || 0);
+            const strongBreak = action.strongBreak ? 300 : 0;
+            const superDown = state.superDown ? 300 : 0;
+            const limit = base + strongBreak + superDown;
+            return {
+                ...state,
+                enemyInfo: action.enemyInfo,
+                maxDamageRate: limit,
+                damageRate: limit,
+                dpRate: Array(state.enemyInfo.max_dp.split(",").length).fill(0),
+            };
+        }
         case "STRONG_BREAK": {
             const base = Number(state.enemyInfo.destruction_limit || 0);
             const correction = Number(state.correction.destruction_limit || 0);
@@ -115,6 +128,12 @@ const reducer = (state, action) => {
                 dpRate: Array(state.enemyInfo.max_dp.split(",").length).fill(0),
             };
         }
+        case "UPDATE_ENEMY":
+            return {
+                ...state,
+                enemyInfo: action.enemyInfo
+            };
+
         case "SET_SCORE_LV":
             return {
                 ...state,
@@ -268,7 +287,7 @@ const DamageCalculation = () => {
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
-                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state, 
+                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
                         abilitySettingMap, passiveSettingMap, resonanceList);
                 })
             })

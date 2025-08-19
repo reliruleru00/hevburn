@@ -4,6 +4,7 @@ import StyleChecker from 'components/styleChecker/StyleChecker';
 import HeaderNav from 'components/HeaderNav';
 import 'assets/styles/checker.css';
 import { HeadProvider, Title, Meta } from 'react-head';
+import AdLayout from 'components/AdLayout';
 
 const StyleCheckerPage = () => {
   useEffect(() => {
@@ -19,7 +20,9 @@ const StyleCheckerPage = () => {
         </div>
       </HeadProvider>
       <HeaderNav />
-      <StyleChecker />
+      <AdLayout>
+        <StyleChecker />
+      </AdLayout>
     </>
   );
 };

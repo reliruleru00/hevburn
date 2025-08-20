@@ -46,7 +46,7 @@ const ArtsList = () => {
     }
 
     return (
-        <div className="arts_frame static w-screen h-screen overflow-y-scroll">
+        <div className="arts_frame static h-screen overflow-y-scroll">
             <div className="flex">
                 <div className="main_area mx-auto">
                     <div className="text-left float-left flex">
@@ -65,7 +65,7 @@ const ArtsList = () => {
                     <div className="clear-left flex">
                         <div className="flex text-2xl font-bold">
                             <div className="w-32">デッキ枚数</div>
-                            <label className="text-center w-24" id="deck_count" />
+                            <label className="text-center w-12" id="deck_count" />
                         </div>
                         <select
                             className="border border-black text-lg font-bold" value={showArts}

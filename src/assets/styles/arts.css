@@ -1,10 +1,10 @@
 @media screen and (max-width: 1280px) {
   .main_area {
-    width: 555px;
+    width: 360px;
   }
   .select_arts {
-    width: 92px;
-    height: 130px;
+    width: 60px;
+    height: 86px;
   }
 }
 @media screen and (min-width: 1280px) {
@@ -18,7 +18,7 @@
 }
 
 div.arts_frame {
-  height: calc(100svh - 60px);
+  height: calc(100svh - 120px);
 }
 
 .arts_troops {

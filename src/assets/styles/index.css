@@ -5,3 +5,9 @@
 .index-page {
     height: calc(100svh - 120px);
 }
+
+@media screen and (max-width: 848px) {
+    .index-page {
+        height: calc(100svh - 160px);
+    }
+}

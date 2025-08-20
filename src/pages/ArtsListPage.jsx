@@ -3,6 +3,7 @@ import ArtsList from 'components/artsList/ArtsList';
 import HeaderNav from 'components/HeaderNav';
 import 'assets/styles/arts.css';
 import { HeadProvider, Title, Meta } from 'react-head';
+import AdLayout from 'components/AdLayout';
 
 const ArtsListPage = () => {
   return (
@@ -14,7 +15,9 @@ const ArtsListPage = () => {
         </div>
       </HeadProvider>
       <HeaderNav />
-      <ArtsList />
+      <AdLayout>
+        <ArtsList />
+      </AdLayout>
     </>
   );
 };

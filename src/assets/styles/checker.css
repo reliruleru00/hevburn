@@ -3,6 +3,7 @@
     width: 100%;
   }
 }
+
 @media screen and (min-width: 848px) {
   .checker_main_area {
     width: 828px;
@@ -10,7 +11,7 @@
 }
 
 div.checker_frame {
-  height: calc(100svh - 195px);
+  height: calc(100svh - 255px);
 }
 
 .checker_troops {

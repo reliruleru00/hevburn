@@ -1,5 +1,6 @@
 import React from 'react';
 import frend from 'assets/img/frend.jpg';
+import AmazonButton from './AmazonButton';
 
 const Index = () => {
 
@@ -47,8 +48,9 @@ const Index = () => {
               設定内容は端末に保存されますが、ダウンロードして保存や読み込みが可能です。
             </p>
             <h2 className="text-xl font-bold mt-10">制作者を支援</h2>
+            <AmazonButton />
             <div>
-              <p>招待コードを置いておきますので、良ければ使用してください。</p>
+              <p>また、招待コードを置いておきますので、良ければ使用してください。</p>
               <p className="font-bold ml-2">2a7adc6ps3n0ib1s</p>
               <img src={frend} alt='招待コード'/>
             </div>

@@ -66,7 +66,7 @@ const StyleChecker = () => {
 
     return (
         <div>
-            <div className="checker_frame static w-screen overflow-y-scroll">
+            <div className="checker_frame static overflow-y-scroll">
                 <div className="checker_main_area mx-auto">
                     <div className="text-left float-left flex">
                         <div>

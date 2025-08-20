@@ -6,6 +6,7 @@ import { updateEnemyStatus } from 'components/dmgCalc/logic';
 import HeaderNav from 'components/HeaderNav';
 import 'assets/styles/damage.css';
 import { HeadProvider, Title, Meta } from 'react-head';
+import AdLayout from 'components/AdLayout';
 
 const DmgCalcPage = () => {
 
@@ -33,9 +34,11 @@ const DmgCalcPage = () => {
         </div>
       </HeadProvider>
       <HeaderNav />
-      <StyleListProvider>
-        <DamageCalculation />
-      </StyleListProvider>
+      <AdLayout>
+        <StyleListProvider>
+          <DamageCalculation />
+        </StyleListProvider>
+      </AdLayout>
     </>
   );
 };

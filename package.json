@@ -1,5 +1,5 @@
 {
-  "name": "damage-calculator",
+  "name": "test-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -51,5 +51,5 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.3"
   },
-  "homepage": "https://hbr-tool.github.io/damage-calculator"
+  "homepage": "https://reliruleru00.github.io/hevburn"
 }

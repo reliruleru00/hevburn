@@ -5,6 +5,7 @@ import SpodSimPage from './pages/SpodSimPage';
 import StyleCheckerPage from './pages/StyleCheckerPage';
 import ArtsListPage from './pages/ArtsListPage';
 import CharaMgmtPage from './pages/CharaMgmtPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 import 'assets/styles/header.css';
 import 'assets/styles/common.css';
@@ -20,6 +21,7 @@ function App() {
         <Route path="/checker" element={<StyleCheckerPage />} />
         <Route path="/artslist" element={<ArtsListPage />} />
         <Route path="/management" element={<CharaMgmtPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
       </Routes>
     </Router>
   );

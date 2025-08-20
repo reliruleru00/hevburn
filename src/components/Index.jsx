@@ -60,7 +60,7 @@ const Index = () => {
       <div>
         <div className="text-right mr-5">
           <p className="text-blue-500 underline hover:text-blue-700 hover:underline focus:outline-none focus:underline">
-            <a href="privacy.html">プライバシーポリシー</a>
+            <a href="#/privacy">プライバシーポリシー</a>
           </p>
           ©VisualArt's/Key/Angel Beats! Project　©WFS Developed by WRIGHT FLYER
           STUDIOS ©VISUAL ARTS/Key

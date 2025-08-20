@@ -421,7 +421,7 @@
     {"skill_id":519,"skill_name":"紡がれた記憶","chara_id":1,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":520,"skill_name":"サイキックチャージ","chara_id":3,"style_id":0,"sp_cost":1,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":521,"skill_name":"新たな決心","chara_id":8,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
-    {"skill_id":522,"skill_name":"バブルデストロイヤー","chara_id":16,"style_id":0,"sp_cost":12,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
+    {"skill_id":522,"skill_name":"バブルデストロイヤー","chara_id":16,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":523,"skill_name":"バウンシー・ブルーミー","chara_id":22,"style_id":0,"sp_cost":8,"skill_active":0,"skill_kind":5,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":524,"skill_name":"痛気持ちいぃ～！","chara_id":30,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},
     {"skill_id":525,"skill_name":"いつの日かここで","chara_id":48,"style_id":0,"sp_cost":0,"skill_active":1,"skill_kind":1,"skill_attribute":null,"attribute_conditions":null},

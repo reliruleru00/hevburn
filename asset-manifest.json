@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/hevburn/static/css/main.77c069e2.css",
-    "main.js": "/hevburn/static/js/main.aa8842f9.js",
+    "main.css": "/hevburn/static/css/main.fa5ba017.css",
+    "main.js": "/hevburn/static/js/main.d92dcfcf.js",
     "static/media/frend.jpg": "/hevburn/static/media/frend.4e5cc11d24a1b88f2c65.jpg",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
@@ -726,11 +726,11 @@
     "static/media/dark.webp": "/hevburn/static/media/dark.b5452543ed7baa8837c3.webp",
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
     "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
-    "main.77c069e2.css.map": "/hevburn/static/css/main.77c069e2.css.map",
-    "main.aa8842f9.js.map": "/hevburn/static/js/main.aa8842f9.js.map"
+    "main.fa5ba017.css.map": "/hevburn/static/css/main.fa5ba017.css.map",
+    "main.d92dcfcf.js.map": "/hevburn/static/js/main.d92dcfcf.js.map"
   },
   "entrypoints": [
-    "static/css/main.77c069e2.css",
-    "static/js/main.aa8842f9.js"
+    "static/css/main.fa5ba017.css",
+    "static/js/main.d92dcfcf.js"
   ]
 }

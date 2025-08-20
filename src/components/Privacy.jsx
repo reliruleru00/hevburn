@@ -60,7 +60,7 @@ const Privacy = () => {
               プライバシーポリシーに関するご質問やご意見がありましたら、以下の連絡先までお気軽にお問い合わせください。
             </p>
             <p className="text-blue-500 underline hover:text-blue-700 hover:underline focus:outline-none focus:underline">
-              <a href="https://twitter.com/RELI_hevburn" target="_blank">
+              <a href="https://twitter.com/RELI_hevburn" target="_blank" rel="noreferrer">
                 https://twitter.com/RELI_hevburn
               </a>
             </p>

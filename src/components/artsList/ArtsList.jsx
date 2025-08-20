@@ -50,7 +50,7 @@ const ArtsList = () => {
             <div className="flex">
                 <div className="main_area mx-auto">
                     <div className="text-left float-left flex">
-                        <input type="button" className="w-32 mt-2 mb-2 default" value="画像ダウンロード"
+                        <input type="button" className="mt-2 mb-2 default" value="画像ダウンロード"
                             onClick={() => combineImagesWithHatching(SHOW_TROOPS_LIST[showArts])}
                         />
                     </div>

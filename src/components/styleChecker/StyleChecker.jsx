@@ -98,8 +98,8 @@ const StyleChecker = () => {
                             </div>
                         </div>
                         <input
-                            className="w-32 mt-2 mb-2 checker_default"
-                            defaultValue="画像ダウンロード"
+                            className="mt-2 mb-2"
+                            defaultValue="画像出力"
                             id="openModalBtn"
                             type="button"
                             onClick={openModal}
@@ -107,13 +107,13 @@ const StyleChecker = () => {
                     </div>
                     <div className="text-right">
                         <input
-                            className="w-16 mt-2 mb-2 checker_default"
+                            className="w-16 mt-2 mb-2"
                             defaultValue="全選択"
                             type="button"
                             onClick={() => handleSelectClick("1")}
                         />
                         <input
-                            className="w-16 mt-2 mb-2 default"
+                            className="w-16 mt-2 mb-2"
                             defaultValue="全解除"
                             type="button"
                             onClick={() => handleSelectClick("0")}

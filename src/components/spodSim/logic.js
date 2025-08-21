@@ -72,11 +72,11 @@ export function checkSp(turnData, range_area, sp) {
 
 
 // スキルデータ更新
-export const skillUpdate = (turnData, skill_id, placeNo) => {
+export const skillUpdate = (turnData, skillId, placeNo) => {
     const unit = turnData.unitList.filter(unit => unit.placeNo === placeNo)[0];
-    unit.selectSkillId = skill_id;
-    if (skill_id !== 0) {
-        unit.sp_cost = getSpCost(turnData, getSkillData(skill_id), unit);
+    unit.selectSkillId = skillId;
+    if (skillId !== 0) {
+        unit.sp_cost = getSpCost(turnData, getSkillData(skillId), unit);
     } else {
         unit.sp_cost = 0;
     }
@@ -828,7 +828,7 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], conditionsId);
         case CONDITIONS.HAS_CHARGE: // チャージ
             return checkBuffExist(unitData.buffList, BUFF.CHARGE);
-        case CONDITIONS.MORALE_OVER_6: // 士気Lv6以上
+        case CONDITIONS.MORALE_OVER_LV: // 士気Lv以上
             return checkBuffExist(unitData.buffList, BUFF.MORALE, conditionsId);
         case CONDITIONS.ENEMY_COUNT: // 敵数指定
             return turnData.enemyCount === conditionsId;

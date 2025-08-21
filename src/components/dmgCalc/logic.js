@@ -650,6 +650,7 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
     let damageRate = state.damageRate;
     let maxDamageRate = state.maxDamageRate;
     let destruction = Number(enemyInfo.destruction);
+    destruction *= (1 - state.correction.destruction_resist / 100);
     let dpPenetration = state.dpRate.length === 1 || state.dpRate[1] === 0;
     let restDp = Array(state.dpRate.length).fill(0);
     let dpNo = -1;  // 現在の使用DPゲージ番号を取得

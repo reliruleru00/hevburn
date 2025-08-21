@@ -33,12 +33,13 @@ export const SKILL_ID = {
     BOUQUET_SHOOT: 640, // ファーマメントブーケショット
     SUMMER_FINE_WEATHER: 658, // 夏のひより
     CONSPIRACY: 669, // 謀略
+    DOMINATION_GRAVITY: 670, //	ドミネーション・グラビティ
 }
 
 export const BUFF_ID = {
-    MOON_LIGHT: 2607,
-    MEGA_DESTROYER5: 235,
-    MEGA_DESTROYER6: 236
+    MOON_LIGHT: 2607,   // 月光
+    MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
+    MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
 }
 
 export const ABILITY_ID = {
@@ -49,6 +50,7 @@ export const ABILITY_ID = {
     ADMIRAL_COMMON: 299, // 指揮行動
     BLUE_SKY: 510, // 蒼天
     QUICK_RECAST: 1506, // クイックリキャスト
+    DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530 // 自動追撃,
 }
 

@@ -15,10 +15,11 @@ const BUFF_KIND_TO_JEWEL_TYPE = {
     [BUFF.ELEMENT_ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
     [BUFF.CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
     [BUFF.ELEMENT_CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
+    [BUFF.ETERNAL_OARH]: JEWEL_TYPE.SKILL_ATTACKUP,
 };
 
 const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHARGE,
-BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP];
+BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP, BUFF.ETERNAL_OARH];
 
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, resonanceList, closeModal }) => {
@@ -202,7 +203,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                     <div className="text-right text-sm">※デバフ強化適用前の効果量です</div>
                 </>
             }
-            {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && (
+            {/* {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && ( */}
                 <>
                     <div className="mt-2">
                         <span className="damage_label">使用者情報</span>
@@ -245,7 +246,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                         <span>{Math.floor(effectSize * 100) / 100}%</span>
                     </div>
                 </>
-            )}
+            {/* )} */}
             {abilityList.length > 0 &&
                 <>
                     <div className="mt-2">

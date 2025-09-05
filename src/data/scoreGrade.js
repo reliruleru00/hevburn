@@ -102,7 +102,7 @@ const scoreGrade = [
     {"score_attack_no":81,"half":1,"grade_no":1,"grade_name":"敵の破壊率耐性40%アップ、破壊率上限が750%にアップ(解除不可)","grade_rate":15,"grade_none":0,"effect_kind1":"destruction_resist","effect_size1":40,"conditions1":"","effect_kind2":"destruction_limit","effect_size2":250,"conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":81,"half":1,"grade_no":2,"grade_name":"敵のHP+50%","grade_rate":10,"grade_none":0,"effect_kind1":"hp_rate","effect_size1":50,"conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
     {"score_attack_no":81,"half":1,"grade_no":3,"grade_name":"敵の防御力アップの効果量が50%に上昇","grade_rate":10,"grade_none":0,"effect_kind1":"defense_rate","effect_size1":50,"conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
-    {"score_attack_no":81,"half":1,"grade_no":4,"grade_name":"防御力効果量アップのグレードなし","grade_rate":0,"grade_none":0,"effect_kind1":"defense_rate","effect_size1":30,"conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
+    {"score_attack_no":81,"half":1,"grade_no":4,"grade_name":"敵の防御力アップの効果量が50%に上昇(ダウンターンで解除)","grade_rate":10,"grade_none":1,"effect_kind1":"","conditions1":"","effect_kind2":"","conditions2":"","effect_kind3":"","conditions3":"","effect_kind4":"","conditions4":"","effect_kind5":"","conditions5":""},
 ];
 
 export default scoreGrade;

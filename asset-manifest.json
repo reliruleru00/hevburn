@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/hevburn/static/css/main.7000d09e.css",
-    "main.js": "/hevburn/static/js/main.121f7043.js",
+    "main.css": "/hevburn/static/css/main.281ac8c7.css",
+    "main.js": "/hevburn/static/js/main.5f377eb2.js",
     "static/media/frend.jpg": "/hevburn/static/media/frend.4e5cc11d24a1b88f2c65.jpg",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
@@ -157,6 +157,7 @@
     "static/media/IrOhshimaShowTime_R3_Select.webp": "/hevburn/static/media/IrOhshimaShowTime_R3_Select.23a200f99f69dff75761.webp",
     "static/media/IIshiiCasual_R3_Select.webp": "/hevburn/static/media/IIshiiCasual_R3_Select.0f8ca09fdb0a18624580.webp",
     "static/media/YIzumiDefault_R3_Select.webp": "/hevburn/static/media/YIzumiDefault_R3_Select.9f3686faad8e7a42acee.webp",
+    "static/media/CSkopovskayaKitchen_R3_Select.webp": "/hevburn/static/media/CSkopovskayaKitchen_R3_Select.87a7215079c6e7a44750.webp",
     "static/media/SSakurabaNewYear2023_R3_Select.webp": "/hevburn/static/media/SSakurabaNewYear2023_R3_Select.1ff2445ae2f7a53cd015.webp",
     "static/media/DioramaStamp31a.webp": "/hevburn/static/media/DioramaStamp31a.9e56d7ccf558ff6a1027.webp",
     "static/media/SHiguchiGrace_R3_Select.webp": "/hevburn/static/media/SHiguchiGrace_R3_Select.304f7a5972d3a05fa195.webp",
@@ -756,12 +757,10 @@
     "static/media/fire.webp": "/hevburn/static/media/fire.88fcdc97edfe62861ee4.webp",
     "static/media/dark.webp": "/hevburn/static/media/dark.b5452543ed7baa8837c3.webp",
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
-    "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
-    "main.7000d09e.css.map": "/hevburn/static/css/main.7000d09e.css.map",
-    "main.121f7043.js.map": "/hevburn/static/js/main.121f7043.js.map"
+    "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp"
   },
   "entrypoints": [
-    "static/css/main.7000d09e.css",
-    "static/js/main.121f7043.js"
+    "static/css/main.281ac8c7.css",
+    "static/js/main.5f377eb2.js"
   ]
 }

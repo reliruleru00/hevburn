@@ -88,12 +88,12 @@ const BuffArea = ({ argument: {
     }).join(',');
 
     let supportList = styleList.selectStyleList.map(style => {
-        return style?.support?.styleId + "," + style?.support?.limitCount;
+        return style?.support?.styleInfo.style_id + "," + style?.support?.limitCount;
     }).join(',');
 
     const { buffGroup, abilityList, passiveList } = useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
-    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak, defDownBuffs]);
+    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak, JSON.stringify(defDownBuffs)]);
 
     const resonance = useMemo(() => {
         return generateResonanceList(styleList, attackInfo);

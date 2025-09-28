@@ -409,7 +409,7 @@ const CharaStatus = ({ argument: {
                                     </div>
                                 )
                             } else {
-                                return <div></div>
+                                return <div key={`style_${index}`} ></div>
                             }
                         })}
                         <div>

@@ -881,6 +881,8 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             ).length >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skill_id).length;
+        case CONDITIONS.MOTIVATION: // やる気
+            return unitData.buffEffectSelectType >= conditionsId;
         default:
             break;
     }

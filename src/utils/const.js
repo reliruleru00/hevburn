@@ -19,6 +19,9 @@ export const STYLE_ID = {
     UNISON_KARENCHAN: 177,  // ユニソンカレンチャン
     KITCHEN_VRITIKA: 181,  // キッチンヴリティカ
     KITCHEN_SHARO: 182,  // キッチンシャロ
+    PAWAPURO_RUKA: 183,  // パワプロルカ
+    PAWAPURO_ICHIGO: 184,  // パワプロいちご
+    PAWAPURO_HISAME: 5092,  // パワプロ緋雨
 }
 
 export const SKILL_ID = {
@@ -255,6 +258,7 @@ export const CONDITIONS = {
     NOT_DIVA_BLESS: 43, // 歌姫の加護以外
     NOT_NEGATIVE: 44, // ネガティブ以外
     HAS_MAEKUP: 45, // メイクアップ状態
+    MOTIVATION: 46, // やる気状態
     ENEMY_COUNT: 51, // 敵数指定
     USE_COUNT: 52, // 回数以降
 }

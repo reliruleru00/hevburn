@@ -583,7 +583,7 @@ const skilLlist = [
     {"skill_id":681,"skill_name":"召し上がれミラーシュカ","chara_id":42,"style_id":182,"sp_cost":13,"skill_active":0,"skill_kind":1},
     {"skill_id":682,"skill_name":"捕球の極意","chara_id":47,"style_id":5092,"sp_cost":9,"skill_active":1,"skill_kind":0},
     {"skill_id":683,"skill_name":"怪物球威","chara_id":1,"style_id":183,"sp_cost":0,"skill_active":1,"skill_kind":0},
-    {"skill_id":684,"skill_name":"燃やせ青春！マリンボール！","chara_id":1,"style_id":183,"sp_cost":16,"skill_active":0,"skill_kind":1},
+    {"skill_id":684,"skill_name":"燃やせ青春！マリンボール！","chara_id":1,"style_id":183,"sp_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":11,"conditions":46,"conditions_id":4},
     {"skill_id":685,"skill_name":"速攻◯","chara_id":8,"style_id":184,"sp_cost":0,"skill_active":1,"skill_kind":0},
     {"skill_id":686,"skill_name":"掴め栄冠！グランドスラム！","chara_id":8,"style_id":184,"sp_cost":16,"skill_active":0,"skill_kind":1},
     {"skill_id":8001,"skill_name":"チャージ","chara_id":501,"style_id":0,"sp_cost":0,"skill_active":0,"skill_kind":9},

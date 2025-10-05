@@ -1045,6 +1045,12 @@ function getSumAbilityEffectSize(handlers, effectType) {
                         effectSize = 0;
                     }
                 }
+                // スペシャルタッグ
+                if (abilityId === ABILITY_ID.SPECIAL_TAG) {
+                    let goodCondition = targetCountMotivation(styleList, 1);
+                    effectSize = Math.min(goodCondition * 10, 30);
+
+                }
                 if (ALONE_ACTIVATION_ABILITY_LIST.includes(abilityId)) {
                     if (abilityInfo.element !== 0) {
                         activationElementEffectSize = Math.max(activationElementEffectSize, effectSize);
@@ -1159,6 +1165,23 @@ function targetCountInclude(styleList, targetElement) {
     let count = 0;
     styleList.selectStyleList.forEach((style) => {
         if (style?.styleInfo.element === targetElement || style?.styleInfo.element2 === targetElement) {
+            count++;
+        }
+    })
+    return count;
+}
+
+// やるき対象数判定
+function targetCountMotivation(styleList, motivation) {
+    let count = 0;
+    styleList.selectStyleList.forEach((style) => {
+        let styleMotivation = 0;
+        if (style) {
+            styleMotivation = style.motivation ? style.motivation : 0;
+        } else {
+            styleMotivation = undefined;
+        }
+        if (styleMotivation <= motivation) {
             count++;
         }
     })

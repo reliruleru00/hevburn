@@ -56,7 +56,8 @@ export const ABILITY_ID = {
     BLUE_SKY: 510, // 蒼天
     QUICK_RECAST: 1506, // クイックリキャスト
     DOUBLE_LIFT: 1516, // ダブルリフト
-    AUTO_PURSUIT: 1530 // 自動追撃,
+    AUTO_PURSUIT: 1530, // 自動追撃,
+    SPECIAL_TAG: 277, //	スペシャルタッグ
 }
 
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];

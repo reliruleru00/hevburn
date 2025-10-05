@@ -2069,6 +2069,8 @@ const abilityActionUnit = (turnData, action_kbn, unit) => {
                             switch (ability.ability_id) {
                                 case 1109: // 吉報
                                 case 1119: // 旺盛
+                                case 1213: // 絶好調女
+                                case 1214: // 怪童
                                     unitData.addSp += ability.effect_size;
                                     break;
                                 case 1112: // 好機

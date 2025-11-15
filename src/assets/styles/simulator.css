@@ -265,6 +265,10 @@ input.troops_btn.selected_troops {
     border-color: #8888FF;
 }
 
+.active_turn {
+    /* background-color: #FFFF88; */
+}
+
 .party_member {
     display: flex;
 }

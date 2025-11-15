@@ -294,8 +294,9 @@ const TurnData = React.memo(({ turn, index, isLastTurn, hideMode, isCapturing, h
     const openModal = (type, index, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
+    const turnClass = "turn_area" + (turn.additionalTurn ? " additional_turn" : turn.overDriveMaxTurn > 0 ? " overdrive_turn" : "");
     return (
-        <div className="turn">
+        <div className={turnClass}>
             <div className="turn_header_area">
                 <div className="turn_header_top">
                     <div>

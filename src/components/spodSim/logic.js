@@ -773,6 +773,11 @@ export function getSpCost(turnData, skillInfo, unit) {
                 && checkPassiveExist(unitData.passiveSkillList, SKILL_ID.MARUYAMA_MEMBER)) {
                 spCostDown = 1;
             }
+            // 勇姿
+            if (checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.SELF_START}`], ABILITY_ID.BRAVE_FIGURE)
+                && checkBuffExist(unit.buffList, BUFF.CHARGE)) {
+                spCostDown = 1;
+            }
         }
     })
 
@@ -823,8 +828,10 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return turnData.turnNumber === 1;
         case CONDITIONS.SKILL_INIT: // 初回
             return !unitData.useSkillList.includes(skill_id)
-        case CONDITIONS.additionalTurn: // 追加ターン
-            return turnData.additionalTurn;
+        case CONDITIONS.ADDITIONAL_TURN: // 追加ターン
+            return turnData.additionalCount > 0;
+        case CONDITIONS.NOT_ADDITIONAL_TURN: // 追加ターン以外
+            return turnData.additionalCount === 0;
         case CONDITIONS.DESTRUCTION_OVER_200: // 破壊率200%以上
         case CONDITIONS.BREAK: // ブレイク時
         case CONDITIONS.HAS_SHADOW: // 影分身
@@ -1766,7 +1773,10 @@ const debuffConsumption = (turn) => {
 
 export const abilityAction = (actionKbn, turn) => {
     unitOrderLoop(function (unit) {
-        abilityActionUnit(turn, actionKbn, unit)
+        if (actionKbn === ABILIRY_TIMING.ADDITIONALTURN && !unit.additionalTurn) {
+            return;
+        }
+        abilityActionUnit(turn, actionKbn, unit);
     }, turn.unitList);
 }
 

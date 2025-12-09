@@ -31,7 +31,6 @@ export const SKILL_ID = {
     MEDITATION: 501, // メディテーション
     SAIO_RENRI: 546, // 彩鳳連理
     MARUYAMA_MEMBER: 547, // 行くぞ！丸山部隊
-    NOVA_ELIMINATION: 591, // ノヴァエリミネーション
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
     RUBY_PERFUME: 635, // ルビー・パヒューム
@@ -74,6 +73,7 @@ export const COST_TYPE = {
     EP: "EP",
     TOKEN: "TK",
     CT: "CT",
+    OVERDRIVE: "OD",
 }
 
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];

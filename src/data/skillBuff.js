@@ -553,7 +553,7 @@ const skillBuff = [
     {"buff_id":4901,"skill_id":622,"buff_kind":39,"buff_element":0,"chara_id":16,"style_id":161,"buff_name":"なかまをふやすおどり","ref_status_1":0,"ref_status_2":0,"min_power":40,"max_power":40,"param_limit":0,"max_lv":1,"range_area":5,"target_element":0,"effect_count":0,"effect_size":0},
     {"buff_id":5101,"skill_id":497,"buff_kind":41,"buff_element":0,"chara_id":17,"style_id":0,"buff_name":"真夏のパッション","ref_status_1":0,"ref_status_2":0,"min_power":30,"max_power":30,"param_limit":0,"max_lv":1,"range_area":7,"target_element":0,"effect_count":2,"effect_size":0},
     {"buff_id":5102,"skill_id":499,"buff_kind":41,"buff_element":0,"chara_id":18,"style_id":0,"buff_name":"蜃気楼","ref_status_1":0,"ref_status_2":0,"min_power":30,"max_power":30,"param_limit":0,"max_lv":1,"range_area":7,"target_element":0,"effect_count":2,"effect_size":0},
-    {"buff_id":5201,"skill_id":590,"buff_kind":52,"buff_element":0,"chara_id":91,"style_id":0,"buff_name":"ネオンバースト","ref_status_1":0,"ref_status_2":0,"min_power":2,"max_power":2,"param_limit":0,"max_lv":1,"skill_attack1":999,"range_area":7,"target_element":0,"effect_count":2,"effect_size":0},
+    {"buff_id":5201,"skill_id":589,"buff_kind":52,"buff_element":0,"chara_id":91,"style_id":0,"buff_name":"ソニックブースト","ref_status_1":0,"ref_status_2":0,"min_power":2,"max_power":2,"param_limit":0,"max_lv":1,"skill_attack1":999,"range_area":7,"target_element":0,"effect_count":2,"effect_size":0},
     {"buff_id":9001,"skill_id":9008,"buff_kind":90,"buff_element":0,"chara_id":0,"style_id":0,"buff_name":"セルフエイド","ref_status_1":0,"ref_status_2":0,"min_power":0,"max_power":0,"param_limit":0,"max_lv":1,"range_area":7,"target_element":0,"effect_count":0,"effect_size":0},
 ];
 

@@ -490,7 +490,7 @@ const skilLlist = [
     {"skill_id":588,"skill_name":"国士無双","chara_id":19,"style_id":151,"cost_type":"SP","use_cost":13,"sp_cost":13,"skill_active":0,"skill_kind":1},
     {"skill_id":589,"skill_name":"ソニックブースト","chara_id":91,"style_id":0,"cost_type":"SP","use_cost":7,"sp_cost":7,"skill_active":0,"skill_kind":0},
     {"skill_id":590,"skill_name":"ネオンバースト","chara_id":91,"style_id":0,"cost_type":"SP","use_cost":7,"sp_cost":7,"skill_active":0,"skill_kind":0},
-    {"skill_id":591,"skill_name":"ノヴァエリミネーション","chara_id":91,"style_id":152,"cost_type":"SP","use_cost":7,"sp_cost":7,"skill_active":0,"skill_kind":2},
+    {"skill_id":591,"skill_name":"ノヴァエリミネーション","chara_id":91,"style_id":152,"cost_type":"EP","use_cost":7,"sp_cost":7,"skill_active":0,"skill_kind":2},
     {"skill_id":592,"skill_name":"涙雨","chara_id":4,"style_id":0,"cost_type":"SP","use_cost":12,"sp_cost":12,"skill_active":0,"skill_kind":0},
     {"skill_id":593,"skill_name":"ミラージュ・モーメント","chara_id":4,"style_id":153,"cost_type":"SP","use_cost":14,"sp_cost":14,"skill_active":0,"skill_kind":1},
     {"skill_id":594,"skill_name":"モラール","chara_id":13,"style_id":0,"cost_type":"SP","use_cost":6,"sp_cost":6,"skill_active":0,"skill_kind":0},

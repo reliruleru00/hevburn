@@ -386,7 +386,7 @@ export function startAction(turnData) {
         let unitData = getUnitData(turnData, skill_data.placeNo);
         let spCost = unitData.spCost;
         // SP消費してから行動
-        payCost(unitData);
+        payCost(unitData, skillInfo);
 
         let buffList = getBuffList(skillInfo.skill_id);
         for (let i = 0; i < buffList.length; i++) {
@@ -469,7 +469,7 @@ export function startAction(turnData) {
             let attackInfo = getSkillIdToAttackInfo(turnData, skillId);
             if (attackInfo) {
                 // SP消費してから行動
-                payCost(unitData);
+                payCost(unitData, skillInfo);
 
                 let buffList = getBuffList(skillInfo.skill_id);
                 for (let i = 0; i < buffList.length; i++) {
@@ -1906,18 +1906,18 @@ const buffSort = (unit) => {
     });
 }
 
-const payCost = (unit) => {
+const payCost = (unit, skill) => {
     // OD上限突破
     if (unit.sp + unit.overDriveSp > 99) {
         unit.sp = 99 - unit.overDriveSp;
     }
-    if (unit.selectSkillId === 591) {
-        // ノヴァエリミネーション
-        unit.ep -= unit.spCost;
+    if (skill.cost_type === COST_TYPE.EP) {
+        unit.ep -= skill.use_cost;
     } else {
+        // SPは可変なので計算済みの値を使用
         unit.sp -= unit.spCost;
+        unit.spCost = 0;
     }
-    unit.spCost = 0;
 }
 
 const getearringEffectSize = (hitCount, unit) => {

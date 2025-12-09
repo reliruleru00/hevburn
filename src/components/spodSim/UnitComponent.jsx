@@ -12,7 +12,7 @@ import changeIcon from 'assets/img/IconSwitchSkill.png';
 const UnitSp = ({ unit }) => {
     let unit_sp;
     let unit_ep = unit.ep;
-    if (unit.sp_cost >= 90) {
+    if (unit.spCost >= 90) {
         unit_sp = 0;
     } else {
         unit_sp = unit.sp + unit.overDriveSp;
@@ -20,9 +20,9 @@ const UnitSp = ({ unit }) => {
 
         // ノヴァエリミネーション
         if (unit.selectSkillId === SKILL_ID.NOVA_ELIMINATION) {
-            unit_ep -= unit.sp_cost;
+            unit_ep -= unit.spCost;
         } else {
-            unit_sp -= unit.sp_cost;
+            unit_sp -= unit.spCost;
         }
     }
 
@@ -105,7 +105,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
         {skillList.filter((obj) => obj.skill_id === unit.selectSkillId || !isCapturing).map(skill => {
             let text = skill.skill_name;
             const attackInfo = getSkillIdToAttackInfo(turn, skill.skill_id);
-            let sp_cost = 0;
+            let spCost = 0;
             if (skill.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
                 text += `(${PHYSICAL_NAME[physical]}・${ELEMENT_NAME[unit.normalAttackElement]})`;
             } else if (skill.skill_id === 0 || skill.skill_id === 2) {
@@ -113,11 +113,11 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
             } else if (skill.skill_attribute === ATTRIBUTE.PURSUIT) {
                 text += `(${PHYSICAL_NAME[physical]})`;
             } else if (attackInfo) {
-                sp_cost = getSpCost(turn, skill, unit);
-                text += `(${PHYSICAL_NAME[physical]}・${ELEMENT_NAME[attackInfo.attack_element]}/${sp_cost})`;
+                spCost = getSpCost(turn, skill, unit);
+                text += `(${PHYSICAL_NAME[physical]}・${ELEMENT_NAME[attackInfo.attack_element]}/${spCost})`;
             } else {
-                sp_cost = getSpCost(turn, skill, unit);
-                text += `(${sp_cost})`;
+                spCost = getSpCost(turn, skill, unit);
+                text += `(${spCost})`;
             }
             return (<option value={skill.skill_id} key={`skill${skill.skill_id}${skill.attack_id}`}>{text}</option>)
         }

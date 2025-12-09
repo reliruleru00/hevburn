@@ -69,6 +69,13 @@ export const ABILITY_ID = {
     BRAVE_FIGURE: 1150, // 勇姿
 }
 
+export const COST_TYPE = {
+    SP: "SP",
+    EP: "EP",
+    TOKEN: "TK",
+    CT: "CT",
+}
+
 export const STATUS_KBN = ["", "str", "dex", "con", "mnd", "int", "luk"];
 
 /** ロール */

@@ -406,6 +406,7 @@ const skillAttack = [
     {"attack_id":2188,"skill_id":678,"attack_name":"ティーブレイク","chara_id":39,"style_id":0,"ref_status_1":2,"ref_status_2":1,"ref_status_3":0,"attack_element":2,"min_power":2197.500,"max_power":4395.00,"hit_count":2,"destruction":1.800,"param_limit":132,"hp_damege":0,"dp_damege":30,"max_lv":10,"range_area":2,"damege_distribution":""},
     {"attack_id":2189,"skill_id":679,"attack_name":"スイート・ブレイク","chara_id":41,"style_id":0,"ref_status_1":0,"ref_status_2":1,"ref_status_3":2,"attack_element":1,"min_power":2197.500,"max_power":4395.00,"hit_count":1,"destruction":1.800,"param_limit":132,"hp_damege":0,"dp_damege":0,"max_lv":10,"range_area":2,"damege_distribution":""},
     {"attack_id":2190,"skill_id":699,"attack_name":"夜更けの秘薬","chara_id":15,"style_id":0,"ref_status_1":0,"ref_status_2":1,"ref_status_3":2,"attack_element":0,"min_power":1845.000,"max_power":3690.00,"hit_count":2,"destruction":0.000,"param_limit":126,"hp_damege":0,"dp_damege":1,"max_lv":10,"range_area":1,"damege_distribution":""},
+    {"attack_id":2191,"skill_id":706,"attack_name":"ワイルドハウル","chara_id":17,"style_id":192,"ref_status_1":0,"ref_status_2":1,"ref_status_3":2,"attack_element":5,"min_power":3097.500,"max_power":6195.00,"hit_count":3,"destruction":13.200,"param_limit":138,"hp_damege":0,"dp_damege":0,"max_lv":10,"range_area":2,"damege_distribution":""},
 ];
 
 export default skillAttack;

@@ -50,7 +50,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
     if (placeNo < 3) {
         skillList = skillList.filter(skill => {
             // 夜醒,謀略,ごきげんダンス
-            const ADDTIONAL_SKILL_ID = [SKILL_ID.WAKING_NIGHT, SKILL_ID.CONSPIRACY, SKILL_ID.SUNNY_DANCE];
+            const ADDTIONAL_SKILL_ID = [SKILL_ID.WAKING_NIGHT, SKILL_ID.CONSPIRACY];
             if (ADDTIONAL_SKILL_ID.includes(skill.skill_id)) {
                 return !turn.additionalTurn;
             }

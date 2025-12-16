@@ -769,6 +769,17 @@ function getExp(rowData) {
             ]
         },
         {
+            value: rowData["encounter_battle"],
+            increments: [
+                { threshold: 10_000, exp: 50 },
+                { threshold: 20_000, exp: 50 },
+                { threshold: 40_000, exp: 100 },
+                { threshold: 60_000, exp: 200 },
+                { threshold: 80_000, exp: 500 },
+                { threshold: 100_000, exp: 1000 },
+            ]
+        },
+        {
             value: rowData["deathSlag"],
             increments: [
                 { threshold: 1, exp: 200 },
@@ -1026,7 +1037,7 @@ function getTitleColumns() {
                     $(td).addClass("achievement1");
                 }
             },
-            width: 70,
+            width: 65,
         },
         {
             data: "battle_count",
@@ -1079,6 +1090,10 @@ function getTitleColumns() {
             data: "encounter_battle",
             className: "htCenter rightLine",
             type: "numeric",
+            numericFormat: {
+                pattern: "0,000"
+                , culture: "ja-JP"
+            },
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.TextRenderer.apply(this, arguments);
                 if (value >= 100_000) {
@@ -1093,7 +1108,7 @@ function getTitleColumns() {
                     $(td).addClass("achievement2");
                 }
             },
-            width: 35,
+            width: 55,
         },
     ];
     const HARD_LAYER = ["deathSlag", "rotaryMoll", "redCrimson", "filler", "flatHand3rd", "ultimateFiller", "flatHand4th", "dessertDendron", "skullFeather", "skullFeather2nd"];

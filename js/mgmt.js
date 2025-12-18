@@ -504,7 +504,7 @@ let titleHeaders = [
         { label: 'オーブ<br>取得', rowspan: 2, class: 'htMiddle' },
         { label: 'スコア<br>アタック', rowspan: 2, class: 'htMiddle' },
         { label: '戦闘<br>回数', rowspan: 2, class: 'htMiddle' },
-        { label: 'ダンジョン', rowspan: 2, class: 'htMiddle' },
+        { label: 'ダン<br>ジョン', rowspan: 2, class: 'htMiddle' },
         { label: 'セラフ<br>遭遇戦', rowspan: 2, class: 'htMiddle' },
         { label: '異時層', colspan: 10, class: 'htMiddle' },
     ],
@@ -1084,7 +1084,7 @@ function getTitleColumns() {
                     $(td).addClass("achievement2");
                 }
             },
-            width: 60,
+            width: 40,
         },
         {
             data: "encounter_battle",
@@ -1095,7 +1095,7 @@ function getTitleColumns() {
                 , culture: "ja-JP"
             },
             renderer: function (instance, td, row, column, prop, value, cellProperties) {
-                Handsontable.renderers.TextRenderer.apply(this, arguments);
+                Handsontable.renderers.NumericRenderer.apply(this, arguments);
                 if (value >= 100_000) {
                     $(td).addClass("achievement7");
                 } else if (value >= 80_000) {

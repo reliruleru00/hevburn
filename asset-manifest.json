@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/hevburn/static/css/main.22d1101d.css",
-    "main.js": "/hevburn/static/js/main.13acdd2b.js",
+    "main.css": "/hevburn/static/css/main.3ba6f640.css",
+    "main.js": "/hevburn/static/js/main.f39b3022.js",
     "static/media/frend.png": "/hevburn/static/media/frend.f0523ea361a754427de2.png",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
@@ -179,6 +179,7 @@
     "static/media/AliceCDefault_R2_Select.webp": "/hevburn/static/media/AliceCDefault_R2_Select.0f5446e39404d7a9f5de.webp",
     "static/media/CReaperDate_R3_Select.webp": "/hevburn/static/media/CReaperDate_R3_Select.452889b56ac9e75b86de.webp",
     "static/media/MKiryuGothic_R3_Select.webp": "/hevburn/static/media/MKiryuGothic_R3_Select.bc8b67b184c9227a02f2.webp",
+    "static/media/YShirakawaArmor_R3_Select.webp": "/hevburn/static/media/YShirakawaArmor_R3_Select.5185ffc7e44518e283eb.webp",
     "static/media/RKayamoriHR_R3_Select.webp": "/hevburn/static/media/RKayamoriHR_R3_Select.fb6e5b7ac59f564f6daa.webp",
     "static/media/SHiguchiSwim2025_R3_Select.webp": "/hevburn/static/media/SHiguchiSwim2025_R3_Select.7d3a3faba06267cab010.webp",
     "static/media/MKurosawaDefault_R3_Select.webp": "/hevburn/static/media/MKurosawaDefault_R3_Select.a12a967d4ce28107ceee.webp",
@@ -400,6 +401,7 @@
     "static/media/IIshiiBride_R3_Thumbnail.webp": "/hevburn/static/media/IIshiiBride_R3_Thumbnail.c4729db76c62aa1b64cf.webp",
     "static/media/BIYamawakiEvil_R3_Thumbnail.webp": "/hevburn/static/media/BIYamawakiEvil_R3_Thumbnail.09330c4839ac9a9c1a7e.webp",
     "static/media/LShanhuaDefault_R2a_Thumbnail.webp": "/hevburn/static/media/LShanhuaDefault_R2a_Thumbnail.04f2c2986a9c0cf16f7e.webp",
+    "static/media/RKayamoriWhiteSuit_R3_Select.webp": "/hevburn/static/media/RKayamoriWhiteSuit_R3_Select.77ffaed379115b994abf.webp",
     "static/media/CReaperDefault_R1_Thumbnail.webp": "/hevburn/static/media/CReaperDefault_R1_Thumbnail.ee7294b1e64715dc02fc.webp",
     "static/media/IrOhshimaDefault_R3_Thumbnail.webp": "/hevburn/static/media/IrOhshimaDefault_R3_Thumbnail.2ef57b7edf1f751bfce9.webp",
     "static/media/HOgasawaraDefault_R1_Thumbnail.webp": "/hevburn/static/media/HOgasawaraDefault_R1_Thumbnail.af1d061c5c10a254a8c5.webp",
@@ -782,11 +784,11 @@
     "static/media/dark.webp": "/hevburn/static/media/dark.b5452543ed7baa8837c3.webp",
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
     "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
-    "main.22d1101d.css.map": "/hevburn/static/css/main.22d1101d.css.map",
-    "main.13acdd2b.js.map": "/hevburn/static/js/main.13acdd2b.js.map"
+    "main.3ba6f640.css.map": "/hevburn/static/css/main.3ba6f640.css.map",
+    "main.f39b3022.js.map": "/hevburn/static/js/main.f39b3022.js.map"
   },
   "entrypoints": [
-    "static/css/main.22d1101d.css",
-    "static/js/main.13acdd2b.js"
+    "static/css/main.3ba6f640.css",
+    "static/js/main.f39b3022.js"
   ]
 }

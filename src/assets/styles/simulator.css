@@ -220,10 +220,7 @@ input.troops_btn.selected_troops {
 
 .turn_button {
     width: 60px;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.1s ease;
+    font-size: 12px;
 }
 
 .trigger_over_drive {
@@ -304,7 +301,6 @@ input.troops_btn.selected_troops {
     }
 
     .turn_button {
-        width: 360px;
         width: 80px;
     }
 }

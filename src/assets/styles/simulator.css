@@ -291,6 +291,10 @@ input.troops_btn.selected_troops {
         display: block;
     }
 
+    .turn_area {
+        display: block;
+    }
+
     .party_member {
         display: block;
     }

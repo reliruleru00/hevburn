@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/hevburn/static/css/main.f0b00f6b.css",
-    "main.js": "/hevburn/static/js/main.bf8d0d8b.js",
+    "main.js": "/hevburn/static/js/main.3b32f791.js",
     "static/media/frend.png": "/hevburn/static/media/frend.f0523ea361a754427de2.png",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
@@ -793,10 +793,10 @@
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
     "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
     "main.f0b00f6b.css.map": "/hevburn/static/css/main.f0b00f6b.css.map",
-    "main.bf8d0d8b.js.map": "/hevburn/static/js/main.bf8d0d8b.js.map"
+    "main.3b32f791.js.map": "/hevburn/static/js/main.3b32f791.js.map"
   },
   "entrypoints": [
     "static/css/main.f0b00f6b.css",
-    "static/js/main.bf8d0d8b.js"
+    "static/js/main.3b32f791.js"
   ]
 }

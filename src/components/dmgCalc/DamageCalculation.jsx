@@ -175,6 +175,12 @@ const reducer = (state, action) => {
                 hard: { ...state.hard, skullFeatherDeffense: action.value }
             };
 
+        case "SET_BONUS_ELEMENT":
+            return {
+                ...state,
+                hardEx: { ...state.hardEx, bonusElement: action.value }
+            };
+
         case "SET_RRGIST_DOWN": {
             const newResist = [0, 0, 0, 0, 0, 0];
             newResist[action.element] = Number(action.value);
@@ -251,6 +257,9 @@ const DamageCalculation = () => {
         hard: {
             tearsOfDreams: 0,
             skullFeatherDeffense: 0,
+        },
+        hardEx: {
+            bonusElement: [false, false, false, false, false, false],
         },
         resistDown: [0, 0, 0, 0, 0, 0],
     };

@@ -1082,7 +1082,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, use_unitData) {
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 let maxEp = Math.max(10, unitData.ep + unitData.overDriveEp);
-                if (checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
+                if (checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OD_START}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
                     maxEp = 20;
                 }
                 if (unitData.ep < maxEp) {
@@ -2241,7 +2241,7 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                 break;
             case EFFECT.HEALEP: // EP回復
                 let maxEp = Math.max(10, unit.ep + unit.overDriveEp);
-                if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
+                if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OD_START}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
                     maxEp = 20;
                 }
                 if (unit.ep < maxEp) {

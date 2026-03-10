@@ -1,9 +1,15 @@
 import React from 'react';
-import { RANGE } from 'utils/const';
-
+import { EFFECT, RANGE } from 'utils/const';
+import { getAbilityEffectList } from "utils/common";
 const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbilityChange, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
+        if (getAbilityEffectList(ability.ability_id).some(effect => effect.effect_type === EFFECT.COST_SP_DOWN)) {
+            return rengeArea === 3;
+        }
+        if (getAbilityEffectList(ability.ability_id).some(effect => effect.effect_type === EFFECT.COST_SP_UP)) {
+            return rengeArea === 3;
+        }
         switch (ability.range_area) {
             case RANGE.SELF:
                 if (rengeArea !== 0) {

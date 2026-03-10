@@ -29,8 +29,7 @@ export const SKILL_ID = {
     PIRATES_CANON: 478, // 豪快！パイレーツキャノン
     WAKING_NIGHT: 495, // 夜醒
     MEDITATION: 501, // メディテーション
-    SAIO_RENRI: 546, // 彩鳳連理
-    MARUYAMA_MEMBER: 547, // 行くぞ！丸山部隊
+    SOUND_OF_CROWS: 578, // カラスの鳴き声で
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
     RUBY_PERFUME: 635, // ルビー・パヒューム
@@ -179,6 +178,7 @@ export const EFFECT = {
     MORALE: 16, // 士気
     GIVEATTACKBUFFUP: 17, // 攻撃力バフ強化
     GIVEDEFFENCEDEBUFFUP: 18, // 防御力デバフ強化
+    GIVEDEBUFFUP: 19, // デバフ強化
     BREAK_GUARD: 20, // ブレイクガード
     STUN: 21, // スタン
     MISFORTUNE: 22, // 厄
@@ -205,6 +205,7 @@ export const EFFECT = {
     ATTACKUP_AND_DAMAGERATEUP: 53, // 攻撃力＋破壊率アップ
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ
+    COST_SP_UP: 56, // 消費SPアップ
 }
 
 /** フィールド */
@@ -268,6 +269,8 @@ export const CONDITIONS = {
     TARGET_COVER: 13, // 集中・挑発状態
     FIELD_NONE: 14, // フィールドなし
     FIELD_ELEMENT: 15, // 属性フィールド
+    ICE_STYLE: 16, // 氷属性スタイル
+    THUNDER_STYLE: 17, // 雷属性スタイル
     HAS_ABILITY: 20, // アビリティ発動中
     HAS_CHARGE: 21, // チャージ中
     HAS_SHADOW: 22, // 影分身中
@@ -276,7 +279,7 @@ export const CONDITIONS = {
     DP_OVER_100: 25, // DP100％以上
     SP_UNDER_0_ALL: 26, // SP0以下の味方がいる
     SARVANT_OVER: 27, // 山脇様のしもべ
-    FIRE_MARK: 28, // 火の印
+    FIRE_STYLE: 28, // 火属性スタイル
     NOT_ADDITIONAL_TURN: 29, // 追加ターン以外
     MORALE_OVER_LV: 30, // 士気Lv以上
     OVER_31A_3: 31, // 31A3人以上
@@ -292,6 +295,8 @@ export const CONDITIONS = {
     HAS_MAEKUP: 45, // メイクアップ状態
     HAS_PASSIVE: 47, // パッシブ発動中
     MOTIVATION: 46, // やる気状態
+    COST_SP_UNDER: 47, // 消費SP指定値以下
+    COST_SP_OVER: 48, // 消費SP指定値以上
     ENEMY_COUNT: 51, // 敵数指定
     USE_COUNT: 52, // 回数以降
 }

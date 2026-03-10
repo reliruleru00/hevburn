@@ -12,7 +12,7 @@ import {
     isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList, filteredOrb,
     getEnemyResist
 } from "./logic";
-import { getCharaData, getPassiveInfo, getResonanceInfo, getAbilityInfo, deepClone } from "utils/common";
+import { getCharaData, getPassiveInfo, getPassiveEffectList, getResonanceInfo, getAbilityInfo, getAbilityEffectList, deepClone } from "utils/common";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
 import PassiveCheckbox from "./PassiveCheckbox";
@@ -142,14 +142,14 @@ const BuffArea = ({ argument: {
         abilityList.forEach(ability => {
             const key = `${ability.ability_id}-${ability.chara_id}`
             let checked = true;
-            let disabled = !ability.conditions;
-            let limit_border = ability.limit_border;
+            let disabled = getAbilityEffectList(ability.ability_id).some(effect => !effect.conditions);
+            let limitBorder = ability.limit_border;
             let memberInfo = getCharaIdToMember(styleList, ability.chara_id);
             let limitCount = memberInfo.limitCount;
             switch (ability.range_area) {
                 case RANGE.SELF:	// 自分
-                    disabled = limitCount < limit_border || (ability.chara_id === attackCharaId && disabled);
-                    checked = limitCount >= limit_border && ability.chara_id === attackCharaId;
+                    disabled = limitCount < limitBorder || (ability.chara_id === attackCharaId && disabled);
+                    checked = limitCount >= limitBorder && ability.chara_id === attackCharaId;
                     break
                 case RANGE.ALLY_FRONT:	// 味方前衛
                 case RANGE.ALLY_BACK:	// 味方後衛
@@ -159,7 +159,7 @@ const BuffArea = ({ argument: {
                     } else {
                         disabled = true;
                     }
-                    checked = limitCount >= limit_border && ability.chara_id === attackCharaId;
+                    checked = limitCount >= limitBorder && ability.chara_id === attackCharaId;
                     break
                 case RANGE.ALLY_ALL:	// 味方全体
                 case RANGE.ENEMY_ALL:	// 敵全体
@@ -170,7 +170,7 @@ const BuffArea = ({ argument: {
                     } else {
                         disabled = true;
                     }
-                    if (limitCount < limit_border) {
+                    if (limitCount < limitBorder) {
                         disabled = true;
                         checked = false;
                     }
@@ -744,20 +744,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 if (!abilityId || abilityId > 1000 || !attackInfo) return;
 
                 const abilityInfo = getAbilityInfo(abilityId);
-
-                if (troopKbn === TROOP_KBN.SUB) {
-                    // 他部隊のアビリティは一部のみ許可
-                    if (!SUB_TARGET_KIND.includes(abilityInfo.effect_type)) {
-                        return;
-                    }
-                }
-                const buffTypeMap = {
-                    [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
-                    [EFFECT.CHARGE]: BUFF.CHARGE,
-                    [EFFECT.ARROWCHERRYBLOSSOMS]: BUFF.ARROWCHERRYBLOSSOMS,
-                    [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
-                    [EFFECT.YAMAWAKI_SERVANT]: BUFF.YAMAWAKI_SERVANT,
-                };
+                if (!abilityInfo) return;
 
                 if (abilityInfo.range_area === RANGE.SELF && charaId !== attackCharaId) return;
                 if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) return;
@@ -783,19 +770,38 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                         return;
                     }
                 }
+                let isAddAbility = false;
+                const abilityEffectList = getAbilityEffectList(abilityId);
+                for (const abilityEffect of abilityEffectList) {
+                    if (troopKbn === TROOP_KBN.SUB) {
+                        // 他部隊のアビリティは一部のみ許可
+                        if (!SUB_TARGET_KIND.includes(abilityEffect.effect_type)) {
+                            continue;
+                        }
+                    }
+                    const buffTypeMap = {
+                        [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
+                        [EFFECT.CHARGE]: BUFF.CHARGE,
+                        [EFFECT.ARROWCHERRYBLOSSOMS]: BUFF.ARROWCHERRYBLOSSOMS,
+                        [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
+                        [EFFECT.YAMAWAKI_SERVANT]: BUFF.YAMAWAKI_SERVANT,
+                    };
 
-                const buffType = buffTypeMap[abilityInfo.effect_type];
-                if (buffType) {
-                    addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, buffType, abilityInfo.element, abilityInfo.effect_size);
-                    return;
+                    const buffType = buffTypeMap[abilityEffect.effect_type];
+                    if (buffType) {
+                        addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, buffType, abilityEffect.element, abilityEffect.effect_size);
+                        continue;
+                    }
+                    isAddAbility = true;
                 }
-
-                const newAbility = JSON.parse(JSON.stringify(abilityInfo));
-                newAbility.key = `${abilityId}_${charaId}`;
-                newAbility.limit_border = Number(key);
-                newAbility.chara_id = charaId;
-                newAbility.chara_name = charaName;
-                abilityList.push(newAbility);
+                if (isAddAbility) {
+                    const newAbility = JSON.parse(JSON.stringify(abilityInfo));
+                    newAbility.key = `${abilityId}_${charaId}`;
+                    newAbility.limit_border = Number(key);
+                    newAbility.chara_id = charaId;
+                    newAbility.chara_name = charaName;
+                    abilityList.push(newAbility);
+                }
             });
 
             const stylePassiveList = skillList.filter(obj =>
@@ -805,27 +811,36 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             );
 
             stylePassiveList.forEach(skill => {
-                const passive = getPassiveInfo(skill.skill_id);
                 if (!attackInfo) return;
-                if (!passive || !TARGET_KIND.includes(passive.effect_type)) return;
-                if (troopKbn === TROOP_KBN.SUB) {
-                    // 他部隊のアビリティは一部のみ許可
-                    if (!SUB_TARGET_KIND.includes(passive.effect_type)) {
-                        return;
-                    }
-                }
+                const passiveInfo = getPassiveInfo(skill.skill_id);
+                if (!passiveInfo) return;
 
-                if (passive.range_area === RANGE.SELF && charaId !== attackCharaId) return;
-                if (passive.element !== 0 && passive.element !== attackInfo.attack_element) return;
+                if (passiveInfo.range_area === RANGE.SELF && charaId !== attackCharaId) return;
+                if (passiveInfo.element !== 0 && passiveInfo.element !== attackInfo.attack_element) return;
                 if (attackMemberInfo) {
-                    if (passive.target_element !== 0 &&
-                        passive.target_element !== attackMemberInfo.styleInfo.element &&
-                        passive.target_element !== attackMemberInfo.styleInfo.element2) return;
+                    if (passiveInfo.target_element !== 0 &&
+                        passiveInfo.target_element !== attackMemberInfo.styleInfo.element &&
+                        passiveInfo.target_element !== attackMemberInfo.styleInfo.element2) return;
                 }
-                if (passive.range_area === RANGE.FIELD) {
-                    addBuffAbility("passive", passive.skill_id, charaId, passive.passive_name, BUFF.FIELD, 0, passive.effect_size);
-                } else {
-                    passive.key = `${passive.skill_id}_${charaId}`;
+                if (passiveInfo.effect_type === EFFECT.FIELD_DEPLOYMENT) {
+                    addBuffAbility("passive", skill.skill_id, charaId, passiveInfo.passive_name, BUFF.FIELD, 0, passiveInfo.effect_size);
+                    return
+                }
+                const passiveEffectList = getPassiveEffectList(skill.skill_id);
+                let isAddPassive = false;
+                for (const passiveEffect of passiveEffectList) {
+                    if (!passiveInfo || !TARGET_KIND.includes(passiveEffect.effect_type)) continue;
+                    if (troopKbn === TROOP_KBN.SUB) {
+                        // 他部隊のアビリティは一部のみ許可
+                        if (!SUB_TARGET_KIND.includes(passiveEffect.effect_type)) {
+                            continue;
+                        }
+                    }
+                    isAddPassive = true;
+                }
+                if (isAddPassive) {
+                    const passive = JSON.parse(JSON.stringify(passiveInfo));
+                    passive.key = `${skill.skill_id}_${charaId}`;
                     passive.memberInfo = memberInfo;
                     passive.chara_id = charaId;
                     passive.chara_name = charaName;

@@ -37,7 +37,7 @@ const passiveEffect = [
     {"skill_id":668,"effect_type":0},
     {"skill_id":683,"effect_type":2,"effect_size":10},
     {"skill_id":685,"effect_type":99,"effect_size":8},
-    {"skill_id":705,"effect_type":1,"effect_size":12},
+    {"skill_id":705,"effect_type":5,"effect_size":7},
     {"skill_id":708,"effect_type":4,"effect_size":20},
     {"skill_id":708,"effect_type":5,"effect_size":20},
     {"skill_id":715,"effect_type":52,"effect_size":1},

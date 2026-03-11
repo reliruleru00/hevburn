@@ -139,7 +139,7 @@ const BuffArea = ({ argument: {
         setBuffSettingMap(initialMap);
     }, [buffGroup]);
 
-    // アビリティ初期化   
+    // アビリティ初期化
     useEffect(() => {
         const initialMap = {};
         abilityList.forEach(ability => {

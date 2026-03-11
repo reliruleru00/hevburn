@@ -11,7 +11,7 @@ const passiveList = [
     {"skill_id":547,"passive_name":"行くぞ！丸山部隊","passive_explan":"丸山 豊後 小笠原 大島 天音 ヴリティカの全能力が常時+10 消費SP-1","passive_short_explan":"丸山部隊の全能力が常時+10 消費SP-1","activation_timing":13,"activation_place":0,"range_area":41,"element":0,"target_element":0},
     {"skill_id":548,"passive_name":"友縁の剣","passive_explan":"自身の攻撃で敵をブレイクしたとき味方全体のSP+1","passive_short_explan":"","activation_timing":99,"activation_place":0,"range_area":6,"element":0,"target_element":0},
     {"skill_id":552,"passive_name":"鬨","passive_explan":"味方全体のクリティカル率を常時+100%","passive_short_explan":"味方全体のクリティカル率を常時+100%","activation_timing":99,"activation_place":3,"range_area":6,"element":0,"target_element":0},
-    {"skill_id":559,"passive_name":"水光のゆらめき","passive_explan":"オーバードライブ中 自身がかけた防御力ダウンの効果量+10%","passive_short_explan":"オーバードライブ中 自身がかけた防御力ダウンの効果量+10%","activation_timing":99,"activation_place":3,"range_area":6,"element":0,"target_element":0},
+    {"skill_id":559,"passive_name":"水光のゆらめき","passive_explan":"オーバードライブ中 自身がかけた防御力ダウンの効果量+10%","passive_short_explan":"オーバードライブ中 自身がかけた防御力ダウンの効果量+10%","activation_timing":99,"activation_place":3,"range_area":7,"element":0,"target_element":0},
     {"skill_id":600,"passive_name":"ルカとふたりきりですね…","passive_explan":"バトル開始時 自身と茅森月歌のSP+2","passive_short_explan":"","activation_timing":0,"activation_place":3,"range_area":42,"element":0,"target_element":0},
     {"skill_id":601,"passive_name":"希望を拓く一矢","passive_explan":"自身がEXスキル使用後味方全体のSP+2","passive_short_explan":"","activation_timing":8,"activation_place":3,"range_area":6,"element":0,"target_element":0},
     {"skill_id":606,"passive_name":"曙","passive_explan":"通常攻撃が範囲攻撃に変更","passive_short_explan":"","activation_timing":0,"activation_place":0,"range_area":7,"element":0,"target_element":0},

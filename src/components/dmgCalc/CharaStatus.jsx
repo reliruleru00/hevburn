@@ -348,13 +348,13 @@ const CharaStatus = ({ argument: {
                             for (const [key, values] of Object.entries(useSpCost)) {
                                 let skill = getSkillData(key);
                                 if (skill) {
-                                    for (const collet of values
+                                    for (const collect of values
                                         .slice()
                                         .sort((a, b) => getSortKey(a) - getSortKey(b))
                                         .slice(0, 2)) {
                                         if (skill.cost_type === COST_TYPE.SP) {
                                             const handlers = {
-                                                collet,
+                                                collect,
                                                 skillInfo: skill,
                                                 memberInfo: style,
                                                 styleList,

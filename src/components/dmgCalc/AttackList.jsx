@@ -257,7 +257,7 @@ const AttackDetail = ({ attackInfo, setAttackInfo, selectSkillLv, styleList, sta
     let spCost = 0;
     if (skillInfo.cost_type === COST_TYPE.SP) {
         const handlers = {
-            collet: attackInfo.collect,
+            collect: attackInfo.collect,
             skillInfo, styleList,
             memberInfo,
             abilitySettingMap, passiveSettingMap

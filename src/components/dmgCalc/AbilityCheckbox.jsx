@@ -1,26 +1,24 @@
 import React from 'react';
-import { EFFECT, RANGE } from 'utils/const';
-import { getAbilityEffectList } from "utils/common";
+import * as constants from 'utils/const';
+import * as common from 'utils/common';
+
 const AbilityCheckbox = ({ attackInfo, abilityList, abilitySettingMap, handleAbilityChange, rengeArea }) => {
     if (!attackInfo) return null;
     const kindAbilityList = abilityList.filter(ability => {
-        if (getAbilityEffectList(ability.ability_id).some(effect => effect.effect_type === EFFECT.COST_SP_DOWN)) {
-            return rengeArea === 3;
-        }
-        if (getAbilityEffectList(ability.ability_id).some(effect => effect.effect_type === EFFECT.COST_SP_UP)) {
+        if (common.getAbilityEffectList(ability.ability_id).some(effect => constants.RANGE_ALL_ABILITY.includes(effect.effect_type))) {
             return rengeArea === 3;
         }
         switch (ability.range_area) {
-            case RANGE.SELF:
+            case constants.RANGE.SELF:
                 if (rengeArea !== 0) {
                     return false;
                 }
                 break;
-            case RANGE.ALLY_FRONT:
-            case RANGE.ALLY_BACK:
-            case RANGE.ALLY_ALL:
-            case RANGE.ENEMY_ALL:
-            case RANGE.OTHER:
+            case constants.RANGE.ALLY_FRONT:
+            case constants.RANGE.ALLY_BACK:
+            case constants.RANGE.ALLY_ALL:
+            case constants.RANGE.ENEMY_ALL:
+            case constants.RANGE.OTHER:
                 switch (ability.activation_place) {
                     case 1: // 前衛
                         if (rengeArea !== 1) {

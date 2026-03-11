@@ -121,7 +121,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     let spCost = 0;
     if (skillInfo.cost_type === COST_TYPE.SP) {
         const handlers = {
-            collet: buffSetting.collect,
+            collect: buffSetting.collect,
             skillInfo, styleList,
             memberInfo,
             abilitySettingMap, passiveSettingMap

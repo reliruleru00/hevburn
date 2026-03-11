@@ -7,6 +7,7 @@ import {
 import enemyList from "data/enemyList";
 import scoreBonusList from "data/scoreBonus";
 import { getCharaData, getBuffIdToBuff, getPassiveEffectList, getAbilityInfo, getAbilityEffectList, getSkillData } from "utils/common";
+import * as COMMON from "utils/common";
 
 export const BUFF_KBN = {
     0: "power_up",
@@ -279,7 +280,7 @@ export function getAbilityEffectSize(abilityId, buffInfo, strengthen) {
 
 // コスト変更
 export function getCostVariable(handlers) {
-    let collect = handlers.collet;
+    let collect = handlers.collect;
     let skillInfo = handlers.skillInfo;
     let spCost = skillInfo.use_cost;
     let abilitySettingMap = handlers.abilitySettingMap;
@@ -315,8 +316,9 @@ const abilityLoop = (func, abilitySettingMap, effectType, handlers) => {
     Object.values(abilitySettingMap)
         .filter(ability => ability.checked)
         .forEach((ability) => {
+            const abilityInfo = COMMON.getAbilityInfo(ability.ability_id);
             for (const abilityEffect of getAbilityEffectList(ability.ability_id)) {
-                if (judgeEffect(abilityEffect, effectType, handlers)) {
+                if (judgeEffect(ability.chara_id, abilityInfo, abilityEffect, effectType, handlers)) {
                     func(abilityEffect)
                 }
             }
@@ -327,23 +329,24 @@ const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
     Object.values(passiveSettingMap)
         .filter(passive => passive.checked)
         .forEach((passive) => {
+            const passiveInfo = COMMON.getPassiveInfo(passive.skill_id);
             for (const passiveEffect of getPassiveEffectList(passive.skill_id)) {
-                if (judgeEffect(passiveEffect, effectType, handlers)) {
+                if (judgeEffect(passive.chara_id, passiveInfo, passiveEffect, effectType, handlers)) {
                     func(passiveEffect)
                 }
             }
         })
 }
 
-const judgeEffect = (effect, effectType, handlers) => {
+const judgeEffect = (charaId, info, effect, effectType, handlers) => {
     let styleInfo = handlers.memberInfo.styleInfo;
     if (effect.effect_type !== effectType) {
         return false;
     }
-    if (!isRangeAreaInclude(effect.chara_id, effect.range_area, styleInfo.chara_id)) {
+    if (!isRangeAreaInclude(charaId, info.range_area, styleInfo.chara_id)) {
         return false;
     }
-    if (!isElementInclude(styleInfo, effect.target_element)) {
+    if (!isElementInclude(styleInfo, info.target_element)) {
         return false;
     }
     if (!judgmentCondition(effect, handlers)) {
@@ -389,7 +392,7 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
     let strengthen = 0;
 
     const handlers = {
-        collet: buffSetting.collect,
+        collect: buffSetting.collect,
         skillInfo: getSkillData(buff.skill_id),
         memberInfo,
         styleList: [],
@@ -419,18 +422,6 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
     if (KIND_DEFENSEDOWN.includes(buff.buff_kind)) {
         abilityLoop((abilityEffect) => {
-            // モロイウオ、静かなプレッシャー
-            // const COST_UNDER_8 = [ABILITY_ID.MOROIUO, ABILITY_ID.QUIET_PRESSURE];
-            // if (COST_UNDER_8.includes(abilityEffect.ability_id)) {
-            //     let spCost = 0;
-            //     let skillInfo = getSkillData(buff.skill_id);
-            //     if (skillInfo.cost_type === COST_TYPE.SP) {
-            //         spCost = getCostVariable(skillInfo.use_cost, buffSetting.collect, memberInfo, abilitySettingMap, passiveSettingMap)
-            //     }
-            //     if (spCost > 8) {
-            //         return false;
-            //     }
-            // }
             strengthen += abilityEffect.effect_size;
         }, abilitySettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
 
@@ -650,6 +641,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
     // 引数のfuntionをまとめる
     const memberInfo = attackMemberInfo;
     const handlers = {
+        collect: attackInfo.collect,
         skillInfo: getSkillData(attackInfo.skill_id),
         attackInfo, memberInfo, styleList,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting, state
@@ -1127,19 +1119,6 @@ function getSumAbilityEffectSize(handlers, effectType) {
     abilityLoop((abilityEffect) => {
         let abilityId = abilityEffect.ability_id;
         let effectSize = abilityEffect.effect_size;
-        // const UNDER_SP8 = [ABILITY_ID.KIREAJI, ABILITY_ID.EVIL_ARMY];
-        // if (UNDER_SP8.includes(abilityId)) {
-        //     // キレアジ
-        //     const attackInfo = handlers.attackInfo;
-        //     let spCost = 0;
-        //     let skillInfo = getSkillData(attackInfo.skill_id);
-        //     if (skillInfo.cost_type === COST_TYPE.SP) {
-        //         spCost = getCostVariable(skillInfo.use_cost, attackInfo.collect, memberInfo, abilitySettingMap, passiveSettingMap)
-        //     }
-        //     if (spCost > 8) {
-        //         effectSize = 0;
-        //     }
-        // }
         // スペシャルタッグ
         if (abilityId === ABILITY_ID.SPECIAL_TAG) {
             let goodCondition = targetCountMotivation(styleList, 1);

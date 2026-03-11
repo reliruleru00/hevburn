@@ -51,13 +51,7 @@ export const ABILITY_ID = {
     TRANSCEND_ICE: 26, // 超越(氷)
     TRANSCEND_THUNDER: 27, // 超越(雷)
     KISHIN: 28, // 鬼神
-    MOROIUO: 506, // モロイウオ
-    EVIL_ARMY: 511, // 悪の軍団は最強でゲス！
-    KIREAJI: 602, // キレアジ
-    QUIET_PRESSURE: 515, // 静かなプレッシャー
     ADMIRAL_COMMON: 299, // 指揮行動
-    BLUE_SKY: 510, // 蒼天
-    QUICK_RECAST: 1506, // クイックリキャスト
     DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530, // 自動追撃,
     SPECIAL_TAG: 277, // スペシャルタッグ
@@ -68,8 +62,6 @@ export const ABILITY_ID = {
     GREAT_OFFENSIVE: 1215, // 魔王軍の大攻勢！
     LETS_MARCH: 1149, // いざ進軍！
     OVER_GEAR: 1405, // オーバーギア
-    ICE_MARK: 101, // 氷の印
-    THUNDER_MARK: 102, // 雷の印
 }
 
 export const COST_TYPE = {
@@ -365,6 +357,13 @@ export const JEWEL_TYPE = {
     FOCUS_DAMAGE_DOWN: 6,
     DAMAGE_DOWN: 7,
 }
+export const RANGE_ALL_ABILITY = [
+    EFFECT.COST_SP_DOWN, 
+    EFFECT.COST_SP_UP, 
+    EFFECT.GIVEATTACKBUFFUP,
+    EFFECT.GIVEDEFFENCEDEBUFFUP,
+    EFFECT.GIVEDEBUFFUP,
+];
 
 export const JEWEL_EXPLAIN = {
     1: "スキルダメージの威力を上げる",

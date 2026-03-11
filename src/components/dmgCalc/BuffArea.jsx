@@ -5,14 +5,16 @@ import {
     BUFF, EFFECT, RANGE, ROLE
     , CHARA_ID, STYLE_ID, BUFF_ID, ABILITY_ID
 } from "utils/const";
+import * as CONST from "utils/const";
+import * as COMMON from "utils/common";
 import {
     DEBUFF_LIST, TROOP_KBN, BUFF_KBN, TRANSCEND_LIST,
     getCharaIdToMember, getEffectSize, getAbilityEffectSize, getSumEffectSize,
-    getBuffKey, getBestBuffKeys, checkDuplicationChara,
+    getBuffKey, getBestBuffKeys, checkDuplicationChara, isElementInclude,
     isOnlyUse, isAloneActivation, isOnlyBuff, filteredBuffList, filteredOrb,
     getEnemyResist
 } from "./logic";
-import { getCharaData, getPassiveInfo, getPassiveEffectList, getResonanceInfo, getAbilityInfo, getAbilityEffectList, deepClone } from "utils/common";
+import { getCharaData, getPassiveInfo, getPassiveEffectList, getAbilityInfo, getAbilityEffectList, deepClone } from "utils/common";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
 import PassiveCheckbox from "./PassiveCheckbox";
@@ -49,6 +51,14 @@ const SUB_TARGET_KIND = [
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
     EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
+
+const buffTypeMap = {
+    [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
+    [EFFECT.CHARGE]: BUFF.CHARGE,
+    [EFFECT.ARROWCHERRYBLOSSOMS]: BUFF.ARROWCHERRYBLOSSOMS,
+    [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
+    [EFFECT.YAMAWAKI_SERVANT]: BUFF.YAMAWAKI_SERVANT,
+};
 
 const BuffArea = ({ argument: {
     attackInfo, state, dispatch,
@@ -103,7 +113,7 @@ const BuffArea = ({ argument: {
     }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak, JSON.stringify(defDownBuffs)]);
 
     const resonance = useMemo(() => {
-        return generateResonanceList(styleList, attackInfo);
+        return generateResonanceList(styleList);
     }, [attackInfo?.attack_id, selectList, supportList]);
     useEffect(() => {
         setResonanceList(resonance);
@@ -627,9 +637,7 @@ function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, d
 }
 
 // レゾナンスリスト作成
-function generateResonanceList(styleList, attackInfo) {
-    let attackCharaId = attackInfo?.chara_id;
-
+function generateResonanceList(styleList) {
     const resonanceList = [];
     styleList.selectStyleList
         .filter(memberInfo => memberInfo)
@@ -641,12 +649,7 @@ function generateResonanceList(styleList, attackInfo) {
             if ((memberInfo.styleInfo.resonance === 1) && memberInfo.supportStyleId) {
                 const support = memberInfo.support;
                 if (support.styleInfo.ability_resonance) {
-                    const resonance = deepClone(getResonanceInfo(support.styleInfo.ability_resonance));
-                    if (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP) {
-                        if (attackCharaId !== charaId) {
-                            return;
-                        }
-                    }
+                    const resonance = deepClone(COMMON.getResonanceInfo(support.styleInfo.ability_resonance));
                     resonance.charaId = charaId;
                     resonance.charaName = charaName;
                     resonance.limitCount = support.limitCount;
@@ -690,9 +693,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     return DEBUFF_LIST.includes(buff.buff_kind);
                 }
                 if (attackMemberInfo) {
-                    if (buff.target_element !== 0 &&
-                        buff.target_element !== attackMemberInfo.styleInfo.element &&
-                        buff.target_element !== attackMemberInfo.styleInfo.element2) return;
+                    if (!isElementInclude(attackMemberInfo.styleInfo, buff.target_element)) return;
                 }
                 // 除外スキル
                 if (memberInfo.exclusionSkillList.includes(buff.skill_id)) return false;
@@ -750,14 +751,11 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) return;
                 if (abilityInfo.physical !== 0 && abilityInfo.physical !== attackInfo.attack_physical) return;
                 if (attackMemberInfo) {
-                    if (abilityInfo.target_element !== 0 &&
-                        abilityInfo.target_element !== attackMemberInfo.styleInfo.element &&
-                        abilityInfo.target_element !== attackMemberInfo.styleInfo.element2) return;
+                    if (!isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element)) return;
 
                     // 超越ゲージ
                     if (TRANSCEND_LIST.includes(abilityInfo.ability_id)) {
-                        if ((abilityInfo.target_element === attackMemberInfo.styleInfo.element ||
-                            abilityInfo.target_element === attackMemberInfo.styleInfo.element2) &&
+                        if (isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element) &&
                             abilityInfo.target_element === attackInfo?.attack_element) {
                             addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, BUFF.CRITICALRATEUP, 0, 100, 5);
                             addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, BUFF.CRITICALDAMAGEUP, 0, 100, 5);
@@ -779,14 +777,6 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                             continue;
                         }
                     }
-                    const buffTypeMap = {
-                        [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
-                        [EFFECT.CHARGE]: BUFF.CHARGE,
-                        [EFFECT.ARROWCHERRYBLOSSOMS]: BUFF.ARROWCHERRYBLOSSOMS,
-                        [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
-                        [EFFECT.YAMAWAKI_SERVANT]: BUFF.YAMAWAKI_SERVANT,
-                    };
-
                     const buffType = buffTypeMap[abilityEffect.effect_type];
                     if (buffType) {
                         addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, buffType, abilityEffect.element, abilityEffect.effect_size);
@@ -818,9 +808,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 if (passiveInfo.range_area === RANGE.SELF && charaId !== attackCharaId) return;
                 if (passiveInfo.element !== 0 && passiveInfo.element !== attackInfo.attack_element) return;
                 if (attackMemberInfo) {
-                    if (passiveInfo.target_element !== 0 &&
-                        passiveInfo.target_element !== attackMemberInfo.styleInfo.element &&
-                        passiveInfo.target_element !== attackMemberInfo.styleInfo.element2) return;
+                    if (!isElementInclude(attackMemberInfo.styleInfo, passiveInfo.target_element)) return;
                 }
                 if (passiveInfo.effect_type === EFFECT.FIELD_DEPLOYMENT) {
                     addBuffAbility("passive", skill.skill_id, charaId, passiveInfo.passive_name, BUFF.FIELD, 0, passiveInfo.effect_size);
@@ -848,6 +836,17 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     passiveList.push(passive);
                 }
             });
+            // レゾナンス判定
+            if (memberInfo.styleInfo.resonance === 1 && memberInfo.supportStyleId) {
+                const support = memberInfo.support;
+                if (support.styleInfo.ability_resonance) {
+                    const resonance = COMMON.getResonanceInfo(support.styleInfo.ability_resonance);
+                    const buffType = buffTypeMap[resonance.effect_type];
+                    if (buffType) {
+                        addBuffAbility("ability", 0, charaId, resonance.resonance_name, buffType, resonance.element, resonance.effect_size);
+                    }
+                }
+            }
         });
 }
 
@@ -867,7 +866,22 @@ const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attackInfo, 
     );
     const isMiya = attackInfo?.chara_id === CHARA_ID.MIYA;
     const isServant = STYLE_ID.SERVANT.includes(attackInfo?.style_id) || selectStyleList.some(
-        (memberInfo) => STYLE_ID.SERVANT_DANCE.includes(memberInfo?.styleInfo.style_id)
+        (memberInfo) => {
+            if (!memberInfo) return false;
+            if (STYLE_ID.SERVANT_DANCE.includes(memberInfo.styleInfo.style_id)) {
+                return true;
+            }
+            if (memberInfo.styleInfo.resonance === 1 && memberInfo.supportStyleId) {
+                const support = memberInfo.support;
+                if (support.styleInfo.ability_resonance) {
+                    const resonance = COMMON.getResonanceInfo(support.styleInfo.ability_resonance);
+                    if (resonance.effect_type === EFFECT.YAMAWAKI_SERVANT) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     );
     return [
         { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },

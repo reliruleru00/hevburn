@@ -199,7 +199,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                 });
             });
             // レゾナンス判定
-            if ((member.styleInfo.rarity === 0 || member.styleInfo.rarity === 9) && member.supportStyleId) {
+            if (member.styleInfo.resonance === 1 && member.supportStyleId) {
                 const support = member.support;
                 if (support?.styleInfo.ability_resonance) {
                     const resonance = deepClone(getResonanceInfo(support.styleInfo.ability_resonance));

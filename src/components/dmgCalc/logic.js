@@ -343,10 +343,8 @@ const judgeEffect = (effect, effectType, handlers) => {
     if (!isRangeAreaInclude(effect.chara_id, effect.range_area, styleInfo.chara_id)) {
         return false;
     }
-    if (effect.target_element !== 0) {
-        if (effect.target_element !== styleInfo.element && effect.target_element !== styleInfo.element2) {
-            return false;
-        }
+    if (!isElementInclude(styleInfo, effect.target_element)) {
+        return false;
     }
     if (!judgmentCondition(effect, handlers)) {
         return false;
@@ -557,8 +555,7 @@ export function isTranscend(abilitySettingMap, attackInfo, attackMemberInfo) {
         .forEach(ability => {
             let abilityInfo = getAbilityInfo(ability.ability_id);
             if (TRANSCEND_LIST.includes(abilityInfo.ability_id)) {
-                if ((abilityInfo.target_element === attackMemberInfo.styleInfo.element ||
-                    abilityInfo.target_element === attackMemberInfo.styleInfo.element2) &&
+                if (isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element) &&
                     abilityInfo.target_element === attackInfo?.attack_element) {
                     return true;
                 }
@@ -1178,8 +1175,7 @@ function getSumAbilityEffectSize(handlers, effectType) {
     resonanceList
         .filter(resonance => resonance.charaId === memberInfo.styleInfo.chara_id)
         .forEach(resonance => {
-            if (resonance.effect_type === effectType ||
-                ([EFFECT.ATTACKUP, EFFECT.DAMAGERATEUP].includes(effectType) && (resonance.effect_type === EFFECT.ATTACKUP_AND_DAMAGERATEUP))) {
+            if (resonance.effect_type === effectType) {
                 const limitCount = resonance.limitCount;
                 const effectSize = resonance[`effect_limit_${limitCount}`];
                 abilityEffectSize += effectSize;
@@ -1213,11 +1209,19 @@ function isRangeAreaInclude(charaId, rangeArea, targetCharaId) {
 function targetCountInclude(styleList, targetElement) {
     let count = 0;
     styleList.selectStyleList.forEach((style) => {
-        if (style?.styleInfo.element === targetElement || style?.styleInfo.element2 === targetElement) {
+        if (isElementInclude(style?.styleInfo, targetElement)) {
             count++;
         }
     })
     return count;
+}
+
+// 属性判定
+export function isElementInclude(styleInfo, targetElement) {
+    if (targetElement === 0) {
+        return true;
+    }
+    return styleInfo.element === targetElement || styleInfo.element2 === targetElement;
 }
 
 // やるき対象数判定
@@ -1483,7 +1487,7 @@ export function getStatUp(styleList, state, memberInfo, collect, abilitySettingM
     if (enemyInfo.enemy_class === ENEMY_CLASS.HARD_LAYER_EX) {
         state.hardEx.bonusElement.forEach((bonus, index) => {
             if (bonus) {
-                if (memberInfo.styleInfo.element === index || memberInfo.styleInfo.element2 === index) {
+                if (isElementInclude(memberInfo.styleInfo, index)) {
                     elemetalBonus = 30;
                 }
             }

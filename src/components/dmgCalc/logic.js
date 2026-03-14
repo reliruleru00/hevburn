@@ -105,8 +105,7 @@ function getChainEffectSize(otherSetting, type) {
 
 // パワプロ存在チェック
 export function checkPawapuroExist(selectStyleList) {
-    return checkStyleExist(selectStyleList,
-        [STYLE_ID.PAWAPURO_RUKA, STYLE_ID.PAWAPURO_ICHIGO, STYLE_ID.PAWAPURO_HISAME]);
+    return checkStyleExist(selectStyleList, STYLE_ID.PAWAPURO);
 }
 
 // スタイル存在チェック

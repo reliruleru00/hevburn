@@ -15,15 +15,13 @@ export const STYLE_ID = {
     ONLY_MOON_LIGHT: 145,   // 月光月歌
     WEDING_SHARO: 123,  // ウェディングシャロ
     SERVANT_DANCE: [161, 189],  // ユニソン豊後、魔王山脇
-    SERVANT: [162, 163, 178, 189],    // 下僕天音、聖羅、マリ、魔王
+    SERVANT: [162, 163, 178, 189, 192],    // 下僕天音、聖羅、マリ、魔王、神崎
     UNISON_KARENCHAN: 177,  // ユニソンカレンチャン
     KITCHEN_VRITIKA: 181,  // キッチンヴリティカ
     KITCHEN_SHARO: 182,  // キッチンシャロ
     KITCHEN_CAROLE: 200,  // キッチンキャロル
     KITCHEN_MARIA: 201,  // キッチンマリア
-    PAWAPURO_RUKA: 183,  // パワプロルカ
-    PAWAPURO_ICHIGO: 184,  // パワプロいちご
-    PAWAPURO_HISAME: 5092,  // パワプロ緋雨
+    PAWAPURO: [183, 184, 5092],  // パワプロ月歌、いちご、緋雨
 }
 
 export const SKILL_ID = {

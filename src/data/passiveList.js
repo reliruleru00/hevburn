@@ -1,5 +1,5 @@
 const passiveList = [
-    {"skill_id":501,"passive_name":"メディテーション","passive_explan":"自身が展開する属性強化フィールドの効果+15%さらに有効期間がターン永続になる","passive_short_explan":"自身が展開する属性強化フィールドの効果+15%","activation_timing":99,"activation_place":3,"range_area":99,"element":0,"target_element":0},
+    {"skill_id":501,"passive_name":"メディテーション","passive_explan":"自身が展開する属性強化フィールドの効果+15%さらに有効期間がターン永続になる","passive_short_explan":"自身が展開する属性強化フィールドの効果+15%","activation_timing":99,"activation_place":3,"range_area":7,"element":0,"target_element":0},
     {"skill_id":505,"passive_name":"日陰のシエスタ","passive_explan":"バトル開始時 前衛にいるとオーバードライブゲージ+10%","passive_short_explan":"","activation_timing":0,"activation_place":1,"range_area":99,"element":0,"target_element":0},
     {"skill_id":519,"passive_name":"紡がれた記憶","passive_explan":"バトル開始時 記憶の修復を完了しているキャラ数に応じて自身の全能力が上がる(最大+20)","passive_short_explan":"自身の全能力が上がる(+20)","activation_timing":99,"activation_place":3,"range_area":7,"element":0,"target_element":0},
     {"skill_id":524,"passive_name":"痛気持ちいぃ～！","passive_explan":"敵からダメージを受けると自身のSP+1(ターン中1回のみ)","passive_short_explan":"","activation_timing":7,"activation_place":0,"range_area":7,"element":0,"target_element":0},

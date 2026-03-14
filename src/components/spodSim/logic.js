@@ -330,6 +330,12 @@ export function getBuffIconImg(buffInfo) {
         case BUFF.SHCHI: // シチー
             src += "IconShchi";
             break;
+        case BUFF.STEAK: // ステーキ
+            src += "IconSteak";
+            break;
+        case BUFF.GELATO: // ジェラート
+            src += "IconGelato";
+            break;
         default:
             break;
     }
@@ -854,9 +860,14 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
                 checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)
             ).length >= conditionsId;
         case CONDITIONS.FIRE_STYLE: // 火属性スタイル
-            return turnData.unitList.filter((unit) =>
-                checkBuffExist(unit.buffList, BUFF.FIRE_MARK)
-            ).length >= conditionsId;
+            let fireCount = targetCountInclude(turnData, ELEMENT.FIRE);
+            return fireCount >= conditionsId;
+        case CONDITIONS.ICE_STYLE: // 氷属性スタイル
+            let iceCount = targetCountInclude(turnData, ELEMENT.ICE);
+            return iceCount >= conditionsId;
+        case CONDITIONS.THUNDER_STYLE: // 雷属性スタイル
+            let thunderCount = targetCountInclude(turnData, ELEMENT.THUNDER);
+            return thunderCount >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skill_id).length;
         case CONDITIONS.MOTIVATION: // やる気
@@ -937,6 +948,8 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
         case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
         case BUFF.CURRY: // カリー
         case BUFF.SHCHI: // シチー
+        case BUFF.STEAK: // ステーキ
+        case BUFF.GELATO: // ジェラート
             // バフ追加
             targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             if (buffInfo.buff_kind === BUFF.ATTACKUP || buffInfo.buff_kind === BUFF.ELEMENT_ATTACKUP) {
@@ -1388,6 +1401,12 @@ export function getBuffKindName(buffInfo) {
             break;
         case BUFF.SHCHI:
             buff_kind_name += "シチー";
+            break;
+        case BUFF.STEAK:
+            buff_kind_name += "ステーキ";
+            break;
+        case BUFF.GELATO:
+            buff_kind_name += "ジェラート";
             break;
         default:
             break;
@@ -2018,7 +2037,7 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
         }
         let targetList = getTargetList(turnData, ability.range_area, ability.target_element, unit.placeNo, null);
         let buff;
-        if (!judgmentCondition(Number(ability.conditions), ability.conditionsId, turnData, unit, null)) {
+        if (!judgmentCondition(Number(ability.conditions), ability.conditions_id, turnData, unit, null)) {
             return true;
         }
         switch (ability.conditions) {

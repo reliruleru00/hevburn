@@ -19,6 +19,8 @@ export const STYLE_ID = {
     UNISON_KARENCHAN: 177,  // ユニソンカレンチャン
     KITCHEN_VRITIKA: 181,  // キッチンヴリティカ
     KITCHEN_SHARO: 182,  // キッチンシャロ
+    KITCHEN_CAROLE: 200,  // キッチンキャロル
+    KITCHEN_MARIA: 201,  // キッチンマリア
     PAWAPURO_RUKA: 183,  // パワプロルカ
     PAWAPURO_ICHIGO: 184,  // パワプロいちご
     PAWAPURO_HISAME: 5092,  // パワプロ緋雨
@@ -146,6 +148,8 @@ export const BUFF = {
     THUNDER_MARK: 47, // 雷の印
     ETERNAL_FRAGILE: 48, // 永続脆弱
     HEALEP: 52, // EP回復
+    STEAK: 53, // ステーキ
+    GELATO: 54, // ジェラート
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -363,6 +367,7 @@ export const RANGE_ALL_ABILITY = [
     EFFECT.GIVEATTACKBUFFUP,
     EFFECT.GIVEDEFFENCEDEBUFFUP,
     EFFECT.GIVEDEBUFFUP,
+    EFFECT.FIELD_STRENGTHEN,
 ];
 
 export const JEWEL_EXPLAIN = {

@@ -6,8 +6,7 @@ import {
 } from 'utils/const';
 import enemyList from "data/enemyList";
 import scoreBonusList from "data/scoreBonus";
-import { getCharaData, getBuffIdToBuff, getPassiveEffectList, getAbilityInfo, getAbilityEffectList, getSkillData } from "utils/common";
-import * as COMMON from "utils/common";
+import * as common from "utils/common";
 
 export const BUFF_KBN = {
     0: "power_up",
@@ -39,6 +38,8 @@ export const BUFF_KBN = {
     44: "curry",
     45: "shchi",
     48: "eternal_fragile",
+    53: "steak",
+    54: "gelato",
 };
 
 export const ATTACK_BUFF_LIST = [
@@ -185,8 +186,15 @@ export const filteredOrb = (buffList, isOrb) => {
 
 // 効果量取得
 export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, resonanceList) {
+    const handlers = {
+        collect: buffSetting.collect,
+        skillInfo: common.getSkillData(buff.skill_id),
+        memberInfo,
+        styleList,
+        abilitySettingMap, passiveSettingMap
+    };
     // バフ強化
-    let strengthen = getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap, resonanceList);
+    let strengthen = getStrengthen(handlers, buff, resonanceList);
     let effectSize = 0;
     if (buff.kbn === "buff") {
         // バフ
@@ -231,8 +239,9 @@ export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, a
             case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
                 return 50;
             case BUFF.CURRY: // カリー
-                return 50;
             case BUFF.SHCHI: // シチー
+            case BUFF.STEAK: // ステーキ
+            case BUFF.GELATO: // ジェラート
                 return 50;
             default:
                 break;
@@ -316,10 +325,10 @@ const abilityLoop = (func, abilitySettingMap, effectType, handlers) => {
     Object.values(abilitySettingMap)
         .filter(ability => ability.checked)
         .forEach((ability) => {
-            const abilityInfo = COMMON.getAbilityInfo(ability.ability_id);
-            for (const abilityEffect of getAbilityEffectList(ability.ability_id)) {
+            const abilityInfo = common.getAbilityInfo(ability.ability_id);
+            for (const abilityEffect of common.getAbilityEffectList(ability.ability_id)) {
                 if (judgeEffect(ability.chara_id, abilityInfo, abilityEffect, effectType, handlers)) {
-                    func(abilityEffect)
+                    func(abilityEffect, ability)
                 }
             }
         })
@@ -329,10 +338,10 @@ const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
     Object.values(passiveSettingMap)
         .filter(passive => passive.checked)
         .forEach((passive) => {
-            const passiveInfo = COMMON.getPassiveInfo(passive.skill_id);
-            for (const passiveEffect of getPassiveEffectList(passive.skill_id)) {
+            const passiveInfo = common.getPassiveInfo(passive.skill_id);
+            for (const passiveEffect of common.getPassiveEffectList(passive.skill_id)) {
                 if (judgeEffect(passive.chara_id, passiveInfo, passiveEffect, effectType, handlers)) {
-                    func(passiveEffect)
+                    func(passiveEffect, passive)
                 }
             }
         })
@@ -340,7 +349,9 @@ const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
 
 const judgeEffect = (charaId, info, effect, effectType, handlers) => {
     let styleInfo = handlers.memberInfo.styleInfo;
-    if (effect.effect_type !== effectType) {
+    if (Array.isArray(effectType)
+        ? !effectType.includes(effect.effect_type)
+        : effect.effect_type !== effectType) {
         return false;
     }
     if (!isRangeAreaInclude(charaId, info.range_area, styleInfo.chara_id)) {
@@ -387,17 +398,11 @@ function judgmentCondition(effect, handlers) {
 }
 
 // バフ強化効果量取得
-function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passiveSettingMap, resonanceList) {
+function getStrengthen(handlers, buff, resonanceList) {
     let charaId = buff.use_chara_id;
     let strengthen = 0;
-
-    const handlers = {
-        collect: buffSetting.collect,
-        skillInfo: getSkillData(buff.skill_id),
-        memberInfo,
-        styleList: [],
-        abilitySettingMap, passiveSettingMap
-    };
+    let abilitySettingMap = handlers.abilitySettingMap;
+    let passiveSettingMap = handlers.passiveSettingMap;
 
     // 攻撃力アップ/属性攻撃力アップ
     if (KIND_ATTACKUP.includes(buff.buff_kind)) {
@@ -468,7 +473,7 @@ function getStrengthen(buff, buffSetting, memberInfo, abilitySettingMap, passive
             strengthen += passiveEffect.effect_size;
         }, passiveSettingMap, EFFECT.FIELD_STRENGTHEN, handlers);
     }
-    if (buffSetting.collect?.strengthen) {
+    if (handlers.collect?.strengthen) {
         strengthen += 20;
     }
     return strengthen;
@@ -536,22 +541,6 @@ export function isSelectBuff(buffInfo) {
     if (buffInfo.conditions === CONDITIONS.ENEMY_COUNT) {
         return true;
     }
-    return false;
-}
-
-// 超越ゲージ判定
-export function isTranscend(abilitySettingMap, attackInfo, attackMemberInfo) {
-    Object.values(abilitySettingMap)
-        .filter(ability => ability.checked)
-        .forEach(ability => {
-            let abilityInfo = getAbilityInfo(ability.ability_id);
-            if (TRANSCEND_LIST.includes(abilityInfo.ability_id)) {
-                if (isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element) &&
-                    abilityInfo.target_element === attackInfo?.attack_element) {
-                    return true;
-                }
-            }
-        });
     return false;
 }
 
@@ -642,7 +631,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
     const memberInfo = attackMemberInfo;
     const handlers = {
         collect: attackInfo.collect,
-        skillInfo: getSkillData(attackInfo.skill_id),
+        skillInfo: common.getSkillData(attackInfo.skill_id),
         attackInfo, memberInfo, styleList,
         selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting, state
     };
@@ -660,7 +649,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
     debuff += fragile;
 
     let damageRateUp = getDamagerateEffectSize(handlers, attackInfo.hit_count);
-    let funnelList = getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap);
+    let funnelList = getSumFunnelEffectList(handlers);
 
     let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
     let enemyDefenceRate = getEnemyDefenceRate(state);
@@ -901,7 +890,7 @@ function getSumBuffEffectSize(handlers) {
     // スキルバフ合計
     let sumBuff = getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap,
         [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CHARGE, BUFF.ARROWCHERRYBLOSSOMS,
-        BUFF.ETERNAL_OARH, BUFF.BABIED, BUFF.SHADOW_CLONE, BUFF.CURRY, BUFF.SHCHI]);
+        BUFF.ETERNAL_OARH, BUFF.BABIED, BUFF.SHADOW_CLONE, BUFF.CURRY, BUFF.SHCHI, BUFF.STEAK, BUFF.GELATO]);
     // 攻撃力アップアビリティ
     sumBuff += getSumAbilityEffectSize(handlers, EFFECT.ATTACKUP);
     // 属性リング(0%-10%)
@@ -932,8 +921,11 @@ function getSumDebuffEffectSize(handlers) {
 }
 
 // 合計連撃効果量取得
-function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSettingMap) {
+function getSumFunnelEffectList(handlers) {
     let funnel_list = [];
+    let selectBuffKeyMap = handlers.selectBuffKeyMap;
+    let abilitySettingMap = handlers.abilitySettingMap;
+    let passiveSettingMap = handlers.passiveSettingMap;
 
     // スキルデバフ合計
     const funnelKey = getBuffKey(BUFF.FUNNEL);
@@ -943,7 +935,7 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSett
             let key = selectedKey.split('_');
             if (key[0] === "buff") {
                 let buffId = Number(key[1]);
-                let buffInfo = getBuffIdToBuff(buffId);
+                let buffInfo = common.getBuffIdToBuff(buffId);
                 if (buffInfo) {
                     let loop = buffInfo.max_power;
                     let size = buffInfo.effect_size;
@@ -970,36 +962,23 @@ function getSumFunnelEffectList(selectBuffKeyMap, abilitySettingMap, passiveSett
     }
 
     const EFFECT_FUNNEL = [EFFECT.FUNNEL, EFFECT.FUNNEL_ALWAYS];
-    Object.keys(passiveSettingMap).forEach(function (key) {
-        let data = passiveSettingMap[key];
-        if (data.checked) {
-            let skillId = Number(data.skill_id)
-            for (const passiveEffect of getPassiveEffectList(skillId)) {
-                if (EFFECT_FUNNEL.includes(passiveEffect.effect_type)) {
-                    let size = passiveEffect.effect_size;
-                    let loop = passiveEffect.effect_count;
-                    for (let i = 0; i < loop; i++) {
-                        funnel_list.push(size);
-                    }
-                }
+    passiveLoop((passiveEffect) => {
+        if (EFFECT_FUNNEL.includes(passiveEffect.effect_type)) {
+            let size = passiveEffect.effect_size;
+            let loop = passiveEffect.effect_count;
+            for (let i = 0; i < loop; i++) {
+                funnel_list.push(size);
             }
         }
-    })
+    }, passiveSettingMap, EFFECT_FUNNEL, handlers);
 
-    Object.keys(abilitySettingMap).forEach(function (key) {
-        let data = abilitySettingMap[key];
-        if (data.checked) {
-            let abilityId = Number(data.ability_id)
-            let abilityInfo = getAbilityInfo(abilityId);
-            if (EFFECT_FUNNEL.includes(abilityInfo.effect_type)) {
-                let size = abilityInfo.effect_size;
-                let loop = abilityInfo.effect_count;
-                for (let i = 0; i < loop; i++) {
-                    funnel_list.push(size);
-                }
-            }
+    abilityLoop((abilityEffect) => {
+        let size = abilityEffect.effect_size;
+        let loop = abilityEffect.effect_count;
+        for (let i = 0; i < loop; i++) {
+            funnel_list.push(size);
         }
-    })
+    }, abilitySettingMap, EFFECT_FUNNEL, handlers);
 
     // 降順でソート
     funnel_list.sort(function (a, b) {
@@ -1020,8 +999,6 @@ function getDamagerateEffectSize(handlers, hitCount) {
     destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 11 - hitCount);
     destructionEffectSize += getChainEffectSize(otherSetting, "skill");
 
-    // // 制圧戦
-    // destruction_effect_size += getBikePartsEffectSize("destruction_rate");
     // スコアタグレード
     if (state.correction.destruction) {
         destructionEffectSize += state.correction.destruction;
@@ -1049,8 +1026,6 @@ function getCriticalRate(handlers) {
         criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
         // 永遠なる誓い
         criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 100 : 0;
-        // // 制圧戦
-        // critical_rate += getBikePartsEffectSize("critical_rate");
     }
     return criticalRate > 100 ? 100 : criticalRate;
 }
@@ -1063,12 +1038,6 @@ function getCriticalBuff(handlers) {
         [BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALDAMAGEUP],
         memberInfo.styleInfo.charaId);
     criticalBuff += getSumAbilityEffectSize(handlers, EFFECT.CRITICAL_DAMAGE_UP);
-    // // 制圧戦
-    // critical_buff += getBikePartsEffectSize("critical_buff");
-    // // セラフ遭遇戦
-    // if ($("#enemy_class").val() === ENEMY_CLASS.SERAPH_ENCOUNTER) {
-    //     critical_buff += getCardEffect("CLIRICAL_DAMAGE");
-    // }
     return 1 + criticalBuff / 100;
 }
 // トークン効果量
@@ -1086,17 +1055,12 @@ function getSumTokenAbilirySize(handlers, effectType) {
     const styleList = handlers.styleList;
     const abilitySettingMap = handlers.abilitySettingMap;
     let sum = 0;
-    Object.keys(abilitySettingMap).forEach(function (key) {
-        let data = abilitySettingMap[key];
-        if (data.checked) {
-            let abilityId = data.ability_id;
-            let memberInfo = getCharaIdToMember(styleList, data.chara_id);
-            let abilityInfo = getAbilityInfo(abilityId);
-            if (abilityInfo.effect_type === effectType && memberInfo) {
-                sum = abilityInfo.effect_size * (memberInfo.token ? memberInfo.token : 0);
-            }
+    abilityLoop((abilityEffect, setting) => {
+        let memberInfo = getCharaIdToMember(styleList, setting.chara_id);
+        if (abilityEffect.effect_type === effectType && memberInfo) {
+            sum = abilityEffect.effect_size * (memberInfo.token ? memberInfo.token : 0);
         }
-    })
+    }, abilitySettingMap, effectType, handlers);
     return sum;
 }
 
@@ -1197,6 +1161,9 @@ function targetCountInclude(styleList, targetElement) {
 
 // 属性判定
 export function isElementInclude(styleInfo, targetElement) {
+    if (!styleInfo) {
+        return false;
+    }
     if (targetElement === 0) {
         return true;
     }
@@ -1476,7 +1443,7 @@ export function getStatUp(styleList, state, memberInfo, collect, abilitySettingM
     let scoreBonus = 0;
     if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK) {
         const selectHalf = state.score.half
-        let physical = getCharaData(memberInfo.styleInfo.chara_id).physical;
+        let physical = common.getCharaData(memberInfo.styleInfo.chara_id).physical;
         const targetConditions = [`element_${memberInfo.styleInfo.element}`, `element_${memberInfo.styleInfo.element2}`, `physical_${physical}`];
 
         scoreBonusList

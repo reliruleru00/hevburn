@@ -41,9 +41,12 @@ export const SKILL_ID = {
 }
 
 export const BUFF_ID = {
+    TRICK_CANNON: 2,   // トリック・カノン
     MOON_LIGHT: 2607,   // 月光
     MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
     MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
+    PERFECT_COLOR: 557,   // 極彩色
+    BRIGHT_RED: 1037,   // 茜色
 }
 
 export const ABILITY_ID = {
@@ -55,6 +58,8 @@ export const ABILITY_ID = {
     DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530, // 自動追撃,
     SPECIAL_TAG: 277, // スペシャルタッグ
+    HEAVEN_AND_EARTH: 603, // 天長地久
+    FORTUNES_OF_WAR: 606, // 武運長久
     ENGAGE_LINK: 1204, // エンゲージリンク
     V_RECOVERY: 1207,  // V字回復,
     DESTROY_WORLD: 1140, // 世界を滅ぼすお手伝いでゲス！
@@ -360,8 +365,8 @@ export const JEWEL_TYPE = {
     DAMAGE_DOWN: 7,
 }
 export const RANGE_ALL_ABILITY = [
-    EFFECT.COST_SP_DOWN, 
-    EFFECT.COST_SP_UP, 
+    EFFECT.COST_SP_DOWN,
+    EFFECT.COST_SP_UP,
     EFFECT.GIVEATTACKBUFFUP,
     EFFECT.GIVEDEFFENCEDEBUFFUP,
     EFFECT.GIVEDEBUFFUP,

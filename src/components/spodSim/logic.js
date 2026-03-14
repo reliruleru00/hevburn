@@ -6,6 +6,7 @@ import {
     CHARA_ID, SKILL_ID, ABILITY_ID, SKILL, ELEMENT, BUFF, RANGE, FIELD, EFFECT, CONDITIONS, ATTRIBUTE, KIND,
     ALONE_ACTIVATION_BUFF_KIND, COST_TYPE, changeStyle
 } from "utils/const";
+import * as constants from "utils/const";
 import {
     getCharaData, getSkillData, getAbilityInfo, getAttackInfo, getBuffList, deepClone, getStyleData
 } from "utils/common";
@@ -904,7 +905,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
     // 個別判定
     switch (buffInfo.buff_id) {
         // 選択されなかった
-        case 2: // トリック・カノン(攻撃力低下)
+        case constants.BUFF_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
             if (useUnitData.buffEffectSelectType === 0) {
                 return;
             }
@@ -913,7 +914,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             break;
     }
     switch (buffInfo.skill_id) {
-        case 557: // 極彩色
+        case constants.BUFF_ID.PERFECT_COLOR: // 極彩色
             let field_element = getFieldElement(turnData);
             if (buffInfo.buff_element !== field_element) {
                 return;
@@ -992,7 +993,8 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
                     }
                 }
                 let buff = createBuffData(buffInfo, useUnitData);
-                if (buffInfo.buff_id === 1037 && unitData.style.styleInfo.element === 1) {
+                // 茜色
+                if (buffInfo.buff_id === constants.BUFF_ID.BRIGHT_RED && unitData.style.styleInfo.element === 1) {
                     buff.rest_turn = 5;
                 }
                 unitData.buffList.push(buff);
@@ -1071,15 +1073,15 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             let fieldTurn = buffInfo.effect_count;
             if (fieldTurn > 0) {
                 // 天長地久
-                if (checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], 603)) {
+                if (checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.BUFF_ID.HEAVEN_AND_EARTH)) {
                     fieldTurn = 0;
                 }
-                // 天長地久
-                if (checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], 606) && checkBuffExist(useUnitData.buffList, BUFF.MORALE, 6)) {
+                // 武運長久
+                if (checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.BUFF_ID.FORTUNES_OF_WAR) && checkBuffExist(useUnitData.buffList, constants.BUFF.MORALE, 6)) {
                     fieldTurn = 0;
                 }
                 // メディテーション
-                if (checkPassiveExist(useUnitData.passiveSkillList, SKILL_ID.MEDITATION)) {
+                if (checkPassiveExist(useUnitData.passiveSkillList, constants.SKILL_ID.MEDITATION)) {
                     fieldTurn = 0;
                 }
             }
@@ -2188,16 +2190,6 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
                                     // チャージ存在チェック
                                     if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
                                         unitData.sp += ability.effect_size;
-                                    }
-                                    break;
-                                case 1111: // みなぎる士気
-                                    let exist_list = unitData.buffList.filter(function (buffInfo) {
-                                        return buffInfo.buff_kind === BUFF.MORALE;
-                                    });
-                                    if (exist_list.length > 0) {
-                                        if (exist_list[0].lv >= 6) {
-                                            unitData.sp += ability.effect_size;
-                                        }
                                     }
                                     break;
                                 case ABILITY_ID.ENGAGE_LINK: // エンゲージリンク

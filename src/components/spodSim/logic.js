@@ -7,6 +7,7 @@ import {
     ALONE_ACTIVATION_BUFF_KIND, COST_TYPE, changeStyle
 } from "utils/const";
 import * as constants from "utils/const";
+import * as common from "utils/common";
 import {
     getCharaData, getSkillData, getAbilityInfo, getAttackInfo, getBuffList, deepClone, getStyleData
 } from "utils/common";
@@ -218,127 +219,9 @@ const compereUserOperation = (comp1, comp2) => {
 // バフアイコン取得
 export function getBuffIconImg(buffInfo) {
     let src = "";
-    switch (buffInfo.buff_kind) {
-        case BUFF.ATTACKUP: // 攻撃力アップ
-        case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-            src += "IconBuffAttack";
-            break;
-        case BUFF.MINDEYE: // 心眼
-            src += "IconMindEye";
-            break;
-        case BUFF.DEFENSEDOWN: // 防御力ダウン
-        case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-            src += "IconBuffDefense";
-            break;
-        case BUFF.FRAGILE: // 脆弱
-        case BUFF.ETERNAL_FRAGILE: // 永続脆弱
-            src += "IconFragile";
-            break;
-        case BUFF.CRITICALRATEUP:	// クリティカル率アップ
-        case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-            src += "IconCriticalRate";
-            break;
-        case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
-        case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-            src += "IconCriticalDamage";
-            break;
-        case BUFF.CHARGE: // チャージ
-            src += "IconCharge";
-            break;
-        case BUFF.DAMAGERATEUP: // 破壊率アップ
-            src += "IconDamageRate";
-            break;
-        case BUFF.FIGHTINGSPIRIT: // 闘志
-            src += "IconFightingSpirit";
-            break;
-        case BUFF.MISFORTUNE: // 厄
-            src += "IconMisfortune";
-            break;
-        case BUFF.FUNNEL: // 連撃
-        case BUFF.ABILITY_FUNNEL: // アビリティ連撃
-            src += "IconFunnel";
-            break;
-        case BUFF.DEFENSEDP: // DP防御ダウン
-            src += "IconBuffDefenseDP";
-            break;
-        case BUFF.RESISTDOWN: // 耐性ダウン
-            src += "IconResistElement";
-            break;
-        case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-        case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-            src += "IconBuffDefenseE";
-            break;
-        case BUFF.RECOIL: // 行動不能
-            src += "IconRecoil";
-            break;
-        case BUFF.PROVOKE: // 挑発
-            src += "IconTarget";
-            break;
-        case BUFF.COVER: // 注目
-            src += "IconCover";
-            break;
-        case BUFF.GIVEATTACKBUFFUP: // バフ強化
-            src += "IconGiveAttackBuffUp";
-            break;
-        case BUFF.GIVEDEBUFFUP: // デバフ強化
-            src += "IconGiveDebuffUp";
-            break;
-        case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
-            src += "IconArrowCherryBlossoms";
-            break;
-        case BUFF.ETERNAL_OARH: // 永遠なる誓い
-            src += "iconEternalOath";
-            break;
-        case BUFF.EX_DOUBLE: // EXスキル連続使用
-            src += "IconDoubleActionExtraSkill";
-            break;
-        case BUFF.BABIED: // オギャり
-            src += "IconBabied";
-            break;
-        case BUFF.MORALE: // 士気
-            src += "IconMorale";
-            break;
-        case BUFF.DIVA_BLESS: // 歌姫の加護
-            src += "IconDivaBress";
-            break;
-        case BUFF.SHREDDING: // 速弾き
-            src += "IconShredding";
-            break;
-        case BUFF.NAGATIVE: // ネガティブ
-            src += "IconNegativeMind";
-            break;
-        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-            src += "IconYamawakiServant";
-            break;
-        case BUFF.HIGH_BOOST: // ハイブースト状態
-            src += "IconHighBoost";
-            break;
-        case BUFF.MAKEUP: // メイクアップ
-            src += "IconMakeup";
-            break;
-        case BUFF.FIRE_MARK: // 火の印
-            src += "IconFireMark";
-            break;
-        case BUFF.ICE_MARK: // 氷の印
-            src += "IconIceMark";
-            break;
-        case BUFF.THUNDER_MARK: // 雷の印
-            src += "IconThunderMark";
-            break;
-        case BUFF.CURRY: // カリー
-            src += "IconCurry";
-            break;
-        case BUFF.SHCHI: // シチー
-            src += "IconShchi";
-            break;
-        case BUFF.STEAK: // ステーキ
-            src += "IconSteak";
-            break;
-        case BUFF.GELATO: // ジェラート
-            src += "IconGelato";
-            break;
-        default:
-            break;
+    let buffKindKbn = common.getBuffKind(buffInfo.buff_kind);
+    if (buffKindKbn) {
+        src = buffKindKbn.buff_icon;
     }
     if (buffInfo.buff_element && buffInfo.buff_element !== 0) {
         src += buffInfo.buff_element;
@@ -1273,145 +1156,27 @@ export function getBuffKindName(buffInfo) {
     if (buffInfo.buff_element && buffInfo.buff_element !== 0) {
         buff_kind_name = ELEMENT_NAME[buffInfo.buff_element] + "属性";
     }
-
-    switch (buffInfo.buff_kind) {
-        case BUFF.ATTACKUP: // 攻撃力アップ
-        case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-            buff_kind_name += "攻撃力アップ";
-            break;
-        case BUFF.MINDEYE: // 心眼
-            buff_kind_name += "心眼";
-            break;
-        case BUFF.DEFENSEDOWN: // 防御力ダウン
-        case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-            buff_kind_name += "防御力ダウン";
-            break;
-        case BUFF.FRAGILE: // 脆弱
-            buff_kind_name += "脆弱";
-            break;
-        case BUFF.CRITICALRATEUP:	// クリティカル率アップ
-        case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-            buff_kind_name += "クリティカル率アップ";
-            break;
-        case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
-        case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-            buff_kind_name += "クリティカルダメージアップ";
-            break;
-        case BUFF.CHARGE: // チャージ
-            buff_kind_name += "チャージ";
-            break;
-        case BUFF.DAMAGERATEUP: // 破壊率アップ
-            buff_kind_name += "破壊率アップ";
-            break;
-        case BUFF.FIGHTINGSPIRIT: // 闘志
-            buff_kind_name += "闘志";
-            break;
-        case BUFF.MISFORTUNE: // 厄
-            buff_kind_name += "厄";
-            break;
-        case BUFF.FUNNEL: // 連撃
-        case BUFF.ABILITY_FUNNEL: // アビリティ連撃
-            switch (buffInfo.effect_size) {
-                case 6:
-                    buff_kind_name += "連撃(小)";
-                    break
-                case 12:
-                    buff_kind_name += "連撃(中)";
-                    break
-                case 25:
-                    buff_kind_name += "連撃(大)";
-                    break
-                case 50:
-                    buff_kind_name += "連撃(特大)";
-                    break
-                default:
-                    break;
-            }
-            break;
-        case BUFF.DEFENSEDP: // DP防御力ダウン
-            buff_kind_name += "DP防御力ダウン";
-            break;
-        case BUFF.RESISTDOWN: // 耐性ダウン
-            buff_kind_name += "耐性打ち消し/ダウン";
-            break;
-        case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-        case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-            buff_kind_name += "永続防御力ダウン";
-            break;
-        case BUFF.ETERNAL_FRAGILE: // 永続脆弱
-            buff_kind_name += "永続脆弱";
-            break;
-        case BUFF.RECOIL: // 行動不能
-            buff_kind_name += "行動不能";
-            break;
-        case BUFF.PROVOKE: // 挑発
-            buff_kind_name += "挑発";
-            break;
-        case BUFF.COVER: // 注目
-            buff_kind_name += "注目";
-            break;
-        case BUFF.GIVEATTACKBUFFUP: // バフ強化
-            buff_kind_name += "バフ強化";
-            break;
-        case BUFF.GIVEDEBUFFUP: // デバフ強化
-            buff_kind_name += "デバフ強化";
-            break;
-        case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
-            buff_kind_name += "桜花の矢";
-            break;
-        case BUFF.ETERNAL_OARH: // 永遠なる誓い
-            buff_kind_name += "永遠なる誓い";
-            break;
-        case BUFF.EX_DOUBLE: // EXスキル連続使用
-            buff_kind_name += "EXスキル連続使用";
-            break;
-        case BUFF.BABIED: // オギャり
-            buff_kind_name += "オギャり";
-            break;
-        case BUFF.MORALE: // 士気
-            buff_kind_name += "士気";
-            break;
-        case BUFF.DIVA_BLESS: // 歌姫の加護
-            buff_kind_name += "歌姫の加護";
-            break;
-        case BUFF.SHREDDING: // 速弾き
-            buff_kind_name += "速弾き";
-            break;
-        case BUFF.NAGATIVE: // ネガティブ
-            buff_kind_name += "ネガティブ";
-            break;
-        case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-            buff_kind_name += "山脇様のしもべ";
-            break;
-        case BUFF.HIGH_BOOST: // ハイブースト状態
-            buff_kind_name += "ハイブースト";
-            break;
-        case BUFF.MAKEUP:
-            buff_kind_name += "メイクアップ";
-            break;
-        case BUFF.FIRE_MARK:
-            buff_kind_name += "火の印";
-            break;
-        case BUFF.ICE_MARK:
-            buff_kind_name += "氷の印";
-            break;
-        case BUFF.THUNDER_MARK:
-            buff_kind_name += "雷の印";
-            break;
-        case BUFF.CURRY:
-            buff_kind_name += "カリー";
-            break;
-        case BUFF.SHCHI:
-            buff_kind_name += "シチー";
-            break;
-        case BUFF.STEAK:
-            buff_kind_name += "ステーキ";
-            break;
-        case BUFF.GELATO:
-            buff_kind_name += "ジェラート";
-            break;
-        default:
-            break;
+    let buffKindKbn = common.getBuffKind(buffInfo.buff_kind);
+    if (buffKindKbn) {
+        buff_kind_name += buffKindKbn.buff_name;
+    }
+    if (buffInfo.buff_kind === BUFF.FUNNEL || buffInfo.buff_kind === BUFF.ABILITY_FUNNEL) {
+        switch (buffInfo.effect_size) {
+            case 6:
+                buff_kind_name += "(小)";
+                break
+            case 12:
+                buff_kind_name += "(中)";
+                break
+            case 25:
+                buff_kind_name += "(大)";
+                break
+            case 50:
+                buff_kind_name += "(特大)";
+                break
+            default:
+                break;
+        }
     }
     return buff_kind_name;
 }

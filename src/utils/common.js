@@ -10,6 +10,7 @@ import abilityEffect from "data/abilityEffect";
 import passiveList from "data/passiveList";
 import passiveEffect from "data/passiveEffect";
 import abilityResonance from "data/abilityResonance";
+import buffKind from 'data/buffKind';
 
 // キャラ名取得
 export function getCharaData(charaId) {
@@ -52,6 +53,12 @@ export function getBuffList(skillId) {
 export function getBuffIdToBuff(buffId) {
   const filteredBuff = skillBuff.filter((obj) => obj.buff_id === Number(buffId));
   return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
+}
+
+// バフ種別取得
+export function getBuffKind(buffKbn) {
+  const filteredBuffKind = buffKind.filter((obj) => obj.buff_kbn === Number(buffKbn));
+  return filteredBuffKind.length > 0 ? filteredBuffKind[0] : undefined;
 }
 
 // アビリティ情報取得

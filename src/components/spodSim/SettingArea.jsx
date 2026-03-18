@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import ReactModal from "react-modal";
 import { ROLE, BUFF, RANGE } from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY, CONSTRAINTS_PASSIVE } from "./const";
-import { checkPassiveExist, recreateTurnData, initTurn, abilityAction, setUserOperation } from "./logic";
+import { checkPassiveExist, recreateTurnData, startTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, getPassiveEffectList, getAbilityEffectList, getResonanceInfo, deepClone } from "utils/common";
 import { useStyleList } from "components/StyleListProvider";
 import skillList from "data/skillList";
@@ -81,7 +81,14 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
         finishAction: false,
         field: 0,
         fieldTurn: 0,
-        userOperation: {}
+        userOperation: {},
+        log: [],
+        setLog: function (msg) {
+            this.log.push(msg);
+        },
+        setInitTurn: function (msg) {
+            this.log.push(msg);
+        },
     }
     let unitList = [];
     let constraintsAbility = [];
@@ -250,6 +257,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
     turnInit.unitList = unitList;
     turnInit.enemyInfo = enemyInfo;
     // 戦闘開始アビリティ
+    turnInit.setLog("■戦闘開始");
     abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
     setUserOperation(turnInit);
 
@@ -314,7 +322,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         // 制約事項更新
         setUpdate(update + 1);
         // 初期処理
-        initTurn(turnInit, true);
+        startTurn(turnInit);
         let turnList = [turnInit];
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
         setSettingUpdate(true);

@@ -145,11 +145,12 @@ const BuffArea = ({ argument: {
         abilityList.forEach(ability => {
             const key = `${ability.ability_id}-${ability.chara_id}`
             let checked = true;
-            let disabled = common.getAbilityEffectList(ability.ability_id).some(effect => !effect.conditions);
+            const abilityEffectList = common.getAbilityEffectList(ability.ability_id);
+            let disabled = abilityEffectList.some(effect => !effect.conditions);
             let limitBorder = ability.limit_border;
             let memberInfo = logic.getCharaIdToMember(styleList, ability.chara_id);
             let limitCount = memberInfo.limitCount;
-            switch (ability.range_area) {
+            switch (abilityEffectList[0].range_area) {
                 case RANGE.SELF:	// 自分
                     disabled = limitCount < limitBorder || (ability.chara_id === attackCharaId && disabled);
                     checked = limitCount >= limitBorder && ability.chara_id === attackCharaId;
@@ -774,7 +775,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                         continue;
                     }
                     if (!constants.RANGE_ALL_ABILITY.includes(abilityEffect.effect_type)) {
-                        if (abilityInfo.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
+                        if (abilityEffect.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
                     }
                     const buffType = buffTypeMap[abilityEffect.effect_type];
                     if (buffType) {
@@ -814,7 +815,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 for (const passiveEffect of passiveEffectList) {
                     if (!passiveInfo || !TARGET_KIND.includes(passiveEffect.effect_type)) continue;
                     if (!constants.RANGE_ALL_ABILITY.includes(passiveEffect.effect_type)) {
-                        if (passiveInfo.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
+                        if (passiveInfo.passiveEffect === RANGE.SELF && charaId !== attackCharaId) continue;
                     }
                     if (troopKbn === logic.TROOP_KBN.SUB) {
                         // 他部隊のアビリティは一部のみ許可

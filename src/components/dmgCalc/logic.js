@@ -353,7 +353,7 @@ const judgeEffect = (charaId, info, effect, effectType, handlers) => {
         : effect.effect_type !== effectType) {
         return false;
     }
-    if (!isRangeAreaInclude(charaId, info.range_area, styleInfo.chara_id)) {
+    if (!isRangeAreaInclude(charaId, effect.range_area, styleInfo.chara_id)) {
         return false;
     }
     if (!isElementInclude(styleInfo, info.target_element)) {

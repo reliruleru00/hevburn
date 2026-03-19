@@ -9,7 +9,7 @@ import {
 import * as constants from "utils/const";
 import * as common from "utils/common";
 import {
-    getCharaData, getSkillData, getAbilityInfo, getAttackInfo, getBuffList, deepClone, getStyleData
+    getCharaData, getSkillData, getAttackInfo, getBuffList, deepClone, getStyleData
 } from "utils/common";
 import skillAttack from "data/skillAttack";
 import skillList from "data/skillList";
@@ -125,11 +125,18 @@ export const changeStyleInfo = (unit, styleId) => {
     ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
         const num = parseInt(numStr, 10);
         if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
-            let abilityInfo = getAbilityInfo(styleInfo[`ability${numStr}`]);
+            let abilityInfo = common.getAbilityInfo(styleInfo[`ability${numStr}`]);
             if (!abilityInfo) {
                 return;
             }
-            unit[`ability_${abilityInfo.activation_timing}`].push(abilityInfo);
+            let abilityList = common.getAbilityEffectList(styleInfo[`ability${numStr}`]);
+            abilityList.forEach(abilityEffect => {
+                abilityEffect = {
+                    ...abilityEffect,
+                    ...abilityInfo
+                };
+                unit[`ability_${abilityEffect.activation_timing}`].push(abilityEffect);
+            });
         }
     });
 }
@@ -1618,24 +1625,6 @@ const unitTurnProceed = (unit, turn) => {
                 unit.sp += turn.ordinalSpBackAdd;
             }
         }
-        if (checkBuffExist(unit.buffList, BUFF.FIRE_MARK)) {
-            // 火の印6人
-            if (targetCountInclude(turn, ELEMENT.FIRE) > 5 && unit.placeNo < 3) {
-                unit.sp += 1;
-            }
-        }
-        if (checkBuffExist(unit.buffList, BUFF.ICE_MARK)) {
-            // 氷の印6人
-            if (targetCountInclude(turn, ELEMENT.ICE) > 5 && unit.placeNo < 3) {
-                unit.sp += 1;
-            }
-        }
-        if (checkBuffExist(unit.buffList, BUFF.THUNDER_MARK)) {
-            // 雷の印6人
-            if (targetCountInclude(turn, ELEMENT.THUNDER) > 5 && unit.placeNo < 3) {
-                unit.sp += 1;
-            }
-        }
         if (unit.sp > unit.limitSp) {
             unit.sp = unit.limitSp
         }
@@ -1850,42 +1839,6 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
             case "OD0%未満":
                 if (turnData.overDriveGauge >= 0) {
                     return;
-                }
-                break;
-            case "山脇様のしもべ6人":
-                for (let i = 0; i < 6; i++) {
-                    let unit = turnData.unitList[i];
-                    if (unit.blank) return;
-                    if (!checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)) {
-                        return;
-                    }
-                }
-                break;
-            case "火の印レベルが6以上":
-                for (let i = 0; i < 6; i++) {
-                    let unit = turnData.unitList[i];
-                    if (unit.blank) return;
-                    if (!checkBuffExist(unit.buffList, BUFF.FIRE_MARK)) {
-                        return;
-                    }
-                }
-                break;
-            case "氷の印レベルが6以上":
-                for (let i = 0; i < 6; i++) {
-                    let unit = turnData.unitList[i];
-                    if (unit.blank) return;
-                    if (!checkBuffExist(unit.buffList, BUFF.ICE_MARK)) {
-                        return;
-                    }
-                }
-                break;
-            case "雷の印レベルが6以上":
-                for (let i = 0; i < 6; i++) {
-                    let unit = turnData.unitList[i];
-                    if (unit.blank) return;
-                    if (!checkBuffExist(unit.buffList, BUFF.THUNDER_MARK)) {
-                        return;
-                    }
                 }
                 break;
             case "ODゲージ使用":
@@ -2196,6 +2149,14 @@ const getConditionName = (targetElement, conditions, conditionsId) => {
 
     if (!conditions) return "";
     switch (Number(conditions)) {
+        case CONDITIONS.ICE_STYLE:
+            return `氷属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.THUNDER_STYLE:
+            return `雷属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.FIRE_STYLE:
+            return `火属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.SARVANT_OVER:
+            return `山脇様のしもべ${conditionsId}人以上の時`;
         case CONDITIONS.HAS_BUFF_TARGET:
             return `${common.getBuffKind(conditionsId).buff_name}発動中の`;
         case CONDITIONS.HAS_BUFF:

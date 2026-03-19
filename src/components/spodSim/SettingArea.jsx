@@ -184,7 +184,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                             ...abilityEffect,
                             ...abilityInfo
                         };
-                        unit[`ability_${abilityInfo.activation_timing}`].push(abilityEffect);
+                        unit[`ability_${abilityEffect.activation_timing}`].push(abilityEffect);
                     });
                 }
             });
@@ -202,7 +202,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                         ...passiveEffect,
                         ...passiveInfo
                     };
-                    unit[`ability_${passiveInfo.activation_timing}`].push(passiveEffect);
+                    unit[`ability_${passiveEffect.activation_timing}`].push(passiveEffect);
                 });
             });
             // レゾナンス判定

@@ -1,7 +1,8 @@
 
 import React, { useState } from "react";
 import ReactModal from "react-modal";
-import { ROLE, BUFF, RANGE } from "utils/const";
+import { ROLE, BUFF } from "utils/const";
+import * as constants from "utils/const";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY, CONSTRAINTS_PASSIVE } from "./const";
 import { checkPassiveExist, recreateTurnData, startTurn, abilityAction, setUserOperation } from "./logic";
 import { getCharaData, getEnemyInfo, getPassiveInfo, getAbilityInfo, getPassiveEffectList, getAbilityEffectList, getResonanceInfo, deepClone } from "utils/common";
@@ -212,7 +213,8 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                     const resonance = deepClone(getResonanceInfo(support.styleInfo.ability_resonance));
                     if (resonance.activation_timing !== null) {
                         resonance.ability_name = resonance.resonance_name;
-                        resonance.range_area = RANGE.SELF;
+                        resonance.element = constants.ELEMENT.NORMAL;
+                        resonance.range_area = constants.RANGE.SELF;
                         resonance.effect_size = resonance[`effect_limit_${support.limitCount}`];
                         unit[`ability_${resonance.activation_timing}`].push(resonance);
                     }

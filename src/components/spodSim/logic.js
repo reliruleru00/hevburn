@@ -716,8 +716,6 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return conditionsId ? turnData.field === conditionsId : getFieldElement(turnData) !== 0;
         case CONDITIONS.HAS_ABILITY: // アビリティ
             return checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], conditionsId);
-        // case CONDITIONS.HAS_CHARGE: // チャージ
-        //     return checkBuffExist(unitData.buffList, BUFF.CHARGE);
         case CONDITIONS.HAS_BUFF: // バフ発動中
             return checkBuffExist(unitData.buffList, conditionsId);
         case CONDITIONS.MORALE_OVER_LV: // 士気Lv以上
@@ -744,23 +742,21 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return !checkBuffExist(unitData.buffList, BUFF.DIVA_BLESS);
         case CONDITIONS.NOT_NEGATIVE: // ネガティブ以外
             return !checkBuffExist(unitData.buffList, BUFF.NAGATIVE);
-        // case CONDITIONS.HAS_MAEKUP: // メイクアップ
-        //     return checkBuffExist(unitData.buffList, BUFF.MAKEUP);
         case CONDITIONS.SP_UNDER_0_ALL: // SP0以下の味方がいる
             return checkSp(turnData, RANGE.ALLY_ALL, 0);
         case CONDITIONS.SP_UNDER: // SP指定値以下
             return checkSp(turnData, RANGE.SELF, conditionsId, unitData.placeNo);
-        case CONDITIONS.SARVANT_OVER: // 山脇様のしもべ
+        case CONDITIONS.SARVANT_OVER: // 山脇様のしもべN人以上
             return turnData.unitList.filter((unit) =>
                 checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)
             ).length >= conditionsId;
-        case CONDITIONS.FIRE_STYLE: // 火属性スタイル
+        case CONDITIONS.FIRE_STYLE: // 火属性スタイルN人以上
             let fireCount = targetCountInclude(turnData, ELEMENT.FIRE);
             return fireCount >= conditionsId;
-        case CONDITIONS.ICE_STYLE: // 氷属性スタイル
+        case CONDITIONS.ICE_STYLE: // 氷属性スタイルN人以上
             let iceCount = targetCountInclude(turnData, ELEMENT.ICE);
             return iceCount >= conditionsId;
-        case CONDITIONS.THUNDER_STYLE: // 雷属性スタイル
+        case CONDITIONS.THUNDER_STYLE: // 雷属性スタイルN人以上
             let thunderCount = targetCountInclude(turnData, ELEMENT.THUNDER);
             return thunderCount >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
@@ -1242,7 +1238,7 @@ function getTargetList(turnData, rangeArea, targetElement, placeNo, buffTargetCh
         case RANGE.MEMBER_31E: // 31Eメンバー
             targetList = getTargetPlaceList(turnData.unitList, CHARA_ID.MEMBER_31E);
             break;
-        case CHARA_ID.MARUYAMA: // 丸山部隊メンバー
+        case RANGE.MARUYAMA_MEMBER: // 丸山部隊メンバー
             targetList = getTargetPlaceList(turnData.unitList, CHARA_ID.MARUYAMA);
             break;
         case RANGE.RUKA_SHARO: // 月歌とシャロ
@@ -1260,10 +1256,29 @@ function getTargetList(turnData, rangeArea, targetElement, placeNo, buffTargetCh
             continue;
         }
         // 属性条件
-        if (targetElement && targetElement !== 0) {
-            if (unit.style.styleInfo.element !== targetElement && unit.style.styleInfo.element2 !== targetElement) {
-                targetList.splice(i, 1);
-                continue;
+        if (targetElement && targetElement !== ELEMENT.NORMAL) {
+            switch (targetElement) {
+                case ELEMENT.FIRE: // 火属性
+                case ELEMENT.ICE: // 氷属性
+                case ELEMENT.THUNDER: // 雷属性
+                case ELEMENT.LIGHT: // 光属性
+                case ELEMENT.DARK: // 闇属性
+                    if (unit.style.styleInfo.element !== targetElement && unit.style.styleInfo.element2 !== targetElement) {
+                        targetList.splice(i, 1);
+                    }
+                    break;
+                case ELEMENT.NOT_FIRE: // 火以外
+                case ELEMENT.NOT_ICE: // 氷以外
+                case ELEMENT.NOT_THUNDER: // 雷以外
+                case ELEMENT.NOT_LIGHT: // 光以外
+                case ELEMENT.NOT_DARK: // 闇以外
+                    let notElement = targetElement - 10;
+                    if (unit.style.styleInfo.element === notElement || unit.style.styleInfo.element2 === notElement) {
+                        targetList.splice(i, 1);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -1821,11 +1836,6 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
                     return;
                 }
                 break;
-            case "チャージ状態":
-                if (!checkBuffExist(unit.buffList, BUFF.CHARGE)) {
-                    return;
-                };
-                break;
             case "SP0以下":
                 if (unit.sp > 0) {
                     return;
@@ -1989,49 +1999,17 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
                 }
                 effectDesc = `OverDriveゲージ+${ability.effect_size}`;
                 break;
-            case EFFECT.ARROWCHERRYBLOSSOMS: // 桜花の矢
-                addAbilityBuffUnit(BUFF.ARROWCHERRYBLOSSOMS, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `桜花の矢を付与`;
+            case EFFECT.GRANT_BUFF_: // バフ付与
+                addAbilityBuffUnit(ability.effect_no, ability.ability_name, ability.effect_count, targetList, turnData)
+                let buffKind = common.getBuffKind(ability.effect_no);
+                effectDesc = `${buffKind.buff_name}を付与`;
                 break;
-            case EFFECT.CHARGE: // チャージ
-                addAbilityBuffUnit(BUFF.CHARGE, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `チャージを付与`;
-                break;
-            case EFFECT.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                addAbilityBuffUnit(BUFF.YAMAWAKI_SERVANT, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `山脇様のしもべを付与`;
-                break;
-            case EFFECT.NEGATIVE: // ネガティブ
-                addAbilityBuffUnit(BUFF.NAGATIVE, ability.ability_name, ability.effect_count + 1, targetList, turnData)
-                effectDesc = `ネガティブを付与`;
-                break;
-            case EFFECT.MAKEUP: // メイクアップ
-                addAbilityBuffUnit(BUFF.MAKEUP, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `メイクアップを付与`;
-                break;
-            case EFFECT.HIGH_BOOST: // ハイブースト
-                addAbilityBuffUnit(BUFF.HIGH_BOOST, ability.passive_name, ability.effect_count + 1, targetList, turnData)
+            case EFFECT.SP_LIMIT_UP: // SP上限アップ
                 targetList.forEach(function (target_no) {
                     let unit = getUnitData(turnData, target_no);
-                    unit.limitSp = 30;
+                    unit.limitSp = ability.effect_size;
                 })
-                effectDesc = `ハイブーストを付与`;
-                break;
-            case EFFECT.FIRE_MARK: // 火の印
-                addAbilityBuffUnit(BUFF.FIRE_MARK, ability.passive_name, -1, targetList, turnData)
-                effectDesc = `火の印を付与`;
-                break;
-            case EFFECT.ICE_MARK: // 氷の印
-                addAbilityBuffUnit(BUFF.ICE_MARK, ability.passive_name, -1, targetList, turnData)
-                effectDesc = `氷の印を付与`;
-                break;
-            case EFFECT.THUNDER_MARK: // 雷の印
-                addAbilityBuffUnit(BUFF.THUNDER_MARK, ability.passive_name, -1, targetList, turnData)
-                effectDesc = `雷の印を付与`;
-                break;
-            case EFFECT.EX_DOUBLE: // EXスキル連続使用
-                addAbilityBuffUnit(BUFF.EX_DOUBLE, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `EXスキル連続使用を付与`;
+                effectDesc = `SP上限${ability.effect_size}にアップ`;
                 break;
             case EFFECT.FIELD_DEPLOYMENT: // フィールド
                 if (ability.element) {
@@ -2139,7 +2117,7 @@ const getConditionName = (targetElement, conditions, conditionsId) => {
             return "氷属性スタイルの";
         case ELEMENT.THUNDER:
             return "雷属性スタイルの";
-        case ELEMENT.LIGHTIGHT:
+        case ELEMENT.LIGHT:
             return "光属性スタイルの";
         case ELEMENT.DARK:
             return "闇属性スタイルの";

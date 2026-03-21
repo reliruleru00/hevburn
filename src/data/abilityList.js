@@ -185,7 +185,7 @@ const abilityList = [
     {"ability_id":1006,"ability_name":"咆吼","ability_explan":"バトル開始時前衛にいるとオーバードライブゲージ+10%","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":1007,"ability_name":"機敏","ability_explan":"バトル開始時前衛にいると自身のSP+2","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":1008,"ability_name":"警衛","ability_explan":"バトル開始時前衛にいると自身の防御力+25%(3ターン)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
-    {"ability_id":1009,"ability_name":"メイクアップ","ability_explan":"バトル開始時 自身がDP破損状態でないとき自身をメイクアップ状態にする","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
+    {"ability_id":1009,"ability_name":"メイクアップ","ability_explan":"バトル開始時 自身がDP破損状態でないとき自身をメイクアップ状態にする","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1011,"ability_name":"火炎の護り","ability_explan":"バトル開始時火属性スタイルが3体以上のとき味方全員の防御力+50%(4ターン/重複不可)","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1016,"ability_name":"鼓舞","ability_explan":"バトル開始時味方全体のSP+1","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1017,"ability_name":"爛漫","ability_explan":"バトル開始時自身を除く味方全体のSP+2","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},

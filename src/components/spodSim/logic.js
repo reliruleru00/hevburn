@@ -273,40 +273,51 @@ export function startAction(turnData) {
     }
     // フィールド判定
     let oldField = turnData.oldField;
-    let select_field = turnData.userOperation.field;
-    if (oldField !== select_field && select_field) {
+    let selectField = turnData.userOperation.field;
+    if (oldField !== selectField && selectField) {
         // 変更があった場合はフィールドターンをリセット
         turnData.fieldTurn = 0;
-        turnData.oldField = select_field;
+        turnData.oldField = selectField;
     }
 
     let seq = sortActionSeq(turnData);
+    let turnOverDriveGauge = 0;
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP,
     BUFF.ELEMENT_CRITICALDAMAGEUP, BUFF.CHARGE, BUFF.DAMAGERATEUP];
     const frontCostList = [];
-    for (const skill_data of seq) {
-        let skillInfo = skill_data.skillInfo;
-        let unitData = getUnitData(turnData, skill_data.placeNo);
-        let spCost = unitData.spCost;
+    for (const skillData of seq) {
+        let skillInfo = skillData.skillInfo;
+        let unitData = getUnitData(turnData, skillData.placeNo);
         // SP消費してから行動
         payCost(unitData, skillInfo);
+
+        let charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
+        let log = `${charaName}の${skillInfo.skill_name}`;
+        turnData.setLog(log);
 
         let buffList = getBuffList(skillInfo.skill_id);
         for (let i = 0; i < buffList.length; i++) {
             let buffInfo = buffList[i];
             if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
-                addBuffUnit(turnData, buffInfo, skill_data.placeNo, unitData);
+                addBuffUnit(turnData, buffInfo, skillData.placeNo, unitData);
             }
         }
+        const unitOdPlus = getODPlus(skillData, turnData, frontCostList);
+        if (unitOdPlus > 0) {
+            log = `　OverDriveゲージ+${unitOdPlus}%`;
+            turnData.setLog(log);
+        } else if (unitOdPlus < 0) {
+            log = `　OverDriveゲージ${unitOdPlus}%`;
+            turnData.setLog(log);
+        }
+        turnOverDriveGauge += unitOdPlus;
+
         let attackInfo;
         if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
             attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
         } else {
             attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
-            if (attackInfo) {
-                frontCostList.push(spCost);
-            }
             // アビリティ(スキル使用)
             abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
         }
@@ -322,7 +333,7 @@ export function startAction(turnData) {
                 for (let i = 0; i < buffList.length; i++) {
                     let buffInfo = buffList[i];
                     if (!(buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind))) {
-                        addBuffUnit(turnData, buffInfo, skill_data.placeNo, unitData);
+                        addBuffUnit(turnData, buffInfo, skillData.placeNo, unitData);
                     }
                 }
                 if (attackInfo) {
@@ -331,14 +342,14 @@ export function startAction(turnData) {
                 unitData.buffList = unitData.buffList.filter(obj => obj.buff_kind !== BUFF.EX_DOUBLE);
             }
             // アビリティ（EXスキル使用）
-            abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData);
+            abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData, false);
         }
 
         // 攻撃後にバフを付与
         for (let i = 0; i < buffList.length; i++) {
             let buffInfo = buffList[i];
             if (buffInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(buffInfo.buff_kind)) {
-                addBuffUnit(turnData, buffInfo, skill_data.placeNo, unitData);
+                addBuffUnit(turnData, buffInfo, skillData.placeNo, unitData);
             }
         }
         origin(turnData, skillInfo, unitData);
@@ -395,7 +406,7 @@ export function startAction(turnData) {
         }
     });
 
-    turnData.overDriveGauge += turnData.addOverDriveGauge;
+    turnData.overDriveGauge += turnOverDriveGauge;
     if (turnData.overDriveGauge > 300) {
         turnData.overDriveGauge = 300;
     }
@@ -460,86 +471,23 @@ export const getOverDrive = (turn) => {
     const tempTurn = deepClone(turn);
     const frontCostList = [];
 
-    for (const skill_data of seq) {
-        const skillInfo = skill_data.skillInfo;
-        const unitData = getUnitData(tempTurn, skill_data.placeNo);
-        const buffList = getBuffList(skillInfo.skill_id);
-        const attackInfo = getSkillIdToAttackInfo(turn, skillInfo.skill_id);
-        let unitOdPlus = 0;
-        // オギャり状態
-        let badies = checkBuffExist(unitData.buffList, BUFF.BABIED) ? 20 : 0;
-        const earring = getearringEffectSize(attackInfo ? attackInfo.hit_count : 1, unitData);
-
-        for (const buffInfo of buffList) {
-            // OD増加
-            if (buffInfo.buff_kind === BUFF.OVERDRIVEPOINTUP) {
-                // 条件判定
-                if (buffInfo.conditions && !judgmentCondition(buffInfo.conditions, buffInfo.conditions_id, tempTurn, unitData, buffInfo.skill_id)) {
-                    continue;
-                }
-                // 可変ODはいったん非対応
-
-                let correction = 1;
-                // 補正はのプラスの時のみ
-                if (buffInfo.max_power > 0) {
-                    correction += (badies + earring) / 100;
-                }
-                unitOdPlus += Math.floor(buffInfo.max_power * correction * 100) / 100;
-            }
-            // 連撃、オギャり状態、チャージ処理
-            const PROC_KIND = [BUFF.BABIED, BUFF.CHARGE];
-            if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind) || PROC_KIND.includes(buffInfo.buff_kind)) {
-                addBuffUnit(tempTurn, buffInfo, skill_data.placeNo, unitData);
-            }
-        }
-        let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
-        if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
-            // 通常攻撃
-            if (!isResist(turn.enemyInfo, physical, unitData.normalAttackElement, null)) {
-                unitOdPlus += calcODGain(3, 1, badies);
-            }
-        } else if (attackInfo) {
-            // 攻撃IDの変換(暫定)
-            let attackId = attackInfo.attack_id
-            switch (attackId) {
-                case 83:
-                    // 唯雅粛正
-                    if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
-                        attackId = 84;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            frontCostList.push(unitData.spCost);
-            if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackId)) {
-                let enemyTarget = enemyCount;
-                if (attackInfo.range_area === 1) {
-                    enemyTarget = 1;
-                }
-                let funnelList = getFunnelList(unitData);
-                unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
-                // EXスキル連続使用
-                if (checkBuffExist(unitData.buffList, BUFF.EX_DOUBLE) && (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE)) {
-                    buffList.forEach(function (buffInfo) {
-                        // 連撃のみ処理
-                        if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind)) {
-                            addBuffUnit(tempTurn, buffInfo, skill_data.placeNo, unitData);
-                        }
-                    });
-                    let funnelList = getFunnelList(unitData);
-                    unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
-                }
-            }
-        }
-        // EXスキル使用
-        if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
-            // アビリティ（EXスキル使用）
-            let overDriveGauge = tempTurn.overDriveGauge;
-            abilityActionUnit(tempTurn, ABILIRY_TIMING.EX_SKILL_USE, unitData, true);
-            unitOdPlus += tempTurn.overDriveGauge - overDriveGauge;
-        }
+    for (const skillData of seq) {
+        const unitOdPlus = getODPlus(skillData, tempTurn, frontCostList);
         odPlus += unitOdPlus;
+        // EXスキル使用アビリティにOD増加がある場合は加算する
+        if (common.isSkillEx(skillData.skillInfo, skillData.skillInfo.skill_id)) {
+            const unitData = getUnitData(tempTurn, skillData.placeNo);
+            const add = unitData[`ability_${ABILIRY_TIMING.EX_SKILL_USE}`]
+                .filter(ability => ability.effect_type === constants.EFFECT.OVERDRIVEPOINTUP)
+                .reduce((sum, ability) => {
+                    if (ability.conditions &&
+                        !judgmentCondition(ability.conditions, ability.conditions_id, tempTurn, unitData, ability.skill_id)) {
+                        return sum;
+                    }
+                    return sum + ability.effect_size;
+                }, 0);
+            odPlus += add
+        }
     }
     // // 後衛の選択取得
     [3, 4, 5].forEach(function (placeNo) {
@@ -579,7 +527,7 @@ export const getOverDrive = (turn) => {
                 const earring = attackInfo.attack_id ? getearringEffectSize(attackInfo.hit_count, unitData) : 0;
                 if (!isResist(turn.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)) {
                     let enemyTarget = enemyCount;
-                    if (attackInfo.range_area === 1) {
+                    if (attackInfo.range_area === constants.RANGE.ENEMY_UNIT) {
                         enemyTarget = 1;
                     }
                     let funnelList = getFunnelList(unitData);
@@ -599,6 +547,82 @@ export const getOverDrive = (turn) => {
         }
     });
     return odPlus;
+}
+
+const getODPlus = (skillData, turnData, frontCostList) => {
+    const enemyCount = turnData.enemyCount;
+    const skillInfo = skillData.skillInfo;
+    const unitData = getUnitData(turnData, skillData.placeNo);
+    const buffList = getBuffList(skillInfo.skill_id);
+    const attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
+    let unitOdPlus = 0;
+    // オギャり状態
+    let badies = checkBuffExist(unitData.buffList, BUFF.BABIED) ? 20 : 0;
+    const earring = getearringEffectSize(attackInfo ? attackInfo.hit_count : 1, unitData);
+
+    for (const buffInfo of buffList) {
+        // OD増加
+        if (buffInfo.buff_kind === BUFF.OVERDRIVEPOINTUP) {
+            // 条件判定
+            if (buffInfo.conditions && !judgmentCondition(buffInfo.conditions, buffInfo.conditions_id, turnData, unitData, buffInfo.skill_id)) {
+                continue;
+            }
+            // 可変ODはいったん非対応
+
+            let correction = 1;
+            // 補正はのプラスの時のみ
+            if (buffInfo.max_power > 0) {
+                correction += (badies + earring) / 100;
+            }
+            unitOdPlus += Math.floor(buffInfo.max_power * correction * 100) / 100;
+        }
+        // 連撃、オギャり状態、チャージ処理
+        const PROC_KIND = [BUFF.BABIED, BUFF.CHARGE];
+        if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind) || PROC_KIND.includes(buffInfo.buff_kind)) {
+            addBuffUnit(turnData, buffInfo, skillData.placeNo, unitData);
+        }
+    }
+    let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
+    if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
+        // 通常攻撃
+        if (!isResist(turnData.enemyInfo, physical, unitData.normalAttackElement, null)) {
+            unitOdPlus += calcODGain(3, 1, badies);
+        }
+    } else if (attackInfo) {
+        // 攻撃IDの変換(暫定)
+        let attackId = attackInfo.attack_id
+        switch (attackId) {
+            case 83:
+                // 唯雅粛正
+                if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
+                    attackId = 84;
+                }
+                break;
+            default:
+                break;
+        }
+        frontCostList.push(unitData.spCost);
+        if (!isResist(turnData.enemyInfo, physical, attackInfo.attack_element, attackId)) {
+            let enemyTarget = enemyCount;
+            if (attackInfo.range_area === constants.RANGE.ENEMY_UNIT) {
+                enemyTarget = 1;
+            }
+            let funnelList = getFunnelList(unitData);
+            unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
+            // EXスキル連続使用
+            if (checkBuffExist(unitData.buffList, BUFF.EX_DOUBLE) && (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE)) {
+                buffList.forEach(function (buffInfo) {
+                    // 連撃のみ処理
+                    if (BUFF_FUNNEL_LIST.includes(buffInfo.buff_kind)) {
+                        addBuffUnit(turnData, buffInfo, skillData.placeNo, unitData);
+                    }
+                });
+                let funnelList = getFunnelList(unitData);
+                unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, badies, earring, funnelList.length);
+            }
+        }
+    }
+    return unitOdPlus;
 }
 
 // OD計算
@@ -814,7 +838,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             break;
     }
 
-    let targetList;
+    let targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
     // 対象策定
     switch (buffInfo.buff_kind) {
         case BUFF.ATTACKUP: // 攻撃力アップ
@@ -842,7 +866,6 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
         case BUFF.STEAK: // ステーキ
         case BUFF.GELATO: // ジェラート
             // バフ追加
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             if (buffInfo.buff_kind === BUFF.ATTACKUP || buffInfo.buff_kind === BUFF.ELEMENT_ATTACKUP) {
                 // 先頭のバフ強化を消費する。
                 let index = useUnitData.buffList.findIndex(function (buffInfo) {
@@ -892,7 +915,6 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             break;
         case BUFF.MORALE: // 士気
             // バフ追加
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 if (unitData.blank) {
@@ -929,13 +951,11 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             }
             break;
         case BUFF.HEALSP: // SP追加
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 skillHealSp(turnData, target_no, buffInfo.min_power, buffInfo.max_power, placeNo, false, buffInfo.buff_id);
             });
             break;
         case BUFF.HEALEP: // EP追加
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 let maxEp = Math.max(10, unitData.ep + unitData.overDriveEp);
@@ -951,7 +971,6 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             });
             break;
         case BUFF.ADDITIONALTURN: // 追加ターン
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 unitData.additionalTurn = true;
@@ -980,7 +999,6 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
             turnData.fieldTurn = fieldTurn;
             break;
         case BUFF.DISPEL: // ディスペル
-            targetList = getTargetList(turnData, buffInfo.range_area, buffInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 unitData.buffList = unitData.buffList.filter(function (buffInfo) {
@@ -991,6 +1009,23 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData) {
         default:
             break;
     }
+
+    let effectDesc = common.getBuffKind(buffInfo.buff_kind).buff_name;
+    let rangeName = getRangeName(buffInfo.range_area);
+    let conditionName = getConditionName(buffInfo.target_element, buffInfo.conditions, Number(buffInfo.conditions_id));
+    let log = `　${conditionName}${effectDesc}`;
+    if (rangeName) {
+        log = `　${conditionName}${rangeName}に${effectDesc}`;
+    }
+    if (targetList.length > 0) {
+        let nameList = targetList.map(function (target_no) {
+            let unitData = getUnitData(turnData, target_no);
+            return getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
+        });
+        log += `(対象：${nameList.join(", ")})`;
+    }
+    turnData.setLog(log);
+
 }
 
 function addMoraleBuffUnit(unitData, buffInfo, useUnitData) {
@@ -1328,15 +1363,15 @@ const sortActionSeq = (turnData) => {
             return true;
         }
         let skillInfo = getSkillData(skill_id);
-        let skill_data = {
+        let skillData = {
             skillInfo: skillInfo,
             placeNo: placeNo
         };
         let attackInfo = getSkillIdToAttackInfo(turnData, skill_id);
         if (attackInfo || skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
-            attack_seq.push(skill_data);
+            attack_seq.push(skillData);
         } else {
-            buff_seq.push(skill_data);
+            buff_seq.push(skillData);
         }
     });
     attack_seq.sort((a, b) => a.placeNo - b.placeNo);
@@ -1799,9 +1834,8 @@ const getFunnelList = (unit) => {
     return resultList;
 }
 
-const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
-    let actionList = [];
-    actionList = unit[`ability_${actionKbn}`];
+const abilityActionUnit = (turnData, actionKbn, unit) => {
+    let actionList = unit[`ability_${actionKbn}`];
     // 被ダメージ時
     if (actionKbn === ABILIRY_TIMING.RECEIVE_DAMAGE) {
         // 前衛のみ
@@ -1986,12 +2020,6 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
                 if (ability.used && onlyUseList.includes(ability.ability_id)) {
                     return;
                 }
-                // EXスキル使用時のみ発動のアビリティは計算モード以外では発動させない
-                if (ABILIRY_TIMING.EX_SKILL_USE === actionKbn) {
-                    if (!isClac) {
-                        return;
-                    }
-                }
                 ability.used = true;
                 turnData.overDriveGauge += ability.effect_size;
                 if (turnData.overDriveGauge > 300) {
@@ -2003,6 +2031,11 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
                 addAbilityBuffUnit(ability.effect_no, ability.ability_name, ability.effect_count, targetList, turnData)
                 let buffKind = common.getBuffKind(ability.effect_no);
                 effectDesc = `${buffKind.buff_name}を付与`;
+                break;
+            case EFFECT.YAMAWAKI_SERVANT: // 山脇様のしもべ
+                // レゾナンス用
+                addAbilityBuffUnit(BUFF.YAMAWAKI_SERVANT, ability.ability_name, -1, targetList, turnData)
+                effectDesc = `山脇様のしもべを付与`;
                 break;
             case EFFECT.SP_LIMIT_UP: // SP上限アップ
                 targetList.forEach(function (target_no) {
@@ -2053,7 +2086,10 @@ const abilityActionUnit = (turnData, actionKbn, unit, isClac = false) => {
             let rangeName = getRangeName(ability.range_area);
             let charaName = getCharaData(unit.style.styleInfo.chara_id).chara_short_name;
             let conditionName = getConditionName(ability.target_element, ability.conditions, Number(ability.conditions_id));
-            let log = `${charaName}：${abilityName}(${conditionName}${rangeName}に${effectDesc})が発動`;
+            let log = `${charaName}：${abilityName}(${conditionName}${effectDesc})が発動`;
+            if (rangeName) {
+                log = `${charaName}：${abilityName}(${conditionName}${rangeName}に${effectDesc})が発動`;
+            }
             turnData.setLog(log);
             let nameList = targetList.map(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
@@ -2103,7 +2139,7 @@ const getRangeName = (rangeArea) => {
         case RANGE.RUKA_SHARO:
             return "月歌とシャロ";
         default:
-            return "その他";
+            return "";
     }
 }
 

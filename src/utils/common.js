@@ -11,6 +11,7 @@ import passiveList from "data/passiveList";
 import passiveEffect from "data/passiveEffect";
 import abilityResonance from "data/abilityResonance";
 import buffKind from 'data/buffKind';
+import * as constants from "utils/const";
 
 // キャラ名取得
 export function getCharaData(charaId) {
@@ -35,6 +36,14 @@ export function getEnemyInfo(enemyClass, enemySelect) {
 export function getSkillData(skillId) {
   const filteredSkill = skillList.filter((obj) => obj.skill_id === Number(skillId));
   return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
+}
+
+// EXスキル判定
+export function isSkillEx(skillInfo, skillId) {
+  if (!skillInfo) {
+    skillInfo = getSkillData(skillId);
+  }
+  return skillInfo && (skillInfo.skill_kind === constants.KIND.EX_GENERATE || skillInfo.skill_kind === constants.KIND.EX_EXCLUSIVE);
 }
 
 // スキル攻撃情報取得

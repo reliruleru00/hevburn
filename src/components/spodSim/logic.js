@@ -1391,7 +1391,10 @@ export const recreateTurnData = (turnList, turnData, userOperationList, isLoadMo
     while (compereUserOperation(turnData.userOperation, userOperationList[userOperationList.length - 1]) < 0) {
         // 現ターン処理
         turnData = deepClone(turnData);
-        startAction(turnData);
+        if (!isLoadMode || turnList.length > 0) {
+            // ロード時の最初ターンは処理しない)
+            startAction(turnData);
+        }
         startTurn(turnData);
         turnList.push(turnData);
         // ユーザ操作の更新

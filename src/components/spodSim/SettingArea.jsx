@@ -386,6 +386,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         recreateTurnData(turnList, turnInit, saveData.userOperationList, true);
         // 画面反映
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
+        setSettingUpdate(true);
     }
 
     const [detailSetting, setDetailSetting] = React.useState({

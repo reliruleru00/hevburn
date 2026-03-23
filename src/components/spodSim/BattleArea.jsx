@@ -164,10 +164,10 @@ const BattleArea = React.memo(({ hideMode, setHideMode, turnList, dispatch, load
                     overlayClassName={"modal-overlay " + (modal.isOpen ? "modal-overlay-open" : "")}
                 >
                     {
-                        modal.mode === "bulkSetting" && <ModalSaveLoad mode={modal.mode} handleClose={closeModal} turnList={turnList} loadData={loadData} update={update} setUpdate={setUpdate} />
+                        modal.mode === "log" && <ModalLogHistory turnData={turnList[activeTurnNumber - 1]} />
                     }
                     {
-                        modal.mode === "log" && <ModalLogHistory turnData={turnList[activeTurnNumber - 1]} />
+                        modal.mode !== "log" && <ModalSaveLoad mode={modal.mode} handleClose={closeModal} turnList={turnList} loadData={loadData} update={update} setUpdate={setUpdate} />
                     }
                 </ReactModal>
             }

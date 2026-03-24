@@ -198,6 +198,7 @@ export const EFFECT = {
     TALISMAN: 44, // 霊符
     EX_DOUBLE: 45, // EXスキル連続発動
     HEALEP: 52, // EP回復
+    ATTACKUP_AND_DAMAGERATEUP: 53, // 攻撃力＋破壊率アップ
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ
     COST_SP_UP: 56, // 消費SPアップ

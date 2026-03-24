@@ -7,6 +7,7 @@ import {
 import enemyList from "data/enemyList";
 import scoreBonusList from "data/scoreBonus";
 import * as common from "utils/common";
+import * as constants from 'utils/const';
 
 export const BUFF_KBN = {
     0: "power_up",
@@ -1118,6 +1119,11 @@ function getSumAbilityEffectSize(handlers, effectType) {
         .filter(resonance => resonance.charaId === memberInfo.styleInfo.chara_id)
         .forEach(resonance => {
             if (resonance.effect_type === effectType) {
+                const limitCount = resonance.limitCount;
+                const effectSize = resonance[`effect_limit_${limitCount}`];
+                abilityEffectSize += effectSize;
+            }
+            if (resonance.effect_type === constants.EFFECT.ATTACKUP_AND_DAMAGERATEUP && [constants.EFFECT.ATTACKUP, constants.EFFECT.DAMAGERATEUP].includes(effectType)) {
                 const limitCount = resonance.limitCount;
                 const effectSize = resonance[`effect_limit_${limitCount}`];
                 abilityEffectSize += effectSize;

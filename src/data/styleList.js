@@ -294,6 +294,7 @@ const styleList = [
     {"style_id":5093,"chara_id":28,"rarity":2,"resonance":0,"style_name":"ふわりフリーダム","image_url":"YoOhshimaDefault_R2a_Thumbnail","role":5,"element":0,"jewel_type":3,"ability3":1147},
     {"style_id":5094,"chara_id":15,"rarity":2,"resonance":0,"style_name":"薄闇に結ぶ調合式","image_url":"MTenneDefault_R2a_Thumbnail","role":7,"element":0,"jewel_type":4,"ability3":222,"ability10":1029},
     {"style_id":5095,"chara_id":18,"rarity":2,"resonance":0,"style_name":"プライスレス・スマイル","image_url":"MSatsukiDefault_R2_Thumbnail","role":5,"element":2,"jewel_type":3,"ability1":242},
+    {"style_id":5096,"chara_id":48,"rarity":2,"resonance":0,"style_name":"親愛の結び","image_url":"SKuraDefault_R2b_Thumbnail","role":5,"element":4,"jewel_type":3,"ability3":246,"ability10":617},
     {"style_id":9001,"chara_id":1,"rarity":3,"resonance":0,"style_name":"Attack or Music","image_url":"RKayamoriDefault_R1_Thumbnail","role":1,"element":0,"ability5":9},
     {"style_id":9002,"chara_id":2,"rarity":3,"resonance":0,"style_name":"Attack or March","image_url":"YIzumiDefault_R1_Thumbnail","role":2,"element":0,"ability5":238},
     {"style_id":9003,"chara_id":3,"rarity":3,"resonance":0,"style_name":"Plain or Wild","image_url":"MAikawaDefault_R1_Thumbnail","role":6,"element":0,"ability5":1007},

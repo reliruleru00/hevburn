@@ -177,6 +177,7 @@ const abilityEffect = [
     {"ability_id":614,"range_area":7,"activation_timing":13,"effect_type":15,"effect_size":2,"conditions":"42"},
     {"ability_id":615,"range_area":7,"activation_timing":13,"effect_type":15,"effect_size":2,"conditions":"8"},
     {"ability_id":616,"range_area":7,"activation_timing":13,"effect_type":15,"effect_size":2,"conditions":"再生の陣"},
+    {"ability_id":617,"range_area":7,"activation_timing":13,"effect_type":15,"effect_size":1,"conditions":"3"},
     {"ability_id":1001,"range_area":2,"activation_timing":0,"effect_type":21,"effect_count":1,"conditions":"確率50%"},
     {"ability_id":1002,"range_area":7,"activation_timing":0,"effect_type":30,"effect_size":5,"conditions":""},
     {"ability_id":1003,"range_area":2,"activation_timing":0,"effect_type":22,"effect_count":2,"conditions":""},

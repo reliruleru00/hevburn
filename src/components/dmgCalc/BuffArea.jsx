@@ -45,14 +45,6 @@ const SUB_TARGET_KIND = [
     EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
 
-const buffTypeMap = {
-    [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
-    [EFFECT.CHARGE]: BUFF.CHARGE,
-    [EFFECT.ARROWCHERRYBLOSSOMS]: BUFF.ARROWCHERRYBLOSSOMS,
-    [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
-    [EFFECT.YAMAWAKI_SERVANT]: BUFF.YAMAWAKI_SERVANT,
-};
-
 const BuffArea = ({ argument: {
     attackInfo, state, dispatch,
     selectBuffKeyMap, setSelectBuffKeyMap,
@@ -715,6 +707,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     chara_name: charaName,
                     max_power: effectSize,
                     effect_count: effectCount,
+                    range_area: constants.RANGE.SELF,
                     max_lv: 1,
                     kbn: kbn
                 });
@@ -777,7 +770,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                     if (!constants.RANGE_ALL_ABILITY.includes(abilityEffect.effect_type)) {
                         if (abilityEffect.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
                     }
-                    const buffType = buffTypeMap[abilityEffect.effect_type];
+                    const buffType = judgeBuffType(abilityEffect);
                     if (buffType) {
                         addBuffAbility("ability", abilityId, charaId, abilityInfo.ability_name, buffType, abilityEffect.element, abilityEffect.effect_size);
                         continue;
@@ -843,14 +836,30 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             if (memberInfo.styleInfo.resonance === 1 && memberInfo.supportStyleId) {
                 const support = memberInfo.support;
                 if (support.styleInfo.ability_resonance) {
-                    const resonance = common.getResonanceInfo(support.styleInfo.ability_resonance);
-                    const buffType = buffTypeMap[resonance.effect_type];
-                    if (buffType) {
-                        addBuffAbility("ability", 0, charaId, resonance.resonance_name, buffType, resonance.element, resonance.effect_size);
+                    const resonanceInfo = common.getResonanceInfo(support.styleInfo.ability_resonance);
+                    const resonanceEffectList = common.getResonanceEffectList(resonanceInfo.resonance_id);
+                    for (const resonanceEffect of resonanceEffectList) {
+                        if (judgeBuffType(resonanceEffect)) {
+                            addBuffAbility("ability", 0, charaId, resonanceInfo.resonance_name, constants.BUFF.YAMAWAKI_SERVANT, resonanceEffect.element, resonanceEffect.effect_size);
+                        }
                     }
                 }
             }
         });
+}
+
+const judgeBuffType = (effect) => {
+    const buffTypeMap = {
+        [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
+        [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
+    };
+    const buffTypeList = [BUFF.CHARGE, BUFF.ARROWCHERRYBLOSSOMS, BUFF.YAMAWAKI_SERVANT];
+    if (effect.effect_type === constants.EFFECT.GRANT_BUFF) {
+        if (buffTypeList.includes(effect.effect_no)) return effect.effect_no;
+        return false;
+    }
+    const buffType = buffTypeMap[effect.effect_type];
+    return buffType;
 }
 
 const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attackInfo, selectStyleList) {
@@ -883,9 +892,11 @@ const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attackInfo, 
             if (memberInfo.styleInfo.resonance === 1 && memberInfo.supportStyleId) {
                 const support = memberInfo.support;
                 if (support.styleInfo.ability_resonance) {
-                    const resonance = common.getResonanceInfo(support.styleInfo.ability_resonance);
-                    if (resonance.effect_type === EFFECT.YAMAWAKI_SERVANT) {
-                        return true;
+                    for (const resonanceEffect of common.getResonanceEffectList(support.styleInfo.ability_resonance)) {
+                        if (resonanceEffect.effect_type === constants.EFFECT.GRANT_BUFF &&
+                            resonanceEffect.effect_no === constants.BUFF.YAMAWAKI_SERVANT) {
+                            return true;
+                        }
                     }
                 }
             }

@@ -347,6 +347,19 @@ const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
         })
 }
 
+const resonaceLoop = (func, resonanceList, effectType, handlers) => {
+    resonanceList
+        .forEach(resonance => {
+            const resonanceInfo = common.getResonanceInfo(resonance.resonance_id);
+            for (const resonanceEffect of common.getResonanceEffectList(resonance.resonance_id)) {
+                resonanceEffect.range_area = constants.RANGE.SELF;
+                if (judgeEffect(resonance.charaId, resonanceInfo, resonanceEffect, effectType, handlers)) {
+                    func(resonanceEffect, resonance)
+                }
+            }
+        })
+}
+
 const judgeEffect = (charaId, info, effect, effectType, handlers) => {
     let styleInfo = handlers.memberInfo.styleInfo;
     if (Array.isArray(effectType)
@@ -399,7 +412,6 @@ function judgmentCondition(effect, handlers) {
 
 // バフ強化効果量取得
 function getStrengthen(handlers, buff, resonanceList) {
-    let charaId = buff.use_chara_id;
     let strengthen = 0;
     let abilitySettingMap = handlers.abilitySettingMap;
     let passiveSettingMap = handlers.passiveSettingMap;
@@ -414,15 +426,11 @@ function getStrengthen(handlers, buff, resonanceList) {
             strengthen += passiveEffect.effect_size;
         }, passiveSettingMap, EFFECT.GIVEATTACKBUFFUP, handlers);
 
-        resonanceList
-            .filter(resonance => resonance.charaId === charaId)
-            .forEach(resonance => {
-                if (resonance.effect_type === EFFECT.GIVEATTACKBUFFUP) {
-                    const limitCount = resonance.limitCount;
-                    const effectSize = resonance[`effect_limit_${limitCount}`];
-                    strengthen += effectSize;
-                }
-            })
+        resonaceLoop((resonanceEffect, resonance) => {
+            const limitCount = resonance.limitCount;
+            const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
+            strengthen += effectSize;
+        }, resonanceList, EFFECT.GIVEATTACKBUFFUP, handlers);
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
     if (KIND_DEFENSEDOWN.includes(buff.buff_kind)) {
@@ -441,16 +449,13 @@ function getStrengthen(handlers, buff, resonanceList) {
         passiveLoop((passiveEffect) => {
             strengthen += passiveEffect.effect_size;
         }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, handlers);
+        
+        resonaceLoop((resonanceEffect, resonance) => {
+            const limitCount = resonance.limitCount;
+            const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
+            strengthen += effectSize;
+        }, resonanceList, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
 
-        resonanceList
-            .filter(resonance => resonance.charaId === charaId)
-            .forEach(resonance => {
-                if (resonance.effect_type === EFFECT.GIVEDEFFENCEDEBUFFUP) {
-                    const limitCount = resonance.limitCount;
-                    const effectSize = resonance[`effect_limit_${limitCount}`];
-                    strengthen += effectSize;
-                }
-            })
     }
     // 防御ダウン以外のデバフスキル
     if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(buff.buff_kind)) {
@@ -1067,7 +1072,6 @@ function getSumTokenAbilirySize(handlers, effectType) {
 // アビリティ効果量合計取得
 function getSumAbilityEffectSize(handlers, effectType) {
     const styleList = handlers.styleList;
-    const memberInfo = handlers.memberInfo;
     const abilitySettingMap = handlers.abilitySettingMap;
     const passiveSettingMap = handlers.passiveSettingMap;
     const resonanceList = handlers.resonanceList;
@@ -1115,20 +1119,11 @@ function getSumAbilityEffectSize(handlers, effectType) {
         abilityEffectSize += passiveEffect.effect_size;
     }, passiveSettingMap, effectType, handlers);
 
-    resonanceList
-        .filter(resonance => resonance.charaId === memberInfo.styleInfo.chara_id)
-        .forEach(resonance => {
-            if (resonance.effect_type === effectType) {
-                const limitCount = resonance.limitCount;
-                const effectSize = resonance[`effect_limit_${limitCount}`];
-                abilityEffectSize += effectSize;
-            }
-            if (resonance.effect_type === constants.EFFECT.ATTACKUP_AND_DAMAGERATEUP && [constants.EFFECT.ATTACKUP, constants.EFFECT.DAMAGERATEUP].includes(effectType)) {
-                const limitCount = resonance.limitCount;
-                const effectSize = resonance[`effect_limit_${limitCount}`];
-                abilityEffectSize += effectSize;
-            }
-        })
+    resonaceLoop((resonanceEffect, resonance) => {
+        const limitCount = resonance.limitCount;
+        const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
+        abilityEffectSize += effectSize;
+    }, resonanceList, effectType, handlers);
     return abilityEffectSize;
 }
 

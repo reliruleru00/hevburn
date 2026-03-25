@@ -1910,12 +1910,13 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                 break;
         }
         let effectDesc = "";
+        let name = ability.ability_name || ability.passive_name;
         switch (ability.effect_type) {
             case EFFECT.FUNNEL: // 連撃数アップ
             case EFFECT.FUNNEL_ALWAYS: // 連撃数(永続)アップ
                 buff = {};
                 buff.buff_kind = BUFF.ABILITY_FUNNEL;
-                buff.buff_name = ability.ability_name || ability.passive_name;
+                buff.buff_name = name;
                 buff.buff_element = 0;
                 buff.max_power = ability.effect_count;
                 buff.effect_size = ability.effect_size;
@@ -2030,16 +2031,16 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                 }
                 effectDesc = `OverDriveゲージ+${ability.effect_size}`;
                 break;
-            case EFFECT.GRANT_BUFF_: // バフ付与
-                addAbilityBuffUnit(ability.effect_no, ability.ability_name, ability.effect_count, targetList, turnData)
+            case EFFECT.GRANT_BUFF: // バフ付与
+                addAbilityBuffUnit(ability.effect_no, name, ability.effect_count, targetList, turnData)
                 let buffKind = common.getBuffKind(ability.effect_no);
                 effectDesc = `${buffKind.buff_name}を付与`;
                 break;
-            case EFFECT.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                // レゾナンス用
-                addAbilityBuffUnit(BUFF.YAMAWAKI_SERVANT, ability.ability_name, -1, targetList, turnData)
-                effectDesc = `山脇様のしもべを付与`;
-                break;
+            // case EFFECT.YAMAWAKI_SERVANT: // 山脇様のしもべ
+            //     // レゾナンス用
+            //     addAbilityBuffUnit(BUFF.YAMAWAKI_SERVANT, ability.ability_name, -1, targetList, turnData)
+            //     effectDesc = `山脇様のしもべを付与`;
+            //     break;
             case EFFECT.SP_LIMIT_UP: // SP上限アップ
                 targetList.forEach(function (target_no) {
                     let unit = getUnitData(turnData, target_no);

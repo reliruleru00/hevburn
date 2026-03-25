@@ -9,7 +9,8 @@ import abilityList from "data/abilityList";
 import abilityEffect from "data/abilityEffect";
 import passiveList from "data/passiveList";
 import passiveEffect from "data/passiveEffect";
-import abilityResonance from "data/abilityResonance";
+import resonanceList from "data/resonanceList";
+import resonanceEffect from "data/resonanceEffect";
 import buffKind from 'data/buffKind';
 import * as constants from "utils/const";
 
@@ -54,8 +55,8 @@ export function getAttackInfo(attackId) {
 
 // バフ一覧取得
 export function getBuffList(skillId) {
-    const filteredBuff = skillBuff.filter((obj) => obj.skill_id === Number(skillId));
-    return filteredBuff;
+  const filteredBuff = skillBuff.filter((obj) => obj.skill_id === Number(skillId));
+  return filteredBuff;
 }
 
 // バフ情報取得
@@ -87,7 +88,7 @@ export function getPassiveInfo(skillId) {
   return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
 }
 
-// パッシブスト取得
+// パッシブリスト取得
 export function getPassiveEffectList(skillId) {
   return passiveEffect.filter((obj) => obj.skill_id === Number(skillId));
 }
@@ -95,10 +96,15 @@ export function getPassiveEffectList(skillId) {
 export function checkStyleElement(style, element) {
 }
 
-// パッシブ情報取得
+// レゾナンス情報取得
 export function getResonanceInfo(resonanceId) {
-  const filteredResonance = abilityResonance.filter((obj) => obj.resonance_id === Number(resonanceId));
+  const filteredResonance = resonanceList.filter((obj) => obj.resonance_id === Number(resonanceId));
   return filteredResonance.length > 0 ? filteredResonance[0] : undefined;
+}
+
+// レゾナンスリスト取得
+export function getResonanceEffectList(resonanceId) {
+  return resonanceEffect.filter((obj) => obj.resonance_id === Number(resonanceId));
 }
 
 // 文字列を圧縮

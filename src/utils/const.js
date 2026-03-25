@@ -170,7 +170,7 @@ export const EFFECT = {
     DAMAGERATEUP: 5, // 破壊率上昇量アップ
     FUNNEL: 6, // 連撃数アップ
     FIELD_DEPLOYMENT: 7, // フィールド展開
-    GRANT_BUFF_: 8, // バフ付与
+    GRANT_BUFF: 8, // バフ付与
     OVERDRIVE_SP: 9, // ODSPアップ
     FUNNEL_ALWAYS: 10, // 連撃数(永続)アップ
     DEFFENCEUP: 11, // 防御力アップ
@@ -198,7 +198,7 @@ export const EFFECT = {
     TALISMAN: 44, // 霊符
     EX_DOUBLE: 45, // EXスキル連続発動
     HEALEP: 52, // EP回復
-    ATTACKUP_AND_DAMAGERATEUP: 53, // 攻撃力＋破壊率アップ
+    // ATTACKUP_AND_DAMAGERATEUP: 53, // 攻撃力＋破壊率アップ
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ
     COST_SP_UP: 56, // 消費SPアップ

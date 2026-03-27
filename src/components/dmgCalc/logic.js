@@ -382,6 +382,7 @@ const judgeEffect = (charaId, info, effect, effectType, handlers) => {
 function judgmentCondition(effect, handlers) {
     const skillInfo = handlers.skillInfo;
     const styleList = handlers.styleList;
+    const memberInfo = handlers.memberInfo;
 
     let spCost = 0;
     switch (Number(effect.conditions)) {
@@ -394,6 +395,12 @@ function judgmentCondition(effect, handlers) {
         case CONDITIONS.THUNDER_STYLE: // 雷属性スタイル
             let thunderCount = targetCountInclude(styleList, ELEMENT.THUNDER);
             return thunderCount >= effect.conditions_id;
+        case CONDITIONS.LIGHT_STYLE: // 光属性スタイル
+            let lightCount = targetCountInclude(styleList, ELEMENT.LIGHT);
+            return lightCount >= effect.conditions_id;
+        case CONDITIONS.DARK_STYLE: // 雷属性スタイル
+            let darkCount = targetCountInclude(styleList, ELEMENT.DARK);
+            return darkCount >= effect.conditions_id;
         case CONDITIONS.COST_SP_OVER: // 消費SP指定値以上
             if (skillInfo.cost_type === COST_TYPE.SP) {
                 spCost = getCostVariable(handlers)
@@ -404,6 +411,8 @@ function judgmentCondition(effect, handlers) {
                 spCost = getCostVariable(handlers)
             }
             return spCost <= effect.conditions_id;
+        case CONDITIONS.TOKEN_OVER: // トークン指定値以上
+            return memberInfo.token >= effect.conditions_id;
         default:
             break;
     }
@@ -449,7 +458,7 @@ function getStrengthen(handlers, buff, resonanceList) {
         passiveLoop((passiveEffect) => {
             strengthen += passiveEffect.effect_size;
         }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, handlers);
-        
+
         resonaceLoop((resonanceEffect, resonance) => {
             const limitCount = resonance.limitCount;
             const effectSize = resonanceEffect[`effect_limit_${limitCount}`];

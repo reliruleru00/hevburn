@@ -154,6 +154,8 @@ export const BUFF = {
     ICE_MARK: 46, // 氷の印
     THUNDER_MARK: 47, // 雷の印
     ETERNAL_FRAGILE: 48, // 永続脆弱
+    LIGHT_MARK: 49, // 光の印
+    DARK_MARK: 50, // 闇の印
     HEALEP: 52, // EP回復
     STEAK: 53, // ステーキ
     GELATO: 54, // ジェラート
@@ -267,6 +269,8 @@ export const CONDITIONS = {
     FIELD_ELEMENT: 15, // 属性フィールド
     ICE_STYLE: 16, // 氷属性スタイルN人以上
     THUNDER_STYLE: 17, // 雷属性スタイルN人以上
+    LIGHT_STYLE: 18, // 光属性スタイルN人以上
+    DARK_STYLE: 19, // 闇属性スタイルN人以上
     HAS_ABILITY: 20, // アビリティ発動中
     HAS_SHADOW: 22, // 影分身中
     HAS_DODGE: 23, // 回避状態

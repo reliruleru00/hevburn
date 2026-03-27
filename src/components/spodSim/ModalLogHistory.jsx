@@ -4,7 +4,7 @@ const ModalLogHistory = ({turnData}) => {
     return (
         <div className="p-8">
             <div className="mb-4">
-                <label className="modal_label">戦闘ログ</label>
+                <label className="modal_label">戦闘ログ（β版）</label>
             </div>
             {turnData.log.map((log, index) => (
                 <div key={index} className="mb-2">

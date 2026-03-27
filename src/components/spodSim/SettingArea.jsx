@@ -167,8 +167,11 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
             Object.values(ABILIRY_TIMING).forEach(timing => {
                 unit[`ability_${timing}`] = [];
             });
-            ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
-                const num = parseInt(numStr, 10);
+            ["_orgn", "0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
+                let num = parseInt(numStr, 10);
+                if (!num) {
+                    num = 0;
+                }
                 if (member.styleInfo[`ability${numStr}`] && num <= member.limitCount) {
                     let abilityId = member.styleInfo[`ability${numStr}`];
                     if (CONSTRAINTS_ABILITY.includes(abilityId)) {

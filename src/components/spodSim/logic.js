@@ -783,6 +783,12 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
         case CONDITIONS.THUNDER_STYLE: // 雷属性スタイルN人以上
             let thunderCount = targetCountInclude(turnData, ELEMENT.THUNDER);
             return thunderCount >= conditionsId;
+        case CONDITIONS.ICE_STYLE: // 光属性スタイルN人以上
+            let lightCount = targetCountInclude(turnData, ELEMENT.LIGHT);
+            return lightCount >= conditionsId;
+        case CONDITIONS.DARK_STYLE: // 闇属性スタイルN人以上
+            let darkCount = targetCountInclude(turnData, ELEMENT.DARK);
+            return darkCount >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skill_id).length;
         case CONDITIONS.MOTIVATION: // やる気
@@ -2173,6 +2179,10 @@ const getConditionName = (targetElement, conditions, conditionsId) => {
             return `雷属性スタイルの味方${conditionsId}人以上の時`;
         case CONDITIONS.FIRE_STYLE:
             return `火属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.LIGHT_STYLE:
+            return `光属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.DARK_STYLE:
+            return `闇属性スタイルの味方${conditionsId}人以上の時`;
         case CONDITIONS.SARVANT_OVER:
             return `山脇様のしもべ${conditionsId}人以上の時`;
         case CONDITIONS.HAS_BUFF_TARGET:

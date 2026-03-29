@@ -1434,6 +1434,8 @@ export const startTurn = (turnData) => {
             // ターン開始時
             abilityAction(ABILIRY_TIMING.SELF_START, turnData);
         }
+        // ターン跨ぎ時
+        abilityAction(ABILIRY_TIMING.STEP_TURN, turnData);
     }
     // 毎ターン処理
     abilityAction(ABILIRY_TIMING.EVERY_TURN, turnData);

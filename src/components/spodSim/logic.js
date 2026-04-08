@@ -372,6 +372,7 @@ export function startAction(turnData) {
         } else if (unitOdPlus < 0) {
             turnData.setLog(`　OverDriveゲージ${unitOdPlus}%`);
         }
+        turnOverDriveGauge += unitOdPlus;
         // 追撃
         if (skillId === SKILL.PURSUIT) {
             abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData)

@@ -87,14 +87,14 @@ export const skillUpdate = (turnData, skillId, placeNo) => {
 // ユーザ操作の取得
 const updateUserOperation = (userOperationList, turnData) => {
     let filtered = userOperationList.filter((item) =>
-        compereUserOperation(item, turnData) === 0
+        compareUserOperation(item, turnData) === 0
     );
     let userOperation = turnData.userOperation;
     if (filtered.length === 0) {
         turnData.userOperation.kbAction = KB_NEXT.ACTION;
         userOperationList.push(turnData.userOperation);
         // 表示確認用
-        userOperationList.sort((a, b) => compereUserOperation(a, b));
+        userOperationList.sort((a, b) => compareUserOperation(a, b));
     } else {
         userOperation = filtered[0];
         turnData.userOperation = userOperation;
@@ -204,7 +204,7 @@ const reflectUserOperation = (turnData, isLoadMode) => {
 }
 
 // ユーザ操作の比較
-const compereUserOperation = (comp1, comp2) => {
+export const compareUserOperation = (comp1, comp2) => {
     if (comp1.turnNumber !== comp2.turnNumber) {
         return comp1.turnNumber - comp2.turnNumber;
     }
@@ -1425,10 +1425,10 @@ const sortActionSeq = (turnData) => {
 export const recreateTurnData = (turnList, turnData, userOperationList, isLoadMode) => {
     // ユーザ操作リストのチェック
     userOperationList.forEach((item) => {
-        item.used = compereUserOperation(item, turnData) <= 0;
+        item.used = compareUserOperation(item, turnData) <= 0;
     })
 
-    while (compereUserOperation(turnData.userOperation, userOperationList[userOperationList.length - 1]) < 0) {
+    while (compareUserOperation(turnData.userOperation, userOperationList[userOperationList.length - 1]) < 0) {
         // 現ターン処理
         turnData = deepClone(turnData);
         if (!isLoadMode || turnList.length > 0) {

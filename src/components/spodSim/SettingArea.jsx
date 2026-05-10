@@ -325,7 +325,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
 
     const [simProc, dispatch] = React.useReducer(reducer, {
         turnList: [],
-        enemyInfo: {}
+        enemyInfo: {},
     });
     let enemyInfo = common.getEnemyInfo(enemyClass, enemySelect);
 
@@ -346,6 +346,7 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         let turnList = [turnInit];
         dispatch({ type: "INIT_TURN_LIST", turnList: turnList });
         setSettingUpdate(true);
+        changeActiveTurn(turnInit);
     };
 
     // 戦闘開始前処理
@@ -432,6 +433,20 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
         overDriveGaugeMultiplier: 100
     });
 
+    const [activeTurn, setActiveTurn] = useState({});
+
+    const changeActiveTurn = (turnData) => {
+        const newActiveTurn =
+        {
+            turnNumber: turnData.turnNumber,
+            finishAction: turnData.finishAction,
+            endDriveTriggerCount: turnData.endDriveTriggerCount,
+            overDriveNumber: turnData.overDriveNumber,
+            additionalCount: turnData.additionalCount,
+        }
+        setActiveTurn(newActiveTurn);
+    }
+
     return (
         <>
             {
@@ -473,7 +488,8 @@ const SettingArea = ({ enemyClass, enemySelect, setEnemyClass, setEnemySelect })
                         </div>
                     </div>
             }
-            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turnList} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} />
+            <BattleArea hideMode={hideMode} setHideMode={setHideMode} turnList={simProc.turnList} dispatch={dispatch} loadData={loadData} update={update} setUpdate={setUpdate} 
+                activeTurn={activeTurn} changeActiveTurn={changeActiveTurn}/>
         </>
     )
 };

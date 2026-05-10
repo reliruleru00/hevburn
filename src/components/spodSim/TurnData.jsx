@@ -8,15 +8,17 @@ import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
 import ModalTriggerOverDrive from "./ModalTriggerOverDrive";
 import BuffDetailListComponent from "./ModalBuffDetailLlist";
+import ModalUnitConfing from "./ModalUnitConfing";
 import BuffIconComponent from "./BuffIconComponent";
 import OverDriveGauge from "./OverDriveGauge";
 import {
     getOverDrive, startOverDrive, removeOverDrive, skillUpdate, getUnitData, getTurnNumber,
     startAction, setInitSkill, getSpCost, changeStyleInfo
 } from "./logic";
+// import * as logic from "./logic";
 import enemyIcon from 'assets/img/BtnEventBattleActive.webp';
 
-const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMode, isCapturing, handlers }) => {
+const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, isCapturing, handlers }) => {
     const isNextInfluence = useRef(false);
 
     // 再描画
@@ -229,11 +231,12 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
     }
 
     // 次ターン
-    function clickNextTurn() {
+    function clickNextTurn(e) {
         let turnData = deepClone(turn);
         startAction(turnData);
         // ターン開始処理
         handlers.proceedTurn(turnData);
+        e.stopPropagation();
     };
 
     /* eslint-disable react-hooks/exhaustive-deps */
@@ -291,13 +294,17 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
         }
     };
 
+    const clickUnitConfig = (placeNo) => {
+        openModal("unitConfig", placeNo);
+    }
+
     const openModal = (type, index, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
     const turnClass = "turn_area" + (turn.additionalTurn ? " additional_turn" : turn.overDriveMaxTurn > 0 ? " overdrive_turn" : "");
-    const activeTurnClass = activeTurnNumber === turn.turnNumber ? " active_turn" : "";
+    const activeTurnClass = isActiveTurn ? " active_turn" : "";
     return (
-        <div className={turnClass + activeTurnClass} onClick={() => handlers.setActiveTurnNumber(turn.turnNumber)}>
+        <div className={turnClass + activeTurnClass} onClick={() => handlers.changeActiveTurn(turn)}>
             <div className="turn_header_area">
                 <div className="turn_header_top">
                     <div>
@@ -326,13 +333,15 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
                 <div className="flex front_area">
                     {[0, 1, 2].map(placeNo =>
                         <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
-                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
+                            isActiveTurn={isActiveTurn}
+                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} clickUnitConfig={clickUnitConfig} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(placeNo =>
                         <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
-                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} />
+                            isActiveTurn={isActiveTurn}
+                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} clickUnitConfig={clickUnitConfig} />
                     )}
                     <div>
                         <select className="action_select" value={turn.userOperation.kbAction || turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
@@ -357,7 +366,7 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.triggerOverDrive} onChange={(e) => handleOverDrive(e.target.checked)} />
                                 : null}
                             {isLastTurn ?
-                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={clickNextTurn} />
+                                <input className="turn_button next_turn" defaultValue="次ターン" type="button" onClick={(e) => clickNextTurn(e)} />
                                 :
                                 <input className="turn_button return_turn" defaultValue="戻す" type="button" onClick={() => handlers.returnTurn(turn.seqTurn)} />
                             }
@@ -382,8 +391,10 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
                                 <ModalEffectSelection closeModal={closeModal} onSelect={handleSelectEffect} effectType={modalSetting.effect_type} />
                                 : modalSetting.modalType === "buff" ?
                                     <BuffDetailListComponent buffList={modalSetting.effect_type} />
-                                    : modalSetting.modalType === "overdrive" &&
-                                    <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
+                                    : modalSetting.modalType === "overdrive" ?
+                                        <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
+                                        : modalSetting.modalType === "unitConfig" &&
+                                        <ModalUnitConfing turn={turn} placeNo={modalSetting.modalIndex} closeModal={closeModal} />
                     }
                 </ReactModal>
             </div>
@@ -393,8 +404,8 @@ const TurnData = React.memo(({ turn, index, activeTurnNumber, isLastTurn, hideMo
     // 再描画が必要ないなら true を返す
     return (
         prevProps.turn === nextProps.turn &&
-        (prevProps.activeTurnNumber === prevProps.turn.turnNumber && nextProps.turn.turnNumber === nextProps.activeTurnNumber) &&
         prevProps.isLastTurn === nextProps.isLastTurn &&
+        prevProps.isActiveTurn === nextProps.isActiveTurn &&
         prevProps.hideMode === nextProps.hideMode &&
         prevProps.isCapturing === nextProps.isCapturing
     );

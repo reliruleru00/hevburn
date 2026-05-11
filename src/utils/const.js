@@ -125,6 +125,7 @@ export const BUFF = {
     FIGHTINGSPIRIT: 14, // 闘志
     MISFORTUNE: 15, // 厄
     FUNNEL: 16, // 連撃
+    TOKEN_UP: 17, // トークンアップ
     STRONG_BREAK: 18, // 強ブレイク
     DEFENSEDP: 19, // DP防御ダウン
     RESISTDOWN: 20, // 耐性ダウン

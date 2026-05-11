@@ -1029,6 +1029,22 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData, isLogOutput = tru
         case BUFF.OVERDRIVEPOINTUP: // OD増加
             isLogOutput = false;
             break;
+        case BUFF.TOKEN_UP: // トークン増加
+
+            targetList.forEach(function (target_no) {
+                let unitData = getUnitData(turnData, target_no);
+                if (unitData.blank) {
+                    return;
+                }
+                // トークンは最大10まで
+                if (unitData.token < 10) {
+                    unitData.token += buffInfo.max_power;
+                    if (unitData.token > 10) {
+                        unitData.token = 10;
+                    }
+                }
+            });
+            break;
         default:
             break;
     }
@@ -1799,17 +1815,27 @@ const buffSort = (unit) => {
     });
 }
 
+
 const payCost = (unit, skill) => {
     // OD上限突破
     if (unit.sp + unit.overDriveSp > 99) {
         unit.sp = 99 - unit.overDriveSp;
     }
-    if (skill.cost_type === COST_TYPE.EP) {
-        unit.ep -= skill.use_cost;
-    } else {
-        // SPは可変なので計算済みの値を使用
-        unit.sp -= unit.spCost;
-        unit.spCost = 0;
+
+    switch (skill.cost_type) {
+        case COST_TYPE.SP:
+            // SPは可変なので計算済みの値を使用
+            unit.sp -= unit.spCost;
+            unit.spCost = 0;
+            break;
+        case COST_TYPE.EP:
+            unit.ep -= skill.use_cost;
+            break;
+        case COST_TYPE.TOKEN:
+            unit.token -= skill.use_cost;
+            break;
+        default:
+            break;
     }
 }
 

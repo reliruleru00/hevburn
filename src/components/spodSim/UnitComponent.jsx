@@ -186,7 +186,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                         />
                     }
                     {targetIcon &&
-                        <div className="absolute bottom-0 left-[24px] w-[24px] h-[24px] rounded-full ring-2 ring-red-500 overflow-hidden">
+                        <div className="absolute mt-[-40px] left-[24px] w-[24px] h-[24px] rounded-full ring-2 ring-red-500 overflow-hidden">
                             <img
                                 className="absolute style_change"
                                 src={targetIcon}
@@ -205,7 +205,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                         <>
                             <div className="flex text-sm">
                                 <span>
-                                    Token 0
+                                    Token {unit.token}
                                 </span>
                                 <div className="ml-2">
                                     <input type="button" value="調整" onClick={() => clickUnitConfig(placeNo)} />

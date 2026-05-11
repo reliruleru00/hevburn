@@ -552,7 +552,7 @@ const skilLlist = [
     {"skill_id":650,"skill_name":"夏に恋するオードトワレ","chara_id":26,"style_id":171,"cost_type":"SP","use_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":11,"conditions":50,"conditions_id":42},
     {"skill_id":651,"skill_name":"メルティリトリート","chara_id":30,"style_id":0,"cost_type":"SP","use_cost":8,"skill_active":0,"skill_kind":0},
     {"skill_id":652,"skill_name":"サマーグレイス","chara_id":30,"style_id":0,"cost_type":"SP","use_cost":4,"skill_active":0,"skill_kind":0},
-    {"skill_id":653,"skill_name":"真夏のひんやりショック！","chara_id":30,"style_id":0,"cost_type":"TK","use_cost":10,"skill_active":0,"skill_kind":1},
+    {"skill_id":653,"skill_name":"真夏のひんやりショック！","chara_id":30,"style_id":0,"cost_type":"TK","use_cost":99,"skill_active":0,"skill_kind":1},
     {"skill_id":654,"skill_name":"ときめきスライダー","chara_id":7,"style_id":0,"cost_type":"SP","use_cost":6,"skill_active":0,"skill_kind":0},
     {"skill_id":655,"skill_name":"くぎづけ♡ラブリービーム","chara_id":7,"style_id":173,"cost_type":"SP","use_cost":16,"skill_active":0,"skill_kind":1,"skill_attribute":11,"conditions":30},
     {"skill_id":656,"skill_name":"ぽかぽかリフレッシュ","chara_id":12,"style_id":0,"cost_type":"SP","use_cost":3,"skill_active":0,"skill_kind":0},

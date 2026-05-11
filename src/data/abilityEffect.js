@@ -256,7 +256,7 @@ const abilityEffect = [
     {"ability_id":1133,"range_area":4,"activation_timing":1,"effect_type":12,"effect_size":2,"conditions":"50","conditions_id":36},
     {"ability_id":1134,"range_area":4,"activation_timing":1,"effect_type":13,"effect_size":5,"conditions":""},
     {"ability_id":1135,"range_area":7,"activation_timing":1,"effect_type":12,"effect_size":1,"conditions":"53","conditions_id":0},
-    {"ability_id":1136,"range_area":6,"activation_timing":1,"effect_type":12,"effect_size":1,"conditions":"トークン4つ以上"},
+    {"ability_id":1136,"range_area":6,"activation_timing":1,"effect_type":12,"effect_size":1,"conditions":"24","conditions_id":4},
     {"ability_id":1137,"range_area":7,"activation_timing":0,"effect_type":52,"effect_size":5,"conditions":""},
     {"ability_id":1138,"range_area":6,"activation_timing":1,"effect_type":12,"effect_size":5,"conditions":"破壊率が200%以上"},
     {"ability_id":1139,"range_area":7,"activation_timing":1,"effect_type":30,"effect_size":1,"conditions":""},

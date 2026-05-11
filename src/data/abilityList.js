@@ -311,6 +311,7 @@ const abilityList = [
     {"ability_id":1615,"ability_name":"即応の型","ability_explan":"スキル「炯眼の構え」使用後 自身に追加ターン","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1616,"ability_name":"クロノチェイン","ability_explan":"自身以外の味方のアクティブスキルによって自身のSPが上昇したとき ODゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1701,"ability_name":"ドMの真髄","ability_explan":"敵から攻撃を受けるとトークンを1上昇","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
+    {"ability_id":1702,"ability_name":"護りの真髄","ability_explan":"敵から攻撃を受けるとトークンを1上昇","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1801,"ability_name":"慶福の一矢","ability_explan":"自身がEXスキル使用後 前衛のDP+30%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1802,"ability_name":"恐怖の叫び","ability_explan":"敵が霊符状態のとき 自身がEXスキル使用後敵の霊符レベル+2(最大レベル10)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1803,"ability_name":"二股の尻尾","ability_explan":"自身がEXスキル使用後自身にEXスキル連続発動(1回)を付与する","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},

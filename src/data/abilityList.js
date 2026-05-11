@@ -186,7 +186,6 @@ const abilityList = [
     {"ability_id":1024,"ability_name":"プレイボール","ability_explan":"バトル開始時 味方全体にいずれかのやる気を付与する(ターン永続/解除不可)","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1025,"ability_name":"ハロウィンフィーバー","ability_explan":"バトル開始時自身にEXスキル連続発動(1回)を付与する","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1026,"ability_name":"魅惑の雫","ability_explan":"バトル開始時 自身をモクテル状態にする(回復量30%)","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
-    {"ability_id":1027,"ability_name":"洗練","ability_explan":"バトル開始時 前衛にいると自身のトークン+5","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":1028,"ability_name":"魔界騎兵起動！","ability_explan":"バトル開始時 魔界騎兵起動ボタン(3回)が出現(出撃中1回)","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":1029,"ability_name":"威嚇の声","ability_explan":"バトル開始時 前衛にいると確率で敵をスタン","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":1030,"ability_name":"闇の胎動","ability_explan":"バトル開始時 味方全体の闇属性スタイルのSP+2","ability_short_explan":"","activation_place":3,"physical":0,"element":0,"target_element":5},

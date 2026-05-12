@@ -801,8 +801,9 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return darkCount >= conditionsId;
         case CONDITIONS.USE_COUNT: // 回数以降
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skill_id).length;
-        case CONDITIONS.MOTIVATION: // やる気
         case CONDITIONS.TOKEN_OVER: // トークン
+            return unitData.token >= conditionsId;
+        case CONDITIONS.MOTIVATION: // やる気
             return unitData.buffEffectSelectType >= conditionsId;
         case CONDITIONS.HAS_PASSIVE: // パッシブ所持
             if (conditionsId === SKILL_ID.FAST_SHOT && turnData.turnNumber > 2) {
@@ -1469,12 +1470,16 @@ export const startTurn = (turnData) => {
         // 追加ターン開始
         abilityAction(ABILIRY_TIMING.ADDITIONALTURN, turnData);
     } else {
-        let kbAction = turnData.userOperation.kbAction || turnData.userOperation.kb_action;
+        let kbAction = turnData.userOperation.kbAction;
         if (kbAction === KB_NEXT.ACTION) {
             // 行動開始時
             abilityAction(ABILIRY_TIMING.ACTION_START, turnData);
         }
-        let turnProgress = turnProceed(kbAction, turnData);
+        // 最初のターンはターン移行無し
+        let turnProgress = true;
+        if (turnData.seqTurn >= 0) {
+            turnProgress = turnProceed(kbAction, turnData);
+        }
         turnInit(turnData, turnProgress);
         if (turnProgress) {
             // ターン開始時
@@ -1832,7 +1837,11 @@ const payCost = (unit, skill) => {
             unit.ep -= skill.use_cost;
             break;
         case COST_TYPE.TOKEN:
-            unit.token -= skill.use_cost;
+            if (skill.use_cost === 99) {
+                unit.token -= unit.tokenCost;
+            } else {
+                unit.token -= skill.use_cost;
+            }
             break;
         default:
             break;
@@ -2072,6 +2081,16 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                     }
                 }
                 effectDesc = `EP+${ability.effect_size}`;
+                break;
+            case EFFECT.TOKEN_UP: // トークン回復
+                targetList.forEach(function (target_no) {
+                    let unitData = getUnitData(turnData, target_no);
+                    unitData.token += ability.effect_size;
+                    if (unitData.token > 10) {
+                        unitData.token = 10;
+                    }
+                });
+                effectDesc = `トークン+${ability.effect_size}`;
                 break;
             case EFFECT.MORALE: // 士気
                 targetList.forEach(function (target_no) {

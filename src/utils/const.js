@@ -279,7 +279,7 @@ export const CONDITIONS = {
     HAS_ABILITY: 20, // アビリティ発動中
     HAS_SHADOW: 22, // 影分身中
     HAS_DODGE: 23, // 回避状態
-    TOKEN_OVER: 24, // トークン4つ以上
+    TOKEN_OVER: 24, // トークン指定値以上
     DP_OVER_100: 25, // DP100％以上
     SP_UNDER_0_ALL: 26, // SP0以下の味方がいる
     SARVANT_OVER: 27, // 山脇様のしもべN人以上

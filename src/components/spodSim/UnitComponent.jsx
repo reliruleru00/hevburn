@@ -129,7 +129,12 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
                 } else if (skill.cost_type === COST_TYPE.OVERDRIVE) {
                     text += `(${attack}OD${skill.use_cost}%)`;
                 } else if (skill.cost_type === COST_TYPE.TOKEN) {
-                    text += `(${attack}token${skill.use_cost})`;
+                    let tokenCost = skill.use_cost;
+                    if (skill.use_cost === 99) {
+                        tokenCost = unit.token;
+                        unit.tokenCost = unit.token;
+                    }
+                    text += `(${attack}token${tokenCost})`;
                 } else {
                     spCost = getSpCost(turn, skill, unit);
                     text += `(${attack}${spCost})`;
@@ -179,7 +184,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                     }
                     {changeStyle[unit?.style?.styleInfo.style_id] &&
                         <img
-                            className="absolute style_change bottom-[0px] left-[0px] w-[24px] h-[24px] cursor-grab"
+                            className="absolute style_change mt-[-40px] left-[0px] w-[24px] h-[24px] cursor-grab"
                             src={changeIcon}
                             alt={"変更"}
                             onClick={() => { chageStyle(placeNo, changeStyle[unit?.style?.styleInfo.style_id]) }}
@@ -207,11 +212,11 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                                 <span>
                                     Token {unit.token}
                                 </span>
-                                <div className="ml-2">
-                                    <input type="button" value="調整" onClick={() => clickUnitConfig(placeNo)} />
-                                </div>
                             </div>
-                            <div>
+                            <div className="ml-2">
+                                <input type="button" value="調整" onClick={() => clickUnitConfig(placeNo)} />
+                            </div>
+                            {/* <div>
                                 敵行動
                             </div>
                             <div className="flex text-sm">
@@ -226,7 +231,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                                 残DP
                                 <input type="number" className="w-12" value={100} min={0} max={150}></input>
                                 %
-                            </div>
+                            </div> */}
                         </>
                     }
                 </>

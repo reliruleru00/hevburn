@@ -112,9 +112,6 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         if (conditionsList.includes(CONDITIONS.MOTIVATION) || skillInfo.conditions === CONDITIONS.MOTIVATION) {
             effectType = 10;
         }
-        if (conditionsList.includes(CONDITIONS.TOKEN_OVER) || skillInfo.conditions === CONDITIONS.TOKEN_OVER) {
-            effectType = 11;
-        }
 
         switch (skillId) {
             case 50: // トリック・カノン
@@ -344,7 +341,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                             chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} clickUnitConfig={clickUnitConfig} />
                     )}
                     <div>
-                        <select className="action_select" value={turn.userOperation.kbAction || turn.userOperation.kb_action} onChange={(e) => chengeAction(e)}>
+                        <select className="action_select" value={turn.userOperation.kbAction} onChange={(e) => chengeAction(e)}>
                             {turn.userOperation.kbAction === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_1 ||

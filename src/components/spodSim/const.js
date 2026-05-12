@@ -27,7 +27,6 @@ export const CONSTRAINTS_ABILITY = [
     26, // 超越ゲージ
     27, // 超越ゲージ
     250, // 演舞
-    1136, // 勝勢
     1138, // ラストリゾート
     1210, // アルゴリズム
     1505, // 激動
@@ -41,6 +40,9 @@ export const CONSTRAINTS_ABILITY = [
     1028, // 魔界騎兵起動！
     2006, // リバーブレーション
     1216, // ラッシュモード
+    1504, // 戦士の祝福
+    1701, // ドMの真髄
+    1702, // 護りの真髄
 ];
 // 制限パッシブ
 export const CONSTRAINTS_PASSIVE = [

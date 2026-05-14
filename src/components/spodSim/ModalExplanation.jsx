@@ -50,7 +50,6 @@ const ModalExplanation = () => {
                 </p>
                 <p>・吉報：確率30%</p>
                 <p>・旺盛：DP101%以上</p>
-                <p>・痛気持ちいぃ～！：被ダメージ</p>
                 <img src={spAddIcon} alt='SP追加イメージ'/>
                 <p>
                     <b>4.特殊な挙動をするスタイル</b>

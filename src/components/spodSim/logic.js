@@ -530,7 +530,11 @@ const getODPlus = (skillData, turnData, frontCostList, isBuffAdd) => {
             if (buffInfo.max_power > 0) {
                 correction += (badies + earring) / 100;
             }
-            unitOdPlus += Math.floor(buffInfo.max_power * correction * 100) / 100;
+            let point = buffInfo.max_power;
+            if (buffInfo.token_power_up === 1) {
+                point *= unitData.tokenCost;
+            }
+            unitOdPlus += Math.floor(point * correction * 100) / 100;
         }
         // 連撃、オギャり状態、チャージ処理
         const PROC_KIND = [BUFF.BABIED, BUFF.CHARGE];
@@ -1031,7 +1035,6 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData, isLogOutput = tru
             isLogOutput = false;
             break;
         case BUFF.TOKEN_UP: // トークン増加
-
             targetList.forEach(function (target_no) {
                 let unitData = getUnitData(turnData, target_no);
                 if (unitData.blank) {
@@ -2053,14 +2056,14 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                             }
                         }
                         if (ability.skill_id) {
-                            switch (ability.skill_id) {
-                                case constants.SKILL_ID.GOOD_PAIN: // 痛気持ちいぃ～！
-                                    unitData.addSp += ability.effect_size;
-                                    break;
-                                default:
-                                    unitData.sp += ability.effect_size;
-                                    break;
-                            }
+                            // switch (ability.skill_id) {
+                            //     case constants.SKILL_ID.GOOD_PAIN: // 痛気持ちいぃ～！
+                            //         unitData.addSp += ability.effect_size;
+                            //         break;
+                            //     default:
+                            unitData.sp += ability.effect_size;
+                            //         break;
+                            // }
                         }
                         if (unitData.sp + unitData.overDriveSp > unitData.limitSp) {
                             unitData.sp = unitData.limitSp - unitData.overDriveSp;

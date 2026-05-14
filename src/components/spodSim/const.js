@@ -43,11 +43,13 @@ export const CONSTRAINTS_ABILITY = [
     1504, // 戦士の祝福
     1701, // ドMの真髄
     1702, // 護りの真髄
+    1109, // 吉報
 ];
 // 制限パッシブ
 export const CONSTRAINTS_PASSIVE = [
     664, // BeatDown();
     668, // 名探偵は明るく照らす
+    524, // 痛気持ちいぃ～！
 ];
 // 謎の処理順序
 export const ACTION_ORDER = [1, 0, 2, 3, 4, 5];

@@ -1482,9 +1482,15 @@ export const startTurn = (turnData) => {
         let turnProgress = true;
         if (turnData.seqTurn >= 0) {
             turnProgress = turnProceed(kbAction, turnData);
+            if (turnProgress) {
+                // 敵のターン
+                // abilityAction(ABILIRY_TIMING.RECEIVE_DAMAGE, turnData);
+            }
         }
         turnInit(turnData, turnProgress);
         if (turnProgress) {
+            // ターン進行
+            nextTurn(turnData);
             // ターン開始時
             abilityAction(ABILIRY_TIMING.SELF_START, turnData);
         }
@@ -1552,12 +1558,10 @@ const turnProceed = (kbNext, turn) => {
                 turn.endDriveTriggerCount++;
                 if (turn.finishAction) {
                     turnProgress = true;
-                    nextTurn(turn);
                 }
             }
         } else {
             turnProgress = true;
-            nextTurn(turn);
         }
         turn.additionalCount = 0;
     } else if (kbNext === KB_NEXT.ADDITIONALTURN) {
@@ -1614,7 +1618,6 @@ const nextTurn = (turn) => {
     turn.turnNumber++;
     turn.finishAction = false;
     turn.endDriveTriggerCount = 0;
-    abilityAction(ABILIRY_TIMING.RECEIVE_DAMAGE, turn);
     if (turn.turnNumber % turn.stepTurnOverDrive === 0) {
         turn.overDriveGauge += turn.stepOverDriveGauge;
     }

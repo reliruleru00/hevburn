@@ -295,6 +295,13 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         openModal("unitConfig", placeNo);
     }
 
+    const updateUnitData = (placeNo, newData) => {
+        let userOperation = { ...turn.userOperation };
+        let unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];  
+        Object.assign(unit, newData);
+        reRender(userOperation, true);
+    }
+
     const openModal = (type, index, effect_type) => setModalSetting({ isOpen: true, modalIndex: index, modalType: type, effect_type: effect_type });
     const closeModal = () => setModalSetting({ isOpen: false });
 
@@ -391,7 +398,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                                     : modalSetting.modalType === "overdrive" ?
                                         <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal} overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} />
                                         : modalSetting.modalType === "unitConfig" &&
-                                        <ModalUnitConfing turn={turn} placeNo={modalSetting.modalIndex} closeModal={closeModal} />
+                                        <ModalUnitConfing turn={turn} placeNo={modalSetting.modalIndex} closeModal={closeModal} updateUnitData={updateUnitData} />
                     }
                 </ReactModal>
             </div>

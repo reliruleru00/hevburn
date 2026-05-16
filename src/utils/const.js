@@ -305,6 +305,8 @@ export const CONDITIONS = {
     USE_COUNT: 52, // 回数以降
     SP_UNDER: 53, // 現在SP指定値以下
     SP_OVER: 54, // 現在SP指定値以上
+    OD_UNDER: 55, // OD指定値未満
+    OD_OVER: 56, // OD指定値以上
 }
 
 /** 敵リスト*/

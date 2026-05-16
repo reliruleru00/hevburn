@@ -784,6 +784,8 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
             return checkSp(turnData, RANGE.ALLY_ALL, 0);
         case CONDITIONS.SP_UNDER: // SP指定値以下
             return checkSp(turnData, RANGE.SELF, conditionsId, unitData.placeNo);
+        case CONDITIONS.OD_UNDER: // OD指定値未満
+            return turnData.overDriveGauge < conditionsId;
         case CONDITIONS.SARVANT_OVER: // 山脇様のしもべN人以上
             return turnData.unitList.filter((unit) =>
                 checkBuffExist(unit.buffList, BUFF.YAMAWAKI_SERVANT)
@@ -1487,10 +1489,12 @@ export const startTurn = (turnData) => {
                 // abilityAction(ABILIRY_TIMING.RECEIVE_DAMAGE, turnData);
             }
         }
-        turnInit(turnData, turnProgress);
         if (turnProgress) {
             // ターン進行
             nextTurn(turnData);
+        }
+        turnInit(turnData, turnProgress);
+        if (turnProgress) {
             // ターン開始時
             abilityAction(ABILIRY_TIMING.SELF_START, turnData);
         }
@@ -1957,21 +1961,21 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                     return;
                 }
                 break;
-            case "SP0以下":
-                if (unit.sp > 0) {
-                    return;
-                }
-                break;
-            case "OD100%未満":
-                if (turnData.overDriveGauge >= 100) {
-                    return;
-                }
-                break;
-            case "OD0%未満":
-                if (turnData.overDriveGauge >= 0) {
-                    return;
-                }
-                break;
+            // case "SP0以下":
+            //     if (unit.sp > 0) {
+            //         return;
+            //     }
+            //     break;
+            // case "OD100%未満":
+            //     if (turnData.overDriveGauge >= 100) {
+            //         return;
+            //     }
+            //     break;
+            // case "OD0%未満":
+            //     if (turnData.overDriveGauge >= 0) {
+            //         return;
+            //     }
+            //     break;
             case "ODゲージ使用":
                 let list = getBuffList(unit.selectSkillId)
                     .filter(skill => skill.buff_kind === BUFF.OVERDRIVEPOINTUP)
@@ -2047,11 +2051,6 @@ const abilityActionUnit = (turnData, actionKbn, unit) => {
                                 case 1213: // 絶好調女
                                 case 1214: // 怪童
                                     unitData.addSp += ability.effect_size;
-                                    break;
-                                case 1112: // 好機
-                                    if (unitData.sp <= 3) {
-                                        unitData.sp += ability.effect_size;
-                                    }
                                     break;
                                 default:
                                     unitData.sp += ability.effect_size;

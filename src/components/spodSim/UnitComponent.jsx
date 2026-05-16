@@ -206,17 +206,17 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
             </div>
             {isActiveTurn && !unit.blank ?
                 <>
-                    {placeNo <= 2 &&
-                        <>
-                            <div className="flex text-sm">
-                                <span>
-                                    Token {unit.token}
-                                </span>
-                            </div>
-                            <div className="ml-2">
-                                <input type="button" value="調整" onClick={() => clickUnitConfig(placeNo)} />
-                            </div>
-                            {/* <div>
+                    <div className="ml-2">
+                        <input type="button" value="調整" onClick={() => clickUnitConfig(placeNo)} />
+                    </div>
+                    {unit.token !== 0 &&
+                        <div className="flex text-sm">
+                            <span>
+                                Token {unit.token}
+                            </span>
+                        </div>
+                    }
+                    {/* <div>
                                 敵行動
                             </div>
                             <div className="flex text-sm">
@@ -232,8 +232,6 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                                 <input type="number" className="w-12" value={100} min={0} max={150}></input>
                                 %
                             </div> */}
-                        </>
-                    }
                 </>
                 : null
             }

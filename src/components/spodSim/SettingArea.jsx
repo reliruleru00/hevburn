@@ -64,7 +64,7 @@ const reducer = (state, action) => {
 function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting, setConstraintsAbility, setConstraintsPassive) {
     // 初期データ作成
     let turnInit = {
-        turnNumber: 1,
+        turnNumber: 0,
         seqTurn: -1,
         overDriveNumber: 0,
         endDriveTriggerCount: 0,

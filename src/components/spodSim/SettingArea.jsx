@@ -162,7 +162,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                 unit.initSkillId = 1; // 通常攻撃
             }
             // 曙
-            if (checkPassiveExist(unit.passiveSkillList, 606)) {
+            if (checkPassiveExist(unit.passiveSkillList, constants.SKILL_ID.DAWN)) {
                 unit.normalAttackElement = 4;
             }
             // アビリティ設定

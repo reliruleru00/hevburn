@@ -32,6 +32,7 @@ export const SKILL_ID = {
     GOOD_PAIN: 524, // 痛気持ちいぃ～！
     RICE_FIELD: 525, // いつの日かここで
     SOUND_OF_CROWS: 578, // カラスの鳴き声で
+    DAWN: 606, // 曙
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
     RUBY_PERFUME: 635, // ルビー・パヒューム
@@ -51,6 +52,21 @@ export const BUFF_ID = {
     BRIGHT_RED: 1037,   // 茜色
 }
 
+// 初回のみ
+export const ONLY_USE_EFFECT = [
+    // 戦場の華,猛火の進撃,氷嵐の進撃
+    1528, 1023, 1031,
+    // V字回復,世界征服の始まりでゲス！,魔王軍の大攻勢！
+    1207, 1209, 1215
+]
+
+// 追加SPアビリティ
+export const ADD_SP_ABILITY = [
+    1109, // 吉報
+    1119, // 旺盛
+    1214 // 怪童
+]
+
 export const ABILITY_ID = {
     TRANSCEND_FIRE: 25, // 超越(火)
     TRANSCEND_ICE: 26, // 超越(氷)
@@ -64,10 +80,8 @@ export const ABILITY_ID = {
     SPECIAL_TAG: 277, // スペシャルタッグ
     HEAVEN_AND_EARTH: 603, // 天長地久
     FORTUNES_OF_WAR: 606, // 武運長久
-    V_RECOVERY: 1207,  // V字回復,
-    CONQUER_WORLD: 1209,// 世界征服の始まりでゲス！
-    GREAT_OFFENSIVE: 1215, // 魔王軍の大攻勢！
     OVER_GEAR: 1405, // オーバーギア
+    WAR_HONOR: 1503, // 戦勲.
 }
 
 export const COST_TYPE = {

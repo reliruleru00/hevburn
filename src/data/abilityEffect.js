@@ -307,7 +307,7 @@ const abilityEffect = [
     {"ability_id":1408,"range_area":6,"activation_timing":4,"effect_type":30,"effect_size":2,"conditions":""},
     {"ability_id":1501,"range_area":99,"activation_timing":2,"effect_type":0,"effect_size":20,"conditions":""},
     {"ability_id":1502,"range_area":7,"activation_timing":3,"effect_type":11,"effect_size":50,"effect_count":1,"conditions":"DP0%"},
-    {"ability_id":1503,"range_area":99,"activation_timing":99,"effect_type":30,"effect_size":1,"conditions":"ダメージを与えたとき"},
+    {"ability_id":1503,"range_area":7,"activation_timing":15,"effect_type":30,"effect_size":1,"conditions":""},
     {"ability_id":1504,"range_area":99,"activation_timing":99,"effect_type":30,"effect_size":1,"conditions":"DP回復効果を受けたとき"},
     {"ability_id":1505,"range_area":7,"activation_timing":99,"effect_type":12,"effect_size":8,"conditions":"ブレイク時"},
     {"ability_id":1507,"range_area":7,"activation_timing":3,"effect_type":11,"effect_size":25,"effect_count":1,"conditions":"DP50%以下"},

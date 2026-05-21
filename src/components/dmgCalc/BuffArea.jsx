@@ -44,7 +44,6 @@ const SUB_TARGET_KIND = [
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
     EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
-
 const BuffArea = ({ argument: {
     attackInfo, state, dispatch,
     selectBuffKeyMap, setSelectBuffKeyMap,
@@ -719,6 +718,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 "0": memberInfo.styleInfo.ability0,
                 "00": memberInfo.styleInfo.ability00,
                 "1": memberInfo.styleInfo.ability1,
+                "2": memberInfo.styleInfo.ability2,
                 "3": memberInfo.styleInfo.ability3,
                 "5": memberInfo.styleInfo.ability5,
                 "10": memberInfo.styleInfo.ability10
@@ -727,11 +727,9 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 styleAbility["ADMIRAL"] = ABILITY_ID.ADMIRAL_COMMON;
             }
 
+            if (!attackInfo) return;
             Object.keys(styleAbility).forEach(key => {
                 const abilityId = styleAbility[key];
-                // 1000番以降は不要
-                if (!abilityId || abilityId > 1000 || !attackInfo) return;
-
                 const abilityInfo = common.getAbilityInfo(abilityId);
                 if (!abilityInfo) return;
 
@@ -758,6 +756,8 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 let isAddAbility = false;
                 const abilityEffectList = common.getAbilityEffectList(abilityId);
                 for (const abilityEffect of abilityEffectList) {
+                    if (!TARGET_KIND.includes(abilityEffect.effect_type)) continue;
+
                     if (troopKbn === logic.TROOP_KBN.SUB) {
                         // 他部隊のアビリティは一部のみ許可
                         if (!SUB_TARGET_KIND.includes(abilityEffect.effect_type)) {

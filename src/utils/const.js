@@ -321,6 +321,7 @@ export const CONDITIONS = {
     SP_OVER: 54, // 現在SP指定値以上
     OD_UNDER: 55, // OD指定値未満
     OD_OVER: 56, // OD指定値以上
+    IS_WEAK: 60, // 弱点を突いている
 }
 
 /** 敵リスト*/

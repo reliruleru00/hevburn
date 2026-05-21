@@ -315,8 +315,10 @@ export function startAction(turnData) {
             attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
         } else {
             attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
-            // アビリティ(スキル使用)
-            abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+            if (attackInfo) {
+                // アビリティ(スキル使用)
+                abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+            }
         }
 
         if (attackInfo) {
@@ -825,6 +827,11 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skill_i
                 return false
             }
             return checkPassiveExist(unitData.passiveSkillList, conditionsId);
+        case CONDITIONS.IS_WEAK: // 弱点を突いている
+            // 弱点のみ消費
+            let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
+            let attackInfo = getSkillIdToAttackInfo(turnData, unitData.selectSkillId);
+            return isWeak(turnData.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)
         default:
             break;
     }

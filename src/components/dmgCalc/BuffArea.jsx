@@ -86,6 +86,11 @@ const BuffArea = ({ argument: {
         return style?.styleInfo.style_id + style?.exclusionSkillList.map(skill => skill).join(',');
     }).join(',');
 
+    let limitList = styleList.selectStyleList.map(style => {
+        const limitCount = style?.limitCount ?? "";
+        return `${limitCount}`;
+    }).join(',');
+
     let supportList = styleList.selectStyleList.map(style => {
         const styleId = style?.support?.styleInfo?.style_id ?? "";
         const limitCount = style?.support?.limitCount ?? "";
@@ -94,7 +99,7 @@ const BuffArea = ({ argument: {
 
     const { buffGroup, abilityList, passiveList } = useMemo(() => {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
-    }, [attackInfo?.attack_id, attackInfo?.servantCount, selectList, isWeak, JSON.stringify(defDownBuffs)]);
+    }, [attackInfo?.attack_id, attackInfo?.servantCount, limitList, selectList, isWeak, JSON.stringify(defDownBuffs)]);
 
     const resonance = useMemo(() => {
         return generateResonanceList(styleList);
@@ -718,11 +723,21 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 "0": memberInfo.styleInfo.ability0,
                 "00": memberInfo.styleInfo.ability00,
                 "1": memberInfo.styleInfo.ability1,
-                "2": memberInfo.styleInfo.ability2,
                 "3": memberInfo.styleInfo.ability3,
                 "5": memberInfo.styleInfo.ability5,
                 "10": memberInfo.styleInfo.ability10
             };
+            if (memberInfo.limitCount == 2) {
+                styleAbility = {
+                    "orgn": memberInfo.styleInfo.ability_orgn,
+                    "0": memberInfo.styleInfo.ability0,
+                    "00": memberInfo.styleInfo.ability00,
+                    "1": memberInfo.styleInfo.ability1,
+                    "2": memberInfo.styleInfo.ability2,
+                    "5": memberInfo.styleInfo.ability5,
+                    "10": memberInfo.styleInfo.ability10
+                };
+            }
             if (memberInfo.styleInfo.role === ROLE.ADMIRAL) {
                 styleAbility["ADMIRAL"] = ABILITY_ID.ADMIRAL_COMMON;
             }

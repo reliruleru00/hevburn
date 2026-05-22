@@ -122,7 +122,11 @@ export const changeStyleInfo = (unit, styleId) => {
     Object.values(ABILIRY_TIMING).forEach(timing => {
         unit[`ability_${timing}`] = [];
     });
-    ["0", "00", "1", "3", "4", "5", "10"].forEach(numStr => {
+    let abilitylimitList = ["_orgn", "0", "00", "1", "3", "4", "5", "10"];
+    if (member.limitCount === 2) {
+        abilitylimitList = ["_orgn", "0", "00", "1", "2"];
+    }
+    abilitylimitList.forEach(numStr => {
         const num = parseInt(numStr, 10);
         if (styleInfo[`ability${numStr}`] && num <= member.limitCount) {
             let abilityInfo = common.getAbilityInfo(styleInfo[`ability${numStr}`]);

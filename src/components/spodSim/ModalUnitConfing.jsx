@@ -19,7 +19,9 @@ const ModalUnitConfing = ({ turn, closeModal, placeNo, updateUnitData }) => {
                 <span className="modal_label">ユニット設定</span>
                 <button className="modal-close" onClick={closeModal}>&times;</button>
             </div>
-            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
+            <p>設定値を一時的に変更します。</p>
+            <p className="text-xs text-red-500">※再計算時（前ターンの変更、ロード時など）には元の値に戻ります。</p>
+            <div className="w-[350px] mx-auto grid grid-cols-2 text-center mt-2">
                 <span>SP</span>
                 <input className="status" type="number" value={sp} onChange={(e) => setSp(Number(e.target.value))} />
                 <span>EP</span>

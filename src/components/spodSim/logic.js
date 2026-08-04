@@ -407,6 +407,8 @@ const skillActivation = (skillInfo, unitData, turnData, placeNo, autoPursuitUnit
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP,
     BUFF.ELEMENT_CRITICALDAMAGEUP, BUFF.CHARGE, BUFF.DAMAGERATEUP];
+    const charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
+    turnData.setLog(`${charaName}の${skillInfo.skill_name}`);
 
     let buffList = getBuffList(skillInfo.skill_id);
     let isSkill = false;
@@ -458,8 +460,6 @@ const skillActivation = (skillInfo, unitData, turnData, placeNo, autoPursuitUnit
     // SP消費
     payCost(unitData, skillInfo);
 
-    const charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
-    turnData.setLog(`${charaName}の${skillInfo.skill_name}`);
     let unitOdPlus = getODPlus(skillInfo, placeNo, turnData);
     if (unitOdPlus > 0) {
         turnData.setLog(`　OverDriveゲージ+${unitOdPlus.toFixed(2)}%`);
@@ -639,7 +639,6 @@ const getODPlus = (skillInfo, placeNo, turnData) => {
     odRateUp += checkBuffExist(unitData.buffList, BUFF.BABIED) ? 20 : 0;
     // odRateUp += checkPassiveExist(unitData.passiveSkillList, constants.SKILL_ID.MOTHERS_LIGHT) ? 5 : 0;
     const earring = getearringEffectSize(attackInfo ? attackInfo.hit_count : 1, unitData);
-
 
     for (const buffInfo of buffList) {
         // OD増加
@@ -836,6 +835,8 @@ function judgmentCondition(conditions, conditionsId, turnData, unitData, skillId
             return checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], conditionsId);
         case CONDITIONS.HAS_BUFF: // バフ発動中
             return checkBuffExist(unitData.buffList, conditionsId);
+        case CONDITIONS.HAS_DEBUFF: // デバフ発動中
+            return checkBuffExist(turnData.enemyDebuffList, conditionsId);
         case CONDITIONS.MORALE_OVER_LV: // 士気Lv以上
             return checkBuffExist(unitData.buffList, BUFF.MORALE, conditionsId);
         case CONDITIONS.ENEMY_COUNT: // 敵数指定
@@ -1045,10 +1046,11 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData, isLogOutput = tru
         case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
         case BUFF.PROVOKE: // 挑発
         case BUFF.COVER: // 注目
+        case BUFF.MISFORTUNE: // 厄
             // デバフ追加
-            let add_count = 1;
+            let addCount = 1;
             if (buffInfo.range_area === RANGE.ENEMY_ALL) {
-                add_count = turnData.enemyCount;
+                addCount = turnData.enemyCount;
             }
             // デバフ強化を消費する。
             let index = useUnitData.buffList.findIndex(function (buffInfo) {
@@ -1057,7 +1059,7 @@ function addBuffUnit(turnData, buffInfo, placeNo, useUnitData, isLogOutput = tru
             if (index !== -1) {
                 useUnitData.buffList.splice(index, 1);
             }
-            for (let i = 0; i < add_count; i++) {
+            for (let i = 0; i < addCount; i++) {
                 let debuff = createBuffData(buffInfo, useUnitData);
                 turnData.enemyDebuffList.push(debuff);
             }
@@ -2193,8 +2195,17 @@ const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 break;
             case EFFECT.GRANT_BUFF: // バフ付与
                 addAbilityBuffUnit(ability.effect_no, abilityName, ability.effect_count, targetList, turnData)
-                let buffKind = common.getBuffKind(ability.effect_no);
-                effectDesc = `${buffKind.buff_name}を付与`;
+                effectDesc = `${common.getBuffKind(ability.effect_no).buff_name}を付与`;
+                break;
+            case EFFECT.GRANT_DEBUFF: // デバフ付与
+                let debuff = {};
+                debuff.buff_kind = ability.effect_no;
+                debuff.buff_element = 0;
+                debuff.rest_turn = ability.effect_count;
+                debuff.effect_count = ability.effect_count;
+                debuff.buff_name = ability.ability_name;
+                turnData.enemyDebuffList.push(debuff);
+                effectDesc = `${common.getBuffKind(ability.effect_no).buff_name}を付与`;
                 break;
             case EFFECT.SP_LIMIT_UP: // SP上限アップ
                 targetList.forEach(function (target_no) {

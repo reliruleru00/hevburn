@@ -206,7 +206,7 @@ export const EFFECT = {
     GIVEDEBUFFUP: 19, // デバフ強化
     BREAK_GUARD: 20, // ブレイクガード
     STUN: 21, // スタン
-    MISFORTUNE: 22, // 厄
+    GRANT_DEBUFF: 22, // デバフ付与
     DISASTER: 23, // 禍
     SHADOW_CLONE: 24, // 影分身
     STATUSUP_VALUE: 25, // 能力上昇(固定)
@@ -332,6 +332,7 @@ export const CONDITIONS = {
     SP_OVER: 54, // 現在SP指定値以上
     OD_UNDER: 55, // OD指定値未満
     OD_OVER: 56, // OD指定値以上
+    HAS_DEBUFF: 57, // デバフ発動中
     IS_WEAK: 60, // 弱点を突いている
 }
 

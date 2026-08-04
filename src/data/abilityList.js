@@ -317,6 +317,7 @@ const abilityList = [
     {"ability_id":1532,"ability_name":"先導者","ability_explan":"自身の攻撃で敵を倒したとき敵1体につき味方全体の士気レベルを1上昇(最大レベル10)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1533,"ability_name":"貴様に託した","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1534,"ability_name":"破竹の勢い","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
+    {"ability_id":1535,"ability_name":"破竹の勢い(小)","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1601,"ability_name":"ダークチアリング","ability_explan":"自身がEXスキル使用後闇属性スタイルの士気レベルを2上昇(最大レベル10)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":5},
     {"ability_id":1602,"ability_name":"追加支援","ability_explan":"自身がEXスキル使用後オーバードライブゲージを10%上昇","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1603,"ability_name":"元気注入","ability_explan":"自身がEXスキル使用後味方全体のSP+2","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},

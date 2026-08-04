@@ -109,6 +109,7 @@ export const ELEMENT = {
     THUNDER: 3, // 雷
     LIGHT: 4, // 光
     DARK: 5, // 闇
+    VOID: 6, // 虚
     NOT_FIRE: 11, // 火以外
     NOT_ICE: 12, // 氷以外
     NOT_THUNDER: 13, // 雷以外
@@ -350,6 +351,7 @@ export const ENEMY_CLASS = {
     SERAPH_ENCOUNTER: 12, // セラフ遭遇戦
     EVENT_PRISMATIC: 13, // イベントプリズム
     HARD_LAYER_EX: 15, // 異時層EX
+    SCORE_ATTACK_EX: 16, // スコアタEX
     FREE_INPUT: 99, // 自由入力
 }
 

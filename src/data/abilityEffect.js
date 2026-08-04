@@ -361,6 +361,7 @@ const abilityEffect = [
     {"ability_id":1532,"range_area":7,"activation_timing":99,"effect_type":16,"effect_size":1,"conditions":""},
     {"ability_id":1533,"range_area":0,"activation_timing":6,"effect_type":14,"effect_size":25,"conditions":"ブレイクしたとき"},
     {"ability_id":1534,"range_area":0,"activation_timing":6,"effect_type":14,"effect_size":25,"conditions":"ブレイクしたとき"},
+    {"ability_id":1535,"range_area":0,"activation_timing":6,"effect_type":14,"effect_size":10,"conditions":"ブレイクしたとき"},
     {"ability_id":1601,"range_area":6,"activation_timing":8,"effect_type":16,"effect_size":2,"conditions":""},
     {"ability_id":1602,"range_area":6,"activation_timing":8,"effect_type":14,"effect_size":10,"conditions":""},
     {"ability_id":1603,"range_area":6,"activation_timing":8,"effect_type":12,"effect_no":30,"effect_size":2,"conditions":""},

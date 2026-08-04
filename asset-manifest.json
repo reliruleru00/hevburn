@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/hevburn/static/css/main.e2927902.css",
-    "main.js": "/hevburn/static/js/main.168cfb50.js",
+    "main.js": "/hevburn/static/js/main.5cf794ac.js",
     "static/media/frend.png": "/hevburn/static/media/frend.f0523ea361a754427de2.png",
     "static/media/KarenSwim2024_R3.webp": "/hevburn/static/media/KarenSwim2024_R3.87c2441162f783eecc84.webp",
     "static/media/IrOhshimaDefault_R3.webp": "/hevburn/static/media/IrOhshimaDefault_R3.a2e7d02501e315dcd414.webp",
@@ -155,6 +155,7 @@
     "static/media/EAoiDefault_R1.webp": "/hevburn/static/media/EAoiDefault_R1.d6ede9a7b582a615b84a.webp",
     "static/media/title_log.png": "/hevburn/static/media/title_log.4b026799221faf396f03.png",
     "static/media/CReaperKitchen_R3_Select.webp": "/hevburn/static/media/CReaperKitchen_R3_Select.4af316fb16a44ef8d8a9.webp",
+    "static/media/HNaruseDefault_R3_Select.webp": "/hevburn/static/media/HNaruseDefault_R3_Select.1f7c7edbde41f6fcbee4.webp",
     "static/media/INatsumeSwordDancer_R3_Select.webp": "/hevburn/static/media/INatsumeSwordDancer_R3_Select.6741cbdbf01e4e10dcb0.webp",
     "static/media/ADateRunner_R3_Select.webp": "/hevburn/static/media/ADateRunner_R3_Select.841a7270dafa07d8aa22.webp",
     "static/media/MdAngelisKitchen_R3_Select.webp": "/hevburn/static/media/MdAngelisKitchen_R3_Select.a3c3994a0672370fabbc.webp",
@@ -365,6 +366,7 @@
     "static/media/KAsakuraTwinsAnother_R3_Thumbnail.webp": "/hevburn/static/media/KAsakuraTwinsAnother_R3_Thumbnail.e3edc4626f16ea8cc1f6.webp",
     "static/media/MiOhshimaDefault_R3_Thumbnail.webp": "/hevburn/static/media/MiOhshimaDefault_R3_Thumbnail.e697a0b54926855f09fc.webp",
     "static/media/MuOhshimaFurisode2024_R3_Select.webp": "/hevburn/static/media/MuOhshimaFurisode2024_R3_Select.47255e435326aa9b9cb8.webp",
+    "static/media/HNaruseDefault_R3_Thumbnail.webp": "/hevburn/static/media/HNaruseDefault_R3_Thumbnail.371f3663d78b718701cd.webp",
     "static/media/MTsukishiroRugged_R3_Select.webp": "/hevburn/static/media/MTsukishiroRugged_R3_Select.5384dc95508ee9f27794.webp",
     "static/media/YShirakawaArmor_R3_Thumbnail.webp": "/hevburn/static/media/YShirakawaArmor_R3_Thumbnail.d7a38f6ae242bc0d67fe.webp",
     "static/media/LShanhuaBride_R3_Thumbnail.webp": "/hevburn/static/media/LShanhuaBride_R3_Thumbnail.31fb89e0ef051c469756.webp",
@@ -386,6 +388,7 @@
     "static/media/YBungoDefault_R1_Thumbnail.webp": "/hevburn/static/media/YBungoDefault_R1_Thumbnail.e1948cc84dd4fa8e74ec.webp",
     "static/media/IrOhshimaYukata2023_R3_Select.webp": "/hevburn/static/media/IrOhshimaYukata2023_R3_Select.d90afad06b7a8eeb81db.webp",
     "static/media/MSatsukiDefault_R2_Thumbnail.webp": "/hevburn/static/media/MSatsukiDefault_R2_Thumbnail.2f9f5a0020646f18d02e.webp",
+    "static/media/19AIcon.webp": "/hevburn/static/media/19AIcon.11a0af3ffe985d3f4aed.webp",
     "static/media/AKanzakiAgent_R3_Thumbnail.webp": "/hevburn/static/media/AKanzakiAgent_R3_Thumbnail.f8ddd997112dcc04939f.webp",
     "static/media/TKunimiNewYear2023_R3_Thumbnail.webp": "/hevburn/static/media/TKunimiNewYear2023_R3_Thumbnail.2e8aae5d3ee1be3aedd1.webp",
     "static/media/IRedmayneSteam_R3_Thumbnail.webp": "/hevburn/static/media/IRedmayneSteam_R3_Thumbnail.30bd39d14eeed00a6aaa.webp",
@@ -756,6 +759,7 @@
     "static/media/IconThunderMark.webp": "/hevburn/static/media/IconThunderMark.f9e35a9907d2abf045ce.webp",
     "static/media/IconIceMark.webp": "/hevburn/static/media/IconIceMark.d8870da511bedad2dac2.webp",
     "static/media/IconByakkoDoubleActionAttackSkill.webp": "/hevburn/static/media/IconByakkoDoubleActionAttackSkill.6f7f59851a2bf5354c38.webp",
+    "static/media/IconLightMark.webp": "/hevburn/static/media/IconLightMark.2cd97220fee90fd5fd9f.webp",
     "static/media/IconCurry.webp": "/hevburn/static/media/IconCurry.68fce12ee56f10d0e231.webp",
     "static/media/IconHighBoost.webp": "/hevburn/static/media/IconHighBoost.bab01bca5e0227d6e190.webp",
     "static/media/IconDarkMark.webp": "/hevburn/static/media/IconDarkMark.f0b7ed905e7dbd227f28.webp",
@@ -816,6 +820,7 @@
     "static/media/IconMisfortune.webp": "/hevburn/static/media/IconMisfortune.d90990ded9d57ec2ae1d.webp",
     "static/media/IconFunnelS.webp": "/hevburn/static/media/IconFunnelS.f2a3d405664f111b6974.webp",
     "static/media/IconBuffDefenseE1.webp": "/hevburn/static/media/IconBuffDefenseE1.5a7d54bca6cb3a882b8a.webp",
+    "static/media/void.webp": "/hevburn/static/media/void.2f77e8bf34a47f2fb507.webp",
     "static/media/IconBuffAttack4.webp": "/hevburn/static/media/IconBuffAttack4.dc9487d07553b275b5c9.webp",
     "static/media/IconBuffAttack3.webp": "/hevburn/static/media/IconBuffAttack3.f184b06150bf12ff646f.webp",
     "static/media/IconBuffAttack5.webp": "/hevburn/static/media/IconBuffAttack5.6018560aab30ba686da0.webp",
@@ -849,10 +854,10 @@
     "static/media/none.webp": "/hevburn/static/media/none.6879fc5bb3f6e4e97fc2.webp",
     "static/media/light.webp": "/hevburn/static/media/light.40cf475c601964339dea.webp",
     "main.e2927902.css.map": "/hevburn/static/css/main.e2927902.css.map",
-    "main.168cfb50.js.map": "/hevburn/static/js/main.168cfb50.js.map"
+    "main.5cf794ac.js.map": "/hevburn/static/js/main.5cf794ac.js.map"
   },
   "entrypoints": [
     "static/css/main.e2927902.css",
-    "static/js/main.168cfb50.js"
+    "static/js/main.5cf794ac.js"
   ]
 }

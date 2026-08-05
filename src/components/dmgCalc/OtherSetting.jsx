@@ -68,7 +68,7 @@ const OtherSetting = ({ attackInfo, enemyClass, otherSetting, setOtherSetting, b
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
-                        {enemyClass === constants.ENEMY_CLASS.SCORE_ATTACK && (
+                        {enemyClass === constants.ENEMY_CLASS.SCORE_ATTACK_EX && (
                             <>
                                 <option value="4">4</option>
                                 <option value="5">5</option>

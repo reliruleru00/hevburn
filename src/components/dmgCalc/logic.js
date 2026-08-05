@@ -672,7 +672,7 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
     let token = getSumTokenEffectSize(attackInfo, attackMemberInfo);
     let enemyDefenceRate = getEnemyDefenceRate(state);
     let overdrive = 1;
-    if (enemyInfo.enemy_class !== ENEMY_CLASS.SCORE_ATTACK_EX) {
+    if (enemyInfo.enemy_class !== constants.ENEMY_CLASS.SCORE_ATTACK_EX) {
         overdrive = 1 + Number(otherSetting.overdrive) / 10;
     } else {
         const overDroveRate = [0, 50, 150, 200, 250, 300];

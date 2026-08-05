@@ -371,8 +371,8 @@ export function startAction(turnData) {
         }
     });
 
-    if (turnData.overDriveGauge > 300) {
-        turnData.overDriveGauge = 300;
+    if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
+        turnData.overDriveGauge = turnData.maxOverDriveGauge;
     }
     // 残りフィールドターン
     if (turnData.fieldTurn > 1 && !turnData.additionalTurn) {
@@ -1667,6 +1667,10 @@ const turnProceed = (kbNext, turn) => {
             startOverDrive(turn, 2);
         } else if (kbNext === KB_NEXT.ACTION_OD_3) {
             startOverDrive(turn, 3);
+        } else if (kbNext === KB_NEXT.ACTION_OD_4) {
+            startOverDrive(turn, 4);
+        } else if (kbNext === KB_NEXT.ACTION_OD_5) {
+            startOverDrive(turn, 5);
         }
         turn.finishAction = true;
         turn.endDriveTriggerCount = 0;
@@ -1703,27 +1707,27 @@ export const setUserOperation = (turn) => {
     }
 }
 
-const nextTurn = (turn) => {
+const nextTurn = (turnData) => {
     // 通常進行
-    unitLoop(unitTurnProceed, turn.unitList, turn);
+    unitLoop(unitTurnProceed, turnData.unitList, turnData);
 
-    turn.turnNumber++;
-    turn.finishAction = false;
-    turn.endDriveTriggerCount = 0;
-    if (turn.turnNumber % turn.stepTurnOverDrive === 0) {
-        turn.overDriveGauge += turn.stepOverDriveGauge;
+    turnData.turnNumber++;
+    turnData.finishAction = false;
+    turnData.endDriveTriggerCount = 0;
+    if (turnData.turnNumber % turnData.stepTurnOverDrive === 0) {
+        turnData.overDriveGauge += turnData.stepOverDriveGauge;
     }
-    if (turn.turnNumber === turn.ordinalTurnOverDrive) {
-        turn.overDriveGauge += turn.ordinalOverDriveGauge;
+    if (turnData.turnNumber === turnData.ordinalTurnOverDrive) {
+        turnData.overDriveGauge += turnData.ordinalOverDriveGauge;
     }
-    if (turn.overDriveGauge < -300) {
-        turn.overDriveGauge = -300;
+    if (turnData.overDriveGauge < -300) {
+        turnData.overDriveGauge = -300;
     }
-    if (turn.overDriveGauge > 300) {
-        turn.overDriveGauge = 300;
+    if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
+        turnData.overDriveGauge = turnData.maxOverDriveGauge;
     }
     // 敵のデバフ消費
-    debuffConsumption(turn);
+    debuffConsumption(turnData);
 }
 
 const unitSort = (turn) => {
@@ -1743,48 +1747,49 @@ export const getTurnNumber = (turn) => {
     return defaultTurn;
 }
 
-export const addOverDrive = (add_od_gauge, turn) => {
-    turn.overDriveGauge += add_od_gauge;
-    if (turn.overDriveGauge > 300) {
-        turn.overDriveGauge = 300;
+export const addOverDrive = (addOdGauge, turnData) => {
+    turnData.overDriveGauge += addOdGauge;
+    if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
+        turnData.overDriveGauge = turnData.maxOverDriveGauge;
     }
 }
 
-export const startOverDrive = (turn, overDriveLevel) => {
-    turn.overDriveNumber = 1;
-    turn.overDriveMaxTurn = overDriveLevel;
-    turn.overDriveGauge = turn.overDriveGauge - overDriveLevel * 100;
-    turn.addOverDriveGauge = 0;
+export const startOverDrive = (turnData, overDriveLevel) => {
+    let odTurnList = [0, 1, 2, 3, 3, 3];
+    turnData.overDriveNumber = 1;
+    turnData.overDriveMaxTurn = odTurnList[overDriveLevel];
+    turnData.overDriveGauge = turnData.overDriveGauge - overDriveLevel * 100;
+    turnData.addOverDriveGauge = 0;
 
-    let sp_list = [0, 5, 12, 20];
+    let spList = [0, 5, 12, 20, 20, 20];
     unitLoop(function (unit) {
-        unit.overDriveSp = sp_list[overDriveLevel];
+        unit.overDriveSp = spList[overDriveLevel];
         unit.overDriveEp = 0;
-        unit.spCost = getSpCost(turn, getSkillData(unit.selectSkillId), unit);
-    }, turn.unitList);
-    abilityAction(ABILIRY_TIMING.OD_START, turn);
-    turn.triggerOverDrive = true;
+        unit.spCost = getSpCost(turnData, getSkillData(unit.selectSkillId), unit);
+    }, turnData.unitList);
+    abilityAction(ABILIRY_TIMING.OD_START, turnData);
+    turnData.triggerOverDrive = true;
 }
 
-export const removeOverDrive = (turn) => {
-    turn.overDriveNumber = 0;
-    turn.overDriveMaxTurn = 0;
-    turn.overDriveGauge = turn.startOverDriveGauge;
-    turn.addOverDriveGauge = 0;
+export const removeOverDrive = (turnData) => {
+    turnData.overDriveNumber = 0;
+    turnData.overDriveMaxTurn = 0;
+    turnData.overDriveGauge = turnData.startOverDriveGauge;
+    turnData.addOverDriveGauge = 0;
 
     unitLoop(function (unit) {
         unit.overDriveSp = 0;
         unit.overDriveEp = 0;
-        unit.spCost = getSpCost(turn, getSkillData(unit.selectSkillId), unit);
-    }, turn.unitList);
-    turn.triggerOverDrive = false;
+        unit.spCost = getSpCost(turnData, getSkillData(unit.selectSkillId), unit);
+    }, turnData.unitList);
+    turnData.triggerOverDrive = false;
 }
 
-const debuffConsumption = (turn) => {
-    for (let i = turn.enemyDebuffList.length - 1; i >= 0; i--) {
-        let debuff = turn.enemyDebuffList[i];
+const debuffConsumption = (turnData) => {
+    for (let i = turnData.enemyDebuffList.length - 1; i >= 0; i--) {
+        let debuff = turnData.enemyDebuffList[i];
         if (debuff.rest_turn === 1) {
-            turn.enemyDebuffList.splice(i, 1);
+            turnData.enemyDebuffList.splice(i, 1);
         } else {
             debuff.rest_turn -= 1;
         }
@@ -1814,7 +1819,7 @@ const unitTurnInit = (additionalTurn, unit) => {
     }
 }
 
-const unitTurnProceed = (unit, turn) => {
+const unitTurnProceed = (unit, turnData) => {
     buffSort(unit);
     if (unit.nextTurnMinSp > 0) {
         if (unit.nextTurnMinSp > unit.sp) {
@@ -1824,20 +1829,20 @@ const unitTurnProceed = (unit, turn) => {
     }
     if (unit.sp < unit.limitSp) {
         unit.sp += 2;
-        if ((turn.turnNumber + 1) % turn.stepTurnSp === 0) {
-            unit.sp += turn.stepSpAllAdd;
+        if ((turnData.turnNumber + 1) % turnData.stepTurnSp === 0) {
+            unit.sp += turnData.stepSpAllAdd;
             if (unit.placeNo < 3) {
-                unit.sp += turn.stepSpFrontAdd;
+                unit.sp += turnData.stepSpFrontAdd;
             } else {
-                unit.sp += turn.stepSpBackAdd;
+                unit.sp += turnData.stepSpBackAdd;
             }
         }
-        if ((turn.turnNumber + 1) === turn.ordinalTurnSp) {
-            unit.sp += turn.ordinalSpAllAdd;
+        if ((turnData.turnNumber + 1) === turnData.ordinalTurnSp) {
+            unit.sp += turnData.ordinalSpAllAdd;
             if (unit.placeNo < 3) {
-                unit.sp += turn.ordinalSpFrontAdd;
+                unit.sp += turnData.ordinalSpFrontAdd;
             } else {
-                unit.sp += turn.ordinalSpBackAdd;
+                unit.sp += turnData.ordinalSpBackAdd;
             }
         }
         if (unit.sp > unit.limitSp) {
@@ -2188,8 +2193,8 @@ const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 break;
             case EFFECT.OVERDRIVEPOINTUP: // ODアップ
                 turnData.overDriveGauge += ability.effect_size;
-                if (turnData.overDriveGauge > 300) {
-                    turnData.overDriveGauge = 300;
+                if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
+                    turnData.overDriveGauge = turnData.maxOverDriveGauge;
                 }
                 effectDesc = `OverDriveゲージ+${ability.effect_size}`;
                 break;

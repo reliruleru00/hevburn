@@ -76,6 +76,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
         unitList: [],
         startOverDriveGauge: 0,
         stepOverDriveGauge: 0,
+        maxOverDriveGauge: 300,
         overDriveGauge: 0,
         addOverDriveGauge: 0,
         overDriveGaugeMultiplier: 100,
@@ -123,6 +124,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
             buffEffectSelectType: 0,
             spCostDown: 0,
             spCostUp: 0,
+            overDriveRateUp: 0,
             nextTurnMinSp: -1,
             selectSkillId: 0,
             initSkillId: 0,
@@ -169,9 +171,9 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
             Object.values(ABILIRY_TIMING).forEach(timing => {
                 unit[`ability_${timing}`] = [];
             });
-            let abilitylimitList = ["_orgn", "0", "00", "1", "3", "4", "5", "10"];
+            let abilitylimitList = ["_orgn", "0", "00", "000", "1", "3", "4", "5", "10"];
             if (member.limitCount === 2) {
-                abilitylimitList = ["_orgn", "0", "00", "1", "2"];
+                abilitylimitList = ["_orgn", "0", "00", "000", "1", "2"];
             }
             abilitylimitList.forEach(numStr => {
                 let num = parseInt(numStr, 10);
@@ -233,6 +235,12 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
                     }
                 }
             }
+
+            unit[`ability_${ABILIRY_TIMING.PASSIVE}`].forEach(abilityEffect => {
+                if (abilityEffect.effect_type === constants.EFFECT.OVERDRIVE_RATE_UP) {
+                    unit.overDriveRateUp += abilityEffect.effect_size;
+                }
+            });
             if (member.morale > 0) {
                 let morale = {
                     buff_kind: BUFF.MORALE,
@@ -263,6 +271,10 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
         newEnemyInfo[`element_${i}`] += Number(detailSetting[`changeElement${i}`]);
     }
     turnInit.enemyInfo = newEnemyInfo;
+    // ODゲージの最大値を計算
+    if (newEnemyInfo.enemy_class === constants.ENEMY_CLASS.SCORE_ATTACK_EX) {
+        turnInit.maxOverDriveGauge = 500;
+    }
     // 戦闘開始アビリティ
     turnInit.setLog("■戦闘開始");
     abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);

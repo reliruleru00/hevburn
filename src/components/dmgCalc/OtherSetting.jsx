@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
+import * as constants from 'utils/const';
 
-const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting, bulkSetting }) => {
+const OtherSetting = ({ attackInfo, enemyClass, otherSetting, setOtherSetting, bulkSetting }) => {
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -58,6 +59,7 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting, bulkSetting }
                         <option value="2">銀氷</option>
                         <option value="3">雷霆</option>
                         <option value="4">光輝</option>
+                        <option value="5">常闇</option>
                     </select>
                 </div>
                 <div className="flex">
@@ -67,6 +69,13 @@ const OtherSetting = ({ attackInfo, otherSetting, setOtherSetting, bulkSetting }
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
+                        {enemyClass === constants.ENEMY_CLASS.SCORE_ATTACK_EX && (
+                            <>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </>
+                        )
+                        }
                     </select>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import styleList from "data/styleList";
 import skillList from "data/skillList";
 import skillAttack from "data/skillAttack";
 import skillBuff from "data/skillBuff";
+import skillEffect from "data/skillEffect";
 import enemyList from 'data/enemyList';
 import abilityList from "data/abilityList";
 import abilityEffect from "data/abilityEffect";
@@ -57,6 +58,12 @@ export function getAttackInfo(attackId) {
 export function getBuffList(skillId) {
   const filteredBuff = skillBuff.filter((obj) => obj.skill_id === Number(skillId));
   return filteredBuff;
+}
+
+// 効果一覧取得
+export function getEffectList(skillId) {
+  const filteredEffect = skillEffect.filter((obj) => obj.skill_id === Number(skillId));
+  return filteredEffect;
 }
 
 // バフ情報取得

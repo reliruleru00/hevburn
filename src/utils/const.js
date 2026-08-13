@@ -129,22 +129,22 @@ export const BUFF = {
     ELEMENT_CRITICALRATEUP: 8, // 属性クリ率
     ELEMENT_CRITICALDAMAGEUP: 9, // 属性クリダメ
     CHARGE: 10,// チャージ
-    FIELD: 11, // フィールド
+    // FIELD: 11, // フィールド
     DAMAGERATEUP: 12, // 破壊率アップ
-    OVERDRIVEPOINTUP: 13, // OD増加
+    // OVERDRIVEPOINTUP: 13, // OD増加
     FIGHTINGSPIRIT: 14, // 闘志
     MISFORTUNE: 15, // 厄
     FUNNEL: 16, // 連撃
-    TOKEN_UP: 17, // トークンアップ
-    STRONG_BREAK: 18, // 強ブレイク
+    // TOKEN_UP: 17, // トークンアップ
+    // STRONG_BREAK: 18, // 強ブレイク
     DEFENSEDP: 19, // DP防御ダウン
     RESISTDOWN: 20, // 耐性ダウン
     ETERNAL_DEFENSEDOWN: 21, // 永続防御力ダウン
     ELEMENT_ETERNAL_DEFENSEDOWN: 22, // 永続属性防御ダウン
-    HEALSP: 23, // SP増加
+    // HEALSP: 23, // SP増加
     RECOIL: 24, // 行動不能
     PROVOKE: 25, // 挑発
-    ADDITIONALTURN: 26, // 追加ターン
+    // ADDITIONALTURN: 26, // 追加ターン
     COVER: 27, // 注目
     GIVEATTACKBUFFUP: 28, // バフ強化
     GIVEDEBUFFUP: 29, // デバフ強化
@@ -178,7 +178,7 @@ export const BUFF = {
     DIM_SUM: 57, // 点心
     SPRIGHTLY: 58, // 軽快
     CAMP_DEPLOYMENT: 59, // 陣展開
-    DISPEL: 90, // ディスペル
+    // DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
 
@@ -224,6 +224,7 @@ export const EFFECT = {
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ
     COST_SP_UP: 56, // 消費SPアップ
+    DISPEL: 90, // ディスペル
 }
 
 /** フィールド */

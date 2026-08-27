@@ -21,9 +21,9 @@ const PredictionScore = ({ damageResult, state, enemyClass }) => {
     let maxDamageRate = 0;
     let levelBonus = 0;
     let turnBonus = 0;
+    const scoreAttack = getScoreAttack(enemyInfo.sub_no);
 
     if (enemyClass === ENEMY_CLASS.SCORE_ATTACK) {
-        let scoreAttack = getScoreAttack(enemyInfo.sub_no);
         let num = scoreLv - 20;
         levelBonus = LEVEL_BONUS[num];
         noBreakValue = checkNobreak ? NO_BREAK_BONUS[num] : 0;
@@ -31,8 +31,8 @@ const PredictionScore = ({ damageResult, state, enemyClass }) => {
         maxDamageRate = scoreAttack["max_damage_rate"];
         turnBonus = TURN_BONUS[turnCount];
     } else {
-        levelBonus = 100_000;
-        damageLimitValue = 2_000_000_000;
+        levelBonus = scoreAttack["level_bonus"];
+        damageLimitValue = scoreAttack["max_limit_value"];
         maxDamageRate = 0.0001;
         const bonus = [0.00, 2.00, 2.00, 2.00, 2.00, 2.00,
             1.99, 1.98, 1.97, 1.96, 1.95,
@@ -62,13 +62,15 @@ const PredictionScore = ({ damageResult, state, enemyClass }) => {
                     <input type="text" className="text-center prediction_value" readOnly value={levelBonus.toLocaleString(0)}
                     />
                 </div>
-                <div>
-                    <div className="prediction prediction_shift">
-                        <input id="no_break_bonus_check" type="checkbox" checked={checkNobreak} onChange={(e) => setCheckNobreak(e.target.checked)} />
-                        <label className="checkbox01" htmlFor="no_break_bonus_check">ノーブレイクボーナス</label>
+                {enemyClass === ENEMY_CLASS.SCORE_ATTACK &&
+                    <div>
+                        <div className="prediction prediction_shift">
+                            <input id="no_break_bonus_check" type="checkbox" checked={checkNobreak} onChange={(e) => setCheckNobreak(e.target.checked)} />
+                            <label className="checkbox01" htmlFor="no_break_bonus_check">ノーブレイクボーナス</label>
+                        </div>
+                        <input type="text" className="text-center prediction_value" readOnly value={noBreakValue.toLocaleString(0)} />
                     </div>
-                    <input type="text" className="text-center prediction_value" readOnly value={noBreakValue.toLocaleString(0)} />
-                </div>
+                }
                 <div>
                     <div className="prediction">
                         <div className="prediction">同一ターンダメージ</div>
@@ -124,7 +126,7 @@ const PredictionScore = ({ damageResult, state, enemyClass }) => {
 function getDamageBonus(damage, damageLimitValue, maxDamageRate, socreEnemyUnit) {
     damage *= Number(socreEnemyUnit);
     // ダメージ上限
-    damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
+    // damage = damage > 2_000_000_000 ? 2_000_000_000 : damage;
     let damageBonus;
     if (damage <= damageLimitValue) {
         damageBonus = damage;

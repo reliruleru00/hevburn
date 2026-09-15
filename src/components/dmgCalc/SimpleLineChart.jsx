@@ -68,7 +68,7 @@ export function BuffLineChart({ buffInfo, status, jewelLv, skillLv }) {
     let min = 0;
     let max = Math.max(status, skillStat + 300) + 30;
     for (let x = min; x <= max; x++) {
-        data.push({ x: x, y: calcBuffEffectSize(buffInfo, x, skillLv, jewelLv) });
+        data.push({ x: x, y: calcBuffEffectSize(buffInfo.min_power, buffInfo.max_power, skillStat, x, skillLv, jewelLv) });
     }
 
     return (

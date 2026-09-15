@@ -10,7 +10,8 @@ import * as logic from "./logic";
 import { getSkillData, getPassiveInfo, getPassiveEffectList, getAbilityInfo, getAbilityEffectList } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
 import { CHARA_ID, JEWEL_TYPE } from "utils/const";
-import * as constant from "utils/const";;
+import * as constant from "utils/const";
+import * as common from "utils/common";
 
 const BUFF_KIND_TO_JEWEL_TYPE = {
     [BUFF.ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
@@ -28,15 +29,15 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
-    const isBuffChart = BUFF_LIST.includes(buffInfo.buff_kind);
-    const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_kind);
-    const buffSetting = buffSettingMap[buffInfo.buff_kind][index][buffInfo.key];
+    const isBuffChart = BUFF_LIST.includes(buffInfo.buff_no);
+    const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_no);
+    const buffSetting = buffSettingMap[buffInfo.buff_no][index][buffInfo.key];
     const skillInfo = getSkillData(buffInfo.skill_id);
-    const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_kind)
+    const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_no)
 
     const changeBuffSetting = (item, value) => {
         const updateSettingMap = { ...buffSettingMap };
-        const buffSetting = updateSettingMap[buffInfo.buff_kind][index][buffInfo.key]
+        const buffSetting = updateSettingMap[buffInfo.buff_no][index][buffInfo.key]
         if (!buffSetting["collect"]) {
             buffSetting["collect"] = {};
         }
@@ -61,7 +62,11 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             enemyStatDown = Number(buffSetting.collect.statDown);
         }
     }
-    let status = logic.getStatus(handlers, buffInfo, statUp)
+
+    const buffEffectList = common.getBuffEffect(buffInfo.buff_no);
+    // 絞り込みの精査の追加
+    const buffEffect = buffEffectList[0];
+    let status = logic.getStatus(handlers, buffEffect, statUp);
 
     const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
         abilitySettingMap, passiveSettingMap, resonanceList);
@@ -110,12 +115,12 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         return [];
     }
 
-    const abilityList = getAbilityListByBuff(buffInfo.buff_kind, charaId);
-    const passiveList = getPassiveListByBuff(buffInfo.buff_kind, charaId);
+    const abilityList = getAbilityListByBuff(buffInfo.buff_no, charaId);
+    const passiveList = getPassiveListByBuff(buffInfo.buff_no, charaId);
 
     // 宝珠レベル
     let jewelLv = 0;
-    const kind = buffInfo.buff_kind;
+    const kind = buffInfo.buff_no;
     const jewelType = memberInfo.styleInfo.jewel_type;
     if ((DEBUFF_LIST.includes(kind) && jewelType === JEWEL_TYPE.SKILL_DEBUFFUP) ||
         (BUFF_KIND_TO_JEWEL_TYPE[kind] && jewelType === BUFF_KIND_TO_JEWEL_TYPE[kind])) {
@@ -136,7 +141,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
 
     // バフ強化
     let strengthen = false;
-    if ([BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_kind)) {
+    if ([BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_no)) {
         let troopsBuff = logic.getCharaIdToTroopKbn(styleList, constant.CHARA_ID.STRENGTH_BUFF);
         if (buffInfo.troopKbn === troopsBuff) {
             strengthen = true;
@@ -327,7 +332,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
 const getBuffEffectDisplay = (buffInfo, skillLv) => {
     let minPower;
     let maxPower;
-    switch (buffInfo.buff_kind) {
+    switch (buffInfo.buff_no) {
         case BUFF.FUNNEL:
             let unit = buffInfo.effect_size;
             minPower = buffInfo.min_power;
@@ -338,7 +343,7 @@ const getBuffEffectDisplay = (buffInfo, skillLv) => {
                 return `${unit}%×${minPower}Hit～${maxPower}Hit`
             }
         default:
-            if (BUFF_LIST.includes(buffInfo.buff_kind)) {
+            if (BUFF_LIST.includes(buffInfo.buff_no)) {
                 minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
             } else {
                 minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));

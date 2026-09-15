@@ -15,7 +15,7 @@ import Resonance from "./Resonance";
 import BuffBulkSetting from "./BuffBulkSetting";
 import BuffDetail from "./BuffDetail";
 import skillList from "data/skillList";
-import skillBuff from "data/skillBuff";
+import skillEffect from "data/skillEffect";
 
 const TARGET_KIND = [
     EFFECT.ATTACKUP, // 攻撃力アップ
@@ -75,13 +75,13 @@ const BuffArea = ({ argument: {
 
     let buffKeyList = {};
     attackUpBuffs.forEach(buff => {
-        buffKeyList[logic.getBuffKey(buff.kind)] = [];
+        buffKeyList[logic.getBuffKey(buff.effect, buff.kind)] = [];
     });
     defDownBuffs.forEach(buff => {
-        buffKeyList[logic.getBuffKey(buff.kind)] = [];
+        buffKeyList[logic.getBuffKey(buff.effect, buff.kind)] = [];
     });
     criticalBuffs.forEach(buff => {
-        buffKeyList[logic.getBuffKey(buff.kind)] = [];
+        buffKeyList[logic.getBuffKey(buff.effect, buff.kind)] = [];
     });
 
     let attackCharaId = attackInfo?.chara_id;
@@ -317,7 +317,7 @@ const BuffArea = ({ argument: {
     // バフ一括設定
     const setMultiBuff = (settingBuffList) => {
         Object.keys(buffKeyList).forEach(buffKey => {
-            const buffKind = Number(buffKey.split('-')[1]);
+            const buffNo = Number(buffKey.split('-')[1]);
             const buffItemList = Object.entries(settingBuffList).flatMap(([key, count]) => {
                 if (count === 0) return [];
                 const buffList = [];
@@ -328,14 +328,14 @@ const BuffArea = ({ argument: {
                 })
                 const [skillId, charaId] = key.split('-').map(Number);
                 const matchedBuffs = buffList.filter(buffInfo =>
-                    buffInfo.buff_kind === buffKind &&
+                    buffInfo.buff_no === buffNo &&
                     buffInfo.skill_id === skillId &&
                     buffInfo.use_chara_id === charaId
                 );
                 // countが1なら1回、2なら2回追加（同じ要素を重複追加）
                 return Array(count).fill(matchedBuffs).flat();
             });
-            setBestBuff(buffKey, buffKind, buffItemList)
+            setBestBuff(buffKey, buffNo, buffItemList)
         });
         closeModal();
     };
@@ -350,9 +350,9 @@ const BuffArea = ({ argument: {
     useEffect(() => {
         if (attackInfo) {
             let resistKey = {};
-            resistKey[logic.getBuffKey(BUFF.MINDEYE)] = []
-            resistKey[logic.getBuffKey(BUFF.FRAGILE)] = []
-            resistKey[logic.getBuffKey(BUFF.ETERNAL_FRAGILE)] = []
+            resistKey[logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.MINDEYE)] = []
+            resistKey[logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.FRAGILE)] = []
+            resistKey[logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.ETERNAL_FRAGILE)] = []
             selectBestBuff(resistKey);
         }
     }, [isWeak]);
@@ -372,7 +372,7 @@ const BuffArea = ({ argument: {
         // 山脇様のしもべ変更
         let funnel = buffGroup[BUFF.FUNNEL];
         if (checkUpdate && funnel) {
-            setBestBuff(logic.getBuffKey(BUFF.FUNNEL), BUFF.FUNNEL, funnel[0]);
+            setBestBuff(logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.FUNNEL), BUFF.FUNNEL, funnel[0]);
         }
     }, [attackInfo?.servantCount]);
 
@@ -426,7 +426,7 @@ const BuffArea = ({ argument: {
                             </td>
                         </tr>
                         {attackUpBuffs.map((buffDef, index) => {
-                            const buffKey = `${logic.BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
+                            const buffKey = `${logic.getBuffKey(buffDef.effect, buffDef.kind)}`
                             const totalRowCount = attackUpBuffs.reduce((sum, buff) => {
                                 return sum + (buff.overlap ? 2 : 1);
                             }, 0);
@@ -452,7 +452,7 @@ const BuffArea = ({ argument: {
                             </td>
                         </tr>
                         {defDownBuffs.map((buffDef, index) => {
-                            const buffKey = `${logic.BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
+                            const buffKey = `${logic.getBuffKey(buffDef.effect, buffDef.kind)}`
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
@@ -475,7 +475,7 @@ const BuffArea = ({ argument: {
                             </td>
                         </tr>
                         {criticalBuffs.map((buffDef, index) => {
-                            const buffKey = `${logic.BUFF_KBN[buffDef.kind]}-${buffDef.kind}`
+                            const buffKey = `${logic.getBuffKey(buffDef.effect, buffDef.kind)}`
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
@@ -616,7 +616,8 @@ function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, d
 
     // グループ化
     const buffGroup = filteredBuff.reduce((acc, buff) => {
-        const key = buff.buff_kind;
+        // const key = logic.getBuffKey(buff.effect_type, buff.buff_no);
+        const key = buff.buff_no;
         if (!acc[key]) {
             acc[key] = [[], []];
         }
@@ -670,10 +671,11 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             const styleId = memberInfo.styleInfo.style_id;
             const charaName = common.getCharaData(charaId).chara_short_name;
 
-            const styleBuffList = skillBuff.filter(buff =>
+            const filterBuff = [constants.EFFECT.FIELD_DEPLOYMENT, constants.EFFECT.GRANT_BUFF, constants.EFFECT.GRANT_DEBUFF]
+            const styleBuffList = skillEffect.filter(buff =>
                 (buff.chara_id === charaId || buff.chara_id === 0) &&
                 (buff.style_id === styleId || buff.style_id === 0) &&
-                logic.BUFF_KBN[buff.buff_kind]
+                filterBuff.includes(buff.effect_type)
             ).filter(buff => {
                 switch (buff.buff_id) {
                     case BUFF_ID.MOON_LIGHT: // 月光(歌姫の加護)
@@ -687,7 +689,7 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 }
                 // サブ部隊
                 if (troopKbn === logic.TROOP_KBN.SUB) {
-                    return logic.DEBUFF_LIST.includes(buff.buff_kind);
+                    return buff.effect_type === constants.EFFECT.GRANT_DEBUFF
                 }
                 if (attackMemberInfo) {
                     if (!logic.isElementInclude(attackMemberInfo.styleInfo, buff.target_element)) return;
@@ -703,16 +705,17 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                 buff.chara_name = charaName;
                 buff.use_chara_id = charaId;
                 buff.kbn = "buff";
+                buff.buff_no = buff.effect_type === constants.EFFECT.FIELD_DEPLOYMENT ? null : buff.effect_no;
                 buff.troopKbn = troopKbn;
             });
             buffList.push(...newStyleBuffList);
 
-            const addBuffAbility = (kbn, skillId, charaId, skillName, buffKind, fieldElement, rangeArea, effectSize, effectCount = 0) => {
+            const addBuffAbility = (kbn, skillId, charaId, skillName, buffNo, fieldElement, rangeArea, effectSize, effectCount = 0) => {
                 buffList.push({
                     key: `${kbn}_${skillId}_${charaId}`,
                     skill_id: skillId,
                     use_chara_id: charaId,
-                    buff_kind: buffKind,
+                    buff_no: buffNo,
                     buff_name: skillName,
                     buff_element: fieldElement,
                     chara_name: charaName,
@@ -959,48 +962,48 @@ const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attackInfo, 
         }
     );
     return [
-        { name: "攻撃力UP", kind: BUFF.ATTACKUP, overlap: true },
-        ...(isSwimMua ? [{ name: "攻撃UP(永続)", kind: BUFF.ETERNAL_ATTACKUP, overlap: false },] : []),
-        ...(isElement ? [{ name: "属性攻撃力UP", kind: BUFF.ELEMENT_ATTACKUP, overlap: true },] : []),
-        { name: "フィールド", kind: BUFF.FIELD, overlap: false },
-        { name: "チャージ", kind: BUFF.CHARGE, overlap: false },
-        ...(isShadowClone ? [{ name: "影分身", kind: BUFF.SHADOW_CLONE, overlap: false },] : []),
-        ...(isMiya ? [{ name: "桜花の矢", kind: BUFF.ARROWCHERRYBLOSSOMS, overlap: false },] : []),
-        ...(isWedingSharo ? [{ name: "永遠なる誓い", kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
-        ...(isRisa ? [{ name: "オギャり", kind: BUFF.BABIED, overlap: false },] : []),
-        ...(isKitchenVritika ? [{ name: "カリー", kind: BUFF.CURRY, overlap: false },] : []),
-        ...(isKitchenSharo ? [{ name: "シチー", kind: BUFF.SHCHI, overlap: false },] : []),
-        ...(isKitchenCarole ? [{ name: "ステーキ", kind: BUFF.STEAK, overlap: false },] : []),
-        ...(isKitchenMaria ? [{ name: "ジェラート", kind: BUFF.GELATO, overlap: false },] : []),
-        ...(isKitchenShanhua ? [{ name: "点心", kind: BUFF.DIM_SUM, overlap: false },] : []),
-        ...(isKitchenIrene ? [{ name: "ティー", kind: BUFF.TEA, overlap: false },] : []),
-        ...(isYukataShiki ? [{ name: "晩夏の陣", kind: BUFF.CAMP_DEPLOYMENT, overlap: false },] : []),
-        ...(isWeak ? [{ name: "心眼", kind: BUFF.MINDEYE, overlap: true },] : []),
-        ...(isWeak && isServant ? [{ name: "山脇様のしもべ ", kind: BUFF.YAMAWAKI_SERVANT, overlap: false },] : []),
-        { name: "連撃", kind: BUFF.FUNNEL, overlap: true },
-        ...(isDamageRate ? [{ name: "破壊率UP", kind: BUFF.DAMAGERATEUP, overlap: true },] : []),
+        { name: "攻撃力UP", effect: EFFECT.GRANT_BUFF, kind: BUFF.ATTACKUP, overlap: true },
+        ...(isSwimMua ? [{ name: "攻撃UP(永続)", effect: EFFECT.GRANT_BUFF, kind: BUFF.ETERNAL_ATTACKUP, overlap: false },] : []),
+        ...(isElement ? [{ name: "属性攻撃力UP", effect: EFFECT.GRANT_BUFF, kind: BUFF.ELEMENT_ATTACKUP, overlap: true },] : []),
+        { name: "フィールド", effect: EFFECT.FIELD_DEPLOYMENT, kind: "", overlap: false },
+        { name: "チャージ", effect: EFFECT.GRANT_BUFF, kind: BUFF.CHARGE, overlap: false },
+        ...(isShadowClone ? [{ name: "影分身", effect: EFFECT.GRANT_BUFF, kind: BUFF.SHADOW_CLONE, overlap: false },] : []),
+        ...(isMiya ? [{ name: "桜花の矢", effect: EFFECT.GRANT_BUFF, kind: BUFF.ARROWCHERRYBLOSSOMS, overlap: false },] : []),
+        ...(isWedingSharo ? [{ name: "永遠なる誓い", effect: EFFECT.GRANT_BUFF, kind: BUFF.ETERNAL_OARH, overlap: false },] : []),
+        ...(isRisa ? [{ name: "オギャり", effect: EFFECT.GRANT_BUFF, kind: BUFF.BABIED, overlap: false },] : []),
+        ...(isKitchenVritika ? [{ name: "カリー", effect: EFFECT.GRANT_BUFF, kind: BUFF.CURRY, overlap: false },] : []),
+        ...(isKitchenSharo ? [{ name: "シチー", effect: EFFECT.GRANT_BUFF, kind: BUFF.SHCHI, overlap: false },] : []),
+        ...(isKitchenCarole ? [{ name: "ステーキ", effect: EFFECT.GRANT_BUFF, kind: BUFF.STEAK, overlap: false },] : []),
+        ...(isKitchenMaria ? [{ name: "ジェラート", effect: EFFECT.GRANT_BUFF, kind: BUFF.GELATO, overlap: false },] : []),
+        ...(isKitchenShanhua ? [{ name: "点心", effect: EFFECT.GRANT_BUFF, kind: BUFF.DIM_SUM, overlap: false },] : []),
+        ...(isKitchenIrene ? [{ name: "ティー", effect: EFFECT.GRANT_BUFF, kind: BUFF.TEA, overlap: false },] : []),
+        ...(isYukataShiki ? [{ name: "晩夏の陣", effect: EFFECT.GRANT_BUFF, kind: BUFF.CAMP_DEPLOYMENT, overlap: false },] : []),
+        ...(isWeak ? [{ name: "心眼", effect: EFFECT.GRANT_BUFF, kind: BUFF.MINDEYE, overlap: true },] : []),
+        ...(isWeak && isServant ? [{ name: "山脇様のしもべ ", effect: EFFECT.GRANT_BUFF, kind: BUFF.YAMAWAKI_SERVANT, overlap: false },] : []),
+        { name: "連撃", effect: EFFECT.GRANT_BUFF, kind: BUFF.FUNNEL, overlap: true },
+        ...(isDamageRate ? [{ name: "破壊率UP", effect: EFFECT.GRANT_BUFF, kind: BUFF.DAMAGERATEUP, overlap: true },] : []),
     ];
 }
 
 const getDefenseDownBuffs = function (isElement, isWeak, isDp) {
     return [
-        { name: "防御力DOWN", kind: BUFF.DEFENSEDOWN, overlap: true },
-        ...(isDp ? [{ name: "DP防御力DOWN", kind: BUFF.DEFENSEDP, overlap: true },] : []),
-        ...(isElement ? [{ name: "属性防御力DOWN", kind: BUFF.ELEMENT_DEFENSEDOWN, overlap: true },] : []),
-        { name: "防御力DOWN(永)", kind: BUFF.ETERNAL_DEFENSEDOWN, overlap: true },
-        ...(isElement ? [{ name: "属性防御力DOWN(永)", kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, overlap: true },] : []),
-        ...(isWeak ? [{ name: "脆弱", kind: BUFF.FRAGILE, overlap: true },] : []),
-        ...(isWeak ? [{ name: "永続脆弱", kind: BUFF.ETERNAL_FRAGILE, overlap: true },] : []),
-        ...(isElement ? [{ name: "耐性ダウン", kind: BUFF.RESISTDOWN, overlap: true },] : []),
+        { name: "防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.DEFENSEDOWN, overlap: true },
+        ...(isDp ? [{ name: "DP防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.DEFENSEDP, overlap: true },] : []),
+        ...(isElement ? [{ name: "属性防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ELEMENT_DEFENSEDOWN, overlap: true },] : []),
+        { name: "防御力DOWN(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_DEFENSEDOWN, overlap: true },
+        ...(isElement ? [{ name: "属性防御力DOWN(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, overlap: true },] : []),
+        ...(isWeak ? [{ name: "脆弱", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.FRAGILE, overlap: true },] : []),
+        ...(isWeak ? [{ name: "永続脆弱", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_FRAGILE, overlap: true },] : []),
+        ...(isElement ? [{ name: "耐性ダウン", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.RESISTDOWN, overlap: true },] : []),
     ];
 }
 const getCriticalBuffs = function (isElement) {
     return [
-        { name: "CRT率UP", kind: BUFF.CRITICALRATEUP, overlap: true },
-        { name: "CRTダメUP", kind: BUFF.CRITICALDAMAGEUP, overlap: true },
+        { name: "CRT率UP", effect: EFFECT.GRANT_BUFF, kind: BUFF.CRITICALRATEUP, overlap: true },
+        { name: "CRTダメUP", effect: EFFECT.GRANT_BUFF, kind: BUFF.CRITICALDAMAGEUP, overlap: true },
         ...(isElement ? [
-            { name: "属性CRT率UP", kind: BUFF.ELEMENT_CRITICALRATEUP, overlap: true },
-            { name: "属性CRTダメUP", kind: BUFF.ELEMENT_CRITICALDAMAGEUP, overlap: true },
+            { name: "属性CRT率UP", effect: EFFECT.GRANT_BUFF, kind: BUFF.ELEMENT_CRITICALRATEUP, overlap: true },
+            { name: "属性CRTダメUP", effect: EFFECT.GRANT_BUFF, kind: BUFF.ELEMENT_CRITICALDAMAGEUP, overlap: true },
         ] : []),
     ]
 }

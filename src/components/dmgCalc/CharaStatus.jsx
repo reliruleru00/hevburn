@@ -310,8 +310,8 @@ const CharaStatus = ({ argument: {
                                     const buffInfo = getBuffIdToBuff(Number(buffId));
                                     if (!buffInfo) continue;
 
-                                    if (buffSettingMap[buffInfo.buff_kind] && buffSettingMap[buffInfo.buff_kind][key][buffKey]) {
-                                        let buffSetting = buffSettingMap[buffInfo.buff_kind][key][buffKey];
+                                    if (buffSettingMap[buffInfo.buff_no] && buffSettingMap[buffInfo.buff_no][key][buffKey]) {
+                                        let buffSetting = buffSettingMap[buffInfo.buff_no][key][buffKey];
                                         if (buffInfo.skill_id !== SKILL_ID.MEGA_DESTROYER) {
                                             const value = buffSetting.collect ?? {};
                                             (tempCount[buffInfo.skill_id] ??= []).push(value);

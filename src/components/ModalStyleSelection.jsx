@@ -53,7 +53,7 @@ const ModalStyleSelection = ({ index, narrowStyle, setNarrowStyle, clickSetMembe
     }
 
     const checkBuff = (buff_info, buff_no) => {
-        if (buff_info.buff_kind !== buff_no) {
+        if (buff_info.effect_no !== buff_no) {
             return false;
         }
         const CHECK_BUFF_LIST = [
@@ -61,7 +61,7 @@ const ModalStyleSelection = ({ index, narrowStyle, setNarrowStyle, clickSetMembe
             BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP, BUFF.ELEMENT_CRITICALDAMAGEUP,
             BUFF.CHARGE, BUFF.FUNNEL, BUFF.DAMAGERATEUP
         ];
-        if (!CHECK_BUFF_LIST.includes(buff_info.buff_kind)) {
+        if (!CHECK_BUFF_LIST.includes(buff_info.effect_no)) {
             return true;
         }
         let targetOutRange = []

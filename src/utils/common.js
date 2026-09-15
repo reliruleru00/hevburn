@@ -12,6 +12,7 @@ import passiveEffect from "data/passiveEffect";
 import resonanceList from "data/resonanceList";
 import resonanceEffect from "data/resonanceEffect";
 import buffKind from 'data/buffKind';
+import buffEffect from 'data/buffEffect';
 import * as constants from "utils/const";
 
 // キャラ名取得
@@ -69,6 +70,11 @@ export function getBuffIdToBuff(buffId) {
 export function getBuffKind(buffKbn) {
   const filteredBuffKind = buffKind.filter((obj) => obj.buff_kbn === Number(buffKbn));
   return filteredBuffKind.length > 0 ? filteredBuffKind[0] : undefined;
+}
+
+// バフ効果取得
+export function getBuffEffect(buffKbn) { 
+  return buffEffect.filter((obj) => obj.buff_kbn === Number(buffKbn));
 }
 
 // アビリティ情報取得

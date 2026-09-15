@@ -9,43 +9,6 @@ import scoreBonusList from "data/scoreBonus";
 import * as common from "utils/common";
 import * as constants from 'utils/const';
 
-export const BUFF_KBN = {
-    0: "power_up",
-    1: "element_up",
-    2: "mindeye",
-    3: "defense_down",
-    4: "element_down",
-    5: "fragile",
-    6: "critical_rate_up",
-    7: "critical_damege",
-    8: "critical_element",
-    9: "critical_damege_element",
-    10: "charge",
-    11: "field",
-    12: "destruction_rete_up",
-    14: "fightingspirit",
-    15: "misfortune",
-    16: "funnel",
-    18: "strong_break",
-    19: "dp_defense_down",
-    20: "resist_down",
-    21: "permanent_defense_down",
-    22: "permanent_element_down",
-    30: "arrow_cherry_blossoms",
-    31: "eternal_ourh",
-    33: "babied",
-    39: "servant",
-    41: "shadow_clone",
-    44: "curry",
-    45: "shchi",
-    48: "eternal_fragile",
-    53: "steak",
-    54: "gelato",
-    57: "dim_sum",
-    59: "camp",
-    62: "eternal_attack_up",
-};
-
 export const ATTACK_BUFF_LIST = [
     BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
     BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP, BUFF.ELEMENT_CRITICALDAMAGEUP];
@@ -166,18 +129,27 @@ export const filteredBuffList = (buffList, attackInfo) => {
         RANGE.OTHER_UNIT,
     ]
     return buffList.filter(buff => {
-        if (ELEMENT_KIND.includes(buff.buff_kind) && attackInfo.attack_element !== buff.buff_element) {
-            return false;
-        }
-        if (buff.buff_kind === BUFF.FIELD && buff.buff_element !== 0 && buff.buff_element !== attackInfo.attack_element) {
-            return false;
-        }
-        if (buff.range_area === RANGE.SELF && buff.use_chara_id !== attackInfo.chara_id) {
-            return false;
-        }
-        // 自分に使用出来ない攻撃バフ
-        if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.use_chara_id === attackInfo.chara_id) {
-            return false;
+        switch (buff.effect_type) {
+            case constants.EFFECT.FIELD_DEPLOYMENT:
+                if (buff.buff_element !== 0 && buff.buff_element !== attackInfo.attack_element) {
+                    return false;
+                }
+                break;
+            case constants.EFFECT.GRANT_BUFF:
+            case constants.EFFECT.GRANT_DEBUFF:
+                if (ELEMENT_KIND.includes(buff.effect_no) && attackInfo.attack_element !== buff.buff_element) {
+                    return false;
+                }
+                if (buff.range_area === RANGE.SELF && buff.use_chara_id !== attackInfo.chara_id) {
+                    return false;
+                }
+                // 自分に使用出来ない攻撃バフ
+                if (OTHER_ONLY_AREA.includes(buff.range_area) && buff.use_chara_id === attackInfo.chara_id) {
+                    return false;
+                }
+                break;
+            default:
+                break;
         }
         return true;
     });
@@ -206,57 +178,30 @@ export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, a
     let strengthen = getStrengthen(handlers, buff, resonanceList);
     let effectSize = 0;
     if (buff.kbn === "buff") {
-        // バフ
-        switch (buff.buff_kind) {
-            case BUFF.ATTACKUP: // 攻撃力アップ
-            case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-            case BUFF.ETERNAL_ATTACKUP: // 永続攻撃力アップ
-                effectSize = getBuffEffectSize(handlers, buff, buffSetting, JEWEL_TYPE.SKILL_ATTACKUP);
+        switch (buff.effect_type) {
+            case EFFECT.GRANT_BUFF:
+                switch (buff.effect_no) {
+                    case BUFF.FUNNEL: // 連撃
+                        effectSize =  getFunnelEffectSize(buff);
+                        break;
+                    case BUFF.CRITICALRATEUP: // クリティカル率アップ
+                    case BUFF.ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
+                        effectSize = getGeantBuffEffectSize(handlers, buff, buffSetting, EFFECT.CRITICALRATEUP);
+                        break;
+                    case BUFF.CRITICALDAMAGEUP: // クリティカルダメージアップ
+                    case BUFF.ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
+                        effectSize = getGeantBuffEffectSize(handlers, buff, buffSetting, EFFECT.CRITICAL_DAMAGE_UP);
+                        break;
+                    default:
+                        effectSize = getGeantBuffEffectSize(handlers, buff, buffSetting, EFFECT.ATTACKUP);
+                        break;
+                }
                 break;
-            case BUFF.MINDEYE: // 心眼
-            case BUFF.CRITICALDAMAGEUP:	// クリティカルダメージアップ
-            case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-            case BUFF.CHARGE: // チャージ
-            case BUFF.DAMAGERATEUP: // 破壊率アップ
-            case BUFF.YAMAWAKI_SERVANT: // 山脇様のしもべ
-                effectSize = getBuffEffectSize(handlers, buff, buffSetting, 0);
+            case EFFECT.GRANT_DEBUFF:
+                effectSize = getDebuffEffectSize(handlers, buff, buffSetting, EFFECT.DEFFENCEDOWN);
                 break;
-            case BUFF.CRITICALRATEUP:	// クリティカル率アップ
-            case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
-                effectSize = getBuffEffectSize(handlers, buff, buffSetting, JEWEL_TYPE.CRITICALRATE_UP);
-                break;
-            case BUFF.DEFENSEDOWN: // 防御力ダウン
-            case BUFF.ELEMENT_DEFENSEDOWN: // 属性防御力ダウン
-            case BUFF.FRAGILE: // 脆弱
-            case BUFF.DEFENSEDP: // DP防御力ダウン
-            case BUFF.RESISTDOWN: // 耐性ダウン
-            case BUFF.ETERNAL_DEFENSEDOWN: // 永続防御ダウン
-            case BUFF.ELEMENT_ETERNAL_DEFENSEDOWN: // 永続属性防御ダウン
-            case BUFF.ETERNAL_FRAGILE: // 永続脆弱
-                effectSize = getDebuffEffectSize(handlers, buff, buffSetting);
-                break;
-            case BUFF.FUNNEL: // 連撃
-                effectSize = getFunnelEffectSize(buff, memberInfo);
-                break;
-            case BUFF.FIELD: // フィールド
+            case EFFECT.FIELD_DEPLOYMENT:
                 return buff.max_power + strengthen;
-            case BUFF.CAMP_DEPLOYMENT: // 晩夏の陣
-                return 250;
-            case BUFF.BABIED: // オギャり
-                return 30;
-            case BUFF.ETERNAL_OARH: // 永遠なる誓い
-                return 100;
-            case BUFF.SHADOW_CLONE: // 影分身
-                return 30;
-            case BUFF.ARROWCHERRYBLOSSOMS: // 桜花の矢
-                return 50;
-            case BUFF.CURRY: // カリー
-            case BUFF.SHCHI: // シチー
-            case BUFF.STEAK: // ステーキ
-            case BUFF.GELATO: // ジェラート
-            case BUFF.DIM_SUM: // 点心
-            case BUFF.TEA: // ティー
-                return 50;
             default:
                 break;
         }
@@ -267,10 +212,49 @@ export function getEffectSize(styleList, buff, buffSetting, memberInfo, state, a
     return effectSize * (1 + strengthen / 100);
 }
 
+const getGeantBuffEffectSize = (handlers, buff, buffSetting, effect) => {
+    // 固定量のバフ
+    if (buff.effect_size) {
+        return buff.effect_size;
+    }
+
+    const buffEffectList = common.getBuffEffect(buff.buff_no).filter((obj) => obj.effect_type === effect);
+    if (buffEffectList.length === 0) {
+        return 0;
+    }
+    const buffEffect = buffEffectList[0];
+    const jewelLv = getJwewelLv(handlers.memberInfo, buff);
+
+    return getBuffEffectSize(handlers, buff, buffEffect, buffSetting, jewelLv);
+}
+
+const getJwewelLv = (memberInfo, buff) => {
+    let jewelLv = 0;
+    let targetJewelType;
+    switch (buff.buff_no) {
+        case BUFF.ATTACKUP: // 攻撃力アップ
+        case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
+        case BUFF.ETERNAL_ATTACKUP: // 永続攻撃力アップ
+            targetJewelType = JEWEL_TYPE.SKILL_ATTACKUP;
+            break;
+        case BUFF.CRITICALRATEUP:	// クリティカル率アップ
+        case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
+            targetJewelType = JEWEL_TYPE.CRITICALRATE_UP;
+            break;
+        default:
+            break;
+    }
+    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === targetJewelType) {
+        jewelLv = memberInfo.jewelLv;
+    }
+    return jewelLv;
+}
+
+
 export function getAbilityEffectSize(abilityId, buffInfo, strengthen) {
     if (abilityId === ABILITY_ID.KISHIN) {
         // 鬼神
-        switch (buffInfo.buff_kind) {
+        switch (buffInfo.buff_no) {
             case BUFF.MINDEYE: // 心眼
                 return 120;
             case BUFF.FUNNEL: // 連撃
@@ -280,7 +264,7 @@ export function getAbilityEffectSize(abilityId, buffInfo, strengthen) {
         }
     }
     // アビリティ
-    switch (buffInfo.buff_kind) {
+    switch (buffInfo.buff_no) {
         case BUFF.CHARGE: // チャージ
             return 30;
         case BUFF.FIELD: // フィールド
@@ -441,7 +425,7 @@ function getStrengthen(handlers, buff, resonanceList) {
     let passiveSettingMap = handlers.passiveSettingMap;
 
     // 攻撃力アップ/属性攻撃力アップ
-    if (KIND_ATTACKUP.includes(buff.buff_kind)) {
+    if (KIND_ATTACKUP.includes(buff.buff_no)) {
         abilityLoop((abilityEffect) => {
             strengthen += abilityEffect.effect_size;
         }, abilitySettingMap, EFFECT.GIVEATTACKBUFFUP, handlers);
@@ -457,7 +441,7 @@ function getStrengthen(handlers, buff, resonanceList) {
         }, resonanceList, EFFECT.GIVEATTACKBUFFUP, handlers);
     }
     // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
-    if (KIND_DEFENSEDOWN.includes(buff.buff_kind)) {
+    if (KIND_DEFENSEDOWN.includes(buff.buff_no)) {
         abilityLoop((abilityEffect) => {
             strengthen += abilityEffect.effect_size;
         }, abilitySettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
@@ -482,7 +466,7 @@ function getStrengthen(handlers, buff, resonanceList) {
 
     }
     // 防御ダウン以外のデバフスキル
-    if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(buff.buff_kind)) {
+    if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(buff.buff_no)) {
         abilityLoop((abilityEffect) => {
             strengthen += abilityEffect.effect_size;
         }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, handlers);
@@ -493,7 +477,7 @@ function getStrengthen(handlers, buff, resonanceList) {
     }
 
     // フィールド強化
-    if (BUFF.FIELD === buff.buff_kind) {
+    if (EFFECT.FIELD_DEPLOYMENT === buff.effect_type) {
         abilityLoop((abilityEffect) => {
             strengthen += abilityEffect.effect_size;
         }, abilitySettingMap, EFFECT.FIELD_STRENGTHEN, handlers);
@@ -508,8 +492,8 @@ function getStrengthen(handlers, buff, resonanceList) {
     return strengthen;
 }
 
-export function getBuffKey(buffKind) {
-    return `${BUFF_KBN[buffKind]}-${buffKind}`;
+export function getBuffKey(effectType, effectNo) {
+    return `${effectType}-${effectNo}`;
 }
 
 // 一度しか設定出来ないバフ
@@ -523,7 +507,7 @@ export function isOnlyBuff(attackInfo, buffInfo) {
     }
 
     // 攻撃スキルに付与されているバフ
-    if (ATTACK_BUFF_LIST.includes(buffInfo.buff_kind) &&
+    if (ATTACK_BUFF_LIST.includes(buffInfo.buff_no) &&
         buffInfo.skill_attack1 &&
         buffInfo.chara_id === attackInfo.chara_id) {
         return true;
@@ -533,7 +517,7 @@ export function isOnlyBuff(attackInfo, buffInfo) {
 
 // 他スキルに使用出来ない攻撃バフ
 export function isOnlyUse(attackInfo, buffInfo) {
-    if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_kind)) {
+    if (!buffInfo || !ATTACK_BUFF_LIST.includes(buffInfo.buff_no)) {
         return false;
     }
     if (isAloneActivation(buffInfo)) {
@@ -555,7 +539,7 @@ export function isAloneActivation(buffInfo) {
     if (!buffInfo) {
         return false;
     }
-    if (ALONE_ACTIVATION_BUFF_KIND.includes(buffInfo.buff_kind)) {
+    if (ALONE_ACTIVATION_BUFF_KIND.includes(buffInfo.buff_no)) {
         return buffInfo.effect_count > 0;
     }
     return false;
@@ -900,7 +884,7 @@ export function calcAttackEffectSize(attackInfo, status, enemyStat, skillLv, jew
 export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, BUFF_KIND_LIST) {
     let effectSize = 0;
     BUFF_KIND_LIST.forEach(buffKind => {
-        const buffKey = getBuffKey(buffKind);
+        const buffKey = getBuffKey(EFFECT.GRANT_BUFF, buffKind);
         const selectedKeys = selectBuffKeyMap[buffKey];
         if (selectedKeys) {
             selectedKeys.forEach((selectedKey, index) => {
@@ -962,7 +946,7 @@ function getSumFunnelEffectList(handlers) {
     let passiveSettingMap = handlers.passiveSettingMap;
 
     // スキルデバフ合計
-    const funnelKey = getBuffKey(BUFF.FUNNEL);
+    const funnelKey = getBuffKey(EFFECT.GRANT_BUFF, BUFF.FUNNEL);
     const selectedKey = selectBuffKeyMap[funnelKey];
     if (selectedKey) {
         selectedKey.forEach(selectedKey => {
@@ -1057,9 +1041,9 @@ function getCriticalRate(handlers) {
         criticalRate += getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, [BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP]);
         criticalRate += getSumAbilityEffectSize(handlers, EFFECT.CRITICALRATEUP);
         // チャージ
-        criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
+        criticalRate += (selectBuffKeyMap[getBuffKey(EFFECT.GRANT_BUFF, BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
         // 永遠なる誓い
-        criticalRate += (selectBuffKeyMap[getBuffKey(BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 100 : 0;
+        criticalRate += (selectBuffKeyMap[getBuffKey(EFFECT.GRANT_BUFF, BUFF.ETERNAL_OARH)]?.[0] ?? 0) ? 100 : 0;
     }
     return criticalRate > 100 ? 100 : criticalRate;
 }
@@ -1377,33 +1361,23 @@ const getStatusUnit = (handlers, strStatus) => {
 }
 
 // バフ効果量取得
-function getBuffEffectSize(handlers, buffInfo, buffSetting, targetJewelType) {
-    let memberInfo = handlers.memberInfo;
-    let jewelLv = 0;
-    if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === targetJewelType) {
-        jewelLv = memberInfo.jewelLv;
-    }
-    let skillLv = buffSetting.skill_lv;
-    // 固定量のバフ
-    if (buffInfo.ref_status_1 === 0) {
-        return buffInfo.min_power;
-    }
+function getBuffEffectSize(handlers, buffInfo, buffEffect, buffSetting, jewelLv) {
     // ステータス
+    let skillLv = buffSetting.skill_lv;
     let statUp = getStatAllUp(handlers);
-    let status = getStatus(handlers, buffInfo, statUp);
-    return calcBuffEffectSize(buffInfo, status, skillLv, jewelLv);
+    let status = getStatus(handlers, buffEffect, statUp);
+    let minPower = buffEffect.effect_size ? buffEffect.effect_size : buffInfo.min_power;
+    let maxPower = buffEffect.effect_size ? buffEffect.effect_size : buffInfo.max_power;
+    let skillStat = buffInfo.param_limit ?? 0;
+
+    return calcBuffEffectSize(minPower, maxPower, skillStat, status, skillLv, jewelLv);
 }
 
 // バフ効果量計算
-export function calcBuffEffectSize(buffInfo, status, skillLv, jewelLv) {
-    let minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
-    let maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
-    let skillStat = buffInfo.param_limit;
+export function calcBuffEffectSize(skillMinPower, skillMaxPower, skillStat, status, skillLv, jewelLv) {
+    let minPower = skillMinPower * (1 + 0.03 * (skillLv - 1));
+    let maxPower = skillMaxPower * (1 + 0.02 * (skillLv - 1));
     let effectSize = 0;
-
-    if (!skillStat) {
-        return minPower;
-    }
 
     // 宝珠分以外
     if (status < skillStat) {
@@ -1415,16 +1389,16 @@ export function calcBuffEffectSize(buffInfo, status, skillLv, jewelLv) {
     if (jewelLv > 0) {
         let jewelStat = skillStat + jewelLv * 60;
         if (status > jewelStat) {
-            effectSize += buffInfo.max_power * jewelLv * 0.04;
+            effectSize += skillMaxPower * jewelLv * 0.04;
         } else {
-            effectSize += ((buffInfo.max_power - buffInfo.min_power) / jewelStat * status + buffInfo.min_power) * jewelLv * 0.04;
+            effectSize += ((skillMaxPower - skillMinPower) / jewelStat * status + skillMinPower) * jewelLv * 0.04;
         }
     }
     return effectSize;
 }
 
 // デバフ効果量
-function getDebuffEffectSize(handlers, buffInfo, buffSetting) {
+function getDebuffEffectSize(handlers, buffInfo, buffSetting, effect) {
     const memberInfo = handlers.memberInfo;
     const state = handlers.state;
     if (!state) {
@@ -1445,7 +1419,11 @@ function getDebuffEffectSize(handlers, buffInfo, buffSetting) {
     enemyStat = Math.max(enemyStat - enemyStatDown, 0);
 
     let skillLv = buffSetting.skill_lv;
-    let status = getStatus(handlers, buffInfo, statUp);
+    const buffEffectList = common.getBuffEffect(buffInfo.buff_no).filter((obj) => obj.effect_type === effect);
+    if (buffEffectList.length === 0) {
+        return 0;
+    }
+    let status = getStatus(handlers, buffEffectList[0], statUp);
     return calcDebuffEffectSize(buffInfo, status, enemyStat, skillLv, jewelLv);
 }
 
@@ -1482,23 +1460,8 @@ export function calcDebuffEffectSize(buffInfo, status, enemyStat, skillLv, jewel
 }
 
 // 連撃効果量
-function getFunnelEffectSize(buffInfo, memberInfo) {
-    let funnel_power = buffInfo.effect_size;
-    let effectSize;
-    let minPower = buffInfo.min_power;
-    let maxPower = buffInfo.max_power;
-    if (minPower === maxPower) {
-        effectSize = funnel_power * minPower;
-    } else {
-        let status1 = memberInfo[STATUS_KBN[buffInfo.ref_status_1]];
-        if (buffInfo.param_limit > status1) {
-            effectSize = funnel_power * minPower;
-        } else {
-            effectSize = funnel_power * maxPower;
-        }
-    }
-
-    return effectSize;
+function getFunnelEffectSize(buffInfo) {
+    return buffInfo.effect_size * buffInfo.effect_count;
 }
 
 // 敵防御力取得

@@ -3,20 +3,24 @@ import {
     BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN, ATTRIBUTE, COST_TYPE
 } from "utils/const";
 import {
-    getCharaIdToMember, getEffectSize, getCostVariable
+    getCharaIdToMember, getCostVariable
 } from "./logic";
-import * as logic from "./logic";
 import { getSkillData, getPassiveInfo, getPassiveEffectList, getAbilityInfo, getAbilityEffectList } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
 import { CHARA_ID, JEWEL_TYPE } from "utils/const";
 import * as constant from "utils/const";
 import * as common from "utils/common";
+import * as logic from "./logic";
 
 const BUFF_LIST = [EFFECT.ATTACKUP, EFFECT.CRITICALRATEUP];
 const DEBUFF_LIST = [EFFECT.DEFFENCEDOWN, EFFECT.RESISTDOWN];
 
-const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
-    abilitySettingMap, passiveSettingMap, resonanceList, closeModal }) => {
+const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
+    const {
+        styleList, state,
+        buffSettingMap, setBuffSettingMap,
+        abilitySettingMap, passiveSettingMap, resonanceList,
+    } = argument;
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
@@ -80,18 +84,16 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
             buffSetting["collect"] = {};
         }
         buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
-        buffSetting.calcEffectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+        buffSetting.calcEffectSize = logic.getEffectSize(argument, styleList, buffInfo, buffSetting, memberInfo, state,
             abilitySettingMap, passiveSettingMap, resonanceList);
 
         setBuffSettingMap(updateSettingMap);
     };
     const handlers = {
         collect: buffSetting.collect,
-        state, skillInfo, styleList,
-        memberInfo,
-        abilitySettingMap, passiveSettingMap, resonanceList
+        skillInfo, memberInfo,
     };
-    let statUp = logic.getStatAllUp(handlers);
+    let statUp = logic.getStatAllUp(argument, handlers);
     let enemyStatDown = 0;
     let enemyStat = 0;
     if (isDebuffChart) {
@@ -105,10 +107,10 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     let buffEffect = null;
     if (isBuffChart || isDebuffChart) {
         buffEffect = common.getBuffEffect(buffInfo.effect_no).filter((obj) => obj.effect_type === effect)[0];
-        status = logic.getStatus(handlers, buffEffect, statUp);
+        status = logic.getStatus(argument, handlers, buffEffect, statUp);
     }
 
-    const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+    const effectSize = logic.getEffectSize(argument, styleList, buffInfo, buffSetting, memberInfo, state,
         abilitySettingMap, passiveSettingMap, resonanceList);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];

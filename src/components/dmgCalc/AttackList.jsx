@@ -243,23 +243,20 @@ const AttackDetail = ({ argument, attackInfo, setAttackInfo, selectSkillLv, clos
 
     const handlers = {
         collect: attackInfo.collect,
-        state: argument.state,
-        attackInfo, skillInfo, styleList,
-        memberInfo,
-        abilitySettingMap, passiveSettingMap, resonanceList
+        attackInfo, skillInfo, memberInfo,
     };
-    let statUp = logic.getStatAllUp(handlers);
+    let statUp = logic.getStatAllUp(argument, handlers);
     let enemyStatDown = 0;
     if (attackInfo.collect?.statDown) {
         enemyStatDown = Number(attackInfo.collect.statDown);
     }
 
     let criticalStatDown = Math.max(enemyStatDown, 50);
-    let skillPower = logic.getSkillPower(handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown);
-    let criticalPower = logic.getSkillPower(handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, criticalStatDown);
+    let skillPower = logic.getSkillPower(argument, handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown);
+    let criticalPower = logic.getSkillPower(argument, handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, criticalStatDown);
 
     let enemyStat = Number(enemyInfo.enemy_stat) + (state.correction.stat_up || 0);
-    let status = logic.getStatus(handlers, attackInfo, statUp);
+    let status = logic.getStatus(argument, handlers, attackInfo, statUp);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
     // 宝珠レベル

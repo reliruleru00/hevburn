@@ -168,7 +168,7 @@ export const filteredOrb = (buffList, isOrb) => {
 }
 
 // 効果量取得
-export function getEffectSize(styleList, effect, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, resonanceList) {
+export function getEffectSize(argument, styleList, effect, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, resonanceList) {
     const handlers = {
         collect: buffSetting.collect,
         skillInfo: common.getSkillData(effect.skill_id),
@@ -186,24 +186,24 @@ export function getEffectSize(styleList, effect, buffSetting, memberInfo, state,
                     break;
                 case BUFF.CRITICALRATEUP: // クリティカル率アップ
                 case BUFF.ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
-                    effectSize = getGeantBuffEffectSize(handlers, effect, buffSetting, EFFECT.CRITICALRATEUP);
+                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICALRATEUP);
                     break;
                 case BUFF.CRITICALDAMAGEUP: // クリティカルダメージアップ
                 case BUFF.ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
-                    effectSize = getGeantBuffEffectSize(handlers, effect, buffSetting, EFFECT.CRITICAL_DAMAGE_UP);
+                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICAL_DAMAGE_UP);
                     break;
                 default:
-                    effectSize = getGeantBuffEffectSize(handlers, effect, buffSetting, EFFECT.ATTACKUP);
+                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.ATTACKUP);
                     break;
             }
             break;
         case EFFECT.GRANT_DEBUFF:
             switch (effect.effect_no) {
                 case BUFF.RESISTDOWN: // 耐性ダウン
-                    effectSize = getDebuffEffectSize(handlers, effect, buffSetting, EFFECT.RESISTDOWN);
+                    effectSize = getDebuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.RESISTDOWN);
                     break;
                 default:
-                    effectSize = getDebuffEffectSize(handlers, effect, buffSetting, EFFECT.DEFFENCEDOWN);
+                    effectSize = getDebuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.DEFFENCEDOWN);
                     break;
             }
             break;
@@ -215,7 +215,7 @@ export function getEffectSize(styleList, effect, buffSetting, memberInfo, state,
     return effectSize * (1 + strengthen / 100);
 }
 
-const getGeantBuffEffectSize = (handlers, effect, buffSetting, effectType) => {
+const getGeantBuffEffectSize = (argument, handlers, effect, buffSetting, effectType) => {
     // 固定量のバフ
     if (effect.effect_size) {
         return effect.effect_size;
@@ -228,7 +228,7 @@ const getGeantBuffEffectSize = (handlers, effect, buffSetting, effectType) => {
     const buffEffect = buffEffectList[0];
     const jewelLv = getJwewelLv(handlers.memberInfo, effect);
 
-    return getBuffEffectSize(handlers, effect, buffEffect, buffSetting, jewelLv);
+    return getBuffEffectSize(argument, handlers, effect, buffEffect, buffSetting, jewelLv);
 }
 
 const getJwewelLv = (memberInfo, effect) => {
@@ -304,6 +304,7 @@ export function getCostVariable(handlers) {
 }
 
 const abilityLoop = (func, abilitySettingMap, effectType, handlers) => {
+    if (!abilitySettingMap) return;
     Object.values(abilitySettingMap)
         .filter(ability => ability.checked)
         .forEach((ability) => {
@@ -317,6 +318,7 @@ const abilityLoop = (func, abilitySettingMap, effectType, handlers) => {
 }
 
 const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
+    if (!passiveSettingMap) return;
     Object.values(passiveSettingMap)
         .filter(passive => passive.checked)
         .forEach((passive) => {
@@ -598,8 +600,11 @@ export function getBestBuffKeys(buffKey, kindBuffList, buffSettingMap, overlap) 
 }
 
 // ダメージ計算結果取得
-export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
-    selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting) {
+export function getDamageResult(argument, selectSkillLv) {
+    const {
+        attackInfo, styleList, state, otherSetting,
+    } = argument;
+
     if (!attackInfo) {
         return null;
     }
@@ -613,32 +618,30 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
     const handlers = {
         collect: attackInfo.collect,
         skillInfo: common.getSkillData(attackInfo.skill_id),
-        attackInfo, memberInfo, styleList,
-        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting, state
+        memberInfo
     };
 
     // ステータスアップ
-    let statUp = getStatAllUp(handlers);
+    let statUp = getStatAllUp(argument, handlers);
     // ステータスダウン
     let enemyStatDown = 0;
     if (attackInfo.collect?.statDown) {
         enemyStatDown = Number(attackInfo.collect.statDown);
     }
     let criticalStatDown = Math.max(enemyStatDown, 50);
-    let skillPower = getSkillPower(handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown);
+    let skillPower = getSkillPower(argument, handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown);
 
     let [physical, element] = getEnemyResist(attackInfo, state);
-    // let isWeak = physical * element > 10000;
 
-    let buff = getSumBuffEffectSize(handlers);
-    let field = getSumEffectSize(selectBuffKeyMap, buffSettingMap, EFFECT.FIELD_DEPLOYMENT, EFFECT.FIELD_DEPLOYMENT) / 100;
+    let buff = getSumBuffEffectSize(argument, handlers);
+    let field = getSumEffectSize(argument, EFFECT.FIELD_DEPLOYMENT, EFFECT.FIELD_DEPLOYMENT) / 100;
     buff += field;
 
-    let debuff = getSumDebuffEffectSize(handlers);
-    let debuffDp = getSumEffectSize(selectBuffKeyMap, buffSettingMap, EFFECT.GRANT_DEBUFF, EFFECT.DP_DEFFENCEDOWN) / 100;
+    let debuff = getSumDebuffEffectSize(argument, handlers);
+    let debuffDp = getSumEffectSize(argument, EFFECT.GRANT_DEBUFF, EFFECT.DP_DEFFENCEDOWN) / 100;
 
-    let damageRateUp = getDamagerateEffectSize(handlers, attackInfo.hit_count);
-    let funnelList = getSumFunnelEffectList(handlers);
+    let damageRateUp = getDamagerateEffectSize(argument, handlers, attackInfo.hit_count);
+    let funnelList = getSumFunnelEffectList(argument, handlers);
 
     let token = getSumTokenEffectSize(attackInfo, memberInfo);
     let enemyDefenceRate = getEnemyDefenceRate(state);
@@ -676,9 +679,9 @@ export function getDamageResult(attackInfo, styleList, state, selectSkillLv,
         skillUniqueRate = (sp > 30 ? 30 : sp) / 30;
     }
 
-    let criticalPower = getSkillPower(handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, criticalStatDown);
-    let criticalRate = getCriticalRate(handlers);
-    let criticalBuff = getCriticalBuff(handlers);
+    let criticalPower = getSkillPower(argument, handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, criticalStatDown);
+    let criticalRate = getCriticalRate(argument, handlers);
+    let criticalBuff = getCriticalBuff(argument, handlers);
 
     let fixed = token * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate * overdrive;
     const normalAvgResult =
@@ -814,14 +817,14 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
 }
 
 // 基礎攻撃力取得
-export function getSkillPower(handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown) {
+export function getSkillPower(argument, handlers, attackInfo, selectSkillLv, statUp, state, enemyInfo, enemyStatDown) {
     const memberInfo = handlers.memberInfo;
     let jewelLv = 0;
     if (memberInfo.styleInfo.jewel_type === JEWEL_TYPE.ATTACK_UP) {
         jewelLv = memberInfo.jewelLv;
     }
     let enemyStat = Math.max(Number(enemyInfo.enemy_stat) + (state.correction.stat_up || 0) - enemyStatDown, 0);
-    let status = getStatus(handlers, attackInfo, statUp);
+    let status = getStatus(argument, handlers, attackInfo, statUp);
     return calcAttackEffectSize(attackInfo, status, enemyStat, selectSkillLv, jewelLv)
 }
 
@@ -860,7 +863,10 @@ export function calcAttackEffectSize(attackInfo, status, enemyStat, skillLv, jew
 }
 
 // 効果量合計
-export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, grant, effectType) {
+export function getSumEffectSize(argument, grant, effectType) {
+    const {
+        selectBuffKeyMap, buffSettingMap, attackUpBuffs, defDownBuffs, criticalBuffs,
+    } = argument;
     let effectSize = 0;
     let buffKindList = [];
 
@@ -884,16 +890,17 @@ export function getSumEffectSize(selectBuffKeyMap, buffSettingMap, grant, effect
 }
 
 // 合計バフ効果量取得
-function getSumBuffEffectSize(handlers) {
-    const state = handlers.state;
-    const attackInfo = handlers.attackInfo;
-    const otherSetting = handlers.otherSetting;
-    const memberInfo = handlers.memberInfo;
-
+function getSumBuffEffectSize(argument, handlers) {
+    const {
+        state, attackInfo, otherSetting,
+    } = argument;
+    const {
+        memberInfo,
+    } = handlers;
     // スキルバフ合計
-    let sumBuff = getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, EFFECT.GRANT_BUFF, EFFECT.ATTACKUP);
+    let sumBuff = getSumEffectSize(argument, EFFECT.GRANT_BUFF, EFFECT.ATTACKUP);
     // 攻撃力アップアビリティ
-    sumBuff += getSumAbilityEffectSize(handlers, EFFECT.ATTACKUP);
+    sumBuff += getSumAbilityEffectSize(argument, handlers, EFFECT.ATTACKUP);
     // 属性リング(0%-10%)
     sumBuff += Number(otherSetting.ring);
     sumBuff += getChainEffectSize(otherSetting, "skill");
@@ -912,20 +919,18 @@ function getSumBuffEffectSize(handlers) {
 }
 
 // 合計デバフ効果量取得
-function getSumDebuffEffectSize(handlers) {
+function getSumDebuffEffectSize(argument, handlers) {
     // スキルデバフ合計
-    let sumBuff = getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, EFFECT.GRANT_DEBUFF, EFFECT.DEFFENCEDOWN);
+    let sumBuff = getSumEffectSize(argument, EFFECT.GRANT_DEBUFF, EFFECT.DEFFENCEDOWN);
     // // 防御ダウンアビリティ
-    sumBuff += getSumAbilityEffectSize(handlers, EFFECT.DEFFENCEDOWN);
+    sumBuff += getSumAbilityEffectSize(argument, handlers, EFFECT.DEFFENCEDOWN);
     return 1 + sumBuff / 100;
 }
 
 // 合計連撃効果量取得
-function getSumFunnelEffectList(handlers) {
+function getSumFunnelEffectList(argument, handlers) {
     let funnelList = [];
-    let selectBuffKeyMap = handlers.selectBuffKeyMap;
-    let abilitySettingMap = handlers.abilitySettingMap;
-    let passiveSettingMap = handlers.passiveSettingMap;
+    const { selectBuffKeyMap, abilitySettingMap, passiveSettingMap } = argument;
 
     // スキルデバフ合計
     const funnelKey = getBuffKey(EFFECT.GRANT_BUFF, BUFF.FUNNEL);
@@ -988,14 +993,14 @@ function getSumFunnelEffectList(handlers) {
 }
 
 // 破壊率上昇
-function getDamagerateEffectSize(handlers, hitCount) {
-    const otherSetting = handlers.otherSetting;
-    const state = handlers.state;
+function getDamagerateEffectSize(argument, handlers, hitCount) {
+    const {
+        state, otherSetting,
+    } = argument;
 
     let destructionEffectSize = 100;
-    destructionEffectSize += getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, EFFECT.GRANT_BUFF, EFFECT.DAMAGERATEUP);
-    destructionEffectSize += getSumAbilityEffectSize(handlers, EFFECT.DAMAGERATEUP);
-    // destructionEffectSize += getSumTokenAbilitySize(handlers, EFFECT.TOKEN_DAMAGERATEUP)
+    destructionEffectSize += getSumEffectSize(argument, EFFECT.GRANT_BUFF, EFFECT.DAMAGERATEUP);
+    destructionEffectSize += getSumAbilityEffectSize(argument, handlers, EFFECT.DAMAGERATEUP);
     destructionEffectSize += getEarringEffectSize(otherSetting, "blast", 11 - hitCount);
     destructionEffectSize += getChainEffectSize(otherSetting, "skill");
 
@@ -1007,11 +1012,12 @@ function getDamagerateEffectSize(handlers, hitCount) {
 }
 
 // クリティカル率取得
-function getCriticalRate(handlers) {
-    const attackInfo = handlers.attackInfo;
+function getCriticalRate(argument, handlers) {
+    const {
+        attackInfo, selectBuffKeyMap,
+    } = argument;
+    const enemyInfo = argument.state?.enemyInfo;
     const memberInfo = handlers.memberInfo;
-    const selectBuffKeyMap = handlers.selectBuffKeyMap;
-    const enemyInfo = handlers.state.enemyInfo;
 
     let criticalRate = 1.5;
     if (attackInfo?.penetration) {
@@ -1020,8 +1026,8 @@ function getCriticalRate(handlers) {
         let diff = (memberInfo.luk - enemyInfo.enemy_stat);
         criticalRate += diff > 0 ? diff * 0.04 : 0;
         criticalRate = criticalRate > 15 ? 15 : criticalRate;
-        criticalRate += getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, EFFECT.GRANT_BUFF, EFFECT.CRITICALRATEUP);
-        criticalRate += getSumAbilityEffectSize(handlers, EFFECT.CRITICALRATEUP);
+        criticalRate += getSumEffectSize(argument, EFFECT.GRANT_BUFF, EFFECT.CRITICALRATEUP);
+        criticalRate += getSumAbilityEffectSize(argument, handlers, EFFECT.CRITICALRATEUP);
         // チャージ
         criticalRate += (selectBuffKeyMap[getBuffKey(EFFECT.GRANT_BUFF, BUFF.CHARGE)]?.[0] ?? 0) ? 20 : 0;
         // 永遠なる誓い
@@ -1031,10 +1037,10 @@ function getCriticalRate(handlers) {
 }
 
 // クリティカルバフ取得
-function getCriticalBuff(handlers) {
+function getCriticalBuff(argument, handlers) {
     let criticalBuff = 50;
-    criticalBuff += getSumEffectSize(handlers.selectBuffKeyMap, handlers.buffSettingMap, EFFECT.GRANT_BUFF, EFFECT.CRITICAL_DAMAGE_UP);
-    criticalBuff += getSumAbilityEffectSize(handlers, EFFECT.CRITICAL_DAMAGE_UP);
+    criticalBuff += getSumEffectSize(argument, EFFECT.GRANT_BUFF, EFFECT.CRITICAL_DAMAGE_UP);
+    criticalBuff += getSumAbilityEffectSize(argument, handlers, EFFECT.CRITICAL_DAMAGE_UP);
     return 1 + criticalBuff / 100;
 }
 // トークン効果量
@@ -1078,11 +1084,10 @@ function getAbilityEffectValue(effect, styleList, charaId) {
 }
 
 // アビリティ効果量合計取得
-function getSumAbilityEffectSize(handlers, effectType) {
-    const styleList = handlers.styleList;
-    const abilitySettingMap = handlers.abilitySettingMap;
-    const passiveSettingMap = handlers.passiveSettingMap;
-    const resonanceList = handlers.resonanceList;
+function getSumAbilityEffectSize(argument, handlers, effectType) {
+    const {
+        styleList, abilitySettingMap, passiveSettingMap, resonanceList
+    } = argument;
 
     let abilityEffectSize = 0;
     let sumNoneEffectSize = 0;
@@ -1258,49 +1263,49 @@ export function updateEnemyStatus(enemyClassNo, enemyInfo) {
     Object.assign(enemyList[index], enemyInfo);
 }
 
-export const getStatus = (handlers, info, statUp) => {
+export const getStatus = (argument, handlers, info, statUp) => {
     let molecule = 0;
     let denominator = 0;
     let status = 0;
     if (info.ref_status_1 !== 0) {
-        status = getStatusUnit(handlers, STATUS_KBN[info.ref_status_1])
+        status = getStatusUnit(argument, handlers, STATUS_KBN[info.ref_status_1])
         molecule += (status + statUp) * 2;
         denominator += 2;
     }
     if (info.ref_status_2 && info.ref_status_2 !== 0) {
-        status = getStatusUnit(handlers, STATUS_KBN[info.ref_status_2])
+        status = getStatusUnit(argument, handlers, STATUS_KBN[info.ref_status_2])
         molecule += status + statUp;
         denominator += 1;
     }
     if (info.ref_status_3 && info.ref_status_3 !== 0) {
-        status = getStatusUnit(handlers, STATUS_KBN[info.ref_status_3])
+        status = getStatusUnit(argument, handlers, STATUS_KBN[info.ref_status_3])
         molecule += status + statUp;
         denominator += 1;
     }
     return molecule / denominator;
 }
 
-const getStatusUnit = (handlers, strStatus) => {
+const getStatusUnit = (argument, handlers, strStatus) => {
     const memberInfo = handlers.memberInfo;
     let status = memberInfo[strStatus];
     switch (strStatus) {
         case "str":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_STR);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_STR);
             break;
         case "dex":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_DEX);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_DEX);
             break;
         case "con":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_CON);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_CON);
             break;
         case "mnd":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_MND);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_MND);
             break;
         case "int":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_INT);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_INT);
             break;
         case "luk":
-            status += getSumAbilityEffectSize(handlers, constants.EFFECT.STATUSUP_VALUE_LUK);
+            status += getSumAbilityEffectSize(argument, handlers, constants.EFFECT.STATUSUP_VALUE_LUK);
             break;
         default:
             break;
@@ -1319,14 +1324,14 @@ const getStatusUnit = (handlers, strStatus) => {
 }
 
 // バフ効果量取得
-function getBuffEffectSize(handlers, buffInfo, effect, buffSetting, jewelLv) {
+function getBuffEffectSize(argument, handlers, buffInfo, effect, buffSetting, jewelLv) {
     // ステータスによる補正無し
     if (effect.effect_size && !effect.ref_status_1) {
         return effect.effect_size;
     }
     // ステータス
-    let statUp = getStatAllUp(handlers);
-    let status = getStatus(handlers, effect, statUp);
+    let statUp = getStatAllUp(argument, handlers);
+    let status = getStatus(argument, handlers, effect, statUp);
     let minPower = effect.effect_size ? effect.effect_size : buffInfo.min_power;
     let maxPower = effect.effect_size ? effect.effect_size : buffInfo.max_power;
     let skillStat = buffInfo.param_limit ?? 0;
@@ -1359,7 +1364,7 @@ export function calcBuffEffectSize(skillMinPower, skillMaxPower, skillStat, stat
 }
 
 // デバフ効果量
-function getDebuffEffectSize(handlers, effect, buffSetting, effectType) {
+function getDebuffEffectSize(argument, handlers, effect, buffSetting, effectType) {
     const memberInfo = handlers.memberInfo;
     const state = handlers.state;
     if (!state) {
@@ -1370,7 +1375,7 @@ function getDebuffEffectSize(handlers, effect, buffSetting, effectType) {
         jewelLv = memberInfo.jewelLv;
     }
     // ステータス
-    let statUp = getStatAllUp(handlers);
+    let statUp = getStatAllUp(argument, handlers);
     let enemyInfo = state.enemyInfo;
     let enemyStat = Number(Number(enemyInfo.enemy_stat) + (state.correction.stat_up || 0));
     let enemyStatDown = 0;
@@ -1384,7 +1389,7 @@ function getDebuffEffectSize(handlers, effect, buffSetting, effectType) {
     if (buffEffectList.length === 0) {
         return 0;
     }
-    let status = getStatus(handlers, buffEffectList[0], statUp);
+    let status = getStatus(argument, handlers, buffEffectList[0], statUp);
     return calcDebuffEffectSize(effect, status, enemyStat, skillLv, jewelLv);
 }
 
@@ -1438,8 +1443,8 @@ function getEnemyDefenceRate(state) {
         enemyDefenceRate = (1 - state.correction.defense_rate.size / 100) ** count;
     }
     // スカルフェザー
-    if (enemyInfo.enemy_class === ENEMY_CLASS.HARD_LAYER &&
-        (enemyInfo.enemy_class_no === 12 || enemyInfo.enemy_class_no === 13)) {
+    if (enemyInfo?.enemy_class === ENEMY_CLASS.HARD_LAYER &&
+        (enemyInfo?.enemy_class_no === 12 || enemyInfo?.enemy_class_no === 13)) {
         const defenceRate = 5 / 100;
         enemyDefenceRate = (1 - defenceRate) ** state.hard.skullFeatherDeffense;
     }
@@ -1450,24 +1455,23 @@ function getEnemyDefenceRate(state) {
 }
 
 // 全ステータスアップ取得
-export function getStatAllUp(handler) {
-    const styleList = handler.styleList;
-    const state = handler.state;
-    const memberInfo = handler.memberInfo;
-    const collect = handler.collect;
-    const abilitySettingMap = handler.abilitySettingMap;
-    const passiveSettingMap = handler.passiveSettingMap;
-    const enemyInfo = state.enemyInfo;
+export function getStatAllUp(argument, handler) {
+    const {
+        styleList, state, abilitySettingMap, passiveSettingMap, enemyInfo
+    } = argument;
+    const {
+        memberInfo, collect
+    } = handler;
 
     let tearsOfDreams = 0;
     // 夢の泪
-    if (enemyInfo.enemy_class === ENEMY_CLASS.HARD_LAYER) {
+    if (enemyInfo?.enemy_class === ENEMY_CLASS.HARD_LAYER) {
         const tearsOfDreamsList = [0, 12, 12, 12, 12, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 20]
         tearsOfDreams = tearsOfDreamsList[enemyInfo.enemy_class_no] * Number(state.hard.tearsOfDreams);
     }
     // 属性ボーナス
     let elemetalBonus = 0;
-    if (enemyInfo.enemy_class === ENEMY_CLASS.HARD_LAYER_EX) {
+    if (enemyInfo?.enemy_class === ENEMY_CLASS.HARD_LAYER_EX) {
         state.hardEx.bonusElement.forEach((bonus, index) => {
             if (bonus) {
                 if (isElementInclude(memberInfo.styleInfo, index)) {
@@ -1478,7 +1482,7 @@ export function getStatAllUp(handler) {
     }
     // スコアタボーナス
     let scoreBonus = 0;
-    if (enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK || enemyInfo.enemy_class === ENEMY_CLASS.SCORE_ATTACK_EX) {
+    if (enemyInfo?.enemy_class === ENEMY_CLASS.SCORE_ATTACK || enemyInfo?.enemy_class === ENEMY_CLASS.SCORE_ATTACK_EX) {
         const selectHalf = state.score.half
         let physical = common.getCharaData(memberInfo.styleInfo.chara_id).physical;
         const targetConditions = [`element_${memberInfo.styleInfo.element}`, `element_${memberInfo.styleInfo.element2}`, `physical_${physical}`];
@@ -1510,7 +1514,7 @@ export function getStatAllUp(handler) {
     const handlers = {
         memberInfo, styleList, abilitySettingMap, passiveSettingMap, state, resonanceList: []
     };
-    const passiveStatusUp = getSumAbilityEffectSize(handlers, EFFECT.STATUSUP_ALL_VALUE);
+    const passiveStatusUp = getSumAbilityEffectSize(argument, handlers, EFFECT.STATUSUP_ALL_VALUE);
     return tearsOfDreams + scoreBonus + elemetalBonus + statUp + passiveStatusUp;
 }
 

@@ -47,14 +47,16 @@ const SUB_TARGET_KIND = [
     EFFECT.GIVEDEFFENCEDEBUFFUP, // 防御力デバフ強化
     EFFECT.HIGH_BOOST, // ハイブースト状態
 ]
-const BuffArea = ({ argument: {
-    attackInfo, state, dispatch,
-    selectBuffKeyMap, setSelectBuffKeyMap,
-    buffSettingMap, setBuffSettingMap,
-    abilitySettingMap, setAbilitySettingMap,
-    passiveSettingMap, setPassiveSettingMap,
-    resonanceList, setResonanceList,
-} }) => {
+const BuffArea = ({ argument}) => {
+    const {
+        attackInfo, state, dispatch,
+        selectBuffKeyMap, setSelectBuffKeyMap,
+        buffSettingMap, setBuffSettingMap,
+        abilitySettingMap, setAbilitySettingMap,
+        passiveSettingMap, setPassiveSettingMap,
+        setResonanceList,
+        setAttackUpBuffs, setDefDownBuffs, setCriticalBuffs
+    } = argument;
 
     const { styleList } = useStyleList();
     const [checkUpdate, setCheckUpdate] = useState(true);
@@ -72,6 +74,9 @@ const BuffArea = ({ argument: {
     const attackUpBuffs = getAttackUpBuffs(isElement, isWeak, isDamageRate, attackInfo, styleList.selectStyleList);
     const defDownBuffs = getDefenseDownBuffs(isElement, isWeak, isDp);
     const criticalBuffs = getCriticalBuffs(isElement);
+    // setAttackUpBuffs(attackUpBuffs);
+    // setDefDownBuffs(defDownBuffs);
+    // setCriticalBuffs(criticalBuffs);
 
     let buffKeyList = {};
     attackUpBuffs.forEach(buff => {
@@ -104,12 +109,12 @@ const BuffArea = ({ argument: {
         return generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpBuffs, defDownBuffs, criticalBuffs);
     }, [attackInfo?.attack_id, attackInfo?.servantCount, limitList, selectList, isWeak, JSON.stringify(defDownBuffs)]);
 
-    const resonance = useMemo(() => {
+    const resonanceList = useMemo(() => {
         return generateResonanceList(styleList);
     }, [attackInfo?.attack_id, selectList, supportList]);
     useEffect(() => {
-        setResonanceList(resonance);
-    }, [resonance]);
+        setResonanceList(resonanceList);
+    }, [resonanceList]);
 
     const refBuffSettingMap = useRef(buffSettingMap);
     const refAbilitySettingMap = useRef(abilitySettingMap);
@@ -224,7 +229,7 @@ const BuffArea = ({ argument: {
                     if (!buffSetting) return;
                     let buff = buffSetting.buffInfo;
                     const memberInfo = logic.getCharaIdToMember(styleList, buff.use_chara_id);
-                    buffSetting.calcEffectSize = logic.getEffectSize(styleList, buff, buffSetting, memberInfo, state,
+                    buffSetting.calcEffectSize = logic.getEffectSize(argument, styleList, buff, buffSetting, memberInfo, state,
                         newAbilitySettingMap, newPassiveSettingMap, resonanceList);
                 })
             });
@@ -243,7 +248,7 @@ const BuffArea = ({ argument: {
                 settingBuff.skill_lv = lv
                 let buff = buffGroup[buffKindKey][index].filter(buff => buff.key === buffKey)[0];
                 const memberInfo = logic.getCharaIdToMember(styleList, buff.use_chara_id);
-                settingBuff.calcEffectSize = logic.getEffectSize(styleList, buff, settingBuff, memberInfo, state,
+                settingBuff.calcEffectSize = logic.getEffectSize(argument, styleList, buff, settingBuff, memberInfo, state,
                     abilitySettingMap, passiveSettingMap, resonanceList);
             }
         })
@@ -773,20 +778,6 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
                         }
                     }
 
-                    // 超越ゲージ(汎用化しても良い)
-                    if (logic.TRANSCEND_LIST.includes(abilityInfo.ability_id)) {
-                        if (logic.isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element) &&
-                            abilityInfo.target_element === attackInfo?.attack_element) {
-                            // 変換
-                            const EFFECT_TO_BUFF = {
-                                [EFFECT.CRITICALRATEUP]: BUFF.CRITICALRATEUP,
-                                [EFFECT.CRITICAL_DAMAGE_UP]: BUFF.CRITICALDAMAGEUP,
-                            }
-                            if (EFFECT_TO_BUFF[abilityEffect.effect_type]) {
-                                addBuffAbility("ability", abilityId, abilityInfo.ability_name, EFFECT.GRANT_BUFF, EFFECT_TO_BUFF[abilityEffect.effect_type], abilityEffect);
-                            }
-                        }
-                    }
                     if (!constants.RANGE_ALL_ABILITY.includes(abilityEffect.effect_type)) {
                         if (abilityEffect.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
                     }
@@ -898,20 +889,6 @@ function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInfo, buff
             }
         });
 }
-
-// const judgeBuffType = (effect) => {
-//     const buffTypeMap = {
-//         [EFFECT.FIELD_DEPLOYMENT]: BUFF.FIELD,
-//         [EFFECT.SHADOW_CLONE]: BUFF.SHADOW_CLONE,
-//     };
-//     const buffTypeList = [BUFF.CHARGE, BUFF.ARROWCHERRYBLOSSOMS, BUFF.YAMAWAKI_SERVANT];
-//     if (effect.effect_type === constants.EFFECT.GRANT_BUFF) {
-//         if (buffTypeList.includes(effect.effect_no)) return effect.effect_no;
-//         return false;
-//     }
-//     const buffType = buffTypeMap[effect.effect_type];
-//     return buffType;
-// }
 
 const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attackInfo, selectStyleList) {
     const isShadowClone = CHARA_ID.SHADOW_CLONE.includes(attackInfo?.chara_id);
@@ -1029,26 +1006,6 @@ const isOverlap = (attackUpBuffs, defDownBuffs, criticalBuffs, key) => {
     const match2 = defDownBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
     const match3 = criticalBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
     return match1?.overlap || match2?.overlap || match3?.overlap;
-}
-
-const AbilityDetail = ({ buffInfo, closeModal }) => {
-    // アビリティ
-    let abilityId = Number(buffInfo.key.split("_")[1]);
-    let effectSize = logic.getAbilityEffectSize(abilityId, buffInfo, 0);
-    return (
-        <div className="modal text-left p-6 mx-auto">
-            <div>
-                <label className="damage_label">アビリティ詳細</label>
-                <button className="modal-close" onClick={closeModal}>&times;</button>
-            </div>
-            <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                <span>アビリティ</span>
-                <span>{buffInfo.buff_name}</span>
-                <span>効果量</span>
-                <span>{effectSize}%</span>
-            </div>
-        </div>
-    )
 }
 
 export default BuffArea;

@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from "react";
 import { useStyleList } from "components/StyleListProvider";
-import { getDamageResult, getEffectSize, getCharaIdToMember } from "./logic";
+import { getDamageResult, getCharaIdToMember } from "./logic";
 import { getEnemyInfo, } from "utils/common";
 import AttackList from "./AttackList";
 import CharaStatus from "./CharaStatus";
@@ -272,6 +272,9 @@ const DamageCalculation = () => {
     const [abilitySettingMap, setAbilitySettingMap] = useState([]);
     const [passiveSettingMap, setPassiveSettingMap] = useState([]);
     const [resonanceList, setResonanceList] = useState([]);
+    const [attackUpBuffs, setAttackUpBuffs] = useState([]);
+    const [defDownBuffs, setDefDownBuffs] = useState([]);
+    const [criticalBuffs, setCriticalBuffs] = useState([]);
 
     const [otherSetting, setOtherSetting] = useState({
         ring: "0",
@@ -284,8 +287,19 @@ const DamageCalculation = () => {
         },
     });
 
-    let damageResult = getDamageResult(attackInfo, styleList, state, selectSkillLv,
-        selectBuffKeyMap, buffSettingMap, abilitySettingMap, passiveSettingMap, resonanceList, otherSetting);
+    const argument = {
+        attackInfo, setAttackInfo, styleList, state, dispatch, otherSetting,
+        selectBuffKeyMap, setSelectBuffKeyMap,
+        buffSettingMap, setBuffSettingMap,
+        abilitySettingMap, setAbilitySettingMap,
+        passiveSettingMap, setPassiveSettingMap,
+        resonanceList, setResonanceList,
+        attackUpBuffs, setAttackUpBuffs,
+        defDownBuffs, setDefDownBuffs,
+        criticalBuffs, setCriticalBuffs,
+    };
+
+    let damageResult = getDamageResult(argument, selectSkillLv);
 
     const bulkSetting = (collect) => {
         setAttackInfo(prev => ({
@@ -308,7 +322,7 @@ const DamageCalculation = () => {
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
-                    buffSetting.calcEffectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+                    buffSetting.calcEffectSize = logic.getEffectSize(argument, styleList, buffInfo, buffSetting, memberInfo, state,
                         abilitySettingMap, passiveSettingMap, resonanceList);
                 }
             })
@@ -316,14 +330,8 @@ const DamageCalculation = () => {
         setBuffSettingMap(newBuffSettingMap);
     }
 
-    const argument = {
-        attackInfo, setAttackInfo, styleList, state, dispatch, otherSetting,
-        selectBuffKeyMap, setSelectBuffKeyMap,
-        buffSettingMap, setBuffSettingMap,
-        abilitySettingMap, setAbilitySettingMap,
-        passiveSettingMap, setPassiveSettingMap,
-        resonanceList, setResonanceList
-    };
+    // 元々BUFFAREAの計算
+
     return (
         <div className="damage_frame pt-3">
             <div className="display_area mx-auto">

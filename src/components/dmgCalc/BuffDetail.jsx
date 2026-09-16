@@ -3,7 +3,6 @@ import {
     BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN, ATTRIBUTE, COST_TYPE
 } from "utils/const";
 import {
-    DEBUFF_LIST, KIND_ATTACKUP, KIND_DEFENSEDOWN,
     getCharaIdToMember, getEffectSize, getCostVariable
 } from "./logic";
 import * as logic from "./logic";
@@ -13,36 +12,75 @@ import { CHARA_ID, JEWEL_TYPE } from "utils/const";
 import * as constant from "utils/const";
 import * as common from "utils/common";
 
-const BUFF_KIND_TO_JEWEL_TYPE = {
-    [BUFF.ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
-    [BUFF.ELEMENT_ATTACKUP]: JEWEL_TYPE.SKILL_ATTACKUP,
-    [BUFF.CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
-    [BUFF.ELEMENT_CRITICALRATEUP]: JEWEL_TYPE.CRITICALRATE_UP,
-    [BUFF.ETERNAL_OARH]: JEWEL_TYPE.SKILL_ATTACKUP,
-};
-
-const BUFF_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.CHARGE,
-BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP, BUFF.ETERNAL_OARH];
+const BUFF_LIST = [EFFECT.ATTACKUP, EFFECT.CRITICALRATEUP];
+const DEBUFF_LIST = [EFFECT.DEFFENCEDOWN, EFFECT.RESISTDOWN];
 
 const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuffSettingMap,
     abilitySettingMap, passiveSettingMap, resonanceList, closeModal }) => {
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
     const enemyInfo = state.enemyInfo;
-    const isBuffChart = BUFF_LIST.includes(buffInfo.buff_no);
-    const isDebuff = DEBUFF_LIST.includes(buffInfo.buff_no);
-    const buffSetting = buffSettingMap[buffInfo.buff_no][index][buffInfo.key];
+    const buffKey = logic.getBuffKey(buffInfo.effect_type, buffInfo.effect_no);
+    const buffSetting = buffSettingMap[buffKey][index][buffInfo.key];
     const skillInfo = getSkillData(buffInfo.skill_id);
-    const isJewel = isDebuff || [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.ELEMENT_CRITICALRATEUP].includes(buffInfo.buff_no)
+
+    let effect = null;
+    // バフ強化対象
+    let strengthen = false;
+    switch (buffInfo.effect_type) {
+        case EFFECT.GRANT_BUFF:
+            switch (buffInfo.effect_no) {
+                case BUFF.FUNNEL: // 連撃
+                    effect = EFFECT.FUNNEL;
+                    break;
+                case BUFF.CRITICALRATEUP: // クリティカル率アップ
+                case BUFF.ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
+                    effect = EFFECT.CRITICALRATEUP;
+                    break;
+                case BUFF.CRITICALDAMAGEUP: // クリティカルダメージアップ
+                case BUFF.ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
+                    effect = EFFECT.CRITICAL_DAMAGE_UP;
+                    break;
+                case BUFF.MINDEYE: // 心眼
+                    effect = EFFECT.ATTACKUP;
+                    break;
+                default:
+                    strengthen = true;
+                    effect = EFFECT.ATTACKUP;
+                    break;
+            }
+            break;
+        case EFFECT.GRANT_DEBUFF:
+            strengthen = true;
+            switch (buffInfo.effect_no) {
+                case BUFF.FRAGILE: // 脆弱
+                case BUFF.ETERNAL_FRAGILE: // 永続脆弱
+                    effect = EFFECT.DEFFENCEDOWN;
+                    break;
+                case BUFF.RESISTDOWN: // 耐性ダウン
+                    effect = EFFECT.RESISTDOWN;
+                    break;
+                default:
+                    effect = EFFECT.DEFFENCEDOWN;
+                    break;
+            }
+            break;
+        default:
+            effect = buffInfo.effect_type;
+            break;
+    }
+    const isBuffChart = BUFF_LIST.includes(effect);
+    const isDebuffChart = DEBUFF_LIST.includes(effect);
+    const isJewel = isDebuffChart || BUFF_LIST.includes(effect);
 
     const changeBuffSetting = (item, value) => {
         const updateSettingMap = { ...buffSettingMap };
-        const buffSetting = updateSettingMap[buffInfo.buff_no][index][buffInfo.key]
+        const buffSetting = updateSettingMap[buffKey][index][buffInfo.key]
         if (!buffSetting["collect"]) {
             buffSetting["collect"] = {};
         }
         buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
-        buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+        buffSetting.calcEffectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
             abilitySettingMap, passiveSettingMap, resonanceList);
 
         setBuffSettingMap(updateSettingMap);
@@ -56,17 +94,19 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     let statUp = logic.getStatAllUp(handlers);
     let enemyStatDown = 0;
     let enemyStat = 0;
-    if (isDebuff) {
+    if (isDebuffChart) {
         enemyStat = Number(enemyInfo.enemy_stat) + (state.correction.stat_up || 0);
         if (buffSetting.collect?.statDown) {
             enemyStatDown = Number(buffSetting.collect.statDown);
         }
     }
 
-    const buffEffectList = common.getBuffEffect(buffInfo.buff_no);
-    // 絞り込みの精査の追加
-    const buffEffect = buffEffectList[0];
-    let status = logic.getStatus(handlers, buffEffect, statUp);
+    let status = 0;
+    let buffEffect = null;
+    if (isBuffChart || isDebuffChart) {
+        buffEffect = common.getBuffEffect(buffInfo.effect_no).filter((obj) => obj.effect_type === effect)[0];
+        status = logic.getStatus(handlers, buffEffect, statUp);
+    }
 
     const effectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
         abilitySettingMap, passiveSettingMap, resonanceList);
@@ -74,14 +114,14 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
 
     const effectTypeMap = new Map([
-        [KIND_ATTACKUP, EFFECT.GIVEATTACKBUFFUP],
-        [KIND_DEFENSEDOWN, EFFECT.GIVEDEFFENCEDEBUFFUP],
-        [[BUFF.FIELD], EFFECT.FIELD_STRENGTHEN]
+        [EFFECT.GRANT_BUFF, EFFECT.GIVEATTACKBUFFUP],
+        [EFFECT.DEFFENCEDOWN, EFFECT.GIVEDEFFENCEDEBUFFUP],
+        [EFFECT.FIELD_DEPLOYMENT, EFFECT.FIELD_STRENGTHEN]
     ]);
 
     function getAbilityListByBuff(buffKind, charaId) {
         for (const [kindList, effectType] of effectTypeMap) {
-            if (kindList.includes(buffKind)) {
+            if (kindList === buffKind) {
                 return Object.values(abilitySettingMap)
                     .filter(ability => ability.chara_id === charaId)
                     .filter(ability => {
@@ -97,13 +137,13 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         return [];
     }
 
-    function getPassiveListByBuff(buffKind, charaId) {
-        for (const [kindList, effectType] of effectTypeMap) {
-            if (kindList.includes(buffKind)) {
+    function getPassiveListByBuff(effect, charaId) {
+        for (const [targetEffect, effectType] of effectTypeMap) {
+            if (targetEffect === effect) {
                 return Object.values(passiveSettingMap)
                     .filter(passive => passive.chara_id === charaId)
                     .filter(passive => {
-                        for (const passiveEffect of getPassiveEffectList(passive.passive_id)) {
+                        for (const passiveEffect of getPassiveEffectList(passive.skill_id)) {
                             if (passiveEffect.effect_type === effectType) {
                                 return true;
                             }
@@ -115,15 +155,15 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
         return [];
     }
 
-    const abilityList = getAbilityListByBuff(buffInfo.buff_no, charaId);
-    const passiveList = getPassiveListByBuff(buffInfo.buff_no, charaId);
+    const abilityList = getAbilityListByBuff(effect, charaId);
+    const passiveList = getPassiveListByBuff(effect, charaId);
 
     // 宝珠レベル
     let jewelLv = 0;
-    const kind = buffInfo.buff_no;
     const jewelType = memberInfo.styleInfo.jewel_type;
-    if ((DEBUFF_LIST.includes(kind) && jewelType === JEWEL_TYPE.SKILL_DEBUFFUP) ||
-        (BUFF_KIND_TO_JEWEL_TYPE[kind] && jewelType === BUFF_KIND_TO_JEWEL_TYPE[kind])) {
+    if ((DEBUFF_LIST.includes(effect) && jewelType === JEWEL_TYPE.SKILL_DEBUFFUP) ||
+        (effect === EFFECT.ATTACKUP && jewelType === JEWEL_TYPE.SKILL_ATTACKUP) ||
+        (effect === EFFECT.CRITICALRATEUP && jewelType === JEWEL_TYPE.CRITICALRATE_UP)) {
         jewelLv = memberInfo.jewelLv;
     }
 
@@ -140,14 +180,13 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
     }
 
     // バフ強化
-    let strengthen = false;
-    if ([BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP].includes(buffInfo.buff_no)) {
+    if (strengthen && EFFECT.ATTACKUP === effect) {
         let troopsBuff = logic.getCharaIdToTroopKbn(styleList, constant.CHARA_ID.STRENGTH_BUFF);
         if (buffInfo.troopKbn === troopsBuff) {
             strengthen = true;
         }
     }
-    if (isDebuff) {
+    if (strengthen && isDebuffChart) {
         if (charaId === CHARA_ID.MIYA) {
             strengthen = true;
         }
@@ -208,16 +247,16 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                         </div>
                     </>
                 }
-                {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
+                {buffEffect && buffEffect.ref_status_1 !== 0 &&
                     <>
                         <span>参照ステータス</span>
                         <span>
-                            {buffInfo.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
-                                {jpnName[buffInfo.ref_status_1]}</span> : null}
-                            {buffInfo.ref_status_1 !== 0 && buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_1]}`}>
-                                {jpnName[buffInfo.ref_status_1]}</span> : null}
-                            {buffInfo.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffInfo.ref_status_2]}`}>
-                                {jpnName[buffInfo.ref_status_2]}</span> : null}
+                            {buffEffect.ref_status_1 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffEffect.ref_status_1]}`}>
+                                {jpnName[buffEffect.ref_status_1]}</span> : null}
+                            {buffEffect.ref_status_1 !== 0 && buffEffect.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffEffect.ref_status_1]}`}>
+                                {jpnName[buffEffect.ref_status_1]}</span> : null}
+                            {buffEffect.ref_status_2 !== 0 ? <span className={`ref_status ${STATUS_KBN[buffEffect.ref_status_2]}`}>
+                                {jpnName[buffEffect.ref_status_2]}</span> : null}
                         </span>
                     </>
                 }
@@ -228,19 +267,18 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                     <div className="text-right text-sm">※バフ強化適用前の効果量です</div>
                 </>
             }
-            {isDebuff &&
+            {isDebuffChart &&
                 <>
                     <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
                     <div className="text-right text-sm">※デバフ強化適用前の効果量です</div>
                 </>
             }
-            {/* {buffInfo.param_limit !== 0 && buffInfo.min_power !== buffInfo.max_power && ( */}
             <>
                 <div className="mt-2">
                     <span className="damage_label">使用者情報</span>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    {buffInfo.ref_status_1 !== 0 && buffInfo.min_power !== buffInfo.max_power &&
+                    {buffEffect && buffEffect.ref_status_1 !== 0 &&
                         <>
                             <span>ステータス</span>
                             <span>{Math.floor(status * 100) / 100}</span>
@@ -257,7 +295,7 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
                                 />
                                 <label htmlFor="fightingspirit" className="checkbox01"></label>
                             </div>
-                            {isDebuff &&
+                            {isDebuffChart &&
                                 <>
                                     <span>敵ステータス低下</span>
                                     <div className="flex justify-center items-center">
@@ -329,31 +367,38 @@ const BuffDetail = ({ buffInfo, styleList, state, index, buffSettingMap, setBuff
 }
 
 
-const getBuffEffectDisplay = (buffInfo, skillLv) => {
+const getBuffEffectDisplay = (effect, skillLv) => {
     let minPower;
     let maxPower;
-    switch (buffInfo.buff_no) {
-        case BUFF.FUNNEL:
-            let unit = buffInfo.effect_size;
-            minPower = buffInfo.min_power;
-            maxPower = buffInfo.max_power;
-            if (minPower === maxPower) {
-                return `${unit}%×${minPower}Hit`
-            } else {
-                return `${unit}%×${minPower}Hit～${maxPower}Hit`
+    switch (effect.effect_type) {
+        case EFFECT.FIELD_DEPLOYMENT:
+            return `${effect.effect_size.toLocaleString()}%`;
+        case EFFECT.GRANT_BUFF:
+            switch (effect.effect_no) {
+                case BUFF.FUNNEL:
+                    let unit = effect.effect_size;
+                    minPower = effect.min_power;
+                    maxPower = effect.max_power;
+                    if (minPower === maxPower) {
+                        return `${unit}%×${minPower}Hit`
+                    } else {
+                        return `${unit}%×${minPower}Hit～${maxPower}Hit`
+                    }
+                default:
+                    if (BUFF_LIST.includes(effect.effect_no)) {
+                        minPower = effect.min_power * (1 + 0.03 * (skillLv - 1));
+                    } else {
+                        minPower = effect.min_power * (1 + 0.05 * (skillLv - 1));
+                    }
+                    maxPower = effect.max_power * (1 + 0.02 * (skillLv - 1));
+                    if (minPower === maxPower) {
+                        return `${minPower.toLocaleString()}%`
+                    } else {
+                        return `${minPower.toLocaleString()}%～${maxPower.toLocaleString()}%`
+                    }
             }
         default:
-            if (BUFF_LIST.includes(buffInfo.buff_no)) {
-                minPower = buffInfo.min_power * (1 + 0.03 * (skillLv - 1));
-            } else {
-                minPower = buffInfo.min_power * (1 + 0.05 * (skillLv - 1));
-            }
-            maxPower = buffInfo.max_power * (1 + 0.02 * (skillLv - 1));
-            if (minPower === maxPower) {
-                return `${minPower.toLocaleString()}%`
-            } else {
-                return `${minPower.toLocaleString()}%～${maxPower.toLocaleString()}%`
-            }
+            break;
     }
 }
 

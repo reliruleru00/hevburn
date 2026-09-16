@@ -14,6 +14,7 @@ import resonanceEffect from "data/resonanceEffect";
 import buffKind from 'data/buffKind';
 import buffEffect from 'data/buffEffect';
 import * as constants from "utils/const";
+import skillEffect from "data/skillEffect";
 
 // キャラ名取得
 export function getCharaData(charaId) {
@@ -61,8 +62,8 @@ export function getBuffList(skillId) {
 }
 
 // バフ情報取得
-export function getBuffIdToBuff(buffId) {
-  const filteredBuff = skillBuff.filter((obj) => obj.buff_id === Number(buffId));
+export function getBuffIdToEffect(buffId) {
+  const filteredBuff = skillEffect.filter((obj) => obj.buff_id === Number(buffId));
   return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
 }
 

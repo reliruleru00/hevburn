@@ -217,9 +217,6 @@ export const EFFECT = {
     FIELD_STRENGTHEN: 27, // フィールド強化
     ADDITIONALTURN: 29, // 追加ターン
     TOKEN_UP: 30, // トークンアップ
-    // TOKEN_ATTACKUP: 31, // トークン1つにつき攻撃力アップ
-    // TOKEN_DEFFENCEUP: 32, // トークン1つにつき防御力アップ
-    // TOKEN_DAMAGERATEUP: 33, // トークン1つにつき破壊率アップ
     STATUSUP_VALUE_STR: 31, // 能力上昇(STR)
     STATUSUP_VALUE_DEX: 32, // 能力上昇(DEX)
     STATUSUP_VALUE_CON: 33, // 能力上昇(CON)
@@ -227,6 +224,8 @@ export const EFFECT = {
     STATUSUP_VALUE_INT: 35, // 能力上昇(INT)
     STATUSUP_VALUE_LUK: 36, // 能力上昇(LUK)
     CAMP_DEPLOYMENT: 40, // 陣展開
+    RESISTDOWN: 41, // 耐性ダウン
+    DP_DEFFENCEDOWN: 42, // DP防御力ダウン
     TALISMAN: 44, // 霊符
     EX_DOUBLE: 45, // EXスキル連続発動
     OVERDRIVE_RATE_UP: 46, // OD増加量アップ

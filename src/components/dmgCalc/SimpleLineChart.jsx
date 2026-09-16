@@ -1,6 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Label, Tooltip } from 'recharts';
-import { calcAttackEffectSize, calcBuffEffectSize, calcDebuffEffectSize } from './logic'
-
+import { calcAttackEffectSize, calcBuffEffectSize, calcDebuffEffectSize } from './logic';
 
 export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, jewelLv, skillLv }) {
     const data1 = [];
@@ -39,23 +38,6 @@ export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, 
         </LineChart>
     );
 }
-
-const CustomTooltip2 = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        const point = payload[0].payload; // データ全体
-        return (
-            <div style={{ backgroundColor: '#fff', padding: 10, border: '1px solid #ccc' }}>
-                <p><strong>{point.x}:</strong></p>
-                {payload.map((item, index) => (
-                    <p key={index} style={{ color: item.stroke }}>
-                        {item.name}: {item.value.toLocaleString()}
-                    </p>
-                ))}
-            </div>
-        );
-    }
-    return null;
-};
 
 export function BuffLineChart({ buffInfo, status, jewelLv, skillLv }) {
     const data = [];
@@ -137,4 +119,21 @@ const CustomTooltip = ({ active, payload, label }) => {
     }
 
     return null;
-};
+}
+
+const CustomTooltip2 = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        const point = payload[0].payload; // データ全体
+        return (
+            <div style={{ backgroundColor: '#fff', padding: 10, border: '1px solid #ccc' }}>
+                <p><strong>{point.x}:</strong></p>
+                {payload.map((item, index) => (
+                    <p key={index} style={{ color: item.stroke }}>
+                        {item.name}: {item.value.toLocaleString()}
+                    </p>
+                ))}
+            </div>
+        );
+    }
+    return null;
+}

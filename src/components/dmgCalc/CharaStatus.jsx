@@ -4,8 +4,10 @@ import { useStyleList } from "components/StyleListProvider";
 import ModalSkillSelectList from "components/ModalSkillSelectList";
 import ModalStyleSelection from "components/ModalStyleSelection";
 import StyleIcon from "components/StyleIcon";
-import { getBuffIdToBuff, getSkillData } from "utils/common";
-import { SKILL_ID, STATUS_KBN, COST_TYPE } from "utils/const";
+import { getSkillData } from "utils/common";
+import * as common from "utils/common";
+import * as logic from "./logic";
+import { SKILL_ID, STATUS_KBN, COST_TYPE, EFFECT } from "utils/const";
 import { checkPawapuroExist, getCostVariable } from "./logic";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import editIcon from 'assets/img/edit.png';
@@ -307,21 +309,26 @@ const CharaStatus = ({ argument: {
                                     const [kind, buffId, useCharaId] = buffKey.split("_");
                                     if (Number(useCharaId) !== charaId) continue;
                                     if (kind === "ability") continue;
-                                    const buffInfo = getBuffIdToBuff(Number(buffId));
-                                    if (!buffInfo) continue;
+                                    const skillEffect = common.getBuffIdToEffect(Number(buffId));
+                                    if (!skillEffect) continue;
+                                    const buffKindKey = logic.getBuffKey(skillEffect.effect_type, skillEffect.effect_no);
 
-                                    if (buffSettingMap[buffInfo.buff_no] && buffSettingMap[buffInfo.buff_no][key][buffKey]) {
-                                        let buffSetting = buffSettingMap[buffInfo.buff_no][key][buffKey];
-                                        if (buffInfo.skill_id !== SKILL_ID.MEGA_DESTROYER) {
+                                    if (buffSettingMap[buffKindKey] && buffSettingMap[buffKindKey][key][buffKey]) {
+                                        let buffSetting = buffSettingMap[buffKindKey][key][buffKey];
+                                        if (skillEffect.skill_id !== SKILL_ID.MEGA_DESTROYER) {
                                             const value = buffSetting.collect ?? {};
-                                            (tempCount[buffInfo.skill_id] ??= []).push(value);
+                                            (tempCount[skillEffect.skill_id] ??= []).push(value);
                                         }
                                     }
 
-                                    for (let i = 1; i <= 2; i++) {
-                                        const statusKey = buffInfo[`ref_status_${i}`];
-                                        if (STATUS_KBN[statusKey] && buffInfo.min_power !== buffInfo.max_power) {
-                                            results.push(STATUS_KBN[statusKey]);
+                                    if (skillEffect.effect_type === EFFECT.GRANT_BUFF || skillEffect.effect_type === EFFECT.GRANT_DEBUFF) {
+                                        for (const buffEffect of common.getBuffEffect(skillEffect.effect_no)) {
+                                            for (let i = 1; i <= 2; i++) {
+                                                const statusKey = buffEffect[`ref_status_${i}`];
+                                                if (STATUS_KBN[statusKey]) {
+                                                    results.push(STATUS_KBN[statusKey]);
+                                                }
+                                            }
                                         }
                                     }
                                 }

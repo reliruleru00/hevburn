@@ -199,6 +199,8 @@ const DamageCalculation = () => {
     const { styleList } = useStyleList();
     const [attackInfo, setAttackInfo] = useState(undefined);
     const [selectSkillLv, setSelectSkillLv] = useState(undefined);
+    // バフ設定マップの状態管理
+    // 攻撃力アップ/1個目/エンハンス=効果量 の形
     const [buffSettingMap, setBuffSettingMap] = useState({});
 
     // 初期値を決める関数
@@ -306,7 +308,7 @@ const DamageCalculation = () => {
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
-                    buffSetting.effect_size = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
+                    buffSetting.calcEffectSize = getEffectSize(styleList, buffInfo, buffSetting, memberInfo, state,
                         abilitySettingMap, passiveSettingMap, resonanceList);
                 }
             })

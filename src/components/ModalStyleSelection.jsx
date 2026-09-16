@@ -52,8 +52,8 @@ const ModalStyleSelection = ({ index, narrowStyle, setNarrowStyle, clickSetMembe
         setNarrowStyle({ ...narrowStyle });
     }
 
-    const checkBuff = (buff_info, buff_no) => {
-        if (buff_info.effect_no !== buff_no) {
+    const checkBuff = (buff_info, effect_no) => {
+        if (buff_info.effect_no !== effect_no) {
             return false;
         }
         const CHECK_BUFF_LIST = [

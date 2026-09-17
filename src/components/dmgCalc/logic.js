@@ -168,15 +168,14 @@ export const filteredOrb = (buffList, isOrb) => {
 }
 
 // 効果量取得
-export function getEffectSize(argument, styleList, effect, buffSetting, memberInfo, state, abilitySettingMap, passiveSettingMap, resonanceList) {
+export function getEffectSize(argument, effect, buffSetting, memberInfo) {
     const handlers = {
         collect: buffSetting.collect,
         skillInfo: common.getSkillData(effect.skill_id),
-        memberInfo, state, styleList,
-        abilitySettingMap, passiveSettingMap
+        memberInfo
     };
     // バフ強化
-    let strengthen = getStrengthen(handlers, effect, resonanceList);
+    let strengthen = getStrengthen(argument, handlers, effect);
     let effectSize = 0;
     switch (effect.effect_type) {
         case EFFECT.GRANT_BUFF:
@@ -270,12 +269,13 @@ export function getAbilityEffectSize(abilityId, effect) {
 }
 
 // コスト変更
-export function getCostVariable(handlers) {
+export function getCostVariable(argument, handlers) {
     let collect = handlers.collect;
     let skillInfo = handlers.skillInfo;
     let spCost = skillInfo.use_cost;
-    let abilitySettingMap = handlers.abilitySettingMap;
-    let passiveSettingMap = handlers.passiveSettingMap;
+    const {
+        abilitySettingMap, passiveSettingMap
+    } = argument;
 
     if (collect?.sphalf) {
         spCost = Math.ceil(spCost / 2);
@@ -288,64 +288,64 @@ export function getCostVariable(handlers) {
     // COSTダウン
     abilityLoop((abilityEffect) => {
         costSpDown = Math.max(costSpDown, abilityEffect.effect_size);
-    }, abilitySettingMap, EFFECT.COST_SP_DOWN, handlers);
+    }, abilitySettingMap, EFFECT.COST_SP_DOWN, argument, handlers);
 
     passiveLoop((passiveEffect) => {
         costSpDown = Math.max(costSpDown, passiveEffect.effect_size);
-    }, passiveSettingMap, EFFECT.COST_SP_DOWN, handlers);
+    }, passiveSettingMap, EFFECT.COST_SP_DOWN, argument, handlers);
 
     passiveLoop((passiveEffect) => {
         costSpUp = Math.max(costSpUp, passiveEffect.effect_size);
-    }, passiveSettingMap, EFFECT.COST_SP_UP, handlers);
+    }, passiveSettingMap, EFFECT.COST_SP_UP, argument, handlers);
 
     spCost += costSpUp - costSpDown;
     spCost = spCost < 0 ? 0 : spCost;
     return spCost;
 }
 
-const abilityLoop = (func, abilitySettingMap, effectType, handlers) => {
+const abilityLoop = (func, abilitySettingMap, effectType, argument, handlers) => {
     if (!abilitySettingMap) return;
     Object.values(abilitySettingMap)
         .filter(ability => ability.checked)
         .forEach((ability) => {
             const abilityInfo = common.getAbilityInfo(ability.ability_id);
             for (const abilityEffect of common.getAbilityEffectList(ability.ability_id)) {
-                if (judgeEffect(ability.chara_id, abilityInfo, abilityEffect, effectType, handlers)) {
+                if (judgeEffect(ability.chara_id, abilityInfo, abilityEffect, effectType, argument, handlers)) {
                     func(abilityEffect, ability)
                 }
             }
         })
 }
 
-const passiveLoop = (func, passiveSettingMap, effectType, handlers) => {
+const passiveLoop = (func, passiveSettingMap, effectType, argument, handlers) => {
     if (!passiveSettingMap) return;
     Object.values(passiveSettingMap)
         .filter(passive => passive.checked)
         .forEach((passive) => {
             const passiveInfo = common.getPassiveInfo(passive.skill_id);
             for (const passiveEffect of common.getPassiveEffectList(passive.skill_id)) {
-                if (judgeEffect(passive.chara_id, passiveInfo, passiveEffect, effectType, handlers)) {
+                if (judgeEffect(passive.chara_id, passiveInfo, passiveEffect, effectType, argument, handlers)) {
                     func(passiveEffect, passive)
                 }
             }
         })
 }
 
-const resonaceLoop = (func, resonanceList, effectType, handlers) => {
+const resonaceLoop = (func, resonanceList, effectType, argument, handlers) => {
     resonanceList
         .forEach(resonance => {
             const resonanceInfo = common.getResonanceInfo(resonance.resonance_id);
             for (const resonanceEffect of common.getResonanceEffectList(resonance.resonance_id)) {
                 resonanceInfo.target_element = resonance.targetElement;
                 resonanceEffect.range_area = constants.RANGE.SELF;
-                if (judgeEffect(resonance.charaId, resonanceInfo, resonanceEffect, effectType, handlers)) {
+                if (judgeEffect(resonance.charaId, resonanceInfo, resonanceEffect, effectType, argument, handlers)) {
                     func(resonanceEffect, resonance)
                 }
             }
         })
 }
 
-const judgeEffect = (charaId, info, effect, effectType, handlers) => {
+const judgeEffect = (charaId, info, effect, effectType, argument, handlers) => {
     let styleInfo = handlers.memberInfo.styleInfo;
     if (Array.isArray(effectType)
         ? !effectType.includes(effect.effect_type)
@@ -358,16 +358,18 @@ const judgeEffect = (charaId, info, effect, effectType, handlers) => {
     if (!isElementInclude(styleInfo, info.target_element)) {
         return false;
     }
-    if (!judgmentCondition(effect, handlers)) {
+    if (!judgmentCondition(argument, effect, handlers)) {
         return false;
     }
     return true;
 }
 
-function judgmentCondition(effect, handlers) {
+function judgmentCondition(argument, effect, handlers) {
     const skillInfo = handlers.skillInfo;
-    const styleList = handlers.styleList;
     const memberInfo = handlers.memberInfo;
+    const {
+        styleList,
+    } = argument;
 
     let spCost = 0;
     switch (Number(effect.conditions)) {
@@ -388,12 +390,12 @@ function judgmentCondition(effect, handlers) {
             return darkCount >= effect.conditions_id;
         case CONDITIONS.COST_SP_OVER: // 消費SP指定値以上
             if (skillInfo.cost_type === COST_TYPE.SP) {
-                spCost = getCostVariable(handlers)
+                spCost = getCostVariable(argument, handlers)
             }
             return spCost >= effect.conditions_id;
         case CONDITIONS.COST_SP_UNDER: // 消費SP指定値以下
             if (skillInfo.cost_type === COST_TYPE.SP) {
-                spCost = getCostVariable(handlers)
+                spCost = getCostVariable(argument, handlers)
             }
             return spCost <= effect.conditions_id;
         case CONDITIONS.TOKEN_OVER: // トークン指定値以上
@@ -405,72 +407,80 @@ function judgmentCondition(effect, handlers) {
 }
 
 // バフ強化効果量取得
-function getStrengthen(handlers, buff, resonanceList) {
+function getStrengthen(argument, handlers, effect) {
     let strengthen = 0;
-    let abilitySettingMap = handlers.abilitySettingMap;
-    let passiveSettingMap = handlers.passiveSettingMap;
+    const {
+        abilitySettingMap, passiveSettingMap, resonanceList
+    } = argument;
 
-    // 攻撃力アップ/属性攻撃力アップ
-    if (KIND_ATTACKUP.includes(buff.effect_no)) {
-        abilityLoop((abilityEffect) => {
-            strengthen += abilityEffect.effect_size;
-        }, abilitySettingMap, EFFECT.GIVEATTACKBUFFUP, handlers);
+    switch (effect.effect_type) {
+        case EFFECT.GRANT_BUFF:
+            // 攻撃力アップ/属性攻撃力アップ
+            if (KIND_ATTACKUP.includes(effect.effect_no)) {
+                abilityLoop((abilityEffect) => {
+                    strengthen += abilityEffect.effect_size;
+                }, abilitySettingMap, EFFECT.GIVEATTACKBUFFUP, argument, handlers);
 
-        passiveLoop((passiveEffect) => {
-            strengthen += passiveEffect.effect_size;
-        }, passiveSettingMap, EFFECT.GIVEATTACKBUFFUP, handlers);
+                passiveLoop((passiveEffect) => {
+                    strengthen += passiveEffect.effect_size;
+                }, passiveSettingMap, EFFECT.GIVEATTACKBUFFUP, argument, handlers);
 
-        resonaceLoop((resonanceEffect, resonance) => {
-            const limitCount = resonance.limitCount;
-            const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
-            strengthen += effectSize;
-        }, resonanceList, EFFECT.GIVEATTACKBUFFUP, handlers);
-    }
-    // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
-    if (KIND_DEFENSEDOWN.includes(buff.effect_no)) {
-        abilityLoop((abilityEffect) => {
-            strengthen += abilityEffect.effect_size;
-        }, abilitySettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
+                resonaceLoop((resonanceEffect, resonance) => {
+                    const limitCount = resonance.limitCount;
+                    const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
+                    strengthen += effectSize;
+                }, resonanceList, EFFECT.GIVEATTACKBUFFUP, argument, handlers);
+            }
+            break;
+        case EFFECT.GRANT_DEBUFF:
+            // 防御力ダウン/属性防御力ダウン/DP防御力ダウン/永続防御ダウン/永続属性防御ダウン
+            if (KIND_DEFENSEDOWN.includes(effect.effect_no)) {
+                abilityLoop((abilityEffect) => {
+                    strengthen += abilityEffect.effect_size;
+                }, abilitySettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, argument, handlers);
 
-        abilityLoop((abilityEffect) => {
-            strengthen += abilityEffect.effect_size;
-        }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, handlers);
+                abilityLoop((abilityEffect) => {
+                    strengthen += abilityEffect.effect_size;
+                }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, argument, handlers);
 
-        passiveLoop((passiveEffect) => {
-            strengthen += passiveEffect.effect_size;
-        }, passiveSettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
+                passiveLoop((passiveEffect) => {
+                    strengthen += passiveEffect.effect_size;
+                }, passiveSettingMap, EFFECT.GIVEDEFFENCEDEBUFFUP, argument, handlers);
 
-        passiveLoop((passiveEffect) => {
-            strengthen += passiveEffect.effect_size;
-        }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, handlers);
+                passiveLoop((passiveEffect) => {
+                    strengthen += passiveEffect.effect_size;
+                }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, argument, handlers);
 
-        resonaceLoop((resonanceEffect, resonance) => {
-            const limitCount = resonance.limitCount;
-            const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
-            strengthen += effectSize;
-        }, resonanceList, EFFECT.GIVEDEFFENCEDEBUFFUP, handlers);
+                resonaceLoop((resonanceEffect, resonance) => {
+                    const limitCount = resonance.limitCount;
+                    const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
+                    strengthen += effectSize;
+                }, resonanceList, EFFECT.GIVEDEFFENCEDEBUFFUP, argument, handlers);
 
-    }
-    // 防御ダウン以外のデバフスキル
-    if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(buff.effect_no)) {
-        abilityLoop((abilityEffect) => {
-            strengthen += abilityEffect.effect_size;
-        }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, handlers);
+            }
+            // 防御ダウン以外のデバフスキル
+            if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(effect.effect_no)) {
+                abilityLoop((abilityEffect) => {
+                    strengthen += abilityEffect.effect_size;
+                }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, argument, handlers);
 
-        passiveLoop((passiveEffect) => {
-            strengthen += passiveEffect.effect_size;
-        }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, handlers);
-    }
+                passiveLoop((passiveEffect) => {
+                    strengthen += passiveEffect.effect_size;
+                }, passiveSettingMap, EFFECT.GIVEDEBUFFUP, argument, handlers);
+            }
+            break;
+        case EFFECT.FIELD_DEPLOYMENT:
+            // フィールド強化
+            abilityLoop((abilityEffect) => {
+                strengthen += abilityEffect.effect_size;
+            }, abilitySettingMap, EFFECT.FIELD_STRENGTHEN, argument, handlers);
 
-    // フィールド強化
-    if (EFFECT.FIELD_DEPLOYMENT === buff.effect_type) {
-        abilityLoop((abilityEffect) => {
-            strengthen += abilityEffect.effect_size;
-        }, abilitySettingMap, EFFECT.FIELD_STRENGTHEN, handlers);
-
-        passiveLoop((passiveEffect) => {
-            strengthen += passiveEffect.effect_size;
-        }, passiveSettingMap, EFFECT.FIELD_STRENGTHEN, handlers);
+            passiveLoop((passiveEffect) => {
+                strengthen += passiveEffect.effect_size;
+            }, passiveSettingMap, EFFECT.FIELD_STRENGTHEN, argument, handlers);
+            break;
+        default:
+            break;
     }
     if (handlers.collect?.strengthen) {
         strengthen += 20;
@@ -975,7 +985,7 @@ function getSumFunnelEffectList(argument, handlers) {
                 funnelList.push(size);
             }
         }
-    }, passiveSettingMap, EFFECT_FUNNEL, handlers);
+    }, passiveSettingMap, EFFECT_FUNNEL, argument, handlers);
 
     abilityLoop((abilityEffect) => {
         let size = abilityEffect.effect_size;
@@ -983,7 +993,7 @@ function getSumFunnelEffectList(argument, handlers) {
         for (let i = 0; i < loop; i++) {
             funnelList.push(size);
         }
-    }, abilitySettingMap, EFFECT_FUNNEL, handlers);
+    }, abilitySettingMap, EFFECT_FUNNEL, argument, handlers);
 
     // 降順でソート
     funnelList.sort(function (a, b) {
@@ -1118,7 +1128,7 @@ function getSumAbilityEffectSize(argument, handlers, effectType) {
                 sumNoneEffectSize += effectSize;
             }
         }
-    }, abilitySettingMap, effectType, handlers);
+    }, abilitySettingMap, effectType, argument, handlers);
 
     abilityEffectSize += activationNoneEffectSize + sumNoneEffectSize
         + activationPhysicalEffectSize + sumPhysicalEffectSize
@@ -1126,14 +1136,14 @@ function getSumAbilityEffectSize(argument, handlers, effectType) {
 
     passiveLoop((passiveEffect, setting) => {
         abilityEffectSize += getAbilityEffectValue(passiveEffect, styleList, setting.chara_id);
-    }, passiveSettingMap, effectType, handlers);
+    }, passiveSettingMap, effectType, argument, handlers);
 
     if (resonanceList) {
         resonaceLoop((resonanceEffect, resonance) => {
             const limitCount = resonance.limitCount;
             const effectSize = resonanceEffect[`effect_limit_${limitCount}`];
             abilityEffectSize += effectSize;
-        }, resonanceList, effectType, handlers);
+        }, resonanceList, effectType, argument, handlers);
     }
     return abilityEffectSize;
 }
@@ -1365,9 +1375,14 @@ export function calcBuffEffectSize(skillMinPower, skillMaxPower, skillStat, stat
 
 // デバフ効果量
 function getDebuffEffectSize(argument, handlers, effect, buffSetting, effectType) {
-    const memberInfo = handlers.memberInfo;
-    const state = handlers.state;
+    const { memberInfo } = handlers;
+    const { state } = argument;
     if (!state) {
+        return 0;
+    }
+    // 対象チェック
+    const buffEffectList = common.getBuffEffect(effect.effect_no).filter((obj) => obj.effect_type === effectType);
+    if (buffEffectList.length === 0) {
         return 0;
     }
     let jewelLv = 0;
@@ -1385,10 +1400,6 @@ function getDebuffEffectSize(argument, handlers, effect, buffSetting, effectType
     enemyStat = Math.max(enemyStat - enemyStatDown, 0);
 
     let skillLv = buffSetting.skill_lv;
-    const buffEffectList = common.getBuffEffect(effect.effect_no).filter((obj) => obj.effect_type === effectType);
-    if (buffEffectList.length === 0) {
-        return 0;
-    }
     let status = getStatus(argument, handlers, buffEffectList[0], statUp);
     return calcDebuffEffectSize(effect, status, enemyStat, skillLv, jewelLv);
 }
@@ -1457,12 +1468,12 @@ function getEnemyDefenceRate(state) {
 // 全ステータスアップ取得
 export function getStatAllUp(argument, handler) {
     const {
-        styleList, state, abilitySettingMap, passiveSettingMap, enemyInfo
+        styleList, state, abilitySettingMap, passiveSettingMap
     } = argument;
     const {
         memberInfo, collect
     } = handler;
-
+    const enemyInfo = state.enemyInfo;
     let tearsOfDreams = 0;
     // 夢の泪
     if (enemyInfo?.enemy_class === ENEMY_CLASS.HARD_LAYER) {

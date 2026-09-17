@@ -8,17 +8,16 @@ import { getSkillData } from "utils/common";
 import * as common from "utils/common";
 import * as logic from "./logic";
 import { SKILL_ID, STATUS_KBN, COST_TYPE, EFFECT } from "utils/const";
-import { checkPawapuroExist, getCostVariable } from "./logic";
+import { checkPawapuroExist } from "./logic";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import editIcon from 'assets/img/edit.png';
 
-const CharaStatus = ({ argument: {
-    attackInfo,
-    selectBuffKeyMap,
-    buffSettingMap,
-    abilitySettingMap,
-    passiveSettingMap
-} }) => {
+const CharaStatus = ({ argument }) => {
+    const {
+        attackInfo,
+        selectBuffKeyMap,
+        buffSettingMap,
+    } = argument;
     const { styleList, setStyleList, saveStyle, loadStyle,
         setMember, loadTroops, removeMember, setLastUpdatedIndex } = useStyleList();
     const [supportTroops, setSupportTroops] = useState(false);
@@ -364,11 +363,9 @@ const CharaStatus = ({ argument: {
                                                 collect,
                                                 skillInfo: skill,
                                                 memberInfo: style,
-                                                styleList,
-                                                abilitySettingMap, passiveSettingMap
                                             };
                                             spCost += Math.floor(
-                                                getCostVariable(handlers)
+                                                logic.getCostVariable(argument, handlers)
                                             );
                                         }
                                     }

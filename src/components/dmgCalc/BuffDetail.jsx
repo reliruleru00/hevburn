@@ -3,7 +3,7 @@ import {
     BUFF, EFFECT, STATUS_KBN, JEWEL_EXPLAIN, ATTRIBUTE, COST_TYPE
 } from "utils/const";
 import {
-    getCharaIdToMember, getCostVariable
+    getCharaIdToMember
 } from "./logic";
 import { getSkillData, getPassiveInfo, getPassiveEffectList, getAbilityInfo, getAbilityEffectList } from "utils/common";
 import { BuffLineChart, DebuffLineChart } from "./SimpleLineChart";
@@ -84,8 +84,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
             buffSetting["collect"] = {};
         }
         buffSetting["collect"] = { ...buffSetting["collect"], [item]: value };;
-        buffSetting.calcEffectSize = logic.getEffectSize(argument, styleList, buffInfo, buffSetting, memberInfo, state,
-            abilitySettingMap, passiveSettingMap, resonanceList);
+        buffSetting.calcEffectSize = logic.getEffectSize(argument, buffInfo, buffSetting, memberInfo);
 
         setBuffSettingMap(updateSettingMap);
     };
@@ -110,8 +109,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
         status = logic.getStatus(argument, handlers, buffEffect, statUp);
     }
 
-    const effectSize = logic.getEffectSize(argument, styleList, buffInfo, buffSetting, memberInfo, state,
-        abilitySettingMap, passiveSettingMap, resonanceList);
+    const effectSize = logic.getEffectSize(argument, buffInfo, buffSetting, memberInfo);
 
     const jpnName = ["", "力", "器用さ", "体力", "精神", "知性", "運"];
 
@@ -178,7 +176,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
             memberInfo,
             abilitySettingMap, passiveSettingMap
         };
-        spCost = getCostVariable(handlers);
+        spCost = logic.getCostVariable(argument, handlers);
     }
 
     // バフ強化

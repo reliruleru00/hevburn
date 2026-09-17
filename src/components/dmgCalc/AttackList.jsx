@@ -4,7 +4,7 @@ import { useStyleList } from "components/StyleListProvider";
 import skillAttack from "data/skillAttack";
 import * as common from "utils/common";
 import { SKILL_ID, ATTRIBUTE, STATUS_KBN, JEWEL_TYPE, JEWEL_EXPLAIN, COST_TYPE, KIND } from 'utils/const';
-import { getCharaIdToMember, getApplyGradient, getCostVariable } from "./logic";
+import { getCharaIdToMember, getApplyGradient } from "./logic";
 import * as logic from "./logic";
 import attribute from 'assets/attribute';
 import { AttackLineChart } from "./SimpleLineChart";
@@ -230,10 +230,6 @@ const YamawakiServant = ({ attackInfo, setAttackInfo }) => {
 const AttackDetail = ({ argument, attackInfo, setAttackInfo, selectSkillLv, closeModal }) => {
     const styleList = argument.styleList;
     const state = argument.state;
-    const abilitySettingMap = argument.abilitySettingMap;
-    const passiveSettingMap = argument.passiveSettingMap;
-    const resonanceList = argument.resonanceList;
-
     const minPower = attackInfo.min_power * (1 + 0.05 * (selectSkillLv - 1));
     const maxPower = attackInfo.max_power * (1 + 0.02 * (selectSkillLv - 1));
 
@@ -268,7 +264,7 @@ const AttackDetail = ({ argument, attackInfo, setAttackInfo, selectSkillLv, clos
     // 消費SP
     let spCost = 0;
     if (skillInfo.cost_type === COST_TYPE.SP) {
-        spCost = getCostVariable(handlers);
+        spCost = logic.getCostVariable(argument, handlers);
     }
     return (
         <div className="modal text-left mx-auto p-6">

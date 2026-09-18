@@ -558,7 +558,7 @@ export function getBestBuffKeys(buffKey, kindBuffList, buffSettingMap, overlap) 
             if (isSelectBuff(effect)) {
                 // 重複排除モード
                 const current = map.get(effect.skill_id);
-                if (!current || effect.buff_id < current.buff_id) {
+                if (!current || effect.effect_id < current.effect_id) {
                     map.set(effect.skill_id, effect);
                 }
             } else {

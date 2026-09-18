@@ -62,8 +62,8 @@ export function getBuffList(skillId) {
 }
 
 // バフ情報取得
-export function getBuffIdToEffect(buffId) {
-  const filteredBuff = skillEffect.filter((obj) => obj.buff_id === Number(buffId));
+export function getBuffIdToEffect(effectId) {
+  const filteredBuff = skillEffect.filter((obj) => obj.effect_id === Number(effectId));
   return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
 }
 

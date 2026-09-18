@@ -49,7 +49,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                 const innerMap = {};
                 buffList.forEach(buff => {
                     innerMap[buff.key] = {
-                        buff_id: buff.buff_id,
+                        effect_id: buff.effect_id,
                         skill_lv: buff.max_lv,
                         buffInfo: buff,
                         troopKbn: buff.troopKbn,

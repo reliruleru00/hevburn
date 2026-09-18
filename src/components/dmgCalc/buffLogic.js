@@ -1,6 +1,6 @@
 import {
     BUFF, EFFECT, RANGE, ROLE
-    , CHARA_ID, STYLE_ID, BUFF_ID, ABILITY_ID
+    , CHARA_ID, STYLE_ID, EFFECT_ID, ABILITY_ID
 } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
@@ -226,12 +226,12 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 (buff.style_id === styleId || buff.style_id === 0) &&
                 filterBuff.includes(buff.effect_type)
             ).filter(buff => {
-                switch (buff.buff_id) {
-                    case BUFF_ID.MOON_LIGHT: // 月光(歌姫の加護)
+                switch (buff.effect_id) {
+                    case EFFECT_ID.MOON_LIGHT: // 月光(歌姫の加護)
                         return styleId === STYLE_ID.ONLY_MOON_LIGHT;
-                    case BUFF_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
+                    case EFFECT_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
                         return attackInfo?.servantCount >= 5;
-                    case BUFF_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
+                    case EFFECT_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
                         return attackInfo?.servantCount === 6;
                     default:
                         break;
@@ -250,7 +250,7 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
 
             const newStyleBuffList = JSON.parse(JSON.stringify(styleBuffList));
             newStyleBuffList.forEach(buff => {
-                buff.key = `buff_${buff.buff_id}_${charaId}`;
+                buff.key = `buff_${buff.effect_id}_${charaId}`;
                 buff.chara_name = charaName;
                 buff.use_chara_id = charaId;
                 buff.kbn = "buff";

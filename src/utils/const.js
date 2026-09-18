@@ -56,6 +56,16 @@ export const BUFF_ID = {
     BRIGHT_RED: 1037,   // 茜色
 }
 
+export const EFFECT_ID = {
+    TRICK_CANNON: 2,   // トリック・カノン
+    MOON_LIGHT: 2607,   // 月光
+    MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
+    MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
+    PERFECT_COLOR: 557,   // 極彩色
+    FULL_MEDITATION: 490,   // 追い込み！全力メドレー
+    BRIGHT_RED: 1037,   // 茜色
+}
+
 // 追加SPアビリティ
 export const ADD_SP_ABILITY = [
     1109, // 吉報

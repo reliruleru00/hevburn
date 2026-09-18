@@ -1,21 +1,18 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactModal from "react-modal";
 import { useStyleList } from "components/StyleListProvider";
 import {
-    BUFF, EFFECT, RANGE, ROLE
-    , CHARA_ID, STYLE_ID, BUFF_ID, ABILITY_ID
+    BUFF, EFFECT, RANGE
 } from "utils/const";
-import * as constants from "utils/const";
 import * as common from "utils/common";
 import * as logic from "./logic";
+import * as buffLogic from "./buffLogic.js";
 import BuffField from "./BuffField";
 import AbilityCheckbox from "./AbilityCheckbox";
 import PassiveCheckbox from "./PassiveCheckbox";
 import Resonance from "./Resonance";
 import BuffBulkSetting from "./BuffBulkSetting";
 import BuffDetail from "./BuffDetail";
-import skillList from "data/skillList";
-import skillEffect from "data/skillEffect";
 
 const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList, resonanceList, isWeak, selectList }) => {
     const {
@@ -66,7 +63,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
         });
         refBuffSettingMap.current = initialMap;
         setBuffSettingMap(initialMap);
-    }, [buffGroup]);
+    }, [buffGroup, setBuffSettingMap]);
 
     // アビリティ初期化
     useEffect(() => {
@@ -122,7 +119,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
         });
         // refAbilitySettingMap.current = initialMap;
         setAbilitySettingMap(initialMap);
-    }, [styleList, abilityList, attackCharaId]);
+    }, [styleList, abilityList, attackCharaId, setAbilitySettingMap]);
 
     // パッシブ初期化
     useEffect(() => {
@@ -140,7 +137,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
         });
         // refPassiveSettingMap.current = initialMap;
         setPassiveSettingMap(initialMap);
-    }, [passiveList]);
+    }, [passiveList, setPassiveSettingMap]);
 
     // バフ効果量更新
     useEffect(() => {
@@ -213,7 +210,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                     !(logic.isAloneActivation(buffInfo) || logic.isOnlyBuff(attackInfo, buffInfo) || logic.isOnlyUse(attackInfo, buffInfo))
                 ),
             ];
-            const overlap = isOverlap(attackUpBuffs, defDownBuffs, criticalBuffs, buffKey);
+            const overlap = buffLogic.isOverlap(attackUpBuffs, defDownBuffs, criticalBuffs, buffKey);
             handleSelectChange(buffKey, logic.getBestBuffKeys(buffKey, buffItemList, refBuffSettingMap.current, overlap));
         })
     }
@@ -234,7 +231,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
 
     // 選択内から最良を設定
     const setBestBuff = (buffKey, buffItemList) => {
-        const overlap = isOverlap(attackUpBuffs, defDownBuffs, criticalBuffs, buffKey);
+        const overlap = buffLogic.isOverlap(attackUpBuffs, defDownBuffs, criticalBuffs, buffKey);
         const bestKeys = logic.getBestBuffKeys(buffKey, buffItemList, buffSettingMap, overlap);
         handleSelectChange(buffKey, bestKeys);
     }
@@ -518,13 +515,5 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
         </div >
     )
 };
-
-
-export const isOverlap = (attackUpBuffs, defDownBuffs, criticalBuffs, key) => {
-    const match1 = attackUpBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
-    const match2 = defDownBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
-    const match3 = criticalBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
-    return match1?.overlap || match2?.overlap || match3?.overlap;
-}
 
 export default BuffArea;

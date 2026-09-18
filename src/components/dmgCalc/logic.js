@@ -9,6 +9,7 @@ import buffEffect from 'data/buffEffect';
 import scoreBonusList from "data/scoreBonus";
 import * as common from "utils/common";
 import * as constants from 'utils/const';
+import * as buffLogic from "./buffLogic.js";
 
 export const ATTACK_BUFF_LIST = [
     BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.MINDEYE, BUFF.FUNNEL, BUFF.DAMAGERATEUP,
@@ -17,7 +18,7 @@ export const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
     BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN, BUFF.ETERNAL_FRAGILE];
 
-export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP]
+export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
 export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
 export const TROOP_KBN = {
     MAIN: "1",
@@ -250,22 +251,6 @@ const getJwewelLv = (memberInfo, effect) => {
         jewelLv = memberInfo.jewelLv;
     }
     return jewelLv;
-}
-
-
-export function getAbilityEffectSize(abilityId, effect) {
-    if (abilityId === ABILITY_ID.KISHIN) {
-        // 鬼神
-        switch (effect.buff_no) {
-            case BUFF.MINDEYE: // 心眼
-                return 120;
-            case BUFF.FUNNEL: // 連撃
-                return 75;
-            default:
-                break;
-        }
-    }
-    return 0;
 }
 
 // コスト変更
@@ -887,6 +872,10 @@ export function getSumEffectSize(argument, grant, effectType) {
     }
     buffKindList.forEach(buffKind => {
         const buffKey = getBuffKey(grant, buffKind);
+        // バフ一覧に存在しないキーは除外
+        if (!buffLogic.isExistBuff(attackUpBuffs, defDownBuffs, criticalBuffs, buffKey)) {
+            return;
+        }
         const selectedKeys = selectBuffKeyMap[buffKey];
         if (selectedKeys) {
             selectedKeys.forEach((selectedKey, index) => {

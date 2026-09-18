@@ -19,7 +19,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     const {
         styleList, state,
         buffSettingMap, setBuffSettingMap,
-        abilitySettingMap, passiveSettingMap, resonanceList,
+        abilitySettingMap, passiveSettingMap,
     } = argument;
     const charaId = buffInfo.use_chara_id;
     const memberInfo = getCharaIdToMember(styleList, charaId);
@@ -366,31 +366,27 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     )
 }
 
-
 const getBuffEffectDisplay = (effect, skillLv) => {
-    let minPower;
-    let maxPower;
     switch (effect.effect_type) {
         case EFFECT.FIELD_DEPLOYMENT:
             return `${effect.effect_size.toLocaleString()}%`;
         case EFFECT.GRANT_BUFF:
             switch (effect.effect_no) {
                 case BUFF.FUNNEL:
-                    let unit = effect.effect_size;
-                    minPower = effect.min_power;
-                    maxPower = effect.max_power;
-                    if (minPower === maxPower) {
-                        return `${unit}%×${minPower}Hit`
-                    } else {
-                        return `${unit}%×${minPower}Hit～${maxPower}Hit`
-                    }
+                    const unit = effect.effect_size;
+                    const effectCount = effect.effect_count;
+                    return `${unit}%×${effectCount}Hit`
                 default:
+                    let minPower;
+                    let maxPower;
+                    const skillMin = effect.effect_size ?? effect.min_power;
+                    const skillMax = effect.effect_size ?? effect.min_power;
                     if (BUFF_LIST.includes(effect.effect_no)) {
-                        minPower = effect.min_power * (1 + 0.03 * (skillLv - 1));
+                        minPower = skillMin * (1 + 0.03 * (skillLv - 1));
                     } else {
-                        minPower = effect.min_power * (1 + 0.05 * (skillLv - 1));
+                        minPower = skillMin * (1 + 0.05 * (skillLv - 1));
                     }
-                    maxPower = effect.max_power * (1 + 0.02 * (skillLv - 1));
+                    maxPower = skillMax * (1 + 0.02 * (skillLv - 1));
                     if (minPower === maxPower) {
                         return `${minPower.toLocaleString()}%`
                     } else {

@@ -39,8 +39,6 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
     });
 
     const refBuffSettingMap = useRef(buffSettingMap);
-    // const refAbilitySettingMap = useRef(abilitySettingMap);
-    // const refPassiveSettingMap = useRef(passiveSettingMap);
 
     // バフ初期化
     useEffect(() => {
@@ -135,7 +133,6 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                 checked: true,
             }
         });
-        // refPassiveSettingMap.current = initialMap;
         setPassiveSettingMap(initialMap);
     }, [passiveList, setPassiveSettingMap]);
 
@@ -239,7 +236,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
     // バフ一括設定
     const setMultiBuff = (settingBuffList) => {
         Object.keys(buffKeyList).forEach(buffKey => {
-            const buffNo = Number(buffKey.split('-')[1]);
+            const [effectType, buffNo] = buffKey.split('-').map(Number);
             const buffItemList = Object.entries(settingBuffList).flatMap(([key, count]) => {
                 if (count === 0) return [];
                 const buffList = [];
@@ -250,7 +247,8 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                 })
                 const [skillId, charaId] = key.split('-').map(Number);
                 const matchedBuffs = buffList.filter(buffInfo =>
-                    buffInfo.effect_no === buffNo &&
+                    buffInfo.effect_type === effectType &&
+                    (buffInfo.effect_no ?? 0) === buffNo &&
                     buffInfo.skill_id === skillId &&
                     buffInfo.use_chara_id === charaId
                 );
@@ -270,12 +268,27 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
     }, [state.enemyInfo, attackInfo?.attack_id, resistDownEffectSize]);
 
     useEffect(() => {
+        const BUFF_KEY_LIST = [
+            logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.MINDEYE),
+            logic.getBuffKey(EFFECT.GRANT_DEBUFF, BUFF.FRAGILE),
+            logic.getBuffKey(EFFECT.GRANT_DEBUFF, BUFF.ETERNAL_FRAGILE),
+        ]
+
         if (attackInfo) {
-            let resistKey = {};
-            resistKey[logic.getBuffKey(EFFECT.GRANT_BUFF, BUFF.MINDEYE)] = []
-            resistKey[logic.getBuffKey(EFFECT.GRANT_DEBUFF, BUFF.FRAGILE)] = []
-            resistKey[logic.getBuffKey(EFFECT.GRANT_DEBUFF, BUFF.ETERNAL_FRAGILE)] = []
-            selectBestBuff(resistKey);
+            if (isWeak) {
+                if (checkUpdate) {
+                    let resistKey = {};
+                    BUFF_KEY_LIST.forEach(buffKey => {
+                        resistKey[buffKey] = [];
+                    })
+                    selectBestBuff(resistKey);
+                } else {
+                    BUFF_KEY_LIST.forEach(buffKey => {
+                        handleSelectChange(buffKey, []);
+                    })
+
+                }
+            }
         }
     }, [isWeak]);
 

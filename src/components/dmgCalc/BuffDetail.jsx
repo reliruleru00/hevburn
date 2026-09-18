@@ -30,7 +30,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
 
     let effect = null;
     // バフ強化対象
-    let strengthen = false;
+    let targetStrengthen = false;
     switch (buffInfo.effect_type) {
         case EFFECT.GRANT_BUFF:
             switch (buffInfo.effect_no) {
@@ -49,13 +49,13 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                     effect = EFFECT.ATTACKUP;
                     break;
                 default:
-                    strengthen = true;
+                    targetStrengthen = true;
                     effect = EFFECT.ATTACKUP;
                     break;
             }
             break;
         case EFFECT.GRANT_DEBUFF:
-            strengthen = true;
+            targetStrengthen = true;
             switch (buffInfo.effect_no) {
                 case BUFF.FRAGILE: // 脆弱
                 case BUFF.ETERNAL_FRAGILE: // 永続脆弱
@@ -180,13 +180,14 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     }
 
     // バフ強化
-    if (strengthen && EFFECT.ATTACKUP === effect) {
+    let strengthen = false;
+    if (targetStrengthen && EFFECT.ATTACKUP === effect) {
         let troopsBuff = logic.getCharaIdToTroopKbn(styleList, constant.CHARA_ID.STRENGTH_BUFF);
         if (buffInfo.troopKbn === troopsBuff) {
             strengthen = true;
         }
     }
-    if (strengthen && isDebuffChart) {
+    if (targetStrengthen && isDebuffChart) {
         if (charaId === CHARA_ID.MIYA) {
             strengthen = true;
         }

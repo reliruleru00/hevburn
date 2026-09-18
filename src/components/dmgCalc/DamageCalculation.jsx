@@ -199,7 +199,7 @@ const reducer = (state, action) => {
 const DamageCalculation = () => {
     const { styleList } = useStyleList();
     const [attackInfo, setAttackInfo] = useState(undefined);
-    const [selectSkillLv, setSelectSkillLv] = useState(undefined);
+    const [selectAttackSkillLv, setSelectAttackSkillLv] = useState(undefined);
     // バフ設定マップの状態管理
     // 攻撃力アップ/1個目/エンハンス=効果量 の形
     const [buffSettingMap, setBuffSettingMap] = useState({});
@@ -296,16 +296,15 @@ const DamageCalculation = () => {
         Object.keys(newBuffSettingMap).forEach(buffKey =>
             newBuffSettingMap[buffKey].forEach((buffList, index) => {
                 if (!selectBuffKeyMap[buffKey] || selectBuffKeyMap[buffKey].length <= index) return;
-                let buffSelect = selectBuffKeyMap[buffKey][index];
-                if (buffSelect) {
-                    const buffSetting = buffList[buffSelect];
-                    if (!buffSetting) return;
-                    let buffInfo = buffSetting.buffInfo;
+
+                Object.keys(buffList).forEach((buffkey) => {
+                    const buffSetting = buffList[buffkey];
+                    const buffInfo = buffSetting.buffInfo;
                     const charaId = buffInfo.use_chara_id;
                     const memberInfo = getCharaIdToMember(styleList, charaId);
                     buffSetting["collect"] = collect;
                     buffSetting.calcEffectSize = logic.getEffectSize(argument, buffInfo, buffSetting, memberInfo);
-                }
+                })
             })
         );
         setBuffSettingMap(newBuffSettingMap);
@@ -351,7 +350,9 @@ const DamageCalculation = () => {
     }, [attackInfo?.attack_id, selectList, supportList]);
 
     const argument = {
-        attackInfo, setAttackInfo, styleList, state, dispatch, otherSetting,
+        styleList, state, dispatch, otherSetting,
+        attackInfo, setAttackInfo,
+        selectAttackSkillLv, setSelectAttackSkillLv,
         selectBuffKeyMap, setSelectBuffKeyMap,
         buffSettingMap, setBuffSettingMap,
         abilitySettingMap, setAbilitySettingMap,
@@ -359,14 +360,14 @@ const DamageCalculation = () => {
         resonanceList, attackUpBuffs, defDownBuffs, criticalBuffs,
     };
 
-    let damageResult = getDamageResult(argument, selectSkillLv);
+    let damageResult = getDamageResult(argument, selectAttackSkillLv);
 
     return (
         <div className="damage_frame pt-3">
             <div className="display_area mx-auto">
                 <div className="status_area mx-auto">
                     <CharaStatus argument={argument} />
-                    <AttackList argument={argument} selectSkillLv={selectSkillLv} setSelectSkillLv={setSelectSkillLv} />
+                    <AttackList argument={argument} />
                     <ContentsArea attackInfo={attackInfo} enemyClass={enemyClass}
                         enemySelect={enemySelect} setEnemyClass={setEnemyClass} setEnemySelect={setEnemySelect}
                         state={state} dispatch={dispatch} />

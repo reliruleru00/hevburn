@@ -6,7 +6,7 @@ const buffEffect = [
     {"buff_kbn":4,"effect_type":2,"ref_status_1":5,"ref_status_2":6},
     {"buff_kbn":5,"effect_type":2,"ref_status_1":6,"ref_status_2":5},
     {"buff_kbn":6,"effect_type":3,"ref_status_1":5,"ref_status_2":0},
-    {"buff_kbn":7,"effect_type":4,"ref_status_1":5,"ref_status_2":0},
+    {"buff_kbn":7,"effect_type":4,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":8,"effect_type":3,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":9,"effect_type":4,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":10,"effect_type":1,"effect_size":30,"ref_status_1":5,"ref_status_2":0},

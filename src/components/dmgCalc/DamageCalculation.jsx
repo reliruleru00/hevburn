@@ -322,7 +322,7 @@ const DamageCalculation = () => {
     let isDp = Number(state.dpRate[0]) !== 0;
 
     const attackUpBuffs = buffLogic.getAttackUpBuffs(isElement, isWeak, isDamageRate, attackInfo, styleList.selectStyleList);
-    const defDownBuffs = buffLogic.getDefenseDownBuffs(isElement, isWeak, isDp);
+    const defDownBuffs = buffLogic.getDefenseDownBuffs(isElement, isWeak, isDp, styleList.selectStyleList);
     const criticalBuffs = buffLogic.getCriticalBuffs(isElement);
 
     let attackCharaId = attackInfo?.chara_id;

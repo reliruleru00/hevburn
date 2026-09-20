@@ -192,6 +192,7 @@ export const BUFF = {
     REVENGE: 60, // リベンジ(重複してる・・・)
     TEA: 61, // ティー
     ETERNAL_ATTACKUP: 62, // 永続攻撃力アップ
+    LNFANTILIZED: 63, // 幼児退行
     DISPEL: 90, // ディスペル
     ABILITY_FUNNEL: 116, // アビリティ連撃
 }
@@ -361,6 +362,7 @@ export const CONDITIONS = {
     INVINCIBLE: 58, // インビジブル発動中
     RANDOM_MEAL: 59, // ランダム料理
     IS_WEAK: 60, // 弱点を突いている
+    DP_UNDER_50: 61, // DP50％以下
 }
 
 /** 敵リスト*/

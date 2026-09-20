@@ -1,10 +1,11 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine, Label, Tooltip } from 'recharts';
 import { calcAttackEffectSize, calcBuffEffectSize, calcDebuffEffectSize } from './logic';
+import * as common from "utils/common";
 
 export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, jewelLv, skillLv }) {
     const data1 = [];
     const data2 = [];
-    const skillStat = attackInfo.param_limit;
+    const skillStat = attackInfo.param_limit ?? 0;
     const minPower = attackInfo.min_power * (1 + 0.05 * (skillLv - 1));
     const maxPower = attackInfo.max_power * (1 + 0.02 * (skillLv - 1));
     const tickMinPower = Math.floor(minPower + attackInfo.min_power * (jewelLv * 0.02));
@@ -39,18 +40,21 @@ export function AttackLineChart({ attackInfo, status, enemyStat, enemyStatDown, 
     );
 }
 
-export function BuffLineChart({ buffInfo: effect, status, jewelLv, skillLv }) {
+export function BuffLineChart({ buffInfo: effect, status, jewelLv, skillLv, effectType }) {
     const data = [];
-    const skillStat = effect.param_limit;
-    const minPower = effect.min_power * (1 + 0.03 * (skillLv - 1));
-    const maxPower = effect.max_power * (1 + 0.02 * (skillLv - 1));
-    const tickMinPower = Math.floor(minPower + effect.min_power * (jewelLv * 0.04));
-    const tickMaxPower = Math.floor(maxPower + effect.max_power * (jewelLv * 0.04));
+    const skillStat = effect.param_limit ?? 0;
+    const buffEffect = common.getBuffEffectType(effect.effect_no, effectType);
+    const skillMin = buffEffect.effect_size ?? effect.effect_size ?? effect.min_power;
+    const skillMax = buffEffect.effect_size ?? effect.effect_size ?? effect.max_power;
+    const minPower = skillMin * (1 + 0.03 * (skillLv - 1));
+    const maxPower = skillMax * (1 + 0.02 * (skillLv - 1));
+    const tickMinPower = Math.floor(minPower + skillMin * (jewelLv * 0.04));
+    const tickMaxPower = Math.floor(maxPower + skillMax * (jewelLv * 0.04));
 
     let min = 0;
     let max = Math.max(status, skillStat + 300) + 30;
     for (let x = min; x <= max; x++) {
-        data.push({ x: x, y: calcBuffEffectSize(effect.min_power, effect.max_power, skillStat, x, skillLv, jewelLv) });
+        data.push({ x: x, y: calcBuffEffectSize(minPower, maxPower, skillStat, x, skillLv, jewelLv) });
     }
 
     return (
@@ -73,13 +77,16 @@ export function BuffLineChart({ buffInfo: effect, status, jewelLv, skillLv }) {
     );
 }
 
-export function DebuffLineChart({ buffInfo: effect, status, enemyStat, jewelLv, skillLv }) {
+export function DebuffLineChart({ buffInfo: effect, status, enemyStat, jewelLv, skillLv, effectType }) {
     const data = [];
-    const skillStat = effect.param_limit;
-    const minPower = effect.min_power * (1 + 0.05 * (skillLv - 1));
-    const maxPower = effect.max_power * (1 + 0.02 * (skillLv - 1));
-    const tickMinPower = Math.floor(minPower + effect.min_power * (jewelLv * 0.02));
-    const tickMaxPower = Math.floor(maxPower + effect.max_power * (jewelLv * 0.02));
+    const skillStat = effect.param_limit ?? 0;
+    const buffEffect = common.getBuffEffectType(effect.effect_no, effectType);
+    const skillMin = buffEffect.effect_size ?? effect.effect_size ?? effect.min_power;
+    const skillMax = buffEffect.effect_size ?? effect.effect_size ?? effect.max_power;
+    const minPower = skillMin * (1 + 0.05 * (skillLv - 1));
+    const maxPower = skillMax * (1 + 0.02 * (skillLv - 1));
+    const tickMinPower = Math.floor(minPower + skillMin * (jewelLv * 0.02));
+    const tickMaxPower = Math.floor(maxPower + skillMax * (jewelLv * 0.02));
 
     let min = Math.min(status, enemyStat) - 30;
     let max = Math.max(status, enemyStat + skillStat + 100) + 30;

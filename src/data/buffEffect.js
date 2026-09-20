@@ -32,7 +32,7 @@ const buffEffect = [
     {"buff_kbn":30,"effect_type":1,"effect_size":20,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":31,"effect_type":1,"effect_size":100,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":32,"effect_type":45,"ref_status_1":0,"ref_status_2":0},
-    {"buff_kbn":33,"effect_type":1,"effect_size":20,"ref_status_1":0,"ref_status_2":0},
+    {"buff_kbn":33,"effect_type":1,"effect_size":20,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":34,"effect_type":1,"effect_size":5,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":35,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":36,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
@@ -80,6 +80,7 @@ const buffEffect = [
     {"buff_kbn":60,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":61,"effect_type":1,"effect_size":50,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":62,"effect_type":1,"ref_status_1":5,"ref_status_2":0},
+    {"buff_kbn":63,"effect_type":2,"effect_size":90},
     {"buff_kbn":90,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":116,"effect_type":0,"ref_status_1":5,"ref_status_2":0},
 ];

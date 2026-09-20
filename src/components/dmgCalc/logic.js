@@ -186,14 +186,14 @@ export function getEffectSize(argument, effect, buffSetting, memberInfo) {
                     break;
                 case BUFF.CRITICALRATEUP: // クリティカル率アップ
                 case BUFF.ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
-                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICALRATEUP);
+                    effectSize = getBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICALRATEUP);
                     break;
                 case BUFF.CRITICALDAMAGEUP: // クリティカルダメージアップ
                 case BUFF.ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
-                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICAL_DAMAGE_UP);
+                    effectSize = getBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.CRITICAL_DAMAGE_UP);
                     break;
                 default:
-                    effectSize = getGeantBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.ATTACKUP);
+                    effectSize = getBuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.ATTACKUP);
                     break;
             }
             break;
@@ -213,22 +213,6 @@ export function getEffectSize(argument, effect, buffSetting, memberInfo) {
             break;
     }
     return effectSize * (1 + strengthen / 100);
-}
-
-const getGeantBuffEffectSize = (argument, handlers, effect, buffSetting, effectType) => {
-    // 固定量のバフ
-    if (effect.effect_size) {
-        return effect.effect_size;
-    }
-
-    const buffEffectList = common.getBuffEffect(effect.effect_no).filter((obj) => obj.effect_type === effectType);
-    if (buffEffectList.length === 0) {
-        return 0;
-    }
-    const buffEffect = buffEffectList[0];
-    const jewelLv = getJwewelLv(handlers.memberInfo, effect);
-
-    return getBuffEffectSize(argument, handlers, effect, buffEffect, buffSetting, jewelLv);
 }
 
 const getJwewelLv = (memberInfo, effect) => {
@@ -1323,18 +1307,24 @@ const getStatusUnit = (argument, handlers, strStatus) => {
 }
 
 // バフ効果量取得
-function getBuffEffectSize(argument, handlers, buffInfo, effect, buffSetting, jewelLv) {
+function getBuffEffectSize(argument, handlers, effect, buffSetting, effectType) {
+    const buffEffect = common.getBuffEffectType(effect.effect_no, effectType);
+    if (!buffEffect) {
+        return 0;
+    }
     // ステータスによる補正無し
-    if (effect.effect_size && !effect.ref_status_1) {
-        return effect.effect_size;
+    if (!buffEffect.ref_status_1) {
+        return effect.effect_size ?? buffEffect.effect_size ?? 0;
     }
     // ステータス
-    let statUp = getStatAllUp(argument, handlers);
-    let status = getStatus(argument, handlers, effect, statUp);
-    let minPower = effect.effect_size ? effect.effect_size : buffInfo.min_power;
-    let maxPower = effect.effect_size ? effect.effect_size : buffInfo.max_power;
-    let skillStat = buffInfo.param_limit ?? 0;
-    let skillLv = buffSetting.skill_lv;
+    const statUp = getStatAllUp(argument, handlers);
+    const status = getStatus(argument, handlers, buffEffect, statUp);
+    const skillLv = buffSetting.skill_lv;
+    const jewelLv = getJwewelLv(handlers.memberInfo, effect);
+    // バフ自体の規定値、固定の値、可変の順
+    const minPower = buffEffect.effect_size ?? effect.effect_size ?? effect.min_power;
+    const maxPower = buffEffect.effect_size ?? effect.effect_size ?? effect.max_power;
+    const skillStat = effect.param_limit ?? 0;
     return calcBuffEffectSize(minPower, maxPower, skillStat, status, skillLv, jewelLv);
 }
 
@@ -1366,17 +1356,21 @@ export function calcBuffEffectSize(skillMinPower, skillMaxPower, skillStat, stat
 function getDebuffEffectSize(argument, handlers, effect, buffSetting, effectType) {
     const { memberInfo } = handlers;
     const { state } = argument;
-    if (!state) {
-        return 0;
-    }
     // 対象チェック
-    const buffEffectList = common.getBuffEffect(effect.effect_no).filter((obj) => obj.effect_type === effectType);
-    if (buffEffectList.length === 0) {
+    const buffEffect = common.getBuffEffectType(effect.effect_no, effectType);
+    if (!buffEffect) {
         return 0;
     }
     let jewelLv = 0;
     if (memberInfo.styleInfo && memberInfo.styleInfo.jewel_type === JEWEL_TYPE.SKILL_DEBUFFUP) {
         jewelLv = memberInfo.jewelLv;
+    }
+    // ステータスによる補正無し
+    if (!buffEffect.ref_status_1) {
+        return (effect.effect_size ?? buffEffect.effect_size ?? 0) * (1 + jewelLv * 0.02);
+    }
+    if (!state) {
+        return 0;
     }
     // ステータス
     let statUp = getStatAllUp(argument, handlers);
@@ -1389,7 +1383,7 @@ function getDebuffEffectSize(argument, handlers, effect, buffSetting, effectType
     enemyStat = Math.max(enemyStat - enemyStatDown, 0);
 
     let skillLv = buffSetting.skill_lv;
-    let status = getStatus(argument, handlers, buffEffectList[0], statUp);
+    let status = getStatus(argument, handlers, buffEffect, statUp);
     return calcDebuffEffectSize(effect, status, enemyStat, skillLv, jewelLv);
 }
 

@@ -78,6 +78,11 @@ export function getBuffEffect(buffKbn) {
   return buffEffect.filter((obj) => obj.buff_kbn === Number(buffKbn));
 }
 
+export function getBuffEffectType(buffKbn, effectType) {
+    const filteredBuffEffect = getBuffEffect(buffKbn).filter((obj) => obj.effect_type === effectType);
+    return filteredBuffEffect.length> 0 ? filteredBuffEffect[0] : undefined;
+}
+
 // アビリティ情報取得
 export function getAbilityInfo(abilityId) {
   const filteredAbility = abilityList.filter((obj) => obj.ability_id === Number(abilityId));

@@ -389,10 +389,13 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                         </tr>
                         {defDownBuffs.map((buffDef, index) => {
                             const buffKey = `${logic.getBuffKey(buffDef.effect, buffDef.kind)}`
+                            const totalRowCount = defDownBuffs.reduce((sum, buff) => {
+                                return sum + (buff.overlap ? 2 : 1);
+                            }, 0);
                             return (
                                 <BuffField key={buffKey}
                                     index={index}
-                                    rowSpan={defDownBuffs.length * 2}
+                                    rowSpan={totalRowCount}
                                     buffDef={buffDef}
                                     buffKey={buffKey}
                                     attackInfo={attackInfo}

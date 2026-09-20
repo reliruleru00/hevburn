@@ -26,11 +26,17 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     const enemyInfo = state.enemyInfo;
     const buffKey = logic.getBuffKey(buffInfo.effect_type, buffInfo.effect_no);
     const buffSetting = buffSettingMap[buffKey][index][buffInfo.key];
-    const skillInfo = getSkillData(buffInfo.skill_id);
+    let skillInfo = {};
+    if (buffInfo.kbn === "buff") {
+        skillInfo = getSkillData(buffInfo.skill_id);
+    }
 
     let effect = null;
     // バフ強化対象
     let targetStrengthen = false;
+    // ジュエル強化対象
+    let targetJewelType = 0;
+
     switch (buffInfo.effect_type) {
         case EFFECT.GRANT_BUFF:
             switch (buffInfo.effect_no) {
@@ -40,6 +46,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                 case BUFF.CRITICALRATEUP: // クリティカル率アップ
                 case BUFF.ELEMENT_CRITICALRATEUP: // 属性クリティカル率アップ
                     effect = EFFECT.CRITICALRATEUP;
+                    targetJewelType = JEWEL_TYPE.CRITICALRATE_UP;
                     break;
                 case BUFF.CRITICALDAMAGEUP: // クリティカルダメージアップ
                 case BUFF.ELEMENT_CRITICALDAMAGEUP: // 属性クリティカルダメージアップ
@@ -48,14 +55,21 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                 case BUFF.MINDEYE: // 心眼
                     effect = EFFECT.ATTACKUP;
                     break;
-                default:
+                case BUFF.ATTACKUP: // 攻撃アップ
+                case BUFF.ELEMENT_ATTACKUP: // 属性攻撃アップ
+                case BUFF.ETERNAL_ATTACKUP: // 永続攻撃アップ
                     targetStrengthen = true;
+                    targetJewelType = JEWEL_TYPE.ATTACK_UP;
+                    effect = EFFECT.ATTACKUP;
+                    break;
+                default:
                     effect = EFFECT.ATTACKUP;
                     break;
             }
             break;
         case EFFECT.GRANT_DEBUFF:
             targetStrengthen = true;
+            targetJewelType = JEWEL_TYPE.SKILL_DEBUFFUP;
             switch (buffInfo.effect_no) {
                 case BUFF.FRAGILE: // 脆弱
                 case BUFF.ETERNAL_FRAGILE: // 永続脆弱
@@ -73,9 +87,8 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
             effect = buffInfo.effect_type;
             break;
     }
-    const isBuffChart = BUFF_LIST.includes(effect);
-    const isDebuffChart = DEBUFF_LIST.includes(effect);
-    const isJewel = isDebuffChart || BUFF_LIST.includes(effect);
+    let isBuffChart = BUFF_LIST.includes(effect);
+    let isDebuffChart = DEBUFF_LIST.includes(effect);
 
     const changeBuffSetting = (item, value) => {
         const updateSettingMap = { ...buffSettingMap };
@@ -106,7 +119,12 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     let buffEffect = null;
     if (isBuffChart || isDebuffChart) {
         buffEffect = common.getBuffEffect(buffInfo.effect_no).filter((obj) => obj.effect_type === effect)[0];
-        status = logic.getStatus(argument, handlers, buffEffect, statUp);
+        if (!buffEffect.ref_status_1) {
+            isBuffChart = false;
+            isDebuffChart = false;
+        } else {
+            status = logic.getStatus(argument, handlers, buffEffect, statUp);
+        }
     }
 
     const effectSize = logic.getEffectSize(argument, buffInfo, buffSetting, memberInfo);
@@ -161,9 +179,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     // 宝珠レベル
     let jewelLv = 0;
     const jewelType = memberInfo.styleInfo.jewel_type;
-    if ((DEBUFF_LIST.includes(effect) && jewelType === JEWEL_TYPE.SKILL_DEBUFFUP) ||
-        (effect === EFFECT.ATTACKUP && jewelType === JEWEL_TYPE.SKILL_ATTACKUP) ||
-        (effect === EFFECT.CRITICALRATEUP && jewelType === JEWEL_TYPE.CRITICALRATE_UP)) {
+    if (jewelType === targetJewelType) {
         jewelLv = memberInfo.jewelLv;
     }
 
@@ -210,7 +226,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                 <span>スキル</span>
                 <span>{buffInfo.buff_name}</span>
                 <span>効果量</span>
-                <span>{getBuffEffectDisplay(buffInfo, buffSetting.skill_lv)}</span>
+                <span>{getBuffEffectDisplay(buffInfo, buffSetting.skill_lv, effect)}</span>
                 <div></div>
                 <span>(スキルLv{buffSetting.skill_lv})</span>
                 <div>消費SP</div>
@@ -248,7 +264,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                         </div>
                     </>
                 }
-                {buffEffect && buffEffect.ref_status_1 !== 0 &&
+                {buffEffect && buffEffect.ref_status_1 &&
                     <>
                         <span>参照ステータス</span>
                         <span>
@@ -264,13 +280,14 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
             </div>
             {isBuffChart &&
                 <>
-                    <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                    <BuffLineChart status={Math.floor(status)} buffInfo={buffInfo} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} effectType={effect} />
                     <div className="text-right text-sm">※バフ強化適用前の効果量です</div>
                 </>
             }
             {isDebuffChart &&
                 <>
-                    <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown} jewelLv={jewelLv} skillLv={buffSetting.skill_lv} />
+                    <DebuffLineChart status={Math.floor(status)} buffInfo={buffInfo} enemyStat={enemyStat - enemyStatDown}
+                        jewelLv={jewelLv} skillLv={buffSetting.skill_lv} effectType={effect} />
                     <div className="text-right text-sm">※デバフ強化適用前の効果量です</div>
                 </>
             }
@@ -279,11 +296,11 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                     <span className="damage_label">使用者情報</span>
                 </div>
                 <div className="w-[350px] mx-auto grid grid-cols-2 text-center">
-                    {buffEffect && buffEffect.ref_status_1 !== 0 &&
+                    {buffEffect && buffEffect.ref_status_1 &&
                         <>
                             <span>ステータス</span>
                             <span>{Math.floor(status * 100) / 100}</span>
-                            {isJewel &&
+                            {targetJewelType > 0 &&
                                 <>
                                     <span>宝珠強化</span>
                                     <span className="explain">{`${JEWEL_EXPLAIN[memberInfo.styleInfo.jewel_type]}(Lv${memberInfo.jewelLv})`}</span>
@@ -367,7 +384,12 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
     )
 }
 
-const getBuffEffectDisplay = (effect, skillLv) => {
+const getBuffEffectDisplay = (effect, skillLv, effectType) => {
+    let minPower;
+    let maxPower;
+    const buffEffect = common.getBuffEffectType(effect.effect_no, effectType);
+    const skillMin = buffEffect.effect_size ?? effect.effect_size ?? effect.min_power;
+    const skillMax = buffEffect.effect_size ?? effect.effect_size ?? effect.max_power;
     switch (effect.effect_type) {
         case EFFECT.FIELD_DEPLOYMENT:
             return `${effect.effect_size.toLocaleString()}%`;
@@ -378,21 +400,21 @@ const getBuffEffectDisplay = (effect, skillLv) => {
                     const effectCount = effect.effect_count;
                     return `${unit}%×${effectCount}Hit`
                 default:
-                    let minPower;
-                    let maxPower;
-                    const skillMin = effect.effect_size ?? effect.min_power;
-                    const skillMax = effect.effect_size ?? effect.min_power;
-                    if (BUFF_LIST.includes(effect.effect_no)) {
-                        minPower = skillMin * (1 + 0.03 * (skillLv - 1));
-                    } else {
-                        minPower = skillMin * (1 + 0.05 * (skillLv - 1));
-                    }
+                    minPower = skillMin * (1 + 0.03 * (skillLv - 1));
                     maxPower = skillMax * (1 + 0.02 * (skillLv - 1));
                     if (minPower === maxPower) {
                         return `${minPower.toLocaleString()}%`
                     } else {
                         return `${minPower.toLocaleString()}%～${maxPower.toLocaleString()}%`
                     }
+            }
+        case EFFECT.GRANT_DEBUFF:
+            minPower = skillMin * (1 + 0.05 * (skillLv - 1));
+            maxPower = skillMax * (1 + 0.02 * (skillLv - 1));
+            if (minPower === maxPower) {
+                return `${minPower.toLocaleString()}%`
+            } else {
+                return `${minPower.toLocaleString()}%～${maxPower.toLocaleString()}%`
             }
         default:
             break;

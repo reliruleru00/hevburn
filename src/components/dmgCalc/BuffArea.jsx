@@ -497,7 +497,7 @@ const BuffArea = ({ argument, attackCharaId, buffGroup, abilityList, passiveList
                 <div className="font-bold">＜＜注意事項＞＞</div>
                 <ul>
                     <li>・バフ強化/デバフ強化/桜花の矢によるデバフ強化は、「詳細」ボタンで設定してください。</li>
-                    <li>・一括設定は現在表示されているスキルのみに適用されます。</li>
+                    <li>・一括設定は全てのスキルに適用されます。</li>
                     <li>・異時層EXのダメージ減衰は現在未対応です。</li>
                     <li>・スコアタEX選択時のみ専用のオーバードライブゲージ補正が適用されます。</li>
                     <li className="text-base font-bold text-red-500 underline">

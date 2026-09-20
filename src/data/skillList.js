@@ -705,6 +705,7 @@ const skilLlist = [
     {"skill_id":804,"skill_name":"奏でられし終焉の業火","chara_id":21,"style_id":224,"cost_type":"SP","use_cost":0,"skill_active":0,"skill_kind":1},
     {"skill_id":805,"skill_name":"溢れ出る母性","chara_id":22,"style_id":0,"cost_type":"SP","use_cost":10,"skill_active":1,"skill_kind":0},
     {"skill_id":806,"skill_name":"よいこのみんな、あつまれ！","chara_id":22,"style_id":225,"cost_type":"SP","use_cost":10,"skill_active":0,"skill_kind":1,"skill_attribute":12,"conditions":17,"conditions_id":4},
+    {"skill_id":807,"skill_name":"理解する喜び","chara_id":19,"style_id":0,"cost_type":"SP","use_cost":8,"skill_active":0,"skill_kind":0},
     {"skill_id":8001,"skill_name":"チャージ","chara_id":501,"style_id":0,"cost_type":"SP","use_cost":0,"skill_active":0,"skill_kind":9},
     {"skill_id":8002,"skill_name":"心眼","chara_id":501,"style_id":0,"cost_type":"SP","use_cost":0,"skill_active":0,"skill_kind":9},
     {"skill_id":8003,"skill_name":"連撃＋","chara_id":501,"style_id":0,"cost_type":"SP","use_cost":0,"skill_active":0,"skill_kind":9},

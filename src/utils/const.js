@@ -139,22 +139,22 @@ export const BUFF = {
     ELEMENT_CRITICALRATEUP: 8, // 属性クリ率
     ELEMENT_CRITICALDAMAGEUP: 9, // 属性クリダメ
     CHARGE: 10,// チャージ
-    FIELD: 11, // フィールド
+    // FIELD: 11, // フィールド
     DAMAGERATEUP: 12, // 破壊率アップ
-    OVERDRIVEPOINTUP: 13, // OD増加
+    // OVERDRIVEPOINTUP: 13, // OD増加
     FIGHTINGSPIRIT: 14, // 闘志
     MISFORTUNE: 15, // 厄
     FUNNEL: 16, // 連撃
-    TOKEN_UP: 17, // トークンアップ
-    STRONG_BREAK: 18, // 強ブレイク
+    // TOKEN_UP: 17, // トークンアップ
+    // STRONG_BREAK: 18, // 強ブレイク
     DEFENSEDP: 19, // DP防御ダウン
     RESISTDOWN: 20, // 耐性ダウン
     ETERNAL_DEFENSEDOWN: 21, // 永続防御力ダウン
     ELEMENT_ETERNAL_DEFENSEDOWN: 22, // 永続属性防御ダウン
-    HEALSP: 23, // SP増加
+    // HEALSP: 23, // SP増加
     RECOIL: 24, // 行動不能
     PROVOKE: 25, // 挑発
-    ADDITIONALTURN: 26, // 追加ターン
+    // ADDITIONALTURN: 26, // 追加ターン
     COVER: 27, // 注目
     GIVEATTACKBUFFUP: 28, // バフ強化
     GIVEDEBUFFUP: 29, // デバフ強化
@@ -180,15 +180,15 @@ export const BUFF = {
     LIGHT_MARK: 49, // 光の印
     DARK_MARK: 50, // 闇の印
     DISASTER: 51, // 禍
-    HEALEP: 52, // EP回復
+    // HEALEP: 52, // EP回復
     STEAK: 53, // ステーキ
     GELATO: 54, // ジェラート
     UNDERMINE: 55, // 蝕
     RUSH: 56, // ラッシュ
     DIM_SUM: 57, // 点心
     SPRIGHTLY: 58, // 軽快
-    CAMP_DEPLOYMENT: 59, // 陣展開
-    ADDITIONALTURN_NOT: 60, // 追加ターン(追加ターンを除く)
+    // CAMP_DEPLOYMENT: 59, // 陣展開
+    // ADDITIONALTURN_NOT: 60, // 追加ターン(追加ターンを除く)
     REVENGE: 60, // リベンジ(重複してる・・・)
     TEA: 61, // ティー
     ETERNAL_ATTACKUP: 62, // 永続攻撃力アップ
@@ -204,11 +204,11 @@ export const EFFECT = {
     CRITICALRATEUP: 3, // クリティカル率アップ
     CRITICAL_DAMAGE_UP: 4, // クリティカルダメージアップ
     DAMAGERATEUP: 5, // 破壊率上昇量アップ
-    FUNNEL: 6, // 連撃数アップ
+    // FUNNEL: 6, // 連撃数アップ
     FIELD_DEPLOYMENT: 7, // フィールド展開
     GRANT_BUFF: 8, // バフ付与
     OVERDRIVE_SP: 9, // ODSPアップ
-    FUNNEL_ALWAYS: 10, // 連撃数(永続)アップ
+    // FUNNEL_ALWAYS: 10, // 連撃数(永続)アップ
     DEFFENCEUP: 11, // 防御力アップ
     HEALSP: 12, // SP回復
     HEALDP: 13, // DP回復
@@ -226,6 +226,7 @@ export const EFFECT = {
     STATUSUP_ALL_VALUE: 25, // 能力上昇(固定)
     STATUSUP_RATE: 26, // 能力上昇(%)
     FIELD_STRENGTHEN: 27, // フィールド強化
+    ADDITIONALTURN_NOT: 28, // 追加ターン
     ADDITIONALTURN: 29, // 追加ターン
     TOKEN_UP: 30, // トークンアップ
     STATUSUP_VALUE_STR: 31, // 能力上昇(STR)
@@ -244,6 +245,7 @@ export const EFFECT = {
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ
     COST_SP_UP: 56, // 消費SPアップ
+    DISPEL: 90, // ディスペル
 }
 
 export const EFFECT_VALUE = {
@@ -405,7 +407,7 @@ export const SKILL = {
 }
 
 // 単独発動バフ
-export const ALONE_ACTIVATION_BUFF_KIND = [
+export const ALONE_ACTIVATION_BUFF_NO = [
     BUFF.ATTACKUP,
     BUFF.ELEMENT_ATTACKUP,
     BUFF.MINDEYE,

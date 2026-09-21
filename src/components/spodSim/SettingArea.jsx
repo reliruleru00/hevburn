@@ -5,7 +5,7 @@ import { ROLE, BUFF } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
 import { ABILIRY_TIMING, NOT_USE_STYLE, CONSTRAINTS_ABILITY, CONSTRAINTS_PASSIVE } from "./const";
-import { checkPassiveExist, recreateTurnData, startTurn, abilityAction, setUserOperation } from "./logic";
+import { checkPassiveExist, recreateTurnData, startTurn, setUserOperation } from "./logic";
 import { useStyleList } from "components/StyleListProvider";
 import skillList from "data/skillList";
 import CharaSetting from "./CharaSetting";
@@ -14,6 +14,7 @@ import DetailSetting from "./DetailSetting";
 import ConstraintsList from "./ConstraintsList";
 import ModalExplanation from "./ModalExplanation";
 import BattleArea from "./BattleArea";
+import * as logicAbility from "./logicAbility.js";
 
 // リスト更新用のReducer
 const reducer = (state, action) => {
@@ -243,7 +244,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
             });
             if (member.morale > 0) {
                 let morale = {
-                    buff_kind: BUFF.MORALE,
+                    buff_no: BUFF.MORALE,
                     buff_element: 0,
                     rest_turn: -1,
                     lv: member.morale,
@@ -277,7 +278,7 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
     }
     // 戦闘開始アビリティ
     turnInit.setLog("■戦闘開始");
-    abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
+    logicAbility.abilityAction(ABILIRY_TIMING.BATTLE_START, turnInit);
     setUserOperation(turnInit);
 
     setConstraintsAbility(constraintsAbility);

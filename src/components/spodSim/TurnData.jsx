@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactModal from "react-modal";
 import { RANGE, CONDITIONS } from "utils/const";
 import { KB_NEXT, FIELD_LIST } from "./const";
-import { getBuffList, getSkillData, deepClone } from "utils/common";
+import { getEffectList, getSkillData, deepClone } from "utils/common";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
@@ -75,7 +75,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         skillUpdate(turn, skillId, placeNo);
         const unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];
 
-        const buffList = getBuffList(skillId);
+        const buffList = getEffectList(skillId);
         const SELECT_RANGE = [RANGE.ALLY_UNIT, RANGE.SELF_AND_UNIT, RANGE.OTHER_UNIT];
         if (buffList.some(buff => SELECT_RANGE.includes(buff.range_area))) {
             openModal("target", placeNo);

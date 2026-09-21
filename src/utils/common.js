@@ -3,7 +3,6 @@ import charaData from 'data/charaData';
 import styleList from "data/styleList";
 import skillList from "data/skillList";
 import skillAttack from "data/skillAttack";
-import skillBuff from "data/skillBuff";
 import enemyList from 'data/enemyList';
 import abilityList from "data/abilityList";
 import abilityEffect from "data/abilityEffect";
@@ -15,6 +14,9 @@ import buffKind from 'data/buffKind';
 import buffEffect from 'data/buffEffect';
 import * as constants from "utils/const";
 import skillEffect from "data/skillEffect";
+import {
+    ELEMENT, RANGE, CONDITIONS,
+} from "utils/const";
 
 // キャラ名取得
 export function getCharaData(charaId) {
@@ -56,8 +58,8 @@ export function getAttackInfo(attackId) {
 }
 
 // バフ一覧取得
-export function getBuffList(skillId) {
-  const filteredBuff = skillBuff.filter((obj) => obj.skill_id === Number(skillId));
+export function getEffectList(skillId) {
+  const filteredBuff = skillEffect.filter((obj) => obj.skill_id === Number(skillId));
   return filteredBuff;
 }
 
@@ -117,6 +119,145 @@ export function getResonanceInfo(resonanceId) {
 // レゾナンスリスト取得
 export function getResonanceEffectList(resonanceId) {
   return resonanceEffect.filter((obj) => obj.resonance_id === Number(resonanceId));
+}
+
+// 範囲の名称を取得
+export const getRangeName = (rangeArea) => {
+    switch (rangeArea) {
+        case RANGE.FIELD:
+            return "場";
+        case RANGE.ENEMY_UNIT:
+            return "敵単体";
+        case RANGE.ENEMY_ALL:
+            return "敵全体";
+        case RANGE.ALLY_UNIT:
+            return "単体";
+        case RANGE.ALLY_FRONT:
+            return "前衛";
+        case RANGE.ALLY_BACK:
+            return "後衛";
+        case RANGE.ALLY_ALL:
+            return "全員";
+        case RANGE.SELF:
+            return "自分";
+        case RANGE.SELF_OTHER:
+            return "自分以外";
+        case RANGE.SELF_AND_UNIT:
+            return "自分と味方単体";
+        case RANGE.FRONT_OTHER:
+            return "自分以外の前衛";
+        case RANGE.OTHER_UNIT:
+            return "自分以外の味方単体";
+        case RANGE.MEMBER_31C:
+            return "31Cメンバー";
+        case RANGE.MEMBER_31E:
+            return "31Eメンバー";
+        case RANGE.MARUYAMA_MEMBER:
+            return "丸山部隊";
+        case RANGE.RUKA_SHARO:
+            return "月歌とシャロ";
+        default:
+            return "";
+    }
+}
+
+// 条件の名称を取得
+export const getConditionName = (targetElement, conditions, conditionsId) => {
+    switch (targetElement) {
+        case ELEMENT.FIRE:
+            return "火属性スタイルの";
+        case ELEMENT.ICE:
+            return "氷属性スタイルの";
+        case ELEMENT.THUNDER:
+            return "雷属性スタイルの";
+        case ELEMENT.LIGHT:
+            return "光属性スタイルの";
+        case ELEMENT.DARK:
+            return "闇属性スタイルの";
+        default:
+            break;
+    }
+
+    if (!conditions) return "";
+    switch (Number(conditions)) {
+        case CONDITIONS.FIRST_TURN:
+            return `1ターン目のみ`;
+        case CONDITIONS.SKILL_INIT:
+            return `初回のみ`;
+        case CONDITIONS.ADDITIONAL_TURN:
+            return `追加ターン中`;
+        case CONDITIONS.OVER_DRIVE:
+            return `オーバードライブ中`;
+        case CONDITIONS.DESTRUCTION_OVER_200:
+            return `破壊率200%以上の時`;
+        case CONDITIONS.BREAK:
+            return `ブレイク時`;
+        case CONDITIONS.PERCENTAGE_30:
+            return `確率30%で`;
+        case CONDITIONS.BUFF_DISPEL:
+            return `バフ解除時`;
+        case CONDITIONS.FIELD_NONE:
+            return `フィールド無しの時`;
+        case CONDITIONS.FIELD_ELEMENT:
+            return `属性フィールド展開中の時`;
+        case CONDITIONS.HAS_ABILITY:
+            const ability = getAbilityInfo(conditionsId);
+            return `${ability.ability_name}が発動している時`;
+        case CONDITIONS.HAS_SHADOW:
+            return `影分身の時`;
+        case CONDITIONS.HAS_DODGE:
+            return `回避状態の時`;
+        case CONDITIONS.TOKEN_OVER:
+            return `トークンが${conditionsId}個以上の時`;
+        case CONDITIONS.SARVANT_OVER:
+            return `山脇様のしもべ${conditionsId}人以上の時`;
+        case CONDITIONS.NOT_ADDITIONAL_TURN:
+            return `追加ターン中でない時`;
+        case CONDITIONS.MORALE_OVER_LV:
+            return `士気Lv${conditionsId}以上の時`;
+        case CONDITIONS.OVER_31C_3:
+            return `31Cが3人以上の時`;
+        case CONDITIONS.SELECT_31A:
+            return `31Aを選択した時`;
+        case CONDITIONS.SELECT_CHARA:
+            const chara = getCharaData(conditionsId);
+            return `${chara.chara_short_name}を選択した時`;
+        case CONDITIONS.NOT_DIVA_BLESS:
+            return `歌姫の加護でない時`;
+        case CONDITIONS.MOTIVATION:
+            const motivation = ["絶不調", "不調", "普通", "好調", "絶好調"][conditionsId];
+            return `やる気が${motivation}以上の時`;
+        case CONDITIONS.ICE_STYLE:
+            return `氷属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.THUNDER_STYLE:
+            return `雷属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.FIRE_STYLE:
+            return `火属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.LIGHT_STYLE:
+            return `光属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.DARK_STYLE:
+            return `闇属性スタイルの味方${conditionsId}人以上の時`;
+        case CONDITIONS.HAS_BUFF_TARGET:
+            return `${getBuffKind(conditionsId).buff_name}発動中の`;
+        case CONDITIONS.HAS_BUFF:
+            return `${getBuffKind(conditionsId).buff_name}状態の時`;
+        case CONDITIONS.SP_UNDER:
+            return `SPが${conditionsId}以下の時`;
+        case CONDITIONS.SP_OVER:
+            return `SPが${conditionsId}以上の時`;
+        case CONDITIONS.ENEMY_COUNT:
+            return `敵の数が${conditionsId}の時`;
+        case CONDITIONS.USE_COUNT:
+            return `使用回数が${conditionsId}回以上の時`;
+        case CONDITIONS.IS_WEAK:
+            return `弱点をついた時`;
+        case CONDITIONS.OD_UNDER:
+            return `OverDriveゲージが${conditionsId}%以下の時`;
+        case CONDITIONS.OD_OVER:
+            return `OverDriveゲージが${conditionsId}%以上の時`;
+        default:
+            return conditions;
+    }
 }
 
 // 文字列を圧縮

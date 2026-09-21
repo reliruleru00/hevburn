@@ -1,6 +1,6 @@
 import {
     ELEMENT, BUFF, RANGE, CHARA_ID, EFFECT, ENEMY_CLASS, CONDITIONS
-    , ALONE_ACTIVATION_BUFF_KIND, ALONE_ACTIVATION_ABILITY_LIST
+    , ALONE_ACTIVATION_BUFF_NO, ALONE_ACTIVATION_ABILITY_LIST
     , STYLE_ID, ABILITY_ID, JEWEL_TYPE, STATUS_KBN
     , COST_TYPE
 } from 'utils/const';
@@ -504,7 +504,7 @@ export function isAloneActivation(effect) {
     if (!effect) {
         return false;
     }
-    if (ALONE_ACTIVATION_BUFF_KIND.includes(effect.effect_no)) {
+    if (ALONE_ACTIVATION_BUFF_NO.includes(effect.effect_no)) {
         return effect.kbn === "ability" || effect.effect_turn > 0;
     }
     return false;

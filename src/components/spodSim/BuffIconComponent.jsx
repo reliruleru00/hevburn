@@ -1,6 +1,6 @@
 import React from "react";
-import { getBuffIconImg } from "./logic";
 import buffIcons from 'assets/buffIcons';
+import * as logicBuff from "./logicBuff";
 
 const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber, clickBuffIcon }) => {
     const scrollContentRef = React.useRef(null);
@@ -60,7 +60,7 @@ const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber,
                 {buffList.map((buffInfo, index) => (
                     <img
                         key={index}
-                        src={buffIcons[getBuffIconImg(buffInfo)]}
+                        src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
                         alt={buffInfo.buff_name}
                         className="unit_buff"
                     />
@@ -69,7 +69,7 @@ const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber,
                     buffList.map((buffInfo, index) => (
                         <img
                             key={index}
-                            src={buffIcons[getBuffIconImg(buffInfo)]}
+                            src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
                             alt={buffInfo.buff_name}
                             className="unit_buff"
                         />

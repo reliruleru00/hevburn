@@ -46,17 +46,7 @@ export const SKILL_ID = {
     // MOTHERS_LIGHT: 764, // 母の灯を継いで
 }
 
-export const BUFF_ID = {
-    TRICK_CANNON: 2,   // トリック・カノン
-    MOON_LIGHT: 2607,   // 月光
-    MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
-    MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
-    PERFECT_COLOR: 557,   // 極彩色
-    FULL_MEDITATION: 490,   // 追い込み！全力メドレー
-    BRIGHT_RED: 1037,   // 茜色
-}
-
-export const EFFECT_ID = {
+export const SKILL_EFFECT_ID = {
     TRICK_CANNON: 2,   // トリック・カノン
     MOON_LIGHT: 2607,   // 月光
     MEGA_DESTROYER5: 235,   // メガデストロイヤー5人

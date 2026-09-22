@@ -26,16 +26,16 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
     const reRender = (userOperation, render) => {
         isNextInfluence.current = render;
         // OD再計算
-        turn.addOverDriveGauge = getOverDrive(turn);
+        turn.calcOverDriveGauge = getOverDrive(turn);
         turn.userOperation = userOperation;
         if ([KB_NEXT.ACTION_OD_1, KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
-            if (turn.overDriveGauge + turn.addOverDriveGauge < 100) {
+            if (turn.calcOverDriveGauge < 100) {
                 userOperation.kbAction = KB_NEXT.ACTION;
-            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 200) {
+            } else if (turn.calcOverDriveGauge < 200) {
                 if ([KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
                     userOperation.kbAction = KB_NEXT.ACTION_OD_1;
                 }
-            } else if (turn.overDriveGauge + turn.addOverDriveGauge < 300) {
+            } else if (turn.calcOverDriveGauge < 300) {
                 if ([KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
                     userOperation.kbAction = KB_NEXT.ACTION_OD_2;
                 }
@@ -359,19 +359,19 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                             {turn.userOperation.kbAction === KB_NEXT.ACTION || !isCapturing ?
                                 <option value={KB_NEXT.ACTION}>行動開始</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_1 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
+                                (turn.calcOverDriveGauge >= 100 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_1}>行動開始+OD1</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_2 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
+                                (turn.calcOverDriveGauge >= 200 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_2}>行動開始+OD2</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_3 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
+                                (turn.calcOverDriveGauge >= 300 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_3}>行動開始+OD3</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_4 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 400 && turn.maxOverDriveGauge >= 400 && turn.overDriveMaxTurn === 0) ?
+                                (turn.calcOverDriveGauge >= 400 && turn.maxOverDriveGauge >= 400 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_4}>行動開始+OD4</option> : null}
                             {turn.userOperation.kbAction === KB_NEXT.ACTION_OD_5 ||
-                                (turn.overDriveGauge + turn.addOverDriveGauge >= 500 && turn.maxOverDriveGauge >= 500 && turn.overDriveMaxTurn === 0) ?
+                                (turn.calcOverDriveGauge >= 500 && turn.maxOverDriveGauge >= 500 && turn.overDriveMaxTurn === 0) ?
                                 <option value={KB_NEXT.ACTION_OD_5}>行動開始+OD5</option> : null}
                         </select>
                         <div

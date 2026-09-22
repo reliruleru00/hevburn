@@ -10,30 +10,26 @@ import * as common from "utils/common";
 import * as logicAbility from "./logicAbility.js";
 
 // バフ存在チェック
-const checkBuffIdExist = (buffList, buff_id) => {
+const checkBuffIdExist = (buffList, SKILL_EFFECT_ID) => {
     let existList = buffList.filter(function (buffInfo) {
-        return buffInfo.buff_id === buff_id;
+        return buffInfo.SKILL_EFFECT_ID === SKILL_EFFECT_ID;
     });
     return existList.length > 0;
 }
 
-// バフを追加
-export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isLogOutput = true) => {
-    if (skillEffectInfo.effect_type === EFFECT.OVERDRIVEPOINTUP) {
-        return;
-    }
-
+// 効果処理
+export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateUp, isLogOutput = false) => {
     // 条件判定
-    if (skillEffectInfo.conditions) {
-        if (!logic.judgmentCondition(skillEffectInfo.conditions, skillEffectInfo.conditions_id, turnData, useUnitData, skillEffectInfo.skill_id)) {
+    if (effectInfo.conditions) {
+        if (!logic.judgmentCondition(effectInfo.conditions, effectInfo.conditions_id, turnData, useUnitData, effectInfo.skill_id)) {
             return;
         }
     }
 
     // 個別判定
-    switch (skillEffectInfo.buff_id) {
+    switch (effectInfo.SKILL_EFFECT_ID) {
         // 選択されなかった
-        case constants.BUFF_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
+        case constants.SKILL_EFFECT_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
             if (useUnitData.buffEffectSelectType === 0) {
                 return;
             }
@@ -41,10 +37,10 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
         default:
             break;
     }
-    switch (skillEffectInfo.skill_id) {
-        case constants.BUFF_ID.PERFECT_COLOR: // 極彩色
+    switch (effectInfo.skill_id) {
+        case constants.SKILL_EFFECT_ID.PERFECT_COLOR: // 極彩色
             let field_element = logic.getFieldElement(turnData);
-            if (skillEffectInfo.buff_element !== field_element) {
+            if (effectInfo.buff_element !== field_element) {
                 return;
             }
             break;
@@ -52,13 +48,13 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
             break;
     }
 
-    const targetList = logic.getTargetList(turnData, skillEffectInfo.range_area, skillEffectInfo.target_element, placeNo, useUnitData.buffTargetCharaId);
+    const targetList = logic.getTargetList(turnData, effectInfo.range_area, effectInfo.target_element, useUnitData);
     // 対象策定
-    switch (skillEffectInfo.effect_type) {
+    switch (effectInfo.effect_type) {
         case EFFECT.GRANT_BUFF:
             // バフ追加
             const USE_GIVE_ATTACK_UP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
-            if (USE_GIVE_ATTACK_UP.includes(skillEffectInfo.effect_no)) {
+            if (USE_GIVE_ATTACK_UP.includes(effectInfo.effect_no)) {
                 // 先頭のバフ強化を消費する。
                 let index = useUnitData.buffList.findIndex(function (buffInfo) {
                     return buffInfo.buff_no === BUFF.GIVEATTACKBUFFUP;
@@ -69,12 +65,12 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
             }
             targetLoop(function (targetUnitData) {
                 // バフ付与
-                grantBuff(targetUnitData, skillEffectInfo, useUnitData);
+                grantBuff(targetUnitData, effectInfo, useUnitData);
             }, turnData, targetList)
             break;
         case EFFECT.MORALE: // 士気
             targetLoop(function (targetUnitData) {
-                addMoraleBuffUnit(targetUnitData, skillEffectInfo, useUnitData);
+                addMoraleBuffUnit(targetUnitData, effectInfo, useUnitData);
             }, turnData, targetList)
             break;
         case EFFECT.GRANT_DEBUFF:
@@ -86,18 +82,15 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
                 useUnitData.buffList.splice(index, 1);
             }
             // デバフ追加
-            grantDebuff(turnData, skillEffectInfo, useUnitData)
+            grantDebuff(turnData, effectInfo, useUnitData)
             break;
         case EFFECT.DISASTER: // 禍
-            addDisasterDebuffUnit(turnData.enemyDebuffList, skillEffectInfo, useUnitData);
+            addDisasterDebuffUnit(turnData.enemyDebuffList, effectInfo, useUnitData);
             break;
         case EFFECT.HEALSP: // SP追加
-            // いずれ効果量トークン実装に切り替え
-            if (skillEffectInfo.buff_id === constants.BUFF_ID.FULL_MEDITATION) {
-                skillEffectInfo.min_power = useUnitData.tokenCost;
-            }
+            const effectSize = getEffectSize(effectInfo, useUnitData);
             targetLoop(function (targetUnitData) {
-                skillHealSp(turnData, targetUnitData, skillEffectInfo.effect_size, skillEffectInfo.effect_limit, placeNo, false, skillEffectInfo.buff_id);
+                skillHealSp(turnData, targetUnitData, effectSize, effectInfo.effect_limit, useUnitData.placeNo, false, effectInfo.SKILL_EFFECT_ID);
             }, turnData, targetList)
             break;
         case EFFECT.HEALEP: // EP追加
@@ -107,13 +100,26 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
                     maxEp = 20;
                 }
                 if (targetUnitData.ep < maxEp) {
-                    targetUnitData.ep += skillEffectInfo.effect_size;
+                    targetUnitData.ep += effectInfo.effect_size;
                     if (targetUnitData.ep > maxEp) {
                         targetUnitData.ep = maxEp;
                     }
                 }
             }, turnData, targetList)
             break;
+        case EFFECT.OVERDRIVEPOINTUP:
+            // 可変ODはいったん非対応
+            let correction = 1;
+            const odRateUp = overDriveRateUp.odRateUp;
+            const earring = overDriveRateUp.earring;
+            // 補正はのプラスの時のみ
+            if (effectInfo.max_power > 0) {
+                correction += (odRateUp + earring) / 100;
+            }
+            let point = getEffectSize(effectInfo, useUnitData);
+            const unitOdPlus = Math.floor(point * correction * 100) / 100;
+            useUnitData.overDriveGauge += unitOdPlus;
+            return;
         case EFFECT.ADDITIONALTURN: // 追加ターン
             targetLoop(function (targetUnitData) {
                 targetUnitData.additionalTurn = true;
@@ -130,15 +136,15 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
             turnData.additionalTurn = true;
             break;
         case EFFECT.FIELD_DEPLOYMENT: // フィールド
-            turnData.field = skillEffectInfo.element;
-            let fieldTurn = skillEffectInfo.effect_count;
+            turnData.field = effectInfo.element;
+            let fieldTurn = effectInfo.effect_count;
             if (fieldTurn > 0) {
                 // 天長地久
-                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.BUFF_ID.HEAVEN_AND_EARTH)) {
+                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.SKILL_EFFECT_ID.HEAVEN_AND_EARTH)) {
                     fieldTurn = 0;
                 }
                 // 武運長久
-                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.BUFF_ID.FORTUNES_OF_WAR) && logic.checkBuffExist(useUnitData.buffList, constants.BUFF.MORALE, 6)) {
+                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.SKILL_EFFECT_ID.FORTUNES_OF_WAR) && logic.checkBuffExist(useUnitData.buffList, constants.BUFF.MORALE, 6)) {
                     fieldTurn = 0;
                 }
                 // メディテーション
@@ -161,7 +167,7 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
             targetLoop(function (targetUnitData) {
                 // トークンは最大10まで
                 if (targetUnitData.token < 10) {
-                    targetUnitData.token += skillEffectInfo.effect_size;
+                    targetUnitData.token += effectInfo.effect_size;
                     if (targetUnitData.token > 10) {
                         targetUnitData.token = 10;
                     }
@@ -173,9 +179,9 @@ export const addBuffUnit = (turnData, skillEffectInfo, placeNo, useUnitData, isL
     }
 
     if (isLogOutput) {
-        let effectDesc = common.getBuffKind(skillEffectInfo.effect_no).buff_name;
-        let rangeName = common.getRangeName(skillEffectInfo.range_area);
-        let conditionName = common.getConditionName(skillEffectInfo.target_element, skillEffectInfo.conditions, Number(skillEffectInfo.conditions_id));
+        let effectDesc = common.getBuffKind(effectInfo.effect_no).buff_name;
+        let rangeName = common.getRangeName(effectInfo.range_area);
+        let conditionName = common.getConditionName(effectInfo.target_element, effectInfo.conditions, Number(effectInfo.conditions_id));
         let log = `　${conditionName}${effectDesc}`;
         if (rangeName) {
             log = `　${conditionName}${rangeName}に${effectDesc}`;
@@ -215,11 +221,11 @@ export const grantBuff = (unitData, skillEffectInfo, useUnitData) => {
     }
     // 単独発動バフ
     if (logic.isAloneActivation(skillEffectInfo)) {
-        if (checkBuffIdExist(unitData.buffList, skillEffectInfo.buff_id)) {
+        if (checkBuffIdExist(unitData.buffList, skillEffectInfo.SKILL_EFFECT_ID)) {
             if (skillEffectInfo.effect_turn > 0) {
                 // 残ターン更新
                 let filterList = unitData.buffList.filter(function (buff) {
-                    return buff.buff_id === skillEffectInfo.buff_id;
+                    return buff.SKILL_EFFECT_ID === skillEffectInfo.SKILL_EFFECT_ID;
                 })
                 filterList[0].rest_turn = skillEffectInfo.effect_turn;
             }
@@ -228,7 +234,7 @@ export const grantBuff = (unitData, skillEffectInfo, useUnitData) => {
     }
     let buff = createBuffData(skillEffectInfo, useUnitData);
     // 茜色
-    if (skillEffectInfo.buff_id === constants.BUFF_ID.BRIGHT_RED && unitData.style.styleInfo.element === 1) {
+    if (skillEffectInfo.SKILL_EFFECT_ID === constants.SKILL_EFFECT_ID.BRIGHT_RED && unitData.style.styleInfo.element === 1) {
         buff.rest_turn = 5;
     }
     unitData.buffList.push(buff);
@@ -309,7 +315,7 @@ function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo, isRecursion
         if ((logic.checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1606) ||
             logic.checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1612))
             && targetNo !== usePlaceNo) {
-            let targetList = logic.getTargetList(turnData, RANGE.ALLY_ALL, 0, targetNo, null);
+            let targetList = logic.getTargetList(turnData, RANGE.ALLY_ALL, 0, unitData);
             targetLoop(function (targetUnitData) {
                 skillHealSp(turnData, targetUnitData, 2, 30, null, true, 0)
             }, turnData, targetList)
@@ -473,4 +479,33 @@ export const targetLoop = (func, turnData, targetList) => {
         }
         func(targetUnitData);
     });
+}
+
+export const getEffectSize = (effect, useUnitData) => {
+    let effectSize = effect.effect_size ?? 0;
+    let multiplier = 1;
+
+    if (effect.effect_unit) {
+        const effectUnit = effect.effect_unit;
+        const effectLimit = effect.effect_limit ?? 0;
+        switch (effect.effect_no) {
+            case constants.EFFECT_VALUE.TOKEN_POWER_UP:
+                multiplier = (useUnitData.tokenCost ? useUnitData.tokenCost : 0);
+                break;
+            // case constants.EFFECT_VALUE.MOTIVATION_GOOD:
+            //     multiplier = targetCountMotivation(styleList, 1);
+            //     break;
+            // case constants.EFFECT_VALUE.MEMBER_31C:
+            //     multiplier = countCharaExist(styleList.selectStyleList, CHARA_ID.MEMBER_31C);
+            //     break;
+            default:
+                break;
+        }
+        if (effectLimit) {
+            effectSize = Math.min(effectSize + effectUnit * multiplier, effectLimit);
+        } else {
+            effectSize = effectSize + effectUnit * multiplier;
+        }
+    }
+    return effectSize;
 }

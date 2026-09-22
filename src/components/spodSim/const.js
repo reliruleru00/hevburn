@@ -71,10 +71,6 @@ export const KB_NEXT = {
     ACTION_OD_5: 8,
 };
 
-export const BUFF_FUNNEL_LIST = [
-    BUFF.FUNNEL,
-    BUFF.ABILITY_FUNNEL
-];
 export const SINGLE_BUFF_LIST = [
     BUFF.CHARGE,
     BUFF.RECOIL,

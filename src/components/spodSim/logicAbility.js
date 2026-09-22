@@ -49,7 +49,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
         if (ability.used && ability.first_only === 1) {
             return true;
         }
-        let targetList = logic.getTargetList(turnData, ability.range_area, ability.target_element, unitData.placeNo, null);
+        let targetList = logic.getTargetList(turnData, ability.range_area, ability.target_element, unitData);
         if (!logic.judgmentCondition(Number(ability.conditions), ability.conditions_id, turnData, unitData, null)) {
             return true;
         }

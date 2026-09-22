@@ -1,6 +1,6 @@
 import {
     BUFF, EFFECT, RANGE, ROLE
-    , CHARA_ID, STYLE_ID, EFFECT_ID, ABILITY_ID
+    , CHARA_ID, STYLE_ID, SKILL_EFFECT_ID, ABILITY_ID
 } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
@@ -231,11 +231,11 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 filterBuff.includes(buff.effect_type)
             ).filter(buff => {
                 switch (buff.effect_id) {
-                    case EFFECT_ID.MOON_LIGHT: // 月光(歌姫の加護)
+                    case SKILL_EFFECT_ID.MOON_LIGHT: // 月光(歌姫の加護)
                         return styleId === STYLE_ID.ONLY_MOON_LIGHT;
-                    case EFFECT_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
+                    case SKILL_EFFECT_ID.MEGA_DESTROYER5: // メガデストロイヤー(5人以上)
                         return attackInfo?.servantCount >= 5;
-                    case EFFECT_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
+                    case SKILL_EFFECT_ID.MEGA_DESTROYER6: // メガデストロイヤー(6人以上)
                         return attackInfo?.servantCount === 6;
                     default:
                         break;

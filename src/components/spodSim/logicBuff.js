@@ -18,7 +18,7 @@ const checkBuffIdExist = (buffList, SKILL_EFFECT_ID) => {
 }
 
 // 効果処理
-export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateUp, isLogOutput = false) => {
+export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateUp) => {
     // 条件判定
     if (effectInfo.conditions) {
         if (!logic.judgmentCondition(effectInfo.conditions, effectInfo.conditions_id, turnData, useUnitData, effectInfo.skill_id)) {
@@ -48,153 +48,185 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
             break;
     }
 
+    let effectDesc = "";
+    let executeEffect = () => { };
     const targetList = logic.getTargetList(turnData, effectInfo.range_area, effectInfo.target_element, useUnitData);
     // 対象策定
     switch (effectInfo.effect_type) {
         case EFFECT.GRANT_BUFF:
-            // バフ追加
-            const USE_GIVE_ATTACK_UP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
-            if (USE_GIVE_ATTACK_UP.includes(effectInfo.effect_no)) {
-                // 先頭のバフ強化を消費する。
+            executeEffect = () => {
+                // バフ追加
+                const USE_GIVE_ATTACK_UP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
+                if (USE_GIVE_ATTACK_UP.includes(effectInfo.effect_no)) {
+                    // 先頭のバフ強化を消費する。
+                    let index = useUnitData.buffList.findIndex(function (buffInfo) {
+                        return buffInfo.buff_no === BUFF.GIVEATTACKBUFFUP;
+                    });
+                    if (index !== -1) {
+                        useUnitData.buffList.splice(index, 1);
+                    }
+                }
+                targetLoop(function (targetUnitData) {
+                    // バフ付与
+                    grantBuff(targetUnitData, effectInfo, useUnitData);
+                }, turnData, targetList)
+            }
+            effectDesc = `${common.getBuffKind(effectInfo.effect_no).buff_name}を付与`;
+            break;
+        case EFFECT.MORALE: // 士気
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    addMoraleBuffUnit(targetUnitData, effectInfo, useUnitData);
+                }, turnData, targetList)
+            }
+            effectDesc = `士気+${effectInfo.effect_size}`;
+            break;
+        case EFFECT.GRANT_DEBUFF:
+            executeEffect = () => {
+                // デバフ強化を消費する。
                 let index = useUnitData.buffList.findIndex(function (buffInfo) {
-                    return buffInfo.buff_no === BUFF.GIVEATTACKBUFFUP;
+                    return buffInfo.buff_no === BUFF.GIVEDEBUFFUP || buffInfo.buff_no === BUFF.ARROWCHERRYBLOSSOMS;
                 });
                 if (index !== -1) {
                     useUnitData.buffList.splice(index, 1);
                 }
+                // デバフ追加
+                grantDebuff(turnData, effectInfo, useUnitData);
             }
-            targetLoop(function (targetUnitData) {
-                // バフ付与
-                grantBuff(targetUnitData, effectInfo, useUnitData);
-            }, turnData, targetList)
-            break;
-        case EFFECT.MORALE: // 士気
-            targetLoop(function (targetUnitData) {
-                addMoraleBuffUnit(targetUnitData, effectInfo, useUnitData);
-            }, turnData, targetList)
-            break;
-        case EFFECT.GRANT_DEBUFF:
-            // デバフ強化を消費する。
-            let index = useUnitData.buffList.findIndex(function (buffInfo) {
-                return buffInfo.buff_no === BUFF.GIVEDEBUFFUP || buffInfo.buff_no === BUFF.ARROWCHERRYBLOSSOMS;
-            });
-            if (index !== -1) {
-                useUnitData.buffList.splice(index, 1);
-            }
-            // デバフ追加
-            grantDebuff(turnData, effectInfo, useUnitData)
+            effectDesc = `${common.getBuffKind(effectInfo.effect_no).buff_name}を付与`;
             break;
         case EFFECT.DISASTER: // 禍
-            addDisasterDebuffUnit(turnData.enemyDebuffList, effectInfo, useUnitData);
+            executeEffect = () => {
+                addDisasterDebuffUnit(turnData.enemyDebuffList, effectInfo, useUnitData);
+            }
+            effectDesc = `禍+${effectInfo.effect_size}`;
             break;
         case EFFECT.HEALSP: // SP追加
             const effectSize = getEffectSize(effectInfo, useUnitData);
-            targetLoop(function (targetUnitData) {
-                skillHealSp(turnData, targetUnitData, effectSize, effectInfo.effect_limit, useUnitData.placeNo, false, effectInfo.SKILL_EFFECT_ID);
-            }, turnData, targetList)
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    skillHealSp(turnData, targetUnitData, effectSize, effectInfo.effect_limit, useUnitData.placeNo);
+                }, turnData, targetList)
+            }
+            effectDesc = `SP+${effectSize}`;
             break;
         case EFFECT.HEALEP: // EP追加
-            targetLoop(function (targetUnitData) {
-                let maxEp = Math.max(10, targetUnitData.ep + targetUnitData.overDriveEp);
-                if (logic.checkAbilityExist(targetUnitData[`ability_${ABILIRY_TIMING.OD_START}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
-                    maxEp = 20;
-                }
-                if (targetUnitData.ep < maxEp) {
-                    targetUnitData.ep += effectInfo.effect_size;
-                    if (targetUnitData.ep > maxEp) {
-                        targetUnitData.ep = maxEp;
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    let maxEp = Math.max(10, targetUnitData.ep + targetUnitData.overDriveEp);
+                    if (logic.checkAbilityExist(targetUnitData[`ability_${ABILIRY_TIMING.OD_START}`], ABILITY_ID.OVER_GEAR) && turnData.overDriveNumber > 0) {
+                        maxEp = 20;
                     }
-                }
-            }, turnData, targetList)
+                    if (targetUnitData.ep < maxEp) {
+                        targetUnitData.ep += effectInfo.effect_size;
+                        if (targetUnitData.ep > maxEp) {
+                            targetUnitData.ep = maxEp;
+                        }
+                    }
+                }, turnData, targetList)
+            }
+            effectDesc = `EP+${effectInfo.effect_size}`;
             break;
         case EFFECT.OVERDRIVEPOINTUP:
             // 可変ODはいったん非対応
             let correction = 1;
             const odRateUp = overDriveRateUp.odRateUp;
             const earring = overDriveRateUp.earring;
-            // 補正はのプラスの時のみ
-            if (effectInfo.max_power > 0) {
+            let point = getEffectSize(effectInfo, useUnitData);
+            // 補正はプラスの時のみ
+            if (point > 0) {
                 correction += (odRateUp + earring) / 100;
             }
-            let point = getEffectSize(effectInfo, useUnitData);
             const unitOdPlus = Math.floor(point * correction * 100) / 100;
-            useUnitData.overDriveGauge += unitOdPlus;
-            return;
+            executeEffect = () => {
+                turnData.overDriveGauge += unitOdPlus;
+            }
+            effectDesc = `OverDriveゲージ${unitOdPlus.toLocaleString("ja-JP", {
+                signDisplay: "always",
+            })}%`;
+            break;
         case EFFECT.ADDITIONALTURN: // 追加ターン
-            targetLoop(function (targetUnitData) {
-                targetUnitData.additionalTurn = true;
-            }, turnData, targetList)
-            turnData.additionalTurn = true;
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    targetUnitData.additionalTurn = true;
+                }, turnData, targetList)
+                turnData.additionalTurn = true;
+            }
+            effectDesc = `追加ターン`;
             break;
         case EFFECT.ADDITIONALTURN_NOT: // 追加ターン(追加ターンを除く)
-            if (turnData.additionalCount > 0) {
-                return;
+            executeEffect = () => {
+                if (turnData.additionalCount > 0) {
+                    return;
+                }
+                targetLoop(function (targetUnitData) {
+                    targetUnitData.additionalTurn = true;
+                }, turnData, targetList)
+                turnData.additionalTurn = true;
+                effectDesc = `追加ターン`;
             }
-            targetLoop(function (targetUnitData) {
-                targetUnitData.additionalTurn = true;
-            }, turnData, targetList)
-            turnData.additionalTurn = true;
             break;
         case EFFECT.FIELD_DEPLOYMENT: // フィールド
-            turnData.field = effectInfo.element;
-            let fieldTurn = effectInfo.effect_count;
-            if (fieldTurn > 0) {
-                // 天長地久
-                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.SKILL_EFFECT_ID.HEAVEN_AND_EARTH)) {
-                    fieldTurn = 0;
-                }
-                // 武運長久
-                if (logic.checkAbilityExist(useUnitData[`ability_${ABILIRY_TIMING.OTHER}`], constants.SKILL_EFFECT_ID.FORTUNES_OF_WAR) && logic.checkBuffExist(useUnitData.buffList, constants.BUFF.MORALE, 6)) {
-                    fieldTurn = 0;
-                }
-                // メディテーション
-                if (logic.checkPassiveExist(useUnitData.passiveSkillList, constants.SKILL_ID.MEDITATION)) {
-                    fieldTurn = 0;
-                }
-            }
-            // フィールド展開アビリティ
-            logicAbility.abilityAction(ABILIRY_TIMING.FIELD_DEPLOY, turnData);
-            turnData.fieldTurn = fieldTurn;
-            break;
-        case EFFECT.DISPEL: // ディスペル
-            targetLoop(function (targetUnitData) {
-                targetUnitData.buffList = targetUnitData.buffList.filter(function (buffInfo) {
-                    return buffInfo.buff_no !== BUFF.RECOIL && buffInfo.buff_no !== BUFF.NAGATIVE;
-                });
-            }, turnData, targetList)
-            break;
-        case EFFECT.TOKEN_UP: // トークン増加
-            targetLoop(function (targetUnitData) {
-                // トークンは最大10まで
-                if (targetUnitData.token < 10) {
-                    targetUnitData.token += effectInfo.effect_size;
-                    if (targetUnitData.token > 10) {
-                        targetUnitData.token = 10;
+            executeEffect = () => {
+                turnData.field = effectInfo.element;
+                let fieldTurn = effectInfo.effect_turn || 0;
+                if (fieldTurn > 0) {
+                    // フィールド強化バフを保持している場合
+                    if (logic.checkEffectTypeExist(turnData, useUnitData, EFFECT.FIELD_STRENGTHEN) ) {
+                        fieldTurn = 0;
                     }
                 }
-            }, turnData, targetList)
+                // フィールド展開アビリティ発動
+                logicAbility.abilityAction(ABILIRY_TIMING.FIELD_DEPLOY, turnData);
+                turnData.fieldTurn = fieldTurn;
+            }
+            effectDesc = `${ELEMENT_NAME[effectInfo.element]}属性フィールド`;
+            break;
+        case EFFECT.DISPEL: // ディスペル
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    targetUnitData.buffList = targetUnitData.buffList.filter(function (buffInfo) {
+                        return buffInfo.buff_no !== BUFF.RECOIL && buffInfo.buff_no !== BUFF.NAGATIVE;
+                    });
+                }, turnData, targetList)
+            }
+            effectDesc = `デバフ解除`;
+            break;
+        case EFFECT.TOKEN_UP: // トークン増加
+            executeEffect = () => {
+                targetLoop(function (targetUnitData) {
+                    // トークンは最大10まで
+                    if (targetUnitData.token < 10) {
+                        targetUnitData.token += effectInfo.effect_size;
+                        if (targetUnitData.token > 10) {
+                            targetUnitData.token = 10;
+                        }
+                    }
+                }, turnData, targetList)
+            }
+            effectDesc = `トークン+${effectInfo.effect_size}`;
             break;
         default:
             break;
     }
 
-    if (isLogOutput) {
-        let effectDesc = common.getBuffKind(effectInfo.effect_no).buff_name;
-        let rangeName = common.getRangeName(effectInfo.range_area);
-        let conditionName = common.getConditionName(effectInfo.target_element, effectInfo.conditions, Number(effectInfo.conditions_id));
-        let log = `　${conditionName}${effectDesc}`;
-        if (rangeName) {
-            log = `　${conditionName}${rangeName}に${effectDesc}`;
-        }
-        if (targetList.length > 0) {
-            let nameList = targetList.map(function (target_no) {
-                let unitData = logic.getUnitData(turnData, target_no);
-                return common.getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
-            });
-            log += `(対象：${nameList.join(", ")})`;
-        }
-        turnData.setLog(log);
+    let rangeName = common.getRangeName(effectInfo.range_area);
+    let conditionName = common.getConditionName(effectInfo.target_element, effectInfo.conditions, Number(effectInfo.conditions_id));
+    let log = `　${conditionName}${effectDesc}`;
+    if (rangeName) {
+        log = `　${conditionName}${rangeName}に${effectDesc}`;
     }
+    if (targetList.length > 0) {
+        let nameList = targetList.map(function (target_no) {
+            let unitData = logic.getUnitData(turnData, target_no);
+            return common.getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
+        });
+        log += `(対象：${nameList.join(", ")})`;
+    }
+    turnData.setLog(log);
+
+    // 処理の実行
+    executeEffect();
 }
 
 // バフ付与
@@ -287,13 +319,12 @@ export const addDisasterDebuffUnit = (debuffList, skillEffectInfo, useUnitData) 
     debuff.lv = Math.min(debuff.lv + skillEffectInfo.effect_size, 10);
 }
 
-
-function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo, isRecursion, buffId) {
+function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo) {
     let unitSp = unitData.sp;
     let minusSp = 0;
     const targetNo = unitData.placeNo;
-    // クレール・ド・リュンヌ(＋)、収穫祭+は消費SPを加味する。
-    if (buffId === 120 || buffId === 121 || buffId === 229) {
+    // 上限30の回復は消費SPを加味する。
+    if (limitSp === 30) {
         minusSp = unitData.spCost;
     }
     unitSp += addSp;
@@ -306,23 +337,8 @@ function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo, isRecursion
     }
     unitData.sp = unitSp;
 
-    if (!isRecursion) {
-        // 愛嬌
-        if (logic.checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1605) && targetNo !== usePlaceNo) {
-            skillHealSp(turnData, targetNo, 3, 30, null, true, 0)
-        }
-        // お裾分け/エネルギー補給
-        if ((logic.checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1606) ||
-            logic.checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], 1612))
-            && targetNo !== usePlaceNo) {
-            let targetList = logic.getTargetList(turnData, RANGE.ALLY_ALL, 0, unitData);
-            targetLoop(function (targetUnitData) {
-                skillHealSp(turnData, targetUnitData, 2, 30, null, true, 0)
-            }, turnData, targetList)
-        }
-        if (targetNo !== usePlaceNo) {
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.HEAL_SP, unitData);
-        }
+    if (targetNo !== usePlaceNo) {
+        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.OTHER_HEAL_SP, unitData);
     }
 }
 
@@ -490,7 +506,7 @@ export const getEffectSize = (effect, useUnitData) => {
         const effectLimit = effect.effect_limit ?? 0;
         switch (effect.effect_no) {
             case constants.EFFECT_VALUE.TOKEN_POWER_UP:
-                multiplier = (useUnitData.tokenCost ? useUnitData.tokenCost : 0);
+                multiplier = (useUnitData.tokenCost ?? useUnitData.token ?? 0);
                 break;
             // case constants.EFFECT_VALUE.MOTIVATION_GOOD:
             //     multiplier = targetCountMotivation(styleList, 1);

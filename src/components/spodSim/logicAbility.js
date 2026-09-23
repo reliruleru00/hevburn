@@ -164,7 +164,9 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
                     turnData.overDriveGauge = turnData.maxOverDriveGauge;
                 }
-                effectDesc = `OverDriveゲージ+${ability.effect_size}`;
+                effectDesc = `OverDriveゲージ+${ability.effect_size.toLocaleString("ja-JP", {
+                    signDisplay: "always",
+                })}%`
                 break;
             case EFFECT.GRANT_BUFF: // バフ付与
                 logicBuff.targetLoop(function (targetUnitData) {

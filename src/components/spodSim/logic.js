@@ -55,6 +55,24 @@ export function sumBuffEffect(buffList, effectType) {
     return effectSum;
 }
 
+// 効果存在チェック
+export function checkEffectTypeExist(turnData, unitData, effectType) {
+    const abilityList = unitData[`ability_${ABILIRY_TIMING.OTHER}`]
+    const passiveList = unitData.passiveSkillList
+    let existAbilityList = abilityList.filter(function (ability) {
+        if (!judgmentCondition(Number(ability.conditions), ability.conditions_id, turnData, unitData, null)) {
+            return false;
+        }
+        return ability.effect_type === effectType;
+    });
+    let existPassiveList = passiveList.filter(function (passive) {
+        if (!judgmentCondition(Number(passive.conditions), passive.conditions_id, turnData, unitData, null)) {
+            return false;
+        }
+        return passive.effect_type === effectType;
+    });
+    return existAbilityList.length > 0 || existPassiveList.length > 0;
+}
 
 // メンバー存在チェック
 export function checkMember(unitList, troops) {
@@ -293,7 +311,8 @@ export function startAction(turnData) {
 }
 
 // 行動処理
-const actionProc = (turnData, logOutput) => {
+const actionProc = (turnData) => {
+    turnData.setLog(`＝＝＝＝＝＝＝＝＝＝行動開始＝＝＝＝＝＝＝＝＝＝`);
     // 追加ターンフラグ削除
     if (turnData.additionalTurn) {
         turnData.additionalTurn = false;
@@ -316,7 +335,7 @@ const actionProc = (turnData, logOutput) => {
         const spCost = unitData.spCost;
         const attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
 
-        skillActivation(skillInfo, unitData, turnData, autoPursuitUnit, spCost, logOutput);
+        skillActivation(skillInfo, unitData, turnData, autoPursuitUnit, spCost);
 
         // スキル連続使用
         if (attackInfo) {
@@ -329,7 +348,7 @@ const actionProc = (turnData, logOutput) => {
                 doubleAttack = true;
             }
             if (doubleAttack) {
-                skillActivation(skillInfo, unitData, turnData, autoPursuitUnit, spCost, logOutput);
+                skillActivation(skillInfo, unitData, turnData, autoPursuitUnit, spCost);
             }
         }
         origin(turnData, skillInfo, unitData);
@@ -376,7 +395,7 @@ const getAutoPursuitUnit = (turnData) => {
         if (unitData.selectSkillId === SKILL.AUTO_PURSUIT) {
             const catJetInfo = getSkillData(constants.SKILL_ID.CAT_JET_SHOOTING);
             const catJetSp = getSpCost(turnData, catJetInfo, unitData);
-            if (catJetSp <= unitData.sp) {
+            if (catJetSp <= unitData.sp + unitData.overDriveSp) {
                 unitData.spCost = catJetSp;
                 unitData.selectSkillId = constants.SKILL_ID.CAT_JET_SHOOTING;
             }
@@ -387,7 +406,7 @@ const getAutoPursuitUnit = (turnData) => {
 }
 
 // スキル処理
-const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost, isLogOutput) => {
+const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost) => {
     // 攻撃後に付与されるバフ種
     const ATTACK_AFTER_LIST = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP,
     BUFF.ELEMENT_CRITICALDAMAGEUP, BUFF.CHARGE, BUFF.DAMAGERATEUP];
@@ -398,14 +417,14 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
 
     let isSkill = false;
     let attackInfo;
+    let before = "";
     if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
         attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
+        before = "通常攻撃";
     } else {
         attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
         if (attackInfo) {
-            // アビリティ(スキル使用)
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
-            isSkill = true;
+            before = `スキル${attackInfo.hit_count}HIT`;
         }
     }
 
@@ -413,7 +432,7 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
     // 攻撃前効果
     effectList.forEach(function (effectInfo) {
         if (!(effectInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(effectInfo.buff_no))) {
-            logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp, isLogOutput);
+            logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp);
         }
     })
 
@@ -423,11 +442,7 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
     // 攻撃スキルの処理
     if (attackInfo) {
         let unitOdPlus = getUnitOverDrive(turnData, unitData, skillInfo, attackInfo, overDriveRateUp)
-        if (unitOdPlus > 0) {
-            turnData.setLog(`　OverDriveゲージ+${unitOdPlus.toFixed(2)}%`);
-        } else if (unitOdPlus < 0) {
-            turnData.setLog(`　OverDriveゲージ${unitOdPlus.toFixed(2)}%`);
-        }
+        turnData.setLog(`　${before} OverDriveゲージ+${unitOdPlus.toFixed(2)}%`);
         turnData.overDriveGauge += unitOdPlus;
 
         // アビリティ(与ダメージ時)
@@ -442,6 +457,11 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
         logicBuff.consumeBuffUnit(turnData, unitData, attackInfo, skillInfo);
     }
 
+    if (attackInfo) {
+        // アビリティ(スキル使用)
+        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+        isSkill = true;
+    }
     if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
         // アビリティ（EXスキル使用）
         logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData, false);
@@ -450,7 +470,7 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
     // 攻撃後効果
     effectList.forEach(function (effectInfo) {
         if (effectInfo.skill_attack1 === 999 && ATTACK_AFTER_LIST.includes(effectInfo.buff_no)) {
-            logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp, isLogOutput);
+            logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp);
         }
     })
 
@@ -459,7 +479,7 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost,
         const skillId = autoPursuitUnit.selectSkillId;
         if (skillId === constants.SKILL_ID.CAT_JET_SHOOTING) {
             const catJetInfo = getSkillData(constants.SKILL_ID.CAT_JET_SHOOTING);
-            skillActivation(catJetInfo, autoPursuitUnit, turnData, null, 0, isLogOutput);
+            skillActivation(catJetInfo, autoPursuitUnit, turnData, null, 0);
             // 追撃アビリティ発動
             logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, autoPursuitUnit);
             // 以降は自動追撃
@@ -582,28 +602,6 @@ export const getOverDrive = (turn) => {
     // 行動処理
     actionProc(tempTurn, false);
     return tempTurn.overDriveGauge;
-}
-
-// 自動追撃のOD増加量を計算
-const autoPursuitOverDrive = (turnData, unitData, isSkill, spCost) => {
-    let unitOdPlus = 0;
-    // 自動追撃
-    if (isSkill && spCost <= 8 && unitData) {
-        const skillId = unitData.selectSkillId;
-        if (skillId === constants.SKILL_ID.CAT_JET_SHOOTING) {
-            // ネコジェットシャテキの処理
-            const catJetInfo = getSkillData(constants.SKILL_ID.CAT_JET_SHOOTING);
-            // unitOdPlus += getODPlus(catJetInfo, unitData.placeNo, turnData)
-            unitData.selectSkillId = SKILL.AUTO_PURSUIT;
-        }
-        if (skillId === SKILL.AUTO_PURSUIT) {
-            // 自動追撃
-            const charaData = getCharaData(unitData.style.styleInfo.chara_id);
-            const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
-            unitOdPlus += calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
-        }
-    }
-    return unitOdPlus;
 }
 
 // 後衛のOD数値

@@ -3,7 +3,7 @@ import {
 } from "./const";
 import {
     CHARA_ID, SKILL_ID, SKILL, ELEMENT, BUFF, EFFECT, RANGE, FIELD, CONDITIONS, ATTRIBUTE, KIND,
-    ALONE_ACTIVATION_BUFF_NO, COST_TYPE, changeStyle
+    ALONE_ACTIVATION_BUFF_NO, COST_TYPE, ATTACK_ID, changeStyle
 } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
@@ -32,11 +32,11 @@ export function checkPassiveExist(passiveList, skillId) {
 }
 
 // バフ存在チェック
-export function checkBuffExist(buffList, buffNo, lv = 6) {
+export function checkBuffExist(buffList, buffNo, lv) {
     let existList = buffList.filter(function (buffInfo) {
         return buffInfo.buff_no === buffNo;
     });
-    if (buffNo === BUFF.MORALE) {
+    if (lv) {
         return existList.length > 0 && existList[0].lv >= lv;
     } else {
         return existList.length > 0;
@@ -200,14 +200,7 @@ const reflectUserOperation = (turnData, isLoadMode) => {
                 if (!isLoadMode) {
                     if (operationPlaceNo !== unit.placeNo) {
                         setInitSkill(unit);
-                        // turnData.userOperation.selectSkill[operationPlaceNo].skill_id = turnData.userOperation.selectSkill[unit.placeNo].skill_id;
-                        // turnData.userOperation.selectSkill[operationPlaceNo].buffEffectSelectType = turnData.userOperation.selectSkill[unit.placeNo].buffEffectSelectType;
-                        // turnData.userOperation.selectSkill[operationPlaceNo].buffTargetCharaId = turnData.userOperation.selectSkill[unit.placeNo].buffTargetCharaId;
                         turnData.userOperation.placeStyle[operationPlaceNo] = turnData.userOperation.placeStyle[unit.placeNo];
-
-                        // turnData.userOperation.selectSkill[unit.placeNo].skill_id = unit.selectSkillId;
-                        // turnData.userOperation.selectSkill[unit.placeNo].buffEffectSelectType = unit.buffEffectSelectType;
-                        // turnData.userOperation.selectSkill[unit.placeNo].buffTargetCharaId = unit.buffTargetCharaId;
                         turnData.userOperation.placeStyle[unit.placeNo] = unit.style.styleInfo.style_id;
                     }
                     return;
@@ -371,11 +364,7 @@ const actionProc = (turnData) => {
             let charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
             turnData.setLog(`${charaName}の${skillName}`);
             const unitOdPlus = getODBackPlus(skillId, unitData, turnData);
-            if (unitOdPlus > 0) {
-                turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
-            } else if (unitOdPlus < 0) {
-                turnData.setLog(`　OverDriveゲージ${unitOdPlus}%`);
-            }
+            turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
             turnData.overDriveGauge += unitOdPlus;
             logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData)
             return true;
@@ -417,15 +406,10 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
 
     let isSkill = false;
     let attackInfo;
-    let before = "";
     if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
         attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
-        before = "通常攻撃";
     } else {
         attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
-        if (attackInfo) {
-            before = `スキル${attackInfo.hit_count}HIT`;
-        }
     }
 
     const overDriveRateUp = getOverDriveRateUp(unitData, attackInfo)
@@ -441,9 +425,9 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
 
     // 攻撃スキルの処理
     if (attackInfo) {
-        let unitOdPlus = getUnitOverDrive(turnData, unitData, skillInfo, attackInfo, overDriveRateUp)
-        turnData.setLog(`　${before} OverDriveゲージ+${unitOdPlus.toFixed(2)}%`);
-        turnData.overDriveGauge += unitOdPlus;
+        const unitOdPlus = getUnitOverDrive(turnData, unitData, skillInfo, attackInfo, overDriveRateUp)
+        turnData.setLog(`　${unitOdPlus.before} OverDriveゲージ+${unitOdPlus.unitOdPlus.toFixed(2)}%`);
+        turnData.overDriveGauge += unitOdPlus.unitOdPlus;
 
         // アビリティ(与ダメージ時)
         let effectSize = 1;
@@ -455,16 +439,16 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.DEAL_DAMAGE, unitData, params);
         // バフ消費
         logicBuff.consumeBuffUnit(turnData, unitData, attackInfo, skillInfo);
-    }
 
-    if (attackInfo) {
-        // アビリティ(スキル使用)
-        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
-        isSkill = true;
-    }
-    if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
-        // アビリティ（EXスキル使用）
-        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData, false);
+        if (attackInfo.attack_id !== 0) {
+            // アビリティ(スキル使用)
+            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+            isSkill = true;
+        }
+        if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
+            // アビリティ（EXスキル使用）
+            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData, false);
+        }
     }
 
     // 攻撃後効果
@@ -520,6 +504,7 @@ const getUnitOverDrive = (turnData, unitData, skillInfo, attackInfo, overDriveRa
     let unitOdPlus = 0;
     const odRateUp = overDriveRateUp.odRateUp;
     const earring = overDriveRateUp.earring;
+    let before;
 
     let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
     if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
@@ -527,14 +512,15 @@ const getUnitOverDrive = (turnData, unitData, skillInfo, attackInfo, overDriveRa
         if (!isResist(turnData.enemyInfo, physical, unitData.normalAttackElement, null)) {
             unitOdPlus += calcODGain(3, 1, overDriveGaugeMultiplier, odRateUp);
         }
+        before = "通常攻撃";
     } else if (attackInfo) {
         // 攻撃IDの変換(暫定)
         let attackId = attackInfo.attack_id
         switch (attackId) {
-            case 83:
+            case ATTACK_ID.ELEGANT_AND_SOLEMN:
                 // 唯雅粛正
                 if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
-                    attackId = 84;
+                    attackId = ATTACK_ID.ELEGANT_AND_SOLEMN_CHARGE;
                 }
                 break;
             default:
@@ -544,12 +530,16 @@ const getUnitOverDrive = (turnData, unitData, skillInfo, attackInfo, overDriveRa
         if (attackInfo.range_area === constants.RANGE.ENEMY_UNIT) {
             enemyTarget = 1;
         }
+        before = `スキル${attackInfo.hit_count}HIT`;
         if (!isResist(turnData.enemyInfo, physical, attackInfo.attack_element, attackId)) {
             let funnelList = getFunnelList(unitData);
             unitOdPlus += calcODGain(attackInfo.hit_count, enemyTarget, overDriveGaugeMultiplier, odRateUp, earring, funnelList.length);
+            if (funnelList.length > 0) {
+                before += `+連撃${funnelList.length}HIT`;
+            }
         }
     }
-    return unitOdPlus;
+    return { before, unitOdPlus };
 }
 
 // 耐性判定
@@ -652,12 +642,13 @@ export function getSpCost(turnData, skillInfo, unit) {
     }
     let spCostDown = unit.spCostDown;
     let spCostUp = unit.spCostUp;
+    if (zeroSpSkill(turnData, skillInfo, unit)) {
+        return 0;
+    }
     if (harfSpSkill(turnData, skillInfo, unit)) {
         spCost = Math.ceil(spCost / 2);
     }
-    if (ZeroSpSkill(turnData, skillInfo, unit)) {
-        return 0;
-    }
+    spCostDown += minusSpSkill(turnData, skillInfo, unit);
 
     // オーバードライブ中
     if (turnData.overDriveMaxTurn > 0) {
@@ -694,7 +685,7 @@ function harfSpSkill(turnData, skillInfo, unitData) {
 }
 
 // 消費SP0
-function ZeroSpSkill(turnData, skillInfo, unitData) {
+function zeroSpSkill(turnData, skillInfo, unitData) {
     // SP消費0
     if (skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO) {
         if (judgmentCondition(skillInfo.conditions, skillInfo.conditions_id, turnData, unitData, skillInfo.skill_id)) {
@@ -703,6 +694,30 @@ function ZeroSpSkill(turnData, skillInfo, unitData) {
     }
     return false;
 }
+
+// 消費SP軽減
+function minusSpSkill(turnData, skillInfo, unitData) {
+    let minusSp = 0;
+    // SP消費半減
+    switch (skillInfo.skill_attribute) {
+        case ATTRIBUTE.SP_MITIGATION_3:
+            minusSp = 3;
+            break;
+        case ATTRIBUTE.SP_MITIGATION_4:
+            minusSp = 4;
+            break;
+        case ATTRIBUTE.SP_MITIGATION_5:
+            minusSp = 5;
+            break;
+        default:
+            return 0;
+    }
+    if (judgmentCondition(skillInfo.conditions, skillInfo.conditions_id, turnData, unitData, skillInfo.skill_id)) {
+        return minusSp;
+    }
+    return 0;
+}
+
 
 // 条件判定
 export const judgmentCondition = (conditions, conditionsId, turnData, unitData, skillId) => {
@@ -748,6 +763,8 @@ export const judgmentCondition = (conditions, conditionsId, turnData, unitData, 
             return checkBuffExist(turnData.enemyDebuffList, conditionsId);
         case CONDITIONS.MORALE_OVER_LV: // 士気Lv以上
             return checkBuffExist(unitData.buffList, BUFF.MORALE, conditionsId);
+        case CONDITIONS.LNFANTILIZED_OVER_LV: // 幼児退行Lv以上
+            return checkBuffExist(turnData.enemyDebuffList, BUFF.LNFANTILIZED, conditionsId);
         case CONDITIONS.ENEMY_COUNT: // 敵数指定
             return turnData.enemyCount === conditionsId;
         case CONDITIONS.SELECT_31A: // 31A選択
@@ -1233,10 +1250,12 @@ export const removeOverDrive = (turnData) => {
 const debuffConsumption = (turnData) => {
     for (let i = turnData.enemyDebuffList.length - 1; i >= 0; i--) {
         let debuff = turnData.enemyDebuffList[i];
-        if (debuff.rest_turn === 1) {
-            turnData.enemyDebuffList.splice(i, 1);
-        } else {
-            debuff.rest_turn -= 1;
+        if (debuff.effect_turn > 0) {
+            if (debuff.rest_turn === 1) {
+                turnData.enemyDebuffList.splice(i, 1);
+            } else {
+                debuff.rest_turn -= 1;
+            }
         }
     }
 }
@@ -1330,21 +1349,23 @@ const unitOverDriveTurnProceed = (unit) => {
 const buffConsumption = (turnProgress, unit) => {
     for (let i = unit.buffList.length - 1; i >= 0; i--) {
         let buffInfo = unit.buffList[i];
-        if (!turnProgress) {
-            // 単独発動と行動不能
-            if (isAloneActivation(buffInfo) || buffInfo.buff_no === BUFF.RECOIL) {
+        if (buffInfo.effect_turn > 0) {
+            if (!turnProgress) {
+                // 単独発動と行動不能
+                if (isAloneActivation(buffInfo) || buffInfo.buff_no === BUFF.RECOIL) {
+                    if (buffInfo.rest_turn === 1) {
+                        unit.buffList.splice(i, 1);
+                    } else {
+                        buffInfo.rest_turn -= 1;
+                    }
+                }
+            } else {
+                // 全バフターン消費
                 if (buffInfo.rest_turn === 1) {
                     unit.buffList.splice(i, 1);
                 } else {
                     buffInfo.rest_turn -= 1;
                 }
-            }
-        } else {
-            // 全バフターン消費
-            if (buffInfo.rest_turn === 1) {
-                unit.buffList.splice(i, 1);
-            } else {
-                buffInfo.rest_turn -= 1;
             }
         }
     }
@@ -1396,12 +1417,13 @@ const getearringEffectSize = (hitCount, unit) => {
     return 0;
 }
 
+// 連撃消費
 export const getFunnelList = (unit) => {
     let ret = [];
     let buffFunnelList = unit.buffList.filter(function (buffInfo) {
         return BUFF.FUNNEL === buffInfo.buff_no && !isAloneActivation(buffInfo);
     });
-    let buffUnitFunnelList = unit.buffList.filter(function (buffInfo) {
+    const buffUnitFunnelList = unit.buffList.filter(function (buffInfo) {
         return BUFF.FUNNEL === buffInfo.buff_no && isAloneActivation(buffInfo);
     });
     let abilityList = unit.buffList.filter(function (buffInfo) {
@@ -1419,13 +1441,15 @@ export const getFunnelList = (unit) => {
         return b.effectSum - a.effectSum;
     });
     // 単独発動の効果値判定
-    let buff_total = buffFunnelList.slice(0, 2).reduce(function (sum, element) {
+    let buffTotal = buffFunnelList.slice(0, 2).reduce(function (sum, element) {
         return sum + element["effectSum"];
     }, 0);
-    let buff_unit_total = buffUnitFunnelList.slice(0, 1).reduce(function (sum, element) {
+    let buffUnitTotal = buffUnitFunnelList.slice(0, 1).reduce(function (sum, element) {
         return sum + element["effectSum"];
     }, 0);
-    if (buff_total <= buff_unit_total) {
+
+    // 最大値判定
+    if (buffTotal <= buffUnitTotal) {
         ret = buffUnitFunnelList.slice(0, 1)
     } else {
         ret = buffFunnelList.slice(0, 2)
@@ -1441,14 +1465,14 @@ export const getFunnelList = (unit) => {
 
     // 各要素のeffect_count分effect_unitを追加
     ret.forEach(function (item) {
-        for (let i = 0; i < item.max_power; i++) {
+        for (let i = 0; i < item.effect_count; i++) {
             resultList.push(item.effect_size);
         }
         item.useFunnel = true;
     });
     // 使用後にリストから削除
     unit.buffList = unit.buffList.filter(function (item) {
-        return !item.useFunnel || isAloneActivation(item) || item.always;
+        return !item.useFunnel || isAloneActivation(item) || (item.activation_place && item.first_only !== 1);
     })
     return resultList;
 }

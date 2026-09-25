@@ -10,6 +10,7 @@ const BuffDetailLabelComponent = ({ buff }) => {
     switch (buff.buff_no) {
         case BUFF.MORALE: // 士気
         case BUFF.DISASTER: // 禍
+        case BUFF.LNFANTILIZED: // 幼児退行
             buffText += `(Lv${buff.lv})`;
             break;
         default:

@@ -22,7 +22,7 @@ export const ABILIRY_TIMING = {
 }
 
 // 使用不可スタイル
-export const NOT_USE_STYLE = [197, 213, 215, 218, 224, 225];
+export const NOT_USE_STYLE = [197, 213, 215, 218];
 // 制限アビリティ
 export const CONSTRAINTS_ABILITY = [
     25, // 超越ゲージ
@@ -45,7 +45,6 @@ export const CONSTRAINTS_ABILITY = [
     1701, // ドMの真髄
     1702, // 護りの真髄
     1109, // 吉報
-    1217, // 神楽舞
     1620, // 芳醇ダージリン
 ];
 // 制限パッシブ

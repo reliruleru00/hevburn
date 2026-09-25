@@ -215,6 +215,8 @@ export const getConditionName = (targetElement, conditions, conditionsId) => {
             return `追加ターン中でない時`;
         case CONDITIONS.MORALE_OVER_LV:
             return `士気Lv${conditionsId}以上の時`;
+        case CONDITIONS.LNFANTILIZED_OVER_LV:
+            return `幼児退行Lv${conditionsId}以上の時`;
         case CONDITIONS.OVER_31C_3:
             return `31Cが3人以上の時`;
         case CONDITIONS.SELECT_31A:

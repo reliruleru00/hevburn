@@ -27,8 +27,6 @@ const TARGET_KIND = [
     EFFECT.STATUSUP_VALUE_MND, // 能力上昇(MND)
     EFFECT.STATUSUP_VALUE_INT, // 能力上昇(INT)
     EFFECT.STATUSUP_VALUE_LUK, // 能力上昇(LUK)
-    EFFECT.FUNNEL, // 連撃
-    EFFECT.FUNNEL_ALWAYS, // 連撃(永続)
 ];
 const SUB_TARGET_KIND = [
     EFFECT.FIELD_DEPLOYMENT, // フィールド展開

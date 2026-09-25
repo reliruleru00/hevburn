@@ -245,8 +245,8 @@ function getInitBattleData(selectStyleList, enemyInfo, saveStyle, detailSetting,
             if (member.morale > 0) {
                 let morale = {
                     buff_no: BUFF.MORALE,
-                    buff_element: 0,
-                    rest_turn: -1,
+                    element: 0,
+                    rest_turn: 0,
                     lv: member.morale,
                     buff_name: "初期設定",
                 }

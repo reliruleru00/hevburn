@@ -80,11 +80,6 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
             case "ブレイク中":
             case "100%":
                 return;
-            case CONDITIONS.FIELD_ELEMENT: // フィールド属性
-                if (!logic.judgmentCondition(ability.conditions, ability.conditions_id, turnData, unitData, null)) {
-                    return true;
-                }
-                break;
             default:
                 break;
         }
@@ -164,7 +159,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
                     turnData.overDriveGauge = turnData.maxOverDriveGauge;
                 }
-                effectDesc = `OverDriveゲージ+${ability.effect_size.toLocaleString("ja-JP", {
+                effectDesc = `OverDriveゲージ${ability.effect_size.toLocaleString("ja-JP", {
                     signDisplay: "always",
                 })}%`
                 break;
@@ -186,6 +181,10 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                     logicBuff.addMoraleBuffUnit(targetUnitData, ability, null)
                 }, turnData, targetList)
                 effectDesc = `士気+${ability.effect_size}`;
+                break;
+            case EFFECT.LNFANTILIZED: // 幼児退行
+                logicBuff.addLnfantilizedDebuffUnit(turnData.enemyDebuffList, ability, unitData);
+                effectDesc = `幼児退行+${ability.effect_size}`;
                 break;
             case EFFECT.SP_LIMIT_UP: // SP上限アップ
                 logicBuff.targetLoop(function (targetUnitData) {

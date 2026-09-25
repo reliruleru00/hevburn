@@ -37,16 +37,6 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
         default:
             break;
     }
-    switch (effectInfo.skill_id) {
-        case constants.SKILL_EFFECT_ID.PERFECT_COLOR: // 極彩色
-            let field_element = logic.getFieldElement(turnData);
-            if (effectInfo.buff_element !== field_element) {
-                return;
-            }
-            break;
-        default:
-            break;
-    }
 
     let effectDesc = "";
     let executeEffect = () => { };
@@ -100,6 +90,12 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
                 addDisasterDebuffUnit(turnData.enemyDebuffList, effectInfo, useUnitData);
             }
             effectDesc = `禍+${effectInfo.effect_size}`;
+            break;
+        case EFFECT.LNFANTILIZED: // 幼児退行
+            executeEffect = () => {
+                addLnfantilizedDebuffUnit(turnData.enemyDebuffList, effectInfo, useUnitData);
+            }
+            effectDesc = `幼児退行+${effectInfo.effect_size}`;
             break;
         case EFFECT.HEALSP: // SP追加
             const effectSize = getEffectSize(effectInfo, useUnitData);
@@ -172,7 +168,7 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
                 let fieldTurn = effectInfo.effect_turn || 0;
                 if (fieldTurn > 0) {
                     // フィールド強化バフを保持している場合
-                    if (logic.checkEffectTypeExist(turnData, useUnitData, EFFECT.FIELD_STRENGTHEN) ) {
+                    if (logic.checkEffectTypeExist(turnData, useUnitData, EFFECT.FIELD_STRENGTHEN)) {
                         fieldTurn = 0;
                     }
                 }
@@ -265,10 +261,6 @@ export const grantBuff = (unitData, skillEffectInfo, useUnitData) => {
         }
     }
     let buff = createBuffData(skillEffectInfo, useUnitData);
-    // 茜色
-    if (skillEffectInfo.SKILL_EFFECT_ID === constants.SKILL_EFFECT_ID.BRIGHT_RED && unitData.style.styleInfo.element === 1) {
-        buff.rest_turn = 5;
-    }
     unitData.buffList.push(buff);
 }
 
@@ -319,6 +311,24 @@ export const addDisasterDebuffUnit = (debuffList, skillEffectInfo, useUnitData) 
     debuff.lv = Math.min(debuff.lv + skillEffectInfo.effect_size, 10);
 }
 
+// 幼児退行デバフ追加
+export const addLnfantilizedDebuffUnit = (debuffList, skillEffectInfo, useUnitData) => {
+    let existList = debuffList.filter(function (buffInfo) {
+        return buffInfo.buff_no === BUFF.LNFANTILIZED;
+    });
+    let debuff;
+    if (existList.length > 0) {
+        debuff = existList[0];
+    } else {
+        debuff = createBuffData(skillEffectInfo, useUnitData);
+        debuff.buff_no = BUFF.LNFANTILIZED;
+        debuff.buff_name = "幼児退行";
+        debuff.lv = 0;
+        debuffList.push(debuff);
+    }
+    debuff.lv = Math.min(debuff.lv + skillEffectInfo.effect_size, 20);
+}
+
 function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo) {
     let unitSp = unitData.sp;
     let minusSp = 0;
@@ -346,7 +356,7 @@ export const createBuffData = (skillEffectInfo, useUnitData) => {
     let buff = {
         ...skillEffectInfo,
         buff_no: skillEffectInfo.effect_no,
-        rest_turn: skillEffectInfo.effect_turn === 0 ? -1 : skillEffectInfo.effect_turn
+        rest_turn: skillEffectInfo.effect_turn || 0
     };
     switch (skillEffectInfo.effect_type) {
         case EFFECT.GRANT_DEBUFF:
@@ -400,7 +410,7 @@ export const consumeBuffUnit = (turnData, unitData, attackInfo) => {
         if (countWithFilter < consumeCount) {
             switch (buffInfo.buff_no) {
                 case BUFF.ELEMENT_ATTACKUP: // 属性攻撃力アップ
-                    if (attackInfo.attack_element !== buffInfo.buff_element) {
+                    if (attackInfo.attack_element !== buffInfo.element) {
                         continue;
                     }
                 // fallthrough
@@ -424,7 +434,7 @@ export const consumeBuffUnit = (turnData, unitData, attackInfo) => {
                     break;
                 case BUFF.ELEMENT_CRITICALRATEUP:	// 属性クリティカル率アップ
                 case BUFF.ELEMENT_CRITICALDAMAGEUP:	// 属性クリティカルダメージアップ
-                    if (attackInfo.attack_element !== buffInfo.buff_element) {
+                    if (attackInfo.attack_element !== buffInfo.element) {
                         continue;
                     }
                 // fallthrough
@@ -480,8 +490,8 @@ export function getBuffIconImg(buffInfo) {
     if (buffKindKbn) {
         src = buffKindKbn.buff_icon;
     }
-    if (buffInfo.buff_element && buffInfo.buff_element !== 0) {
-        src += buffInfo.buff_element;
+    if (buffInfo.element && buffInfo.element !== 0) {
+        src += buffInfo.element;
     }
     return src;
 }

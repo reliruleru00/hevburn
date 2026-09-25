@@ -43,7 +43,11 @@ export const SKILL_ID = {
     SUMMER_FINE_WEATHER: 658, // 夏のひより
     DOMINATION_GRAVITY: 670, //	ドミネーション・グラビティ
     FAST_SHOT: 685, //	速攻◯
-    // MOTHERS_LIGHT: 764, // 母の灯を継いで
+}
+
+export const ATTACK_ID = {
+    ELEGANT_AND_SOLEMN: 83, // 唯雅粛正
+    ELEGANT_AND_SOLEMN_CHARGE: 84, // 唯雅粛正(チャージ)
 }
 
 export const SKILL_EFFECT_ID = {
@@ -52,8 +56,6 @@ export const SKILL_EFFECT_ID = {
     MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
     MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
     PERFECT_COLOR: 557,   // 極彩色
-    FULL_MEDITATION: 490,   // 追い込み！全力メドレー
-    BRIGHT_RED: 1037,   // 茜色
 }
 
 // 追加SPアビリティ
@@ -201,7 +203,7 @@ export const EFFECT = {
     STUN: 21, // スタン
     GRANT_DEBUFF: 22, // デバフ付与
     DISASTER: 23, // 禍
-    SHADOW_CLONE: 24, // 影分身
+    LNFANTILIZED: 24, // 幼児退行
     STATUSUP_ALL_VALUE: 25, // 能力上昇(固定)
     STATUSUP_RATE: 26, // 能力上昇(%)
     FIELD_STRENGTHEN: 27, // フィールド強化
@@ -217,8 +219,6 @@ export const EFFECT = {
     CAMP_DEPLOYMENT: 40, // 陣展開
     RESISTDOWN: 41, // 耐性ダウン
     DP_DEFFENCEDOWN: 42, // DP防御力ダウン
-    // TALISMAN: 44, // 霊符
-    // EX_DOUBLE: 45, // EXスキル連続発動
     OVERDRIVE_RATE_UP: 46, // OD増加量アップ
     HEALEP: 52, // EP回復
     OVERDRIVE_EP: 54, // OD時EP回復
@@ -283,6 +283,8 @@ export const ATTRIBUTE = {
     SP_HALF: 11, // SP消費半減
     SP_ZERO: 12, // SP消費0
     SP_MITIGATION_3: 13, // SP消費軽減3
+    SP_MITIGATION_4: 14, // SP消費軽減4
+    SP_MITIGATION_5: 15, // SP消費軽減5
     NOT_ACTION: 99, // 行動無し
 }
 
@@ -344,6 +346,7 @@ export const CONDITIONS = {
     RANDOM_MEAL: 59, // ランダム料理
     IS_WEAK: 60, // 弱点を突いている
     DP_UNDER_50: 61, // DP50％以下
+    LNFANTILIZED_OVER_LV: 62, // 幼児退行レベル以上
 }
 
 /** 敵リスト*/

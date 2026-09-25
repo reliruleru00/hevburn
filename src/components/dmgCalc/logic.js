@@ -949,24 +949,25 @@ function getSumFunnelEffectList(argument, handlers) {
         })
     }
 
-    const EFFECT_FUNNEL = [EFFECT.FUNNEL, EFFECT.FUNNEL_ALWAYS];
     passiveLoop((passiveEffect) => {
-        if (EFFECT_FUNNEL.includes(passiveEffect.effect_type)) {
+        if (BUFF.ABILITY_FUNNEL === Number(passiveEffect.effect_no)) {
             let size = passiveEffect.effect_size;
             let loop = passiveEffect.effect_count;
             for (let i = 0; i < loop; i++) {
                 funnelList.push(size);
             }
         }
-    }, passiveSettingMap, EFFECT_FUNNEL, argument, handlers);
+    }, passiveSettingMap, [EFFECT.GRANT_BUFF], argument, handlers);
 
     abilityLoop((abilityEffect) => {
-        let size = abilityEffect.effect_size;
-        let loop = abilityEffect.effect_count;
-        for (let i = 0; i < loop; i++) {
-            funnelList.push(size);
+        if (BUFF.ABILITY_FUNNEL === Number(abilityEffect.effect_no)) {
+            let size = abilityEffect.effect_size;
+            let loop = abilityEffect.effect_count;
+            for (let i = 0; i < loop; i++) {
+                funnelList.push(size);
+            }
         }
-    }, abilitySettingMap, EFFECT_FUNNEL, argument, handlers);
+    }, abilitySettingMap, [EFFECT.GRANT_BUFF], argument, handlers);
 
     // 降順でソート
     funnelList.sort(function (a, b) {

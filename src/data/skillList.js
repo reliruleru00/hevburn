@@ -238,7 +238,7 @@ const skilLlist = [
     {"skill_id":334,"skill_name":"バラ撒き","chara_id":18,"style_id":0,"cost_type":"SP","use_cost":10,"skill_active":0,"skill_kind":0},
     {"skill_id":335,"skill_name":"ルーイン・イリュージョン","chara_id":18,"style_id":67,"cost_type":"SP","use_cost":10,"skill_active":0,"skill_kind":1},
     {"skill_id":336,"skill_name":"クールダウン","chara_id":3,"style_id":0,"cost_type":"SP","use_cost":5,"skill_active":0,"skill_kind":0},
-    {"skill_id":337,"skill_name":"神楽浄火・閃","chara_id":3,"style_id":68,"cost_type":"SP","use_cost":15,"skill_active":0,"skill_kind":1},
+    {"skill_id":337,"skill_name":"神楽浄火・閃","chara_id":3,"style_id":68,"cost_type":"SP","use_cost":15,"skill_active":0,"skill_kind":1,"skill_attribute":15,"conditions":15,"conditions_id":1},
     {"skill_id":338,"skill_name":"ブレイブソウル","chara_id":43,"style_id":0,"cost_type":"SP","use_cost":6,"skill_active":0,"skill_kind":0},
     {"skill_id":339,"skill_name":"大切り盛り","chara_id":48,"style_id":0,"cost_type":"SP","use_cost":6,"skill_active":0,"skill_kind":0},
     {"skill_id":340,"skill_name":"最凶のおもてなし","chara_id":48,"style_id":69,"cost_type":"SP","use_cost":14,"skill_active":0,"skill_kind":1},

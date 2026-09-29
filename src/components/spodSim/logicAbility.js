@@ -2,7 +2,7 @@ import {
     ABILIRY_TIMING, ELEMENT_NAME, ACTION_ORDER
 } from "./const";
 import {
-    ABILITY_ID, FIELD, EFFECT, CONDITIONS,
+    ABILITY_ID, FIELD, EFFECT, CONDITIONS, RANGE
 } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
@@ -50,7 +50,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
             return true;
         }
         let targetList = logic.getTargetList(turnData, ability.range_area, ability.target_element, unitData);
-        if (!logic.judgmentCondition(Number(ability.conditions), ability.conditions_id, turnData, unitData, null)) {
+        if (!logic.judgmentCondition(ability, turnData, unitData, null)) {
             return true;
         }
         // 対象がバフを所持
@@ -211,14 +211,14 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 }, turnData, targetList)
                 effectDesc = `消費SP-${ability.effect_size}`;
                 break;
-            case EFFECT.COST_SP_UP: // SPコストアップ
-                logicBuff.targetLoop(function (targetUnitData) {
-                    if (checkTargetElment(unitData, ability.target_element)) {
-                        targetUnitData.spCostUp = Math.max(targetUnitData.spCostUp, ability.effect_size);
-                    }
-                }, turnData, targetList)
-                effectDesc = `消費SP+${ability.effect_size}`;
-                break;
+            // case EFFECT.COST_SP_UP: // SPコストアップ
+            //     logicBuff.targetLoop(function (targetUnitData) {
+            //         if (checkTargetElment(unitData, ability.target_element)) {
+            //             targetUnitData.spCostUp = Math.max(targetUnitData.spCostUp, ability.effect_size);
+            //         }
+            //     }, turnData, targetList)
+            //     effectDesc = `消費SP+${ability.effect_size}`;
+            //     break;
             default:
                 break;
         }
@@ -236,7 +236,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 let unitData = logic.getUnitData(turnData, target_no);
                 return common.getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
             });
-            if (nameList.length > 0) {
+            if (ability.range_area !== RANGE.SELF && nameList.length > 0) {
                 log = `　対象：${nameList.join(", ")}`;
                 turnData.setLog(log);
             }

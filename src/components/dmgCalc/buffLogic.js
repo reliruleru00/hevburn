@@ -275,6 +275,58 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 });
             };
 
+            const abilityPassiveCommon = (info, id, name, funcEffectList, attackInfo) => {
+                if (info.element && info.element !== attackInfo.attack_element) return false;
+                if (info.physical && info.physical !== attackInfo.attack_physical) return false;
+                if (attackMemberInfo && !logic.isElementInclude(attackMemberInfo.styleInfo, info.target_element)) return false;
+
+                let ret = false;
+                const effectList = funcEffectList(id);
+                for (const effect of effectList) {
+                    if (!TARGET_KIND.includes(effect.effect_type)) continue;
+
+                    if (troopKbn === logic.TROOP_KBN.SUB) {
+                        // 他部隊のアビリティは一部のみ許可
+                        if (!SUB_TARGET_KIND.includes(effect.effect_type)) {
+                            continue;
+                        }
+                    }
+
+                    if (!constants.RANGE_ALL_ABILITY.includes(effect.effect_type)) {
+                        if (effect.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
+                    }
+
+                    switch (effect.effect_type) {
+                        case EFFECT.FIELD_DEPLOYMENT: // フィールド展開
+                            addBuffAbility("ability", id, name, EFFECT.FIELD_DEPLOYMENT, "", effect);
+                            continue;
+                        case EFFECT.GRANT_BUFF:
+                            switch (effect.effect_no) {
+                                case BUFF.EX_DOUBLE: // EXスキル連続発動
+                                    // 対象外
+                                    continue;
+                                case BUFF.ABILITY_FUNNEL: // アビリティ連撃
+                                case BUFF.HIGH_BOOST: // ハイブースト
+                                case BUFF.FIRE_MARK: // 火の印
+                                case BUFF.ICE_MARK: // 氷の印
+                                case BUFF.THUNDER_MARK: // 雷の印
+                                case BUFF.LIGHT_MARK: // 光の印
+                                case BUFF.DARK_MARK: // 闇の印
+                                    // アビリティに表示
+                                    break;
+                                default:
+                                    addBuffAbility("ability", id, name, EFFECT.GRANT_BUFF, effect.effect_no, effect);
+                                    continue;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    ret = true;
+                }
+                return ret;
+            }
+
             let styleAbility = {
                 "orgn": memberInfo.styleInfo.ability_orgn,
                 "0": memberInfo.styleInfo.ability0,
@@ -307,45 +359,7 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 const abilityInfo = common.getAbilityInfo(abilityId);
                 if (!abilityInfo) return;
 
-                if (abilityInfo.element !== 0 && abilityInfo.element !== attackInfo.attack_element) return;
-                if (abilityInfo.physical !== 0 && abilityInfo.physical !== attackInfo.attack_physical) return;
-                if (attackMemberInfo && !logic.isElementInclude(attackMemberInfo.styleInfo, abilityInfo.target_element)) return;
-
-                let isAddAbility = false;
-                const abilityEffectList = common.getAbilityEffectList(abilityId);
-                for (const abilityEffect of abilityEffectList) {
-                    if (!TARGET_KIND.includes(abilityEffect.effect_type)) continue;
-
-                    if (troopKbn === logic.TROOP_KBN.SUB) {
-                        // 他部隊のアビリティは一部のみ許可
-                        if (!SUB_TARGET_KIND.includes(abilityEffect.effect_type)) {
-                            continue;
-                        }
-                    }
-
-                    if (!constants.RANGE_ALL_ABILITY.includes(abilityEffect.effect_type)) {
-                        if (abilityEffect.range_area === RANGE.SELF && charaId !== attackCharaId) continue;
-                    }
-
-                    switch (abilityEffect.effect_type) {
-                        case EFFECT.FIELD_DEPLOYMENT: // フィールド展開
-                            addBuffAbility("ability", abilityId, abilityInfo.ability_name, EFFECT.FIELD_DEPLOYMENT, "", abilityEffect);
-                            continue;
-                        case EFFECT.GRANT_BUFF:
-                            switch (abilityEffect.effect_no) {
-                                case BUFF.EX_DOUBLE: // EXスキル連続発動
-                                    // 対象外
-                                    continue;
-                                default:
-                                    addBuffAbility("ability", abilityId, abilityInfo.ability_name, EFFECT.GRANT_BUFF, abilityEffect.effect_no, abilityEffect);
-                                    break;
-                            }
-                            continue;
-                        default:
-                            break;
-                    }
-                    isAddAbility = true;
-                }
+                const isAddAbility = abilityPassiveCommon(abilityInfo, abilityId, abilityInfo.ability_name, common.getAbilityEffectList, attackInfo)
                 if (isAddAbility) {
                     const newAbility = JSON.parse(JSON.stringify(abilityInfo));
                     newAbility.key = `${abilityId}_${charaId}`;
@@ -367,44 +381,7 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 const passiveInfo = common.getPassiveInfo(skill.skill_id);
                 if (!passiveInfo) return;
 
-                if (passiveInfo.element !== 0 && passiveInfo.element !== attackInfo.attack_element) return;
-                if (attackMemberInfo) {
-                    if (!logic.isElementInclude(attackMemberInfo.styleInfo, passiveInfo.target_element)) return;
-                }
-
-                const passiveEffectList = common.getPassiveEffectList(skill.skill_id);
-                let isAddPassive = false;
-                for (const passiveEffect of passiveEffectList) {
-                    if (!passiveInfo || !TARGET_KIND.includes(passiveEffect.effect_type)) continue;
-                    if (!constants.RANGE_ALL_ABILITY.includes(passiveEffect.effect_type)) {
-                        if (passiveInfo.passiveEffect === RANGE.SELF && charaId !== attackCharaId) continue;
-                    }
-                    if (troopKbn === logic.TROOP_KBN.SUB) {
-                        // 他部隊のアビリティは一部のみ許可
-                        if (!SUB_TARGET_KIND.includes(passiveEffect.effect_type)) {
-                            continue;
-                        }
-                    }
-
-                    switch (passiveEffect.effect_type) {
-                        case EFFECT.FIELD_DEPLOYMENT:// フィールド展開
-                            addBuffAbility("passive", skill.skill_id, passiveInfo.passive_name, EFFECT.FIELD_DEPLOYMENT, '', passiveEffect);
-                            continue;
-                        case EFFECT.GRANT_BUFF: // バフ付与
-                            switch (passiveEffect.effect_no) {
-                                case BUFF.EX_DOUBLE: // EXスキル連続発動
-                                    // 対象外
-                                    continue;
-                                default:
-                                    addBuffAbility("passive", skill.skill_id, passiveInfo.passive_name, EFFECT.GRANT_BUFF, passiveEffect.effect_no, passiveEffect);
-                                    break;
-                            }
-                            continue;
-                        default:
-                            break;
-                    }
-                    isAddPassive = true;
-                }
+                const isAddPassive = abilityPassiveCommon(passiveInfo, skill.skill_id, passiveInfo.passive_name, common.getPassiveEffectList, attackInfo)
                 if (isAddPassive) {
                     const passive = JSON.parse(JSON.stringify(passiveInfo));
                     passive.key = `${skill.skill_id}_${charaId}`;

@@ -21,7 +21,7 @@ const checkBuffIdExist = (buffList, SKILL_EFFECT_ID) => {
 export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateUp) => {
     // 条件判定
     if (effectInfo.conditions) {
-        if (!logic.judgmentCondition(effectInfo.conditions, effectInfo.conditions_id, turnData, useUnitData, effectInfo.skill_id)) {
+        if (!logic.judgmentCondition(effectInfo, turnData, useUnitData, effectInfo.skill_id)) {
             return;
         }
     }

@@ -272,17 +272,30 @@ export function getCostVariable(argument, handlers) {
     return spCost;
 }
 
+const abilityPassiveCommon = (func, data, info, effectList, effectType, argument, handlers) => {
+    for (let effect of effectList) {
+        let buffType;
+        if (effect.effect_type === EFFECT.GRANT_BUFF) {
+            buffType = common.getBuffEffectType(effect.effect_no, effectType);
+            if (buffType) {
+                effect = buffType;
+            }
+        }
+        if (judgeEffect(data.chara_id, info, effect, effectType, argument, handlers)) {
+                func(effect, data)
+        }
+    }
+}
+
 const abilityLoop = (func, abilitySettingMap, effectType, argument, handlers) => {
     if (!abilitySettingMap) return;
     Object.values(abilitySettingMap)
         .filter(ability => ability.checked)
         .forEach((ability) => {
-            const abilityInfo = common.getAbilityInfo(ability.ability_id);
-            for (const abilityEffect of common.getAbilityEffectList(ability.ability_id)) {
-                if (judgeEffect(ability.chara_id, abilityInfo, abilityEffect, effectType, argument, handlers)) {
-                    func(abilityEffect, ability)
-                }
-            }
+            abilityPassiveCommon(func, ability,
+                common.getAbilityInfo(ability.ability_id),
+                common.getAbilityEffectList(ability.ability_id),
+                effectType, argument, handlers)
         })
 }
 
@@ -291,12 +304,10 @@ const passiveLoop = (func, passiveSettingMap, effectType, argument, handlers) =>
     Object.values(passiveSettingMap)
         .filter(passive => passive.checked)
         .forEach((passive) => {
-            const passiveInfo = common.getPassiveInfo(passive.skill_id);
-            for (const passiveEffect of common.getPassiveEffectList(passive.skill_id)) {
-                if (judgeEffect(passive.chara_id, passiveInfo, passiveEffect, effectType, argument, handlers)) {
-                    func(passiveEffect, passive)
-                }
-            }
+            abilityPassiveCommon(func, passive,
+                common.getPassiveInfo(passive.skill_id),
+                common.getPassiveEffectList(passive.skill_id),
+                effectType, argument, handlers)
         })
 }
 

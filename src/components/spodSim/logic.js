@@ -60,13 +60,13 @@ export function checkEffectTypeExist(turnData, unitData, effectType) {
     const abilityList = unitData[`ability_${ABILIRY_TIMING.OTHER}`]
     const passiveList = unitData.passiveSkillList
     let existAbilityList = abilityList.filter(function (ability) {
-        if (!judgmentCondition(Number(ability.conditions), ability.conditions_id, turnData, unitData, null)) {
+        if (!judgmentCondition(ability, turnData, unitData, null)) {
             return false;
         }
         return ability.effect_type === effectType;
     });
     let existPassiveList = passiveList.filter(function (passive) {
-        if (!judgmentCondition(Number(passive.conditions), passive.conditions_id, turnData, unitData, null)) {
+        if (!judgmentCondition(passive, turnData, unitData, null)) {
             return false;
         }
         return passive.effect_type === effectType;
@@ -677,7 +677,7 @@ export function getSpCost(turnData, skillInfo, unit) {
 function harfSpSkill(turnData, skillInfo, unitData) {
     // SP消費半減
     if (skillInfo.skill_attribute === ATTRIBUTE.SP_HALF) {
-        if (judgmentCondition(skillInfo.conditions, skillInfo.conditions_id, turnData, unitData, skillInfo.skill_id)) {
+        if (judgmentCondition(skillInfo, turnData, unitData, skillInfo.skill_id)) {
             return true;
         }
     }
@@ -688,7 +688,7 @@ function harfSpSkill(turnData, skillInfo, unitData) {
 function zeroSpSkill(turnData, skillInfo, unitData) {
     // SP消費0
     if (skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO) {
-        if (judgmentCondition(skillInfo.conditions, skillInfo.conditions_id, turnData, unitData, skillInfo.skill_id)) {
+        if (judgmentCondition(skillInfo, turnData, unitData, skillInfo.skill_id)) {
             return true;
         }
     }
@@ -712,7 +712,7 @@ function minusSpSkill(turnData, skillInfo, unitData) {
         default:
             return 0;
     }
-    if (judgmentCondition(skillInfo.conditions, skillInfo.conditions_id, turnData, unitData, skillInfo.skill_id)) {
+    if (judgmentCondition(skillInfo, turnData, unitData, skillInfo.skill_id)) {
         return minusSp;
     }
     return 0;
@@ -720,7 +720,9 @@ function minusSpSkill(turnData, skillInfo, unitData) {
 
 
 // 条件判定
-export const judgmentCondition = (conditions, conditionsId, turnData, unitData, skillId) => {
+export const judgmentCondition = (info, turnData, unitData, skillId) => {
+    const conditions = Number(info.conditions);
+    const conditionsId = info.conditions_id;
     switch (conditions) {
         case CONDITIONS.FIRST_TURN: // 1ターン目
             return turnData.turnNumber === 1;
@@ -1082,7 +1084,7 @@ const turnInit = (turnData, turnProgress) => {
             return;
         }
         buffConsumption(turnProgress, unit);
-        unitTurnInit(turnData.additionalTurn, unit);
+        unitTurnInit(turnData, turnProgress, turnData.additionalTurn, unit);
     }, turnData.unitList);
 }
 
@@ -1263,7 +1265,7 @@ const debuffConsumption = (turnData) => {
 /** TurnDataここまで */
 
 /** UnitDataここから */
-const unitTurnInit = (additionalTurn, unit) => {
+const unitTurnInit = (turnData, turnProgress, additionalTurn, unit) => {
     unit.spCostDown = 0;
     unit.spCostUp = 0;
     unit.buffEffectSelectType = 0;
@@ -1271,6 +1273,37 @@ const unitTurnInit = (additionalTurn, unit) => {
         setInitSkill(unit);
     } else {
         unit.selectSkillId = SKILL.NONE;
+    }
+    if (turnProgress) {
+        const name = common.getCharaData(unit.style.styleInfo.chara_id).chara_short_name;
+        // バフによる効果
+        unit.buffList.forEach((buff) => {
+            for (const buffEffect of common.getBuffEffect(buff.buff_no)) {
+                let effectFunc = null;
+                let effectText = null;
+                if (buffEffect.effect_type === EFFECT.HEALSP) {
+                    effectFunc = () => {
+                        unit.sp += buffEffect.effect_size;
+                    }
+                    effectText = `SP+${buffEffect.effect_size}`;
+                }
+                if (buffEffect.effect_type === EFFECT.COST_SP_UP) {
+                    effectFunc = () => {
+                        unit.spCostUp += buffEffect.effect_size;
+                    }
+                    effectText = `消費SP上昇${buffEffect.effect_size}`;
+                }
+                if (!effectFunc) {
+                    continue;
+                }
+                if (judgmentCondition(buffEffect, turnData, unit, null)) {
+                    effectFunc();
+                    const buffName = common.getBuffKind(buff.buff_no).buff_name;
+                    const log = `${name}:${buffName}の効果 ${effectText}`;
+                    turnData.setLog(log);
+                }
+            };
+        });
     }
 }
 

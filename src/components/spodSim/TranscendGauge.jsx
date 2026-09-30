@@ -7,14 +7,14 @@ const TranscendGauge = ({ turn }) => {
 
     let src = attribute[ELEMENT_LIST[transcendElement]];
     return (transcendElement !== 0 &&
-        <div className="flex items-center mr-2">
+        <div className="flex items-center mr-1">
             <label className="flex items-center">
                 <img
                     className="w-6 h-6"
                     src={src}
                     alt={ELEMENT_LIST[transcendElement]}
                 />
-                <span className="font-bold">
+                <span className="font-bold text-sm">
                     {`超越${transcendGauge}%`}
                 </span>
             </label>

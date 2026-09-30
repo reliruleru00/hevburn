@@ -205,7 +205,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 break;
             case EFFECT.COST_SP_DOWN: // SPコストダウン
                 logicBuff.targetLoop(function (targetUnitData) {
-                    if (checkTargetElment(unitData, ability.target_element)) {
+                    if (logic.checkTargetElment(unitData, ability.target_element)) {
                         targetUnitData.spCostDown = Math.max(targetUnitData.spCostDown, ability.effect_size);
                     }
                 }, turnData, targetList)
@@ -244,10 +244,4 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
     });
 }
 
-export const checkTargetElment = (unit, targetElement) => {
-    if (targetElement === 0) {
-        return true;
-    }
-    return unit.style?.styleInfo?.element === targetElement || unit.style?.styleInfo?.element2 === targetElement;
-}
 /** UnitDataここまで */

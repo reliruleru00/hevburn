@@ -11,6 +11,7 @@ import BuffDetailListComponent from "./ModalBuffDetailLlist";
 import ModalUnitConfing from "./ModalUnitConfing";
 import BuffIconComponent from "./BuffIconComponent";
 import OverDriveGauge from "./OverDriveGauge";
+import TranscendGauge from "./TranscendGauge";
 import {
     getOverDrive, startOverDrive, removeOverDrive, skillUpdate, getUnitData, getTurnNumber,
     startAction, setInitSkill, getSpCost, changeStyleInfo
@@ -338,7 +339,10 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                     </div>
                     <OverDriveGauge turn={turn} />
                 </div>
-                <BuffIconComponent buffList={turn.enemyDebuffList} loopLimit={12} loopStep={1} placeNo={7} turnNumber={turn.turnNumber} clickBuffIcon={clickBuffIcon} />
+                <div className="turn_header_top">
+                    <BuffIconComponent buffList={turn.enemyDebuffList} loopLimit={7} loopStep={2} placeNo={7} turnNumber={turn.turnNumber} clickBuffIcon={clickBuffIcon} />
+                    <TranscendGauge turn={turn} />
+                </div>
             </div>
             <div className="party_member">
                 <div className="flex front_area">

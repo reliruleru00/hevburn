@@ -103,6 +103,14 @@ export function checkSp(turnData, rangeArea, sp, uniData) {
     return existList.length > 0;
 }
 
+// 属性チェック
+export const checkTargetElment = (unit, targetElement) => {
+    if (targetElement === 0) {
+        return true;
+    }
+    return unit.style?.styleInfo?.element === targetElement || unit.style?.styleInfo?.element2 === targetElement;
+}
+
 // スキルデータ更新
 export const skillUpdate = (turnData, skillId, placeNo) => {
     const unit = turnData.unitList.filter(unit => unit.placeNo === placeNo)[0];
@@ -457,6 +465,17 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
             logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp);
         }
     })
+
+    // 超越ゲージを加算
+    if (turnData.transcendElement !== 0 && checkTargetElment(unitData, turnData.transcendElement) && turnData.transcendGauge < 100) {
+        turnData.transcendGauge += 4;
+        turnData.setLog(`　超越ゲージ+4%`);
+        if (turnData.transcendGauge >= 100) {
+            turnData.transcendGauge = 100;
+            turnData.overDriveGauge += 100;
+            turnData.setLog(`　超越バースト OverDriveゲージ+100%`);
+        }
+    }
 
     // 自動追撃
     if (isSkill && spCost <= 8 && autoPursuitUnit) {

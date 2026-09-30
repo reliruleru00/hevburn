@@ -54,30 +54,31 @@ const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber,
     }, [buffList, loopLimit, loopStep, turnNumber, placeNo]);
 
     let className = "scroll-container " + (placeNo === 7 ? "enemy_icon_list" : "icon_list");
-    return (buffList.length > 0 ?
+    return (
         <div className={className} onClick={() => clickBuffIcon(buffList)}>
-            <div className="scroll-content" ref={scrollContentRef}>
-                {buffList.map((buffInfo, index) => (
-                    <img
-                        key={index}
-                        src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
-                        alt={buffInfo.buff_name}
-                        className="unit_buff"
-                    />
-                ))}
-                {(buffList.length > loopLimit * loopStep) ?
-                    buffList.map((buffInfo, index) => (
+            {buffList.length > 0 ?
+                <div className="scroll-content" ref={scrollContentRef}>
+                    {buffList.map((buffInfo, index) => (
                         <img
                             key={index}
                             src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
                             alt={buffInfo.buff_name}
                             className="unit_buff"
                         />
-                    )) : null
-                }
-            </div>
+                    ))}
+                    {(buffList.length > loopLimit * loopStep) ?
+                        buffList.map((buffInfo, index) => (
+                            <img
+                                key={index}
+                                src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
+                                alt={buffInfo.buff_name}
+                                className="unit_buff"
+                            />
+                        )) : null
+                    }
+                </div>
+                : null}
         </div>
-        : null
     );
 }
 

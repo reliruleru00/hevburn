@@ -111,7 +111,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                                 let background = getApplyGradient("#4F7C8B", dp_rate)
                                 return (
                                     <div className="dp_gauge" key={enemy_id}>
-                                        <input type="text" className="w-20 text-right comma"
+                                        <input type="text" className="w-20 text-right comma text-xs"
                                             value={focus === enemy_id ? maxDp : Number(maxDp).toLocaleString()}
                                             id={enemy_id} pattern="\d*" readOnly={!(isFreeInput || isStellar)}
                                             onChange={(e) => handleMaxDpEnemyChange(no, e.target.value)}
@@ -132,7 +132,7 @@ const EnemyArea = ({ state, dispatch, attackInfo }) => {
                         <div className="w-5">HP</div>
                         <div>
                             <div className="flex">
-                                <input type="text" id="enemy_hp" className="w-20 text-right comma"
+                                <input type="text" id="enemy_hp" className="w-20 text-right comma text-xs"
                                     value={focus === "enemy_hp" ? maxHp : maxHp.toLocaleString()} readOnly={!(isFreeInput || isStellar)}
                                     onChange={(e) => handleEnemyChange("max_hp", e.target.value)}
                                     onFocus={() => setFocus("enemy_hp")}

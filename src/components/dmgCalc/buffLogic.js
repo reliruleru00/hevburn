@@ -117,7 +117,7 @@ export const getAttackUpBuffs = function (isElement, isWeak, isDamageRate, attac
         ...(isKitchenMaria ? [{ name: "ジェラート", effect: EFFECT.GRANT_BUFF, kind: BUFF.GELATO, overlap: false },] : []),
         ...(isKitchenShanhua ? [{ name: "点心", effect: EFFECT.GRANT_BUFF, kind: BUFF.DIM_SUM, overlap: false },] : []),
         ...(isKitchenIrene ? [{ name: "ティー", effect: EFFECT.GRANT_BUFF, kind: BUFF.TEA, overlap: false },] : []),
-        ...(isYukataShiki ? [{ name: "晩夏の陣", effect: EFFECT.GRANT_BUFF, kind: BUFF.CAMP_DEPLOYMENT, overlap: false },] : []),
+        ...(isYukataShiki ? [{ name: "晩夏の陣", effect: EFFECT.GRANT_BUFF, kind: BUFF.CAMP_ATTACKUP, overlap: false },] : []),
         ...(isWeak ? [{ name: "心眼", effect: EFFECT.GRANT_BUFF, kind: BUFF.MINDEYE, overlap: true },] : []),
         ...(isWeak && isServant ? [{ name: "山脇様のしもべ ", effect: EFFECT.GRANT_BUFF, kind: BUFF.YAMAWAKI_SERVANT, overlap: false },] : []),
         { name: "連撃", effect: EFFECT.GRANT_BUFF, kind: BUFF.FUNNEL, overlap: true },
@@ -222,12 +222,16 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
             const styleId = memberInfo.styleInfo.style_id;
             const charaName = common.getCharaData(charaId).chara_short_name;
 
-            const filterBuff = [constants.EFFECT.FIELD_DEPLOYMENT, constants.EFFECT.GRANT_BUFF, constants.EFFECT.GRANT_DEBUFF]
+            const filterBuff = [EFFECT.FIELD_DEPLOYMENT, EFFECT.CAMP_DEPLOYMENT,
+            EFFECT.GRANT_BUFF, EFFECT.GRANT_DEBUFF]
             const styleBuffList = skillEffect.filter(buff =>
                 (buff.chara_id === charaId || buff.chara_id === 0) &&
                 (buff.style_id === styleId || buff.style_id === 0) &&
                 filterBuff.includes(buff.effect_type)
             ).filter(buff => {
+                // 除外スキル
+                if (memberInfo.exclusionSkillList.includes(buff.skill_id)) return false;
+
                 switch (buff.effect_id) {
                     case SKILL_EFFECT_ID.MOON_LIGHT: // 月光(歌姫の加護)
                         return styleId === STYLE_ID.ONLY_MOON_LIGHT;
@@ -245,8 +249,6 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
                 if (attackMemberInfo) {
                     if (!logic.isElementInclude(attackMemberInfo.styleInfo, buff.target_element)) return false;
                 }
-                // 除外スキル
-                if (memberInfo.exclusionSkillList.includes(buff.skill_id)) return false;
                 return true;
             });
 

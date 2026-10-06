@@ -8,6 +8,7 @@ export const CHARA_ID = {
     RISA: 22,
     MINORI: 27,
     MIYA: 45,
+    HIKARI: 50,
     STRENGTH_BUFF: 4,
     STRENGTH_DEBUFF: 11,
     STRENGTH_STYLE_DEBUFF: 211, // ペルソナ月歌,
@@ -135,7 +136,8 @@ export const BUFF = {
     FIGHTINGSPIRIT: 14, // 闘志
     MISFORTUNE: 15, // 厄
     FUNNEL: 16, // 連撃
-    DEFENSEDP: 19, // DP防御ダウン
+    DEFENSEDP: 18, // DP防御ダウン
+    ETERNAL_DEFENSEDP: 19, // 永続DP防御ダウン
     RESISTDOWN: 20, // 耐性ダウン
     ETERNAL_DEFENSEDOWN: 21, // 永続防御力ダウン
     ELEMENT_ETERNAL_DEFENSEDOWN: 22, // 永続属性防御ダウン
@@ -208,7 +210,7 @@ export const EFFECT = {
     STATUSUP_ALL_VALUE: 25, // 能力上昇(固定)
     STATUSUP_RATE: 26, // 能力上昇(%)
     FIELD_STRENGTHEN: 27, // フィールド強化
-    ADDITIONALTURN_NOT: 28, // 追加ターン
+    ADDITIONALTURN_NOT: 28, // 追加ターン(追加ターン除く)
     ADDITIONALTURN: 29, // 追加ターン
     TOKEN_UP: 30, // トークンアップ
     STATUSUP_VALUE_STR: 31, // 能力上昇(STR)
@@ -286,6 +288,7 @@ export const ATTRIBUTE = {
     SP_MITIGATION_3: 13, // SP消費軽減3
     SP_MITIGATION_4: 14, // SP消費軽減4
     SP_MITIGATION_5: 15, // SP消費軽減5
+    SP_MITIGATION_7: 17, // SP消費軽減7
     NOT_ACTION: 99, // 行動無し
 }
 

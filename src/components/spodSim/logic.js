@@ -368,13 +368,15 @@ const actionProc = (turnData) => {
         }
         // 追撃
         if (skillId === SKILL.PURSUIT) {
-            let skillName = common.getSkillData(skillId).skill_name;
-            let charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
-            turnData.setLog(`${charaName}の${skillName}`);
-            const unitOdPlus = getODBackPlus(skillId, unitData, turnData);
-            turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
-            turnData.overDriveGauge += unitOdPlus;
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData)
+            // 追撃行動
+            actionPursuit(turnData, unitData);
+            // let skillName = common.getSkillData(skillId).skill_name;
+            // let charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
+            // turnData.setLog(`${charaName}の${skillName}`);
+            // const unitOdPlus = getODBackPlus(skillId, unitData, turnData);
+            // turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
+            // turnData.overDriveGauge += unitOdPlus;
+            // logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData)
             return true;
         }
     });
@@ -420,6 +422,9 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
     }
 
+    // SP消費してから行動
+    payCost(unitData, skillInfo);
+
     const overDriveRateUp = getOverDriveRateUp(unitData, attackInfo)
     // 攻撃前効果
     effectList.forEach(function (effectInfo) {
@@ -427,9 +432,6 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
             logicBuff.procEffectUnit(turnData, effectInfo, unitData, overDriveRateUp);
         }
     })
-
-    // SP消費してから行動
-    payCost(unitData, skillInfo);
 
     // 攻撃スキルの処理
     if (attackInfo) {
@@ -467,15 +469,7 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
     })
 
     // 超越ゲージを加算
-    if (turnData.transcendElement !== 0 && checkTargetElment(unitData, turnData.transcendElement) && turnData.transcendGauge < 100) {
-        turnData.transcendGauge += 4;
-        turnData.setLog(`　超越ゲージ+4%`);
-        if (turnData.transcendGauge >= 100) {
-            turnData.transcendGauge = 100;
-            turnData.overDriveGauge += 100;
-            turnData.setLog(`　超越バースト OverDriveゲージ+100%`);
-        }
-    }
+    addTranscendGauge(turnData, unitData);
 
     // 自動追撃
     if (isSkill && spCost <= 8 && autoPursuitUnit) {
@@ -489,17 +483,48 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
             autoPursuitUnit.selectSkillId = SKILL.AUTO_PURSUIT;
         }
         if (skillId === SKILL.AUTO_PURSUIT) {
-            // 自動追撃
-            const charaData = getCharaData(autoPursuitUnit.style.styleInfo.chara_id);
-            const charaName = charaData.chara_short_name;
-            const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
-            let unitOdPlus = calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
-            const skillName = common.getSkillData(skillId).skill_name;
-            turnData.setLog(`${charaName}の${skillName}`);
-            turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
-            turnData.overDriveGauge += unitOdPlus;
-            // 追撃アビリティ発動
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, autoPursuitUnit);
+            // 追撃行動
+            actionPursuit(turnData, autoPursuitUnit)
+            // const charaData = getCharaData(autoPursuitUnit.style.styleInfo.chara_id);
+            // const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
+
+            // const skillName = common.getSkillData(skillId).skill_name;
+            // const charaName = charaData.chara_short_name;
+            // turnData.setLog(`${charaName}の${skillName}`);
+            // const unitOdPlus = calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
+            // turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
+            // turnData.overDriveGauge += unitOdPlus;
+            // // 追撃アビリティ発動
+            // logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, autoPursuitUnit);
+        }
+    }
+}
+
+// 追撃行動
+const actionPursuit = (turnData, unitData) => {
+    const skillName = common.getSkillData(SKILL.PURSUIT).skill_name;
+    const charaData = getCharaData(unitData.style.styleInfo.chara_id);
+    const charaName = charaData.chara_short_name;
+    const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
+    const unitOdPlus = calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
+    turnData.setLog(`${charaName}の${skillName}`);
+    turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
+    turnData.overDriveGauge += unitOdPlus;
+    logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData);
+
+    // 超越ゲージを加算
+    addTranscendGauge(turnData, unitData);
+}
+
+// 超越ゲージを加算
+const addTranscendGauge = (turnData, unitData) => {
+    if (turnData.transcendElement !== 0 && checkTargetElment(unitData, turnData.transcendElement) && turnData.transcendGauge < 100) {
+        turnData.transcendGauge += 4;
+        turnData.setLog(`　超越ゲージ+4%`);
+        if (turnData.transcendGauge >= 100) {
+            turnData.transcendGauge = 100;
+            turnData.overDriveGauge += 100;
+            turnData.setLog(`　超越バースト OverDriveゲージ+100%`);
         }
     }
 }
@@ -592,8 +617,10 @@ function origin(turnData, skillInfo, unitData) {
     unitData.useSkillList.push(skillInfo.skill_id);
     switch (skillInfo.skill_id) {
         case 177: // エリミネイト・ポッシブル
-            let target_unitData = turnData.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === unitData.buffTargetCharaId);
-            target_unitData[0].nextTurnMinSp = 3;
+            let targetUnitData = turnData.unitList.filter(unit => unit?.style?.styleInfo?.chara_id === unitData.buffTargetCharaId);
+            if (targetUnitData.length > 0) {
+                targetUnitData[0].nextTurnMinSp = 3;
+            }
             break;
         case 617: // ドリーミー・ガーデン
             let targetUnitList = turnData.unitList.filter(unit => unit?.style?.styleInfo?.chara_id !== unitData.style.styleInfo.chara_id);
@@ -614,23 +641,23 @@ export const getOverDrive = (turn) => {
 }
 
 // 後衛のOD数値
-const getODBackPlus = (skillId, unitData, turnData) => {
-    let odPlus = 0;
-    if (skillId === SKILL.NONE) {
-        return 0;
-    }
-    const charaData = getCharaData(unitData.style.styleInfo.chara_id);
-    const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
+// const getODBackPlus = (skillId, unitData, turnData) => {
+//     let odPlus = 0;
+//     if (skillId === SKILL.NONE) {
+//         return 0;
+//     }
+//     const charaData = getCharaData(unitData.style.styleInfo.chara_id);
+//     const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
 
-    // 追撃
-    if (skillId === SKILL.PURSUIT) {
-        if (!isResist(turnData.enemyInfo, charaData.physical, 0, 0)) {
-            odPlus += calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
-        }
-        return odPlus;
-    }
-    return odPlus;
-}
+//     // 追撃
+//     if (skillId === SKILL.PURSUIT) {
+//         if (!isResist(turnData.enemyInfo, charaData.physical, 0, 0)) {
+//             odPlus += calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
+//         }
+//         return odPlus;
+//     }
+//     return odPlus;
+// }
 
 // OD計算
 const calcODGain = (hitCount, enemyTarget, overDriveGaugeMultiplier, odRateUp = 0, earring = 0, funnelCount = 0) => {
@@ -807,7 +834,7 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
         case CONDITIONS.NOT_NEGATIVE: // ネガティブ以外
             return !checkBuffExist(unitData.buffList, BUFF.NAGATIVE);
         case CONDITIONS.SP_UNDER_0_ALL: // SP0以下の味方がいる
-            return checkSp(turnData, RANGE.ALLY_ALL, 0);
+            return checkSp(turnData, RANGE.ALLY_ALL, 0, unitData);
         case CONDITIONS.SP_UNDER: // SP指定値以下
             return checkSp(turnData, RANGE.SELF, conditionsId, unitData);
         case CONDITIONS.OD_UNDER: // OD指定値未満

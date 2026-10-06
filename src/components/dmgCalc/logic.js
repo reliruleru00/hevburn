@@ -16,10 +16,11 @@ export const ATTACK_BUFF_LIST = [
     BUFF.CRITICALRATEUP, BUFF.CRITICALDAMAGEUP, BUFF.ELEMENT_CRITICALRATEUP, BUFF.ELEMENT_CRITICALDAMAGEUP];
 export const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
-    BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, BUFF.FRAGILE, BUFF.RESISTDOWN, BUFF.ETERNAL_FRAGILE];
+    BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
+    BUFF.FRAGILE, BUFF.RESISTDOWN, BUFF.ETERNAL_FRAGILE];
 
 export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
-export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
+export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
 export const TROOP_KBN = {
     MAIN: "1",
     SUB: "2",
@@ -282,7 +283,7 @@ const abilityPassiveCommon = (func, data, info, effectList, effectType, argument
             }
         }
         if (judgeEffect(data.chara_id, info, effect, effectType, argument, handlers)) {
-                func(effect, data)
+            func(effect, data)
         }
     }
 }
@@ -539,6 +540,9 @@ export function getBestBuffKeys(buffKey, kindBuffList, buffSettingMap, overlap) 
     let combinedKeys = [];
 
     if (kindBuffList.length === 0) {
+        return combinedKeys;
+    }
+    if (!buffSettingMap[buffKey]) {
         return combinedKeys;
     }
     // 単独発動の中で最大値のeffect_sizeの要素を取得

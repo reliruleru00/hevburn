@@ -106,10 +106,15 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
             case EFFECT.HEALSP: // SP回復
                 logicBuff.targetLoop(function (targetUnitData) {
                     let limitSp = targetUnitData.limitSp;
-                    if (ability.effect_no) {
+                    if (ability.effect_limit) {
                         limitSp = ability.effect_limit;
                     }
-                    if (targetUnitData.sp + targetUnitData.overDriveSp < limitSp) {
+                    let minusSp = 0;
+                    // 上限30の回復は消費SPを加味する。
+                    if (limitSp === 30) {
+                        minusSp = targetUnitData.spCost;
+                    }
+                    if (targetUnitData.sp + targetUnitData.overDriveSp - minusSp < limitSp) {
                         if (ability.ability_id) {
                             if (constants.ADD_SP_ABILITY.includes(ability.ability_id)) {
                                 targetUnitData.addSp += ability.effect_size;
@@ -120,8 +125,8 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                         if (ability.skill_id) {
                             targetUnitData.sp += ability.effect_size;
                         }
-                        if (targetUnitData.sp + targetUnitData.overDriveSp > limitSp) {
-                            targetUnitData.sp = limitSp - targetUnitData.overDriveSp;
+                        if (targetUnitData.sp + targetUnitData.overDriveSp- minusSp > limitSp) {
+                            targetUnitData.sp = limitSp - targetUnitData.overDriveSp + minusSp;
                         }
                     }
                 }, turnData, targetList)
@@ -196,7 +201,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 turnData.field = ability.effect_no;
                 effectDesc = `${ELEMENT_NAME[ability.element]}属性フィールド`;
                 break;
-            case EFFECT.ADDITIONALTURN: // 追加ターン
+            case EFFECT.ADDITIONALTURN_NOT: // 追加ターン(追加ターンを除く)
                 if (turnData.additionalCount === 0) {
                     unitData.additionalTurn = true;
                     turnData.additionalTurn = true;

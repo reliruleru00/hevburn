@@ -141,7 +141,7 @@ export const getInitBattleData = (selectStyleList, enemyInfo, saveStyle, detailS
                         const targetElement = member.styleInfo.element;
                         turnInit.transcendElement = targetElement;
                         const targetList = selectStyleList.filter((member) => {
-                            return member.styleInfo.element === targetElement || member.styleInfo.element2 === targetElement;
+                            return member?.styleInfo.element === targetElement || member?.styleInfo.element2 === targetElement;
                         });
                         turnInit.transcendGauge = targetList.length * 15;
                     }

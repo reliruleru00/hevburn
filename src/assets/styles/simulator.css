@@ -343,8 +343,8 @@ input.troops_btn.selected_troops {
 }
 
 .enemy_icon {
-    width: 23px;
-    height: 23px;
+    width: 22px;
+    height: 22px;
 }
 
 .enemy_count {
@@ -358,17 +358,17 @@ input.troops_btn.selected_troops {
 
 .od_icon {
     width: 61px;
-    height: 48px;
+    height: 46px;
 }
 
 .od_number {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     margin-left: 11px;
 }
 
 .od_text {
-    padding-top: 5px;
+    padding-top: 3px;
     font-size: 13px;
 }
 

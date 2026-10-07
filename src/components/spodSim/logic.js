@@ -370,13 +370,6 @@ const actionProc = (turnData) => {
         if (skillId === SKILL.PURSUIT) {
             // 追撃行動
             actionPursuit(turnData, unitData);
-            // let skillName = common.getSkillData(skillId).skill_name;
-            // let charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
-            // turnData.setLog(`${charaName}の${skillName}`);
-            // const unitOdPlus = getODBackPlus(skillId, unitData, turnData);
-            // turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
-            // turnData.overDriveGauge += unitOdPlus;
-            // logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, unitData)
             return true;
         }
     });
@@ -412,7 +405,8 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
     const charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
     turnData.setLog(`${charaName}の${skillInfo.skill_name}`);
 
-    const effectList = getEffectList(skillInfo.skill_id);
+    // 効果取得
+    const effectList = getSkillEffectList(skillInfo.skill_id, turnData, unitData);
 
     let isSkill = false;
     let attackInfo;
@@ -450,14 +444,17 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         // バフ消費
         logicBuff.consumeBuffUnit(turnData, unitData, attackInfo, skillInfo);
 
+        // アビリティ(スキル使用)
+        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+
         if (attackInfo.attack_id !== 0) {
-            // アビリティ(スキル使用)
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
+            // アビリティ(アクティブスキル使用)
+            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.ACTIVE_SKILL_USE, unitData);
             isSkill = true;
         }
         if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
             // アビリティ（EXスキル使用）
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData, false);
+            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData);
         }
     }
 
@@ -485,19 +482,33 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         if (skillId === SKILL.AUTO_PURSUIT) {
             // 追撃行動
             actionPursuit(turnData, autoPursuitUnit)
-            // const charaData = getCharaData(autoPursuitUnit.style.styleInfo.chara_id);
-            // const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
-
-            // const skillName = common.getSkillData(skillId).skill_name;
-            // const charaName = charaData.chara_short_name;
-            // turnData.setLog(`${charaName}の${skillName}`);
-            // const unitOdPlus = calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
-            // turnData.setLog(`　OverDriveゲージ+${unitOdPlus}%`);
-            // turnData.overDriveGauge += unitOdPlus;
-            // // 追撃アビリティ発動
-            // logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, autoPursuitUnit);
         }
     }
+}
+
+// スキル効果リスト取得
+const getSkillEffectList = (skillId, turnData, unitData) => {
+    return getEffectList(skillId).filter(function (effectInfo) {
+        // 条件判定
+        if (effectInfo.conditions) {
+            if (!judgmentCondition(effectInfo, turnData, unitData, effectInfo.skill_id)) {
+                return false;
+            }
+        }
+        // 個別判定
+        switch (effectInfo.SKILL_EFFECT_ID) {
+            // 選択されなかった
+            case constants.SKILL_EFFECT_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
+                if (unitData.buffEffectSelectType === 0) {
+                    return false;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return true;
+    });
 }
 
 // 追撃行動
@@ -639,25 +650,6 @@ export const getOverDrive = (turn) => {
     actionProc(tempTurn, false);
     return tempTurn.overDriveGauge;
 }
-
-// 後衛のOD数値
-// const getODBackPlus = (skillId, unitData, turnData) => {
-//     let odPlus = 0;
-//     if (skillId === SKILL.NONE) {
-//         return 0;
-//     }
-//     const charaData = getCharaData(unitData.style.styleInfo.chara_id);
-//     const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
-
-//     // 追撃
-//     if (skillId === SKILL.PURSUIT) {
-//         if (!isResist(turnData.enemyInfo, charaData.physical, 0, 0)) {
-//             odPlus += calcODGain(charaData.pursuit, 1, overDriveGaugeMultiplier);
-//         }
-//         return odPlus;
-//     }
-//     return odPlus;
-// }
 
 // OD計算
 const calcODGain = (hitCount, enemyTarget, overDriveGaugeMultiplier, odRateUp = 0, earring = 0, funnelCount = 0) => {
@@ -862,6 +854,8 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
             return (conditionsId - 1) <= unitData.useSkillList.filter(id => id === skillId).length;
         case CONDITIONS.TOKEN_OVER: // トークン
             return unitData.token >= conditionsId;
+        case CONDITIONS.TOKEN_COST_OVER: // トークンコスト
+            return unitData.tokenCost >= conditionsId;
         case CONDITIONS.MOTIVATION: // やる気
             return unitData.buffEffectSelectType >= conditionsId;
         case CONDITIONS.RANDOM_MEAL: // ランダム料理
@@ -876,6 +870,8 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
             let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
             let attackInfo = getSkillIdToAttackInfo(turnData, unitData.selectSkillId);
             return isWeak(turnData.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)
+        case CONDITIONS.CAMP_DEPLOYMENT: // 陣展開
+            return turnData.camp === conditionsId;
         default:
             break;
     }

@@ -273,7 +273,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         let skillInfo = getSkillData(unit.selectSkillId);
 
         const selectionConditions = [CONDITIONS.DESTRUCTION_OVER_200, CONDITIONS.HAS_SHADOW,
-        CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100, CONDITIONS.SUPER_DOWN, CONDITIONS.MOTIVATION, CONDITIONS.TOKEN_OVER, CONDITIONS.INVINCIBLE];
+        CONDITIONS.DOWN_TURN, CONDITIONS.DP_OVER_100, CONDITIONS.SUPER_DOWN, CONDITIONS.MOTIVATION, CONDITIONS.INVINCIBLE];
         if (selectionConditions.includes(skillInfo.conditions)) {
             if (unit.buffEffectSelectType >= 1) {
                 let spCost = getSpCost(turn, skillInfo, unit)
@@ -323,7 +323,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                         <div className="turn_number">{getTurnNumber(turn)}</div>
                         <div className="left flex">
                             <img className="enemy_icon" src={enemyIcon} alt="ENEMY" />
-                            <div>
+                            <div className="text-xs">
                                 <select className="enemy_count" value={turn.enemyCount} onChange={(e) => chengeEnemyCount(e)}>
                                     {[1, 2, 3].filter(value => value === turn.enemyCount || !isCapturing)
                                         .map(enemyCount => <option value={enemyCount} key={`enemy_count${enemyCount}`}>{`${enemyCount}体`}</option>)}
@@ -334,6 +334,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                                         .filter(value => Number(value) === turn.field || !isCapturing)
                                         .map(field => <option value={field} key={`field${field}`}>{FIELD_LIST[field]}</option>)}
                                 </select>
+                                {turn.camp !== 0 ? <span className="ml-1">{constants.CAMP[turn.camp]}</span> : null}
                             </div>
                         </div>
                     </div>

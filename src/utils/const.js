@@ -314,6 +314,7 @@ export const CONDITIONS = {
     LIGHT_STYLE: 18, // 光属性スタイルN人以上
     DARK_STYLE: 19, // 闇属性スタイルN人以上
     HAS_ABILITY: 20, // アビリティ発動中
+    TOKEN_COST_OVER: 21, // トークンコスト指定値以上
     HAS_SHADOW: 22, // 影分身中
     HAS_DODGE: 23, // 回避状態
     TOKEN_OVER: 24, // トークン指定値以上

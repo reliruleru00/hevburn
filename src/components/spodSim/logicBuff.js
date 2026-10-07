@@ -19,25 +19,6 @@ const checkBuffIdExist = (buffList, SKILL_EFFECT_ID) => {
 
 // 効果処理
 export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateUp) => {
-    // 条件判定
-    if (effectInfo.conditions) {
-        if (!logic.judgmentCondition(effectInfo, turnData, useUnitData, effectInfo.skill_id)) {
-            return;
-        }
-    }
-
-    // 個別判定
-    switch (effectInfo.SKILL_EFFECT_ID) {
-        // 選択されなかった
-        case constants.SKILL_EFFECT_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
-            if (useUnitData.buffEffectSelectType === 0) {
-                return;
-            }
-            break;
-        default:
-            break;
-    }
-
     let effectDesc = "";
     let executeEffect = () => { };
     const targetList = logic.getTargetList(turnData, effectInfo.range_area, effectInfo.target_element, useUnitData);
@@ -201,6 +182,16 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
                 }, turnData, targetList)
             }
             effectDesc = `トークン+${effectInfo.effect_size}`;
+            break;
+        case EFFECT.CAMP_DEPLOYMENT: // 陣展開
+            executeEffect = () => {
+                turnData.camp = effectInfo.effect_no;
+            }
+            if (effectInfo.effect_no !== 0) {
+                effectDesc = `${constants.CAMP[effectInfo.effect_no]}展開`;
+            } else {
+                effectDesc = `陣展開解除`;
+            }
             break;
         default:
             break;

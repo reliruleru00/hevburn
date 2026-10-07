@@ -18,11 +18,17 @@ export const ABILIRY_TIMING = {
     STEP_TURN: 14,
     DEAL_DAMAGE: 15,
     PASSIVE: 16,
+    ACTIVE_SKILL_USE: 17,
     OTHER: 99,
 }
 
 // 使用不可スタイル
-export const NOT_USE_STYLE = [197, 213, 215, 218];
+export const NOT_USE_STYLE = [
+    197, // 手塚
+    213, // キッチン映夏
+    // 215, // 花火シッキー
+    218, // ヒカリ
+];
 // 超越アビリティ
 
 // 制限アビリティ

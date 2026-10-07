@@ -348,7 +348,8 @@ input.troops_btn.selected_troops {
 }
 
 .enemy_count {
-    width: 50px;
+    line-height: 21px;
+    width: 44px;
 }
 
 .inc_od_icon {
@@ -484,11 +485,6 @@ img.unit_style {
 img.unit_buff {
     width: 24px;
     height: 24px;
-}
-
-.enemy_count {
-    line-height: 21px;
-    font-size: 14px;
 }
 
 .enemy_icon_list {

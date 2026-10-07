@@ -50,7 +50,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
             return true;
         }
         let targetList = logic.getTargetList(turnData, ability.range_area, ability.target_element, unitData);
-        if (!logic.judgmentCondition(ability, turnData, unitData, null)) {
+        if (!logic.judgmentCondition(ability, turnData, unitData, unitData.selectSkillId)) {
             return true;
         }
         // 対象がバフを所持

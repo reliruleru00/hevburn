@@ -53,29 +53,30 @@ const BuffIconComponent = ({ buffList, loopLimit, loopStep, placeNo, turnNumber,
         }
     }, [buffList, loopLimit, loopStep, turnNumber, placeNo]);
 
-    let className = "scroll-container " + (placeNo === 7 ? "enemy_icon_list" : "icon_list");
     return (
-        <div className={className} onClick={() => clickBuffIcon(buffList)}>
+        <div className={(placeNo === 7 ? "enemy_icon_list" : "icon_list")}>
             {buffList.length > 0 ?
-                <div className="scroll-content" ref={scrollContentRef}>
-                    {buffList.map((buffInfo, index) => (
-                        <img
-                            key={index}
-                            src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
-                            alt={buffInfo.buff_name}
-                            className="unit_buff"
-                        />
-                    ))}
-                    {(buffList.length > loopLimit * loopStep) ?
-                        buffList.map((buffInfo, index) => (
+                <div className="scroll-container" onClick={() => clickBuffIcon(buffList)}>
+                    <div className="scroll-content" ref={scrollContentRef}>
+                        {buffList.map((buffInfo, index) => (
                             <img
                                 key={index}
                                 src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
                                 alt={buffInfo.buff_name}
                                 className="unit_buff"
                             />
-                        )) : null
-                    }
+                        ))}
+                        {(buffList.length > loopLimit * loopStep) ?
+                            buffList.map((buffInfo, index) => (
+                                <img
+                                    key={index}
+                                    src={buffIcons[logicBuff.getBuffIconImg(buffInfo)]}
+                                    alt={buffInfo.buff_name}
+                                    className="unit_buff"
+                                />
+                            )) : null
+                        }
+                    </div>
                 </div>
                 : null}
         </div>

@@ -15,96 +15,96 @@ import buffEffect from 'data/buffEffect';
 import * as constants from "utils/const";
 import skillEffect from "data/skillEffect";
 import {
-    ELEMENT, RANGE, CONDITIONS,
+    ELEMENT, RANGE, CONDITIONS, CAMP
 } from "utils/const";
 
 // キャラ名取得
 export function getCharaData(charaId) {
-  const filteredChara = charaData.filter((obj) => obj.chara_id === charaId);
-  return filteredChara.length > 0 ? filteredChara[0] : undefined;
+    const filteredChara = charaData.filter((obj) => obj.chara_id === charaId);
+    return filteredChara.length > 0 ? filteredChara[0] : undefined;
 }
 
 // スタイル取得
 export function getStyleData(styleId) {
-  const filteredStyle = styleList.filter((obj) => obj.style_id === styleId);
-  return filteredStyle.length > 0 ? filteredStyle[0] : undefined;
+    const filteredStyle = styleList.filter((obj) => obj.style_id === styleId);
+    return filteredStyle.length > 0 ? filteredStyle[0] : undefined;
 }
 
 // 敵情報取得
 export function getEnemyInfo(enemyClass, enemySelect) {
-  const filteredEnemy = enemyList.filter((obj) =>
-    obj.enemy_class === Number(enemyClass) && obj.enemy_class_no === Number(enemySelect));
-  return filteredEnemy.length > 0 ? filteredEnemy[0] : undefined;
+    const filteredEnemy = enemyList.filter((obj) =>
+        obj.enemy_class === Number(enemyClass) && obj.enemy_class_no === Number(enemySelect));
+    return filteredEnemy.length > 0 ? filteredEnemy[0] : undefined;
 }
 
 // スキルデータ取得
 export function getSkillData(skillId) {
-  const filteredSkill = skillList.filter((obj) => obj.skill_id === Number(skillId));
-  return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
+    const filteredSkill = skillList.filter((obj) => obj.skill_id === Number(skillId));
+    return filteredSkill.length > 0 ? filteredSkill[0] : undefined;
 }
 
 // EXスキル判定
 export function isSkillEx(skillInfo, skillId) {
-  if (!skillInfo) {
-    skillInfo = getSkillData(skillId);
-  }
-  return skillInfo && (skillInfo.skill_kind === constants.KIND.EX_GENERATE || skillInfo.skill_kind === constants.KIND.EX_EXCLUSIVE);
+    if (!skillInfo) {
+        skillInfo = getSkillData(skillId);
+    }
+    return skillInfo && (skillInfo.skill_kind === constants.KIND.EX_GENERATE || skillInfo.skill_kind === constants.KIND.EX_EXCLUSIVE);
 }
 
 // スキル攻撃情報取得
 export function getAttackInfo(attackId) {
-  const filteredAttack = skillAttack.filter((obj) => obj.attack_id === Number(attackId));
-  return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
+    const filteredAttack = skillAttack.filter((obj) => obj.attack_id === Number(attackId));
+    return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
 }
 
 // バフ一覧取得
 export function getEffectList(skillId) {
-  const filteredBuff = skillEffect.filter((obj) => obj.skill_id === Number(skillId));
-  return filteredBuff;
+    const filteredBuff = skillEffect.filter((obj) => obj.skill_id === Number(skillId));
+    return filteredBuff;
 }
 
 // バフ情報取得
 export function getBuffIdToEffect(effectId) {
-  const filteredBuff = skillEffect.filter((obj) => obj.effect_id === Number(effectId));
-  return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
+    const filteredBuff = skillEffect.filter((obj) => obj.effect_id === Number(effectId));
+    return filteredBuff.length > 0 ? filteredBuff[0] : undefined;
 }
 
 // バフ種別取得
 export function getBuffKind(buffKbn) {
-  const filteredBuffKind = buffKind.filter((obj) => obj.buff_kbn === Number(buffKbn));
-  return filteredBuffKind.length > 0 ? filteredBuffKind[0] : undefined;
+    const filteredBuffKind = buffKind.filter((obj) => obj.buff_kbn === Number(buffKbn));
+    return filteredBuffKind.length > 0 ? filteredBuffKind[0] : undefined;
 }
 
 // バフ効果取得
-export function getBuffEffect(buffKbn) { 
-  return buffEffect.filter((obj) => obj.buff_kbn === Number(buffKbn));
+export function getBuffEffect(buffKbn) {
+    return buffEffect.filter((obj) => obj.buff_kbn === Number(buffKbn));
 }
 
 export function getBuffEffectType(buffKbn, effectType) {
     const filteredBuffEffect = getBuffEffect(buffKbn).filter((obj) => obj.effect_type === effectType);
-    return filteredBuffEffect.length> 0 ? filteredBuffEffect[0] : undefined;
+    return filteredBuffEffect.length > 0 ? filteredBuffEffect[0] : undefined;
 }
 
 // アビリティ情報取得
 export function getAbilityInfo(abilityId) {
-  const filteredAbility = abilityList.filter((obj) => obj.ability_id === Number(abilityId));
-  return filteredAbility.length > 0 ? filteredAbility[0] : undefined;
+    const filteredAbility = abilityList.filter((obj) => obj.ability_id === Number(abilityId));
+    return filteredAbility.length > 0 ? filteredAbility[0] : undefined;
 }
 
 // アビリティリスト取得
 export function getAbilityEffectList(abilityId) {
-  return abilityEffect.filter((obj) => obj.ability_id === Number(abilityId));
+    return abilityEffect.filter((obj) => obj.ability_id === Number(abilityId));
 }
 
 // パッシブ情報取得
 export function getPassiveInfo(skillId) {
-  const filteredPassive = passiveList.filter((obj) => obj.skill_id === Number(skillId));
-  return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
+    const filteredPassive = passiveList.filter((obj) => obj.skill_id === Number(skillId));
+    return filteredPassive.length > 0 ? filteredPassive[0] : undefined;
 }
 
 // パッシブリスト取得
 export function getPassiveEffectList(skillId) {
-  return passiveEffect.filter((obj) => obj.skill_id === Number(skillId));
+    return passiveEffect.filter((obj) => obj.skill_id === Number(skillId));
 }
 
 export function checkStyleElement(style, element) {
@@ -112,13 +112,13 @@ export function checkStyleElement(style, element) {
 
 // レゾナンス情報取得
 export function getResonanceInfo(resonanceId) {
-  const filteredResonance = resonanceList.filter((obj) => obj.resonance_id === Number(resonanceId));
-  return filteredResonance.length > 0 ? filteredResonance[0] : undefined;
+    const filteredResonance = resonanceList.filter((obj) => obj.resonance_id === Number(resonanceId));
+    return filteredResonance.length > 0 ? filteredResonance[0] : undefined;
 }
 
 // レゾナンスリスト取得
 export function getResonanceEffectList(resonanceId) {
-  return resonanceEffect.filter((obj) => obj.resonance_id === Number(resonanceId));
+    return resonanceEffect.filter((obj) => obj.resonance_id === Number(resonanceId));
 }
 
 // 範囲の名称を取得
@@ -209,6 +209,8 @@ export const getConditionName = (targetElement, conditions, conditionsId) => {
             return `回避状態の時`;
         case CONDITIONS.TOKEN_OVER:
             return `トークンが${conditionsId}個以上の時`;
+        case CONDITIONS.TOKEN_COST_OVER:
+            return `トークンが${conditionsId}個以上の時`;
         case CONDITIONS.SARVANT_OVER:
             return `山脇様のしもべ${conditionsId}人以上の時`;
         case CONDITIONS.NOT_ADDITIONAL_TURN:
@@ -257,6 +259,12 @@ export const getConditionName = (targetElement, conditions, conditionsId) => {
             return `OverDriveゲージが${conditionsId}%以下の時`;
         case CONDITIONS.OD_OVER:
             return `OverDriveゲージが${conditionsId}%以上の時`;
+        case CONDITIONS.CAMP_DEPLOYMENT:
+            if (conditionsId === 0) {
+                return `陣が展開されていない時`;
+            } else {
+                return `${CAMP[conditionsId]}展開中のとき`;
+            }
         default:
             return conditions;
     }
@@ -264,47 +272,47 @@ export const getConditionName = (targetElement, conditions, conditionsId) => {
 
 // 文字列を圧縮
 export function compressString(inputString) {
-  const compressedData = pako.deflate(inputString);
-  const compressedString = btoa(String.fromCharCode.apply(null, compressedData));
-  return compressedString;
+    const compressedData = pako.deflate(inputString);
+    const compressedString = btoa(String.fromCharCode.apply(null, compressedData));
+    return compressedString;
 }
 
 // 圧縮された文字列を解凍
 export function decompressString(compressedString) {
-  const compressedDataBuffer = new Uint8Array(atob(compressedString).split('').map(function (c) { return c.charCodeAt(0); }));
-  const decompressedData = pako.inflate(compressedDataBuffer);
-  const decompressedString = new TextDecoder().decode(decompressedData);
-  return decompressedString;
+    const compressedDataBuffer = new Uint8Array(atob(compressedString).split('').map(function (c) { return c.charCodeAt(0); }));
+    const decompressedData = pako.inflate(compressedDataBuffer);
+    const decompressedString = new TextDecoder().decode(decompressedData);
+    return decompressedString;
 }
 
 // ディープコピー
 export function deepClone(instance) {
-  // インスタンスがnullまたはundefinedの場合、そのまま返す
-  if (instance === null || instance === undefined) return instance;
+    // インスタンスがnullまたはundefinedの場合、そのまま返す
+    if (instance === null || instance === undefined) return instance;
 
-  // プリミティブ型の場合、そのまま返す
-  if (typeof instance !== 'object') return instance;
+    // プリミティブ型の場合、そのまま返す
+    if (typeof instance !== 'object') return instance;
 
-  // 特殊なオブジェクト型の場合
-  if (instance instanceof Date) return new Date(instance);
-  if (instance instanceof RegExp) return new RegExp(instance);
-  if (instance instanceof Map) return new Map(instance);
-  if (instance instanceof Set) return new Set(instance);
+    // 特殊なオブジェクト型の場合
+    if (instance instanceof Date) return new Date(instance);
+    if (instance instanceof RegExp) return new RegExp(instance);
+    if (instance instanceof Map) return new Map(instance);
+    if (instance instanceof Set) return new Set(instance);
 
-  // インスタンスがArrayの場合の処理
-  if (Array.isArray(instance)) {
-    return instance.map(item => deepClone(item));
-  }
+    // インスタンスがArrayの場合の処理
+    if (Array.isArray(instance)) {
+        return instance.map(item => deepClone(item));
+    }
 
-  // インスタンスのクラスを取得
-  const ClonedClass = instance.constructor;
-  // 新しいインスタンスを作成
-  const clone = new ClonedClass();
+    // インスタンスのクラスを取得
+    const ClonedClass = instance.constructor;
+    // 新しいインスタンスを作成
+    const clone = new ClonedClass();
 
-  // プロパティを再帰的にコピー
-  for (let key of Object.keys(instance)) {
-    clone[key] = deepClone(instance[key]);
-  }
+    // プロパティを再帰的にコピー
+    for (let key of Object.keys(instance)) {
+        clone[key] = deepClone(instance[key]);
+    }
 
-  return clone;
+    return clone;
 }

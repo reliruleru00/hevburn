@@ -392,7 +392,7 @@ const abilityList = [
     {"ability_id":2101,"ability_name":"トップアップ","ability_explan":"自身がODゲージを消費するスキルを使用したとき自身に追加ターン(追加ターン中を除く)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":2102,"ability_name":"1MORE","ability_explan":"自身のアクティブスキルで敵の弱点をついたとき自身に追加ターン(追加ターン中を除く)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":2103,"ability_name":"残響(小)","ability_explan":"晩夏の陣が展開されているとき【フレッダメンテ】使用後自身に追加ターン(追加ターン中を除く)(出撃中1回)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
-    {"ability_id":2104,"ability_name":"残響[アビリティ強化]","ability_explan":"晩夏の陣が展開されているとき【フレッダメンテ】使用後自身に追加ターン(追加ターン中を除く)(出撃中1回)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
+    {"ability_id":2104,"ability_name":"残響[アビリティ強化]","ability_explan":"晩夏の陣が展開されているとき【フレッダメンテ】使用後自身に追加ターン(追加ターン中を除く)","ability_short_explan":"","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":2201,"ability_name":"愛嬌","ability_explan":"自身以外の味方のアクティブスキルによって自身のSPが上昇したとき さらに自身のSP+3(SP30まで上限突破可)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":2202,"ability_name":"お裾分け","ability_explan":"自身以外の味方のアクティブスキルによって自身のSPが上昇したとき さらに全体のSP+2(SP30まで上限突破可)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":2203,"ability_name":"占星術","ability_explan":"自身以外の味方のアクティブスキルによって自身のSPが上昇したとき さらに全体のSP+2(SP30まで上限突破可)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},

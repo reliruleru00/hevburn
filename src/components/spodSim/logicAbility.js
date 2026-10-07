@@ -28,7 +28,35 @@ export const abilityAction = (actionKbn, turnData) => {
 }
 
 export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
-    let actionList = unitData[`ability_${actionKbn}`];
+    let actionList = unitData[`ability_${actionKbn}`].filter(function (ability) {
+        if (!logic.judgmentCondition(ability, turnData, unitData, unitData.selectSkillId)) {
+            return false;
+        }
+        switch (ability.conditions) {
+            case "火属性フィールド":
+                if (turnData.field !== FIELD.FIRE) {
+                    return false;
+                }
+                break;
+            case "ODゲージ使用":
+                let list = common.getEffectList(unitData.selectSkillId)
+                    .filter(skill => skill.effect_type === EFFECT.OVERDRIVEPOINTUP)
+                    .filter(skill => skill.effect_size < 0);
+                if (list.length === 0) {
+                    return false;
+                }
+                break;
+            case "破壊率が200%以上":
+            case "トークン4つ以上":
+            case "敵のバフ解除":
+            case "ブレイク中":
+            case "100%":
+                return false;
+            default:
+                break;
+        }
+        return true;
+    });
     // 被ダメージ時
     if (actionKbn === ABILIRY_TIMING.RECEIVE_DAMAGE) {
         // 前衛のみ
@@ -39,49 +67,23 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
     actionList.forEach((ability, index) => {
         // 前衛
         if (ability.activation_place === 1 && unitData.placeNo >= 3) {
-            return true;
+            return;
         }
         // 後衛
         if (ability.activation_place === 2 && unitData.placeNo < 3) {
-            return true;
+            return;
         }
         // 初回のみ
         if (ability.used && ability.first_only === 1) {
-            return true;
+            return;
         }
         let targetList = logic.getTargetList(turnData, ability.range_area, ability.target_element, unitData);
-        if (!logic.judgmentCondition(ability, turnData, unitData, unitData.selectSkillId)) {
-            return true;
-        }
         // 対象がバフを所持
         if (Number(ability.conditions) === CONDITIONS.HAS_BUFF_TARGET) {
             targetList = targetList.filter(function (target_no) {
                 let unitData = logic.getUnitData(turnData, target_no);
                 return logic.checkBuffExist(unitData.buffList, ability.conditions_id);
             });
-        }
-        switch (ability.conditions) {
-            case "火属性フィールド":
-                if (turnData.field !== FIELD.FIRE) {
-                    return;
-                }
-                break;
-            case "ODゲージ使用":
-                let list = common.getEffectList(unitData.selectSkillId)
-                    .filter(skill => skill.effect_type === EFFECT.OVERDRIVEPOINTUP)
-                    .filter(skill => skill.effect_size < 0);
-                if (list.length === 0) {
-                    return;
-                }
-                break;
-            case "破壊率が200%以上":
-            case "トークン4つ以上":
-            case "敵のバフ解除":
-            case "ブレイク中":
-            case "100%":
-                return;
-            default:
-                break;
         }
         let effectDesc = "";
         let abilityName = ability.ability_name || ability.passive_name;
@@ -114,23 +116,27 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                     if (limitSp === 30) {
                         minusSp = targetUnitData.spCost;
                     }
-                    if (targetUnitData.sp + targetUnitData.overDriveSp - minusSp < limitSp) {
-                        if (ability.ability_id) {
-                            if (constants.ADD_SP_ABILITY.includes(ability.ability_id)) {
-                                targetUnitData.addSp += ability.effect_size;
-                            } else {
+                    if (ability.effect_size > 0) {
+                        if (targetUnitData.sp + targetUnitData.overDriveSp - minusSp < limitSp) {
+                            if (ability.ability_id) {
+                                if (constants.ADD_SP_ABILITY.includes(ability.ability_id)) {
+                                    targetUnitData.addSp += ability.effect_size;
+                                } else {
+                                    targetUnitData.sp += ability.effect_size;
+                                }
+                            }
+                            if (ability.skill_id) {
                                 targetUnitData.sp += ability.effect_size;
                             }
+                            if (targetUnitData.sp + targetUnitData.overDriveSp - minusSp > limitSp) {
+                                targetUnitData.sp = limitSp - targetUnitData.overDriveSp + minusSp;
+                            }
                         }
-                        if (ability.skill_id) {
-                            targetUnitData.sp += ability.effect_size;
-                        }
-                        if (targetUnitData.sp + targetUnitData.overDriveSp- minusSp > limitSp) {
-                            targetUnitData.sp = limitSp - targetUnitData.overDriveSp + minusSp;
-                        }
+                    } else {
+                        targetUnitData.sp += ability.effect_size;
                     }
                 }, turnData, targetList)
-                effectDesc = `SP+${ability.effect_size}`;
+                effectDesc = `SP${common.formatStr(ability.effect_size)}`;
                 break;
             case EFFECT.HEALEP: // EP回復
                 let maxEp = Math.max(10, unitData.ep + unitData.overDriveEp);
@@ -164,9 +170,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 if (turnData.overDriveGauge > turnData.maxOverDriveGauge) {
                     turnData.overDriveGauge = turnData.maxOverDriveGauge;
                 }
-                effectDesc = `OverDriveゲージ${ability.effect_size.toLocaleString("ja-JP", {
-                    signDisplay: "always",
-                })}%`
+                effectDesc = `OverDriveゲージ${common.formatStr(ability.effect_size)}%`
                 break;
             case EFFECT.GRANT_BUFF: // バフ付与
                 logicBuff.targetLoop(function (targetUnitData) {
@@ -210,7 +214,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
                 break;
             case EFFECT.COST_SP_DOWN: // SPコストダウン
                 logicBuff.targetLoop(function (targetUnitData) {
-                    if (logic.checkTargetElment(unitData, ability.target_element)) {
+                    if (logic.checkTargetElement(unitData, ability.target_element)) {
                         targetUnitData.spCostDown = Math.max(targetUnitData.spCostDown, ability.effect_size);
                     }
                 }, turnData, targetList)

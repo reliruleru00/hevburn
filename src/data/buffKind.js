@@ -51,11 +51,12 @@ const buffKind = [
     {"buff_kbn":55,"replace_name":"UNDERMINE","buff_name":"蝕","buff_icon":"IconUndermine","duplication":0},
     {"buff_kbn":56,"replace_name":"RUSH","buff_name":"ラッシュ","buff_icon":"IconByakkoDoubleActionAttackSkill","duplication":0},
     {"buff_kbn":57,"replace_name":"DIM_SUM","buff_name":"点心","buff_icon":"IconDimSum","duplication":0},
-    {"buff_kbn":58,"replace_name":"SPRIGHTLY","buff_name":"軽快","buff_icon":"IconSprightly","duplication":0},
     {"buff_kbn":60,"replace_name":"REVENGE","buff_name":"リベンジ","buff_icon":"IconRevenge","duplication":0},
     {"buff_kbn":61,"replace_name":"TEA","buff_name":"ティー","buff_icon":"IconTea","duplication":0},
     {"buff_kbn":62,"replace_name":"ETERNAL_ATTACKUP","buff_name":"永続攻撃アップ","buff_icon":"IconBuffAttack","duplication":0},
     {"buff_kbn":63,"replace_name":"LNFANTILIZED","buff_name":"幼児退行","buff_icon":"IconLnfantilized","duplication":0},
+    {"buff_kbn":64,"replace_name":"SPRIGHTLY","buff_name":"軽快","buff_icon":"IconSprightly","duplication":0},
+    {"buff_kbn":65,"replace_name":"SPRIGHTLY","buff_name":"軽快(小)","buff_icon":"IconSprightly","duplication":0},
     {"buff_kbn":101,"replace_name":"CAMP_ATTACKUP","buff_name":"攻撃アップ","buff_icon":"IconBuffAttack","duplication":0},
     {"buff_kbn":116,"replace_name":"ABILITY_FUNNEL","buff_name":"連撃","buff_icon":"IconFunnel","duplication":0},
 ];

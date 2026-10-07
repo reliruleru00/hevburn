@@ -118,6 +118,26 @@ export const getInitBattleData = (selectStyleList, enemyInfo, saveStyle, detailS
             Object.values(ABILIRY_TIMING).forEach(timing => {
                 unit[`ability_${timing}`] = [];
             });
+
+            // パッシブスキル設定(アビリティより優先)
+            unit.passiveSkillList.forEach(skill => {
+                if (CONSTRAINTS_PASSIVE.includes(skill.skill_id)) {
+                    constraintsPassive.push(skill.skill_id);
+                }
+                let passiveInfo = common.getPassiveInfo(skill.skill_id);
+                if (!passiveInfo) {
+                    return;
+                }
+                let passiveList = common.getPassiveEffectList(skill.skill_id);
+                passiveList.forEach(passiveEffect => {
+                    passiveEffect = {
+                        ...passiveEffect,
+                        ...passiveInfo
+                    };
+                    unit[`ability_${passiveEffect.activation_timing}`].push(passiveEffect);
+                });
+            });
+
             let abilitylimitList = ["_orgn", "0", "00", "000", "1", "3", "4", "5", "10"];
             if (member.limitCount === 2) {
                 abilitylimitList = ["_orgn", "0", "00", "000", "1", "2"];
@@ -155,23 +175,7 @@ export const getInitBattleData = (selectStyleList, enemyInfo, saveStyle, detailS
                     });
                 }
             });
-            unit.passiveSkillList.forEach(skill => {
-                if (CONSTRAINTS_PASSIVE.includes(skill.skill_id)) {
-                    constraintsPassive.push(skill.skill_id);
-                }
-                let passiveInfo = common.getPassiveInfo(skill.skill_id);
-                if (!passiveInfo) {
-                    return;
-                }
-                let passiveList = common.getPassiveEffectList(skill.skill_id);
-                passiveList.forEach(passiveEffect => {
-                    passiveEffect = {
-                        ...passiveEffect,
-                        ...passiveInfo
-                    };
-                    unit[`ability_${passiveEffect.activation_timing}`].push(passiveEffect);
-                });
-            });
+
             // レゾナンス判定
             if (member.styleInfo.resonance === 1 && member.supportStyleId) {
                 const support = member.support;

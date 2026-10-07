@@ -85,7 +85,7 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
                     skillHealSp(turnData, targetUnitData, effectSize, effectInfo.effect_limit, useUnitData.placeNo);
                 }, turnData, targetList)
             }
-            effectDesc = `SP+${effectSize}`;
+            effectDesc = `SP${common.formatStr(effectSize)}`;
             break;
         case EFFECT.HEALEP: // EP追加
             executeEffect = () => {
@@ -118,9 +118,7 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
             executeEffect = () => {
                 turnData.overDriveGauge += unitOdPlus;
             }
-            effectDesc = `OverDriveゲージ${unitOdPlus.toLocaleString("ja-JP", {
-                signDisplay: "always",
-            })}%`;
+            effectDesc = `OverDriveゲージ${common.formatStr(unitOdPlus)}%`;
             break;
         case EFFECT.ADDITIONALTURN: // 追加ターン
             executeEffect = () => {
@@ -272,7 +270,6 @@ export const addMoraleBuffUnit = (unitData, skillEffectInfo, useUnitData) => {
     buff.lv = Math.min(buff.lv + skillEffectInfo.effect_size, 10);
 }
 
-
 // デバフ付与
 export const grantDebuff = (turnData, skillEffectInfo, useUnitData) => {
     let addCount = 1;
@@ -320,29 +317,36 @@ export const addLnfantilizedDebuffUnit = (debuffList, skillEffectInfo, useUnitDa
     debuff.lv = Math.min(debuff.lv + skillEffectInfo.effect_size, 20);
 }
 
+// SP回復
 function skillHealSp(turnData, unitData, addSp, limitSp, usePlaceNo) {
-    let unitSp = unitData.sp;
-    let minusSp = 0;
-    const targetNo = unitData.placeNo;
-    // 上限30の回復は消費SPを加味する。
-    if (limitSp === 30) {
-        minusSp = unitData.spCost;
-    }
-    unitSp += addSp;
-    limitSp = unitData.limitSp > limitSp ? unitData.limitSp : limitSp;
-    if (unitSp + unitData.overDriveSp - minusSp > limitSp) {
-        unitSp = limitSp - unitData.overDriveSp + minusSp;
-    }
-    if (unitSp < unitData.sp) {
-        unitSp = unitData.sp
-    }
-    unitData.sp = unitSp;
+    if (addSp > 0) {
+        let unitSp = unitData.sp;
+        let minusSp = 0;
+        const targetNo = unitData.placeNo;
+        // 上限30の回復は消費SPを加味する。
+        if (limitSp === 30) {
+            minusSp = unitData.spCost;
+        }
+        unitSp += addSp;
+        limitSp = unitData.limitSp > limitSp ? unitData.limitSp : limitSp;
+        if (unitSp + unitData.overDriveSp - minusSp > limitSp) {
+            unitSp = limitSp - unitData.overDriveSp + minusSp;
+        }
+        if (unitSp < unitData.sp) {
+            unitSp = unitData.sp
+        }
+        unitData.sp = unitSp;
 
-    if (targetNo !== usePlaceNo) {
-        logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.OTHER_HEAL_SP, unitData);
+        if (targetNo !== usePlaceNo) {
+            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.OTHER_HEAL_SP, unitData);
+        }
+    } else {
+        unitData.sp += addSp;
     }
+
 }
 
+// バフデータ作成
 export const createBuffData = (skillEffectInfo, useUnitData) => {
     let buff = {
         ...skillEffectInfo,

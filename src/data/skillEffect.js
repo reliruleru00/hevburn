@@ -389,7 +389,7 @@ const skillEffect = [
     {"effect_id":429,"skill_id":759,"effect_type":8,"effect_no":16,"effect_size":12,"effect_count":5,"effect_turn":3,"element":0,"chara_id":113,"style_id":212,"buff_name":"ブレイブステップ","min_power":5,"max_power":5,"max_lv":1,"range_area":4},
     {"effect_id":430,"skill_id":760,"effect_type":8,"effect_no":1,"effect_turn":5,"element":4,"chara_id":113,"style_id":212,"buff_name":"剣の舞","min_power":130,"max_power":160,"param_limit":149,"max_lv":1,"range_area":7},
     {"effect_id":431,"skill_id":767,"effect_type":8,"effect_no":57,"effect_turn":0,"element":0,"chara_id":38,"style_id":213,"buff_name":"熱々！飲茶タイム","max_lv":1,"range_area":6},
-    {"effect_id":432,"skill_id":767,"effect_type":8,"effect_no":58,"effect_count":1,"effect_turn":0,"element":0,"chara_id":38,"style_id":213,"buff_name":"熱々！飲茶タイム","max_lv":1,"range_area":6},
+    {"effect_id":432,"skill_id":767,"effect_type":8,"effect_no":64,"effect_count":1,"effect_turn":0,"element":0,"chara_id":38,"style_id":213,"buff_name":"熱々！飲茶タイム","max_lv":1,"range_area":6},
     {"effect_id":433,"skill_id":767,"effect_type":12,"effect_size":3,"effect_limit":20,"chara_id":38,"style_id":213,"buff_name":"熱々！飲茶タイム","range_area":8,"target_element":5},
     {"effect_id":434,"skill_id":768,"effect_type":22,"effect_no":21,"effect_turn":0,"element":0,"chara_id":42,"style_id":0,"buff_name":"華炎","min_power":20,"max_power":30,"param_limit":140,"max_lv":1,"skill_attack1":999,"range_area":1},
     {"effect_id":435,"skill_id":768,"effect_type":29,"element":0,"chara_id":42,"style_id":0,"buff_name":"華炎","max_lv":1,"range_area":7,"conditions":8},

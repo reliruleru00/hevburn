@@ -340,7 +340,7 @@ const abilityList = [
     {"ability_id":1532,"ability_name":"先導者","ability_explan":"自身の攻撃で敵を倒したとき敵1体につき味方全体の士気レベルを1上昇(最大レベル10)","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1533,"ability_name":"貴様に託した","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1534,"ability_name":"破竹の勢い","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
-    {"ability_id":1535,"ability_name":"破竹の勢い(小)","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+25%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
+    {"ability_id":1535,"ability_name":"破竹の勢い(小)","ability_explan":"自身の攻撃で敵をブレイクしたときオーバードライブゲージ+10%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1604,"ability_name":"アプローチショット","ability_explan":"自身が敵のバフを解除したときオーバードライブゲージ+50%","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":5},
     {"ability_id":1609,"ability_name":"ひれ伏すでゲス！","ability_explan":"味方の攻撃で敵をブレイクした場合敵のダウンターン1ターン延長","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":1613,"ability_name":"意気軒昂","ability_explan":"自身の攻撃で敵を倒したとき敵1体につき味方全体のSP+2","ability_short_explan":"","activation_place":0,"physical":0,"element":0,"target_element":0},

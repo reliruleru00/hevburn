@@ -75,11 +75,12 @@ const buffEffect = [
     {"buff_kbn":55,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":56,"effect_type":45,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":57,"effect_type":1,"effect_size":50,"ref_status_1":5,"ref_status_2":0},
-    {"buff_kbn":58,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":60,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":61,"effect_type":1,"effect_size":50,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":62,"effect_type":1,"ref_status_1":5,"ref_status_2":0},
     {"buff_kbn":63,"effect_type":2,"effect_size":90},
+    {"buff_kbn":64,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
+    {"buff_kbn":65,"effect_type":0,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":101,"effect_type":1,"effect_size":250,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":116,"effect_type":0,"ref_status_1":5,"ref_status_2":0},
 ];

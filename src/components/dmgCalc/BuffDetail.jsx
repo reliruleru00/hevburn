@@ -211,7 +211,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
         if (buffInfo.troopKbn === troopsDebuff) {
             strengthen = true;
         }
-        troopsDebuff = logic.getStyleIdToTroopKbn(styleList, constant.CHARA_ID.STRENGTH_STYLE_DEBUFF);
+        troopsDebuff = logic.getStyleIdToTroopKbn(styleList, constant.STYLE_ID.STRENGTH_STYLE_DEBUFF);
         if (buffInfo.troopKbn === troopsDebuff) {
             strengthen = true;
         }

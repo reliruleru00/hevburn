@@ -25,11 +25,7 @@ export const ABILIRY_TIMING = {
 // 使用不可スタイル
 export const NOT_USE_STYLE = [
     197, // 手塚
-    213, // キッチン映夏
-    // 215, // 花火シッキー
-    218, // ヒカリ
 ];
-// 超越アビリティ
 
 // 制限アビリティ
 export const CONSTRAINTS_ABILITY = [
@@ -51,6 +47,8 @@ export const CONSTRAINTS_ABILITY = [
     1702, // 護りの真髄
     1109, // 吉報
     1620, // 芳醇ダージリン
+    1534, // 破竹の勢い
+    1535, // 破竹の勢い(小)
 ];
 // 制限パッシブ
 export const CONSTRAINTS_PASSIVE = [

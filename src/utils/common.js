@@ -270,6 +270,14 @@ export const getConditionName = (targetElement, conditions, conditionsId) => {
     }
 }
 
+export function formatStr(number) {
+    if (number >= 0) {
+        return `+${number}`;
+    } else {
+        return `${number}`;
+    }
+}
+
 // 文字列を圧縮
 export function compressString(inputString) {
     const compressedData = pako.deflate(inputString);

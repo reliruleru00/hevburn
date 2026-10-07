@@ -11,7 +11,6 @@ export const CHARA_ID = {
     HIKARI: 50,
     STRENGTH_BUFF: 4,
     STRENGTH_DEBUFF: 11,
-    STRENGTH_STYLE_DEBUFF: 211, // ペルソナ月歌,
 }
 
 export const STYLE_ID = {
@@ -29,6 +28,7 @@ export const STYLE_ID = {
     YUKATA_SHIKI: 215,  // 浴衣シッキー
     SWIM_MUA: 222,  // 水着六宇亜
     PAWAPURO: [183, 184, 5092],  // パワプロ月歌、いちご、緋雨
+    STRENGTH_STYLE_DEBUFF: 211, // ペルソナ月歌,
 }
 
 export const SKILL_ID = {
@@ -44,6 +44,7 @@ export const SKILL_ID = {
     SUMMER_FINE_WEATHER: 658, // 夏のひより
     DOMINATION_GRAVITY: 670, //	ドミネーション・グラビティ
     FAST_SHOT: 685, //	速攻◯
+    CAFE_TIME: 767, // 熱々！飲茶タイム
 }
 
 export const ATTACK_ID = {
@@ -173,11 +174,12 @@ export const BUFF = {
     UNDERMINE: 55, // 蝕
     RUSH: 56, // ラッシュ
     DIM_SUM: 57, // 点心
-    SPRIGHTLY: 58, // 軽快
-    REVENGE: 60, // リベンジ(重複してる・・・)
+    REVENGE: 60, // リベンジ
     TEA: 61, // ティー
     ETERNAL_ATTACKUP: 62, // 永続攻撃力アップ
     LNFANTILIZED: 63, // 幼児退行
+    SPRIGHTLY: 64, // 軽快
+    SPRIGHTLY_LIGHT: 65, // 軽快(小)
     DISPEL: 90, // ディスペル
     CAMP_ATTACKUP: 101, // 晩夏の陣
     ABILITY_FUNNEL: 116, // アビリティ連撃

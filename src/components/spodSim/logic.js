@@ -94,7 +94,7 @@ export function isAloneActivation(buffInfo) {
     return false;
 }
 // SPチェック
-export function checkSp(turnData, rangeArea, sp, uniData) {
+export function checkUnderSp(turnData, rangeArea, sp, uniData) {
     let targetList = getTargetList(turnData, rangeArea, null, uniData);
     let existList = targetList.filter(function (targetMo) {
         let unitData = getUnitData(turnData, targetMo);
@@ -104,11 +104,11 @@ export function checkSp(turnData, rangeArea, sp, uniData) {
 }
 
 // 属性チェック
-export const checkTargetElment = (unit, targetElement) => {
-    if (targetElement === 0) {
-        return true;
-    }
-    return unit.style?.styleInfo?.element === targetElement || unit.style?.styleInfo?.element2 === targetElement;
+export const checkTargetElement = (unit, targetElement) => {
+    return targetElement === 0 ||
+        unit.style?.styleInfo?.element === targetElement ||
+        unit.style?.styleInfo?.element2 === targetElement ||
+        unit.style?.styleInfo?.element === ELEMENT.VOID;
 }
 
 // スキルデータ更新
@@ -529,7 +529,7 @@ const actionPursuit = (turnData, unitData) => {
 
 // 超越ゲージを加算
 const addTranscendGauge = (turnData, unitData) => {
-    if (turnData.transcendElement !== 0 && checkTargetElment(unitData, turnData.transcendElement) && turnData.transcendGauge < 100) {
+    if (turnData.transcendElement !== 0 && checkTargetElement(unitData, turnData.transcendElement) && turnData.transcendGauge < 100) {
         turnData.transcendGauge += 4;
         turnData.setLog(`　超越ゲージ+4%`);
         if (turnData.transcendGauge >= 100) {
@@ -659,7 +659,7 @@ const calcODGain = (hitCount, enemyTarget, overDriveGaugeMultiplier, odRateUp = 
 };
 
 // 消費SP取得
-export function getSpCost(turnData, skillInfo, unit) {
+export const getSpCost = (turnData, skillInfo, unit) => {
     if (!skillInfo) {
         return 0;
     }
@@ -675,9 +675,22 @@ export function getSpCost(turnData, skillInfo, unit) {
     if (spCost === 0) {
         return spCost;
     }
+
     if (spCost === 99) {
         return unit.sp + unit.overDriveSp;
     }
+
+    // SP軽減スキル/消費0のスキル/SP全消費に軽減は適用されない
+    if (skillInfo.skill_id !== SKILL_ID.CAFE_TIME) {
+        if (checkBuffExist(unit.buffList, BUFF.SPRIGHTLY)) {
+            // 軽快
+            spCost = Math.ceil(spCost * 0.5);
+        } else if (checkBuffExist(unit.buffList, BUFF.SPRIGHTLY_LIGHT)) {
+            // 軽快(小)
+            spCost = Math.ceil(spCost * 0.7);
+        }
+    }
+
     let spCostDown = unit.spCostDown;
     let spCostUp = unit.spCostUp;
     if (zeroSpSkill(turnData, skillInfo, unit)) {
@@ -826,9 +839,11 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
         case CONDITIONS.NOT_NEGATIVE: // ネガティブ以外
             return !checkBuffExist(unitData.buffList, BUFF.NAGATIVE);
         case CONDITIONS.SP_UNDER_0_ALL: // SP0以下の味方がいる
-            return checkSp(turnData, RANGE.ALLY_ALL, 0, unitData);
+            return checkUnderSp(turnData, RANGE.ALLY_ALL, 0, unitData);
         case CONDITIONS.SP_UNDER: // SP指定値以下
-            return checkSp(turnData, RANGE.SELF, conditionsId, unitData);
+            return checkUnderSp(turnData, RANGE.SELF, conditionsId, unitData);
+        case CONDITIONS.SP_OVER: // SP指定値以上
+            return unitData.sp >= conditionsId;
         case CONDITIONS.OD_UNDER: // OD指定値未満
             return turnData.overDriveGauge < conditionsId;
         case CONDITIONS.SARVANT_OVER: // 山脇様のしもべN人以上
@@ -1382,10 +1397,10 @@ const unitTurnProceed = (unit, turnData) => {
 }
 
 // 対象数判定
-function targetCountInclude(turnData, targetElement) {
+const targetCountInclude = (turnData, targetElement) => {
     let count = 0;
     unitLoop(function (unit) {
-        if (unit.style.styleInfo.element === targetElement || unit.style.styleInfo.element2 === targetElement) {
+        if (checkTargetElement(unit, targetElement)) {
             count++;
         }
     }, turnData.unitList);
@@ -1461,6 +1476,9 @@ const payCost = (unit, skill) => {
         unit.sp = 99 - unit.overDriveSp;
     }
 
+    // 軽減バフを削除
+    removeSprightlyBuff(unit, skill);
+
     switch (skill.cost_type) {
         case COST_TYPE.SP:
             // SPは可変なので計算済みの値を使用
@@ -1479,6 +1497,27 @@ const payCost = (unit, skill) => {
             break;
         default:
             break;
+    }
+}
+// 軽減バフを削除
+const removeSprightlyBuff = (unit, skill) => {
+    if (skill.skill_id === SKILL_ID.CAFE_TIME) {
+        return;
+    }
+    // 消費SPが0または、全消費の場合は軽減バフを削除しない
+    if (unit.spCost === 0 || (skill.cost_type === COST_TYPE.SP && skill.use_cost === 99)) {
+        return;
+    }
+    if (checkBuffExist(unit.buffList, BUFF.SPRIGHTLY)) {
+        // 軽快
+        unit.buffList = unit.buffList.filter(function (buffInfo) {
+            return buffInfo.buff_no !== BUFF.SPRIGHTLY;
+        });
+    } else if (checkBuffExist(unit.buffList, BUFF.SPRIGHTLY_LIGHT)) {
+        // 軽快(小)
+        unit.buffList = unit.buffList.filter(function (buffInfo) {
+            return buffInfo.buff_no !== BUFF.SPRIGHTLY_LIGHT;
+        });
     }
 }
 

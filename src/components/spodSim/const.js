@@ -1,4 +1,4 @@
-import { BUFF, FIELD } from "utils/const";
+import { FIELD } from "utils/const";
 
 export const ABILIRY_TIMING = {
     BATTLE_START: 0,
@@ -73,16 +73,16 @@ export const KB_NEXT = {
     ACTION_OD_5: 8,
 };
 
-export const SINGLE_BUFF_LIST = [
-    BUFF.CHARGE,
-    BUFF.RECOIL,
-    BUFF.ARROWCHERRYBLOSSOMS,
-    BUFF.ETERNAL_OARH,
-    BUFF.EX_DOUBLE,
-    BUFF.BABIED,
-    BUFF.DIVA_BLESS,
-    BUFF.YAMAWAKI_SERVANT
-];
+// export const SINGLE_BUFF_LIST = [
+//     BUFF.CHARGE,
+//     BUFF.RECOIL,
+//     BUFF.ARROWCHERRYBLOSSOMS,
+//     BUFF.ETERNAL_OARH,
+//     BUFF.EX_DOUBLE,
+//     BUFF.BABIED,
+//     BUFF.DIVA_BLESS,
+//     BUFF.YAMAWAKI_SERVANT
+// ];
 export const FIELD_LIST = {
     [FIELD.NORMAL]: "無し",
     [FIELD.FIRE]: "火",

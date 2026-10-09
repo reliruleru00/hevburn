@@ -1304,18 +1304,24 @@ export const addOverDrive = (addOdGauge, turnData) => {
 }
 
 export const startOverDrive = (turnData, overDriveLevel) => {
-    let odTurnList = [0, 1, 2, 3, 3, 3];
-    turnData.overDriveNumber = 1;
-    turnData.overDriveMaxTurn = odTurnList[overDriveLevel];
-    turnData.overDriveGauge = turnData.overDriveGauge - overDriveLevel * 100;
-    turnData.calcOverDriveGauge = turnData.overDriveGauge;
-
     let spList = [0, 5, 12, 20, 20, 20];
+    let overDriveCostDown = 0;
+
     unitLoop(function (unit) {
         unit.overDriveSp = spList[overDriveLevel];
         unit.overDriveEp = 0;
         unit.spCost = getSpCost(turnData, getSkillData(unit.selectSkillId), unit);
+        unit[`ability_${ABILIRY_TIMING.OD_START}`].filter(ability => ability.effect_type === EFFECT.OVERDRIVE_COST_DOWN).forEach(ability => {
+            overDriveCostDown += ability.effect_size;
+        });
     }, turnData.unitList);
+
+    let odTurnList = [0, 1, 2, 3, 3, 3];
+    turnData.overDriveNumber = 1;
+    turnData.overDriveMaxTurn = odTurnList[overDriveLevel];
+    turnData.overDriveGauge = turnData.overDriveGauge - overDriveLevel * (100 - overDriveCostDown);
+    turnData.calcOverDriveGauge = turnData.overDriveGauge;
+
     logicAbility.abilityAction(ABILIRY_TIMING.OD_START, turnData);
     turnData.triggerOverDrive = true;
 }

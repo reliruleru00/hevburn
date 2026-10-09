@@ -19,6 +19,7 @@ const buffEffect = [
     {"buff_kbn":20,"effect_type":41,"ref_status_1":5,"ref_status_2":6},
     {"buff_kbn":21,"effect_type":2,"ref_status_1":5,"ref_status_2":6},
     {"buff_kbn":22,"effect_type":2,"ref_status_1":5,"ref_status_2":6},
+    {"buff_kbn":23,"effect_type":41,"ref_status_1":5,"ref_status_2":6},
     {"buff_kbn":24,"effect_type":99,"ref_status_1":0,"ref_status_2":0},
     {"buff_kbn":25,"effect_type":99,"ref_status_1":3,"ref_status_2":4},
     {"buff_kbn":27,"effect_type":99,"ref_status_1":3,"ref_status_2":4},

@@ -17,7 +17,7 @@ export const ATTACK_BUFF_LIST = [
 export const DEBUFF_LIST = [
     BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN,
     BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
-    BUFF.FRAGILE, BUFF.RESISTDOWN, BUFF.ETERNAL_FRAGILE];
+    BUFF.FRAGILE, BUFF.RESISTDOWN, BUFF.ETERNAL_RESISTDOWN, BUFF.ETERNAL_FRAGILE];
 
 export const KIND_ATTACKUP = [BUFF.ATTACKUP, BUFF.ELEMENT_ATTACKUP, BUFF.ETERNAL_ATTACKUP]
 export const KIND_DEFENSEDOWN = [BUFF.DEFENSEDOWN, BUFF.ELEMENT_DEFENSEDOWN, BUFF.DEFENSEDP, BUFF.ETERNAL_DEFENSEDP, BUFF.ETERNAL_DEFENSEDOWN, BUFF.ELEMENT_ETERNAL_DEFENSEDOWN]
@@ -123,6 +123,7 @@ export const filteredBuffList = (effectList, attackInfo) => {
         BUFF.ELEMENT_ETERNAL_DEFENSEDOWN,
         BUFF.ELEMENT_CRITICALRATEUP,
         BUFF.ELEMENT_CRITICALDAMAGEUP,
+        BUFF.ETERNAL_RESISTDOWN,
         BUFF.RESISTDOWN
     ]
     const OTHER_ONLY_AREA = [
@@ -201,6 +202,7 @@ export function getEffectSize(argument, effect, buffSetting, memberInfo) {
         case EFFECT.GRANT_DEBUFF:
             switch (effect.effect_no) {
                 case BUFF.RESISTDOWN: // 耐性ダウン
+                case BUFF.ETERNAL_RESISTDOWN: // 永続耐性ダウン
                     effectSize = getDebuffEffectSize(argument, handlers, effect, buffSetting, EFFECT.RESISTDOWN);
                     break;
                 default:
@@ -440,7 +442,7 @@ function getStrengthen(argument, handlers, effect) {
 
             }
             // 防御ダウン以外のデバフスキル
-            if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.RESISTDOWN].includes(effect.effect_no)) {
+            if ([BUFF.FRAGILE, BUFF.ETERNAL_FRAGILE, BUFF.ETERNAL_RESISTDOWN, BUFF.RESISTDOWN].includes(effect.effect_no)) {
                 abilityLoop((abilityEffect) => {
                     strengthen += abilityEffect.effect_size;
                 }, abilitySettingMap, EFFECT.GIVEDEBUFFUP, argument, handlers);

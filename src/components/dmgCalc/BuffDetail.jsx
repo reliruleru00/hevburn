@@ -76,6 +76,7 @@ const BuffDetail = ({ argument, buffInfo, index, closeModal }) => {
                     effect = EFFECT.DEFFENCEDOWN;
                     break;
                 case BUFF.RESISTDOWN: // 耐性ダウン
+                case BUFF.ETERNAL_RESISTDOWN: // 永続耐性ダウン
                     effect = EFFECT.RESISTDOWN;
                     break;
                 default:

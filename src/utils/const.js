@@ -148,9 +148,10 @@ export const BUFF = {
     FUNNEL: 16, // 連撃
     DEFENSEDP: 18, // DP防御ダウン
     ETERNAL_DEFENSEDP: 19, // 永続DP防御ダウン
-    RESISTDOWN: 20, // 耐性ダウン
+    ETERNAL_RESISTDOWN: 20, // 耐性ダウン
     ETERNAL_DEFENSEDOWN: 21, // 永続防御力ダウン
     ELEMENT_ETERNAL_DEFENSEDOWN: 22, // 永続属性防御ダウン
+    RESISTDOWN: 23, // 耐性ダウン
     RECOIL: 24, // 行動不能
     PROVOKE: 25, // 挑発
     COVER: 27, // 注目
@@ -234,6 +235,7 @@ export const EFFECT = {
     RESISTDOWN: 41, // 耐性ダウン
     DP_DEFFENCEDOWN: 42, // DP防御力ダウン
     OVERDRIVE_RATE_UP: 46, // OD増加量アップ
+    OVERDRIVE_COST_DOWN: 47, // OD消費量ダウン
     HEALEP: 52, // EP回復
     OVERDRIVE_EP: 54, // OD時EP回復
     SP_LIMIT_UP: 55, // SP上限アップ

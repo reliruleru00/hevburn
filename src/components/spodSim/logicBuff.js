@@ -1,6 +1,6 @@
 import * as logic from "./logic";
 import {
-    ABILIRY_TIMING, SINGLE_BUFF_LIST, ELEMENT_NAME,
+    ABILIRY_TIMING, ELEMENT_NAME,
 } from "./const";
 import {
     SKILL_ID, ABILITY_ID, BUFF, RANGE, EFFECT,
@@ -216,15 +216,21 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
 
 // バフ付与
 export const grantBuff = (unitData, skillEffectInfo, useUnitData) => {
-    switch (skillEffectInfo.effect_no) {
-        case BUFF.MORALE: // 士気
-            addMoraleBuffUnit(unitData, skillEffectInfo, useUnitData);
-            return;
-        default:
-            break;
+    const buffKind = common.getBuffKind(skillEffectInfo.effect_no);
+    if (!buffKind) {
+        return;
     }
-    // 単一バフ
-    if (SINGLE_BUFF_LIST.includes(skillEffectInfo.effect_no)) {
+
+    // switch (skillEffectInfo.effect_no) {
+    //     case BUFF.MORALE: // 士気
+    //         addMoraleBuffUnit(unitData, skillEffectInfo, useUnitData);
+    //         return;
+    //     default:
+    //         break;
+    // }
+
+    // 重複不可バフ
+    if (buffKind.duplication === 0) {
         if (logic.checkBuffExist(unitData.buffList, skillEffectInfo.effect_no)) {
             if (skillEffectInfo.effect_turn > 0) {
                 // 残ターン更新

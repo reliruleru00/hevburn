@@ -135,7 +135,7 @@ export const getDefenseDownBuffs = function (isElement, isWeak, isDp, selectStyl
     return [
         { name: "防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.DEFENSEDOWN, overlap: true },
         ...(isDp ? [{ name: "DP防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.DEFENSEDP, overlap: true },] : []),
-        ...(isDp && isHikari ? [{ name: "永続DP防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_DEFENSEDP, overlap: true },] : []),
+        ...(isDp && isHikari ? [{ name: "DP防御力DOWN(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_DEFENSEDP, overlap: true },] : []),
         ...(isElement ? [{ name: "属性防御力DOWN", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ELEMENT_DEFENSEDOWN, overlap: true },] : []),
         { name: "防御力DOWN(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_DEFENSEDOWN, overlap: true },
         ...(isElement ? [{ name: "属性防御力DOWN(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ELEMENT_ETERNAL_DEFENSEDOWN, overlap: true },] : []),
@@ -143,6 +143,7 @@ export const getDefenseDownBuffs = function (isElement, isWeak, isDp, selectStyl
         ...(isWeak ? [{ name: "脆弱", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.FRAGILE, overlap: true },] : []),
         ...(isWeak ? [{ name: "永続脆弱", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_FRAGILE, overlap: true },] : []),
         ...(isElement ? [{ name: "耐性ダウン", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.RESISTDOWN, overlap: true },] : []),
+        ...(isElement ? [{ name: "耐性ダウン(永)", effect: EFFECT.GRANT_DEBUFF, kind: BUFF.ETERNAL_RESISTDOWN, overlap: true },] : []),
     ];
 
 }

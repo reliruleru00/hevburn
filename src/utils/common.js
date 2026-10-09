@@ -161,6 +161,53 @@ export const getRangeName = (rangeArea) => {
     }
 }
 
+// 属性判定
+export const checkElement = (element, targetElement) => {
+    if (element === undefined || element === null) {
+        return false;
+    }
+
+    switch (targetElement) {
+        case ELEMENT.NORMAL:
+        case ELEMENT.FIRE:
+        case ELEMENT.ICE:
+        case ELEMENT.THUNDER:
+        case ELEMENT.LIGHT:
+        case ELEMENT.DARK:
+            if (element === ELEMENT.VOID) {
+                return true;
+            }
+            return element === targetElement;
+
+        case ELEMENT.NOT_NORMAL:
+        case ELEMENT.NOT_FIRE:
+        case ELEMENT.NOT_ICE:
+        case ELEMENT.NOT_THUNDER:
+        case ELEMENT.NOT_LIGHT:
+        case ELEMENT.NOT_DARK:
+            if (element === ELEMENT.VOID) {
+                return false;
+            }
+            return element !== targetElement - 10;
+
+        case ELEMENT.OTHER_FIRE:
+        case ELEMENT.OTHER_ICE:
+        case ELEMENT.OTHER_THUNDER:
+        case ELEMENT.OTHER_LIGHT:
+        case ELEMENT.OTHER_DARK:
+            if (element === 0) {
+                return false;
+            }
+            return element !== targetElement - 20;
+
+        case undefined:
+            return element > 0 && element <= 5;
+
+        default:
+            return false;
+    }
+};
+
 // 条件の名称を取得
 export const getConditionName = (targetElement, conditions, conditionsId) => {
     switch (targetElement) {

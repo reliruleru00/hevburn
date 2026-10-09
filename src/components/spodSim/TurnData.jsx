@@ -121,13 +121,13 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
             effectType = 12;
         }
 
-        switch (skillId) {
-            case constants.SKILL_ID.TRICK_CANNON: // トリック・カノン
-                effectType = 1;
-                break;
-            default:
-                break;
-        }
+        // switch (skillId) {
+        //     case constants.SKILL_ID.TRICK_CANNON: // トリック・カノン
+        //         effectType = 1;
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         if (effectType !== 0) {
             openModal("effect", placeNo, effectType)

@@ -2,8 +2,8 @@ import {
     ABILIRY_TIMING, KB_NEXT
 } from "./const";
 import {
-    CHARA_ID, SKILL_ID, SKILL, ELEMENT, BUFF, EFFECT, RANGE, FIELD, CONDITIONS, ATTRIBUTE, KIND,
-    ALONE_ACTIVATION_BUFF_NO, COST_TYPE, ATTACK_ID, changeStyle
+    CHARA_ID, SKILL_ID, ELEMENT, BUFF, EFFECT, RANGE, FIELD, CONDITIONS, ATTRIBUTE, KIND,
+    ALONE_ACTIVATION_BUFF_NO, COST_TYPE, changeStyle
 } from "utils/const";
 import * as constants from "utils/const";
 import * as common from "utils/common";
@@ -272,17 +272,19 @@ export function getUnitData(turnData, index) {
 }
 
 // スキルIDから攻撃情報を取得
-export function getSkillIdToAttackInfo(turnData, skillId) {
-    let filteredAttack = skillAttack.filter((obj) => obj.skill_id === skillId);
-    switch (skillId) {
-        case SKILL_ID.BOUQUET_SHOOT:
-            //ファーマメントブーケショット
-            let field = turnData.field < 6 ? turnData.field : FIELD.NORMAL;
-            filteredAttack = filteredAttack.filter((obj) => obj.attack_element === field);
-            break;
-        default:
-            break;
-    }
+export function getSkillIdToAttackInfo(turnData, unitData, skillId) {
+    let filteredAttack = skillAttack
+        .filter((obj) => obj.skill_id === skillId)
+        .filter((obj) => judgmentCondition(obj, turnData, unitData, skillId));
+    // switch (skillId) {
+    //     case SKILL_ID.BOUQUET_SHOOT:
+    //         //ファーマメントブーケショット
+    //         let field = turnData.field < 6 ? turnData.field : FIELD.NORMAL;
+    //         filteredAttack = filteredAttack.filter((obj) => obj.attack_element === field);
+    //         break;
+    //     default:
+    //         break;
+    // }
     return filteredAttack.length > 0 ? filteredAttack[0] : undefined;
 }
 
@@ -334,7 +336,7 @@ const actionProc = (turnData) => {
         const skillInfo = skillData.skillInfo;
         const unitData = getUnitData(turnData, skillData.placeNo);
         const spCost = unitData.spCost;
-        const attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
+        const attackInfo = getSkillIdToAttackInfo(turnData, unitData, skillInfo.skill_id);
 
         skillActivation(skillInfo, unitData, turnData, autoPursuitUnit, spCost);
 
@@ -363,11 +365,11 @@ const actionProc = (turnData) => {
         }
         let skillId = unitData.selectSkillId;
         // 無し
-        if (skillId === SKILL.NONE) {
+        if (skillId === SKILL_ID.NONE) {
             return true;
         }
         // 追撃
-        if (skillId === SKILL.PURSUIT) {
+        if (skillId === SKILL_ID.PURSUIT) {
             // 追撃行動
             actionPursuit(turnData, unitData);
             return true;
@@ -384,7 +386,7 @@ const getAutoPursuitUnit = (turnData) => {
             return undefined;
         }
         // 自動追撃
-        if (unitData.selectSkillId === SKILL.AUTO_PURSUIT) {
+        if (unitData.selectSkillId === constants.SKILL_ID.AUTO_PURSUIT) {
             const catJetInfo = getSkillData(constants.SKILL_ID.CAT_JET_SHOOTING);
             const catJetSp = getSpCost(turnData, catJetInfo, unitData);
             if (catJetSp <= unitData.sp + unitData.overDriveSp) {
@@ -410,10 +412,20 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
 
     let isSkill = false;
     let attackInfo;
-    if (skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
-        attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
-    } else {
-        attackInfo = getSkillIdToAttackInfo(turnData, skillInfo.skill_id);
+
+    switch (skillInfo.skill_attribute) {
+        case ATTRIBUTE.NORMAL_ATTACK:
+            attackInfo = { "attack_id": 0, "attack_element": unitData.normalAttackElement };
+            break;
+        case ATTRIBUTE.IMMERSION:
+            unitData.immersion = skillInfo.skill_element;
+            break;
+        case ATTRIBUTE.COMMAND_ACTION:
+        case ATTRIBUTE.NOT_ACTION:
+            break;
+        default:
+            attackInfo = getSkillIdToAttackInfo(turnData, unitData, skillInfo.skill_id);
+            break;
     }
 
     // SP消費してから行動
@@ -455,6 +467,8 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
             // アビリティ（EXスキル使用）
             logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.EX_SKILL_USE, unitData);
+            // EXスキル使用時は、没入状態解除
+            unitData.immersion = 0;
         }
     }
 
@@ -477,9 +491,9 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
             // 追撃アビリティ発動
             logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.PURSUIT, autoPursuitUnit);
             // 以降は自動追撃
-            autoPursuitUnit.selectSkillId = SKILL.AUTO_PURSUIT;
+            autoPursuitUnit.selectSkillId = constants.SKILL_ID.AUTO_PURSUIT;
         }
-        if (skillId === SKILL.AUTO_PURSUIT) {
+        if (skillId === constants.SKILL_ID.AUTO_PURSUIT) {
             // 追撃行動
             actionPursuit(turnData, autoPursuitUnit)
         }
@@ -496,16 +510,16 @@ const getSkillEffectList = (skillId, turnData, unitData) => {
             }
         }
         // 個別判定
-        switch (effectInfo.SKILL_EFFECT_ID) {
-            // 選択されなかった
-            case constants.SKILL_EFFECT_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
-                if (unitData.buffEffectSelectType === 0) {
-                    return false;
-                }
-                break;
-            default:
-                break;
-        }
+        // switch (effectInfo.SKILL_EFFECT_ID) {
+        //     // 選択されなかった
+        //     case constants.SKILL_EFFECT_ID.TRICK_CANNON: // トリック・カノン(攻撃力低下)
+        //         if (unitData.buffEffectSelectType === 0) {
+        //             return false;
+        //         }
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         return true;
     });
@@ -513,7 +527,7 @@ const getSkillEffectList = (skillId, turnData, unitData) => {
 
 // 追撃行動
 const actionPursuit = (turnData, unitData) => {
-    const skillName = common.getSkillData(SKILL.PURSUIT).skill_name;
+    const skillName = common.getSkillData(SKILL_ID.PURSUIT).skill_name;
     const charaData = getCharaData(unitData.style.styleInfo.chara_id);
     const charaName = charaData.chara_short_name;
     const overDriveGaugeMultiplier = turnData.overDriveGaugeMultiplier / 100;
@@ -571,16 +585,16 @@ const getUnitOverDrive = (turnData, unitData, skillInfo, attackInfo, overDriveRa
     } else if (attackInfo) {
         // 攻撃IDの変換(暫定)
         let attackId = attackInfo.attack_id
-        switch (attackId) {
-            case ATTACK_ID.ELEGANT_AND_SOLEMN:
-                // 唯雅粛正
-                if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
-                    attackId = ATTACK_ID.ELEGANT_AND_SOLEMN_CHARGE;
-                }
-                break;
-            default:
-                break;
-        }
+        // switch (attackId) {
+        //     case ATTACK_ID.ELEGANT_AND_SOLEMN:
+        //         // 唯雅粛正
+        //         if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
+        //             attackId = ATTACK_ID.ELEGANT_AND_SOLEMN_CHARGE;
+        //         }
+        //         break;
+        //     default:
+        //         break;
+        // }
         let enemyTarget = enemyCount;
         if (attackInfo.range_area === constants.RANGE.ENEMY_UNIT) {
             enemyTarget = 1;
@@ -678,6 +692,11 @@ export const getSpCost = (turnData, skillInfo, unit) => {
 
     if (spCost === 99) {
         return unit.sp + unit.overDriveSp;
+    }
+
+    // 没入状態はSP消費なし
+    if (unit.immersion > 0) {
+        return 0;
     }
 
     // SP軽減スキル/消費0のスキル/SP全消費に軽減は適用されない
@@ -807,11 +826,13 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
         case CONDITIONS.FIELD_NONE: // フィールド無し
             return [FIELD.NORMAL, FIELD.RICE, FIELD.SANDSTORM].includes(turnData.field);
         case CONDITIONS.FIELD_ELEMENT: // 属性フィールド
-            return conditionsId ? turnData.field === conditionsId : getFieldElement(turnData) !== 0;
+            return common.checkElement(turnData.field, conditionsId);
         case CONDITIONS.HAS_ABILITY: // アビリティ
             return checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], conditionsId);
         case CONDITIONS.HAS_BUFF: // バフ発動中
             return checkBuffExist(unitData.buffList, conditionsId);
+        case CONDITIONS.NOT_HAS_BUFF: // バフ発動中以外
+            return !checkBuffExist(unitData.buffList, conditionsId);
         case CONDITIONS.HAS_DEBUFF: // デバフ発動中
             return checkBuffExist(turnData.enemyDebuffList, conditionsId);
         case CONDITIONS.MORALE_OVER_LV: // 士気Lv以上
@@ -832,8 +853,8 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
             return checkMember(turnData.unitList, "31E") >= 3;
         case CONDITIONS.SELECT_CHARA: // 特定キャラを選択
             return unitData.buffTargetCharaId === conditionsId;
-        case CONDITIONS.FIELD_NOT_FIRE: // 火属性フィールド以外
-            return turnData.field !== FIELD.FIRE && turnData.field !== FIELD.NORMAL;
+        // case CONDITIONS.FIELD_NOT_FIRE: // 火属性フィールド以外
+        //     return turnData.field !== FIELD.FIRE && turnData.field !== FIELD.NORMAL;
         case CONDITIONS.NOT_DIVA_BLESS: // 歌姫の加護以外
             return !checkBuffExist(unitData.buffList, BUFF.DIVA_BLESS);
         case CONDITIONS.NOT_NEGATIVE: // ネガティブ以外
@@ -883,10 +904,12 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
         case CONDITIONS.IS_WEAK: // 弱点を突いている
             // 弱点のみ消費
             let physical = getCharaData(unitData.style.styleInfo.chara_id).physical;
-            let attackInfo = getSkillIdToAttackInfo(turnData, unitData.selectSkillId);
+            let attackInfo = getSkillIdToAttackInfo(turnData, unitData, unitData.selectSkillId);
             return isWeak(turnData.enemyInfo, physical, attackInfo.attack_element, attackInfo.attack_id)
         case CONDITIONS.CAMP_DEPLOYMENT: // 陣展開
             return turnData.camp === conditionsId;
+        case CONDITIONS.IMMERSION_STATE: // 没入状態
+            return common.checkElement(unitData.immersion, conditionsId);
         default:
             break;
     }
@@ -972,32 +995,37 @@ export const getTargetList = (turnData, rangeArea, targetElement, unitData) => {
         }
         // 属性条件
         if (targetElement && targetElement !== ELEMENT.NORMAL) {
-            switch (targetElement) {
-                case ELEMENT.FIRE: // 火属性
-                case ELEMENT.ICE: // 氷属性
-                case ELEMENT.THUNDER: // 雷属性
-                case ELEMENT.LIGHT: // 光属性
-                case ELEMENT.DARK: // 闇属性
-                    if (unit.style.styleInfo.element !== targetElement && unit.style.styleInfo.element2 !== targetElement) {
-                        targetList.splice(i, 1);
-                    }
-                    break;
-                case ELEMENT.NOT_FIRE: // 火以外
-                case ELEMENT.NOT_ICE: // 氷以外
-                case ELEMENT.NOT_THUNDER: // 雷以外
-                case ELEMENT.NOT_LIGHT: // 光以外
-                case ELEMENT.NOT_DARK: // 闇以外
-                    let notElement = targetElement - 10;
-                    if (unit.style.styleInfo.element === notElement || unit.style.styleInfo.element2 === notElement) {
-                        targetList.splice(i, 1);
-                    }
-                    break;
-                default:
-                    break;
+            if (
+                !common.checkElement(unit.style.styleInfo.element, targetElement) &&
+                !common.checkElement(unit.style.styleInfo.element2, targetElement)
+            ) {
+                targetList.splice(i, 1);
             }
+            // switch (targetElement) {
+            //     case ELEMENT.FIRE: // 火属性
+            //     case ELEMENT.ICE: // 氷属性
+            //     case ELEMENT.THUNDER: // 雷属性
+            //     case ELEMENT.LIGHT: // 光属性
+            //     case ELEMENT.DARK: // 闇属性
+            //         if (unit.style.styleInfo.element !== targetElement && unit.style.styleInfo.element2 !== targetElement) {
+            //             targetList.splice(i, 1);
+            //         }
+            //         break;
+            //     case ELEMENT.NOT_FIRE: // 火以外
+            //     case ELEMENT.NOT_ICE: // 氷以外
+            //     case ELEMENT.NOT_THUNDER: // 雷以外
+            //     case ELEMENT.NOT_LIGHT: // 光以外
+            //     case ELEMENT.NOT_DARK: // 闇以外
+            //         let notElement = targetElement - 10;
+            //         if (unit.style.styleInfo.element === notElement || unit.style.styleInfo.element2 === notElement) {
+            //             targetList.splice(i, 1);
+            //         }
+            //         break;
+            //     default:
+            //         break;
+            // }
         }
     }
-
     return targetList;
 }
 
@@ -1047,7 +1075,7 @@ const sortActionSeq = (turnData) => {
             skillInfo: skillInfo,
             placeNo: placeNo
         };
-        let attackInfo = getSkillIdToAttackInfo(turnData, skill_id);
+        let attackInfo = getSkillIdToAttackInfo(turnData, unit, skill_id);
         if (attackInfo || skillInfo.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
             attack_seq.push(skillData);
         } else {
@@ -1329,7 +1357,7 @@ const unitTurnInit = (turnData, turnProgress, additionalTurn, unit) => {
     if (!additionalTurn || unit.additionalTurn) {
         setInitSkill(unit);
     } else {
-        unit.selectSkillId = SKILL.NONE;
+        unit.selectSkillId = SKILL_ID.NONE;
     }
     if (turnProgress) {
         const name = common.getCharaData(unit.style.styleInfo.chara_id).chara_short_name;
@@ -1414,9 +1442,9 @@ export const setInitSkill = (unit) => {
     } else {
         if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.OTHER}`], 1530)) {
             // 湯めぐり
-            unit.selectSkillId = SKILL.AUTO_PURSUIT;
+            unit.selectSkillId = constants.SKILL_ID.AUTO_PURSUIT;
         } else {
-            unit.selectSkillId = SKILL.NONE;
+            unit.selectSkillId = constants.SKILL_ID.NONE;
         }
         unit.spCost = 0;
     }

@@ -32,7 +32,12 @@ export const STYLE_ID = {
 }
 
 export const SKILL_ID = {
-    TRICK_CANNON: 50, // トリック・カノン
+    NORMAL_ATTACK: 1, // 通常攻撃
+    NONE: 2, // 無し
+    PURSUIT: 3, // 追撃
+    COMMAND_ACTION: 4, // 指揮行動
+    AUTO_PURSUIT: 5, // 自動追撃
+    // TRICK_CANNON: 50, // トリック・カノン
     MEDITATION: 501, // メディテーション
     GOOD_PAIN: 524, // 痛気持ちいぃ～！
     RICE_FIELD: 525, // いつの日かここで
@@ -40,20 +45,20 @@ export const SKILL_ID = {
     DAWN: 606, // 曙
     MEGA_DESTROYER: 623, // メガデストロイヤー
     CAT_JET_SHOOTING: 633, // ネコジェットシャテキ
-    BOUQUET_SHOOT: 640, // ファーマメントブーケショット
+    // BOUQUET_SHOOT: 640, // ファーマメントブーケショット
     SUMMER_FINE_WEATHER: 658, // 夏のひより
     DOMINATION_GRAVITY: 670, //	ドミネーション・グラビティ
     FAST_SHOT: 685, //	速攻◯
     CAFE_TIME: 767, // 熱々！飲茶タイム
 }
 
-export const ATTACK_ID = {
-    ELEGANT_AND_SOLEMN: 83, // 唯雅粛正
-    ELEGANT_AND_SOLEMN_CHARGE: 84, // 唯雅粛正(チャージ)
-}
+// export const ATTACK_ID = {
+//     ELEGANT_AND_SOLEMN: 83, // 唯雅粛正
+//     ELEGANT_AND_SOLEMN_CHARGE: 84, // 唯雅粛正(チャージ)
+// }
 
 export const SKILL_EFFECT_ID = {
-    TRICK_CANNON: 2,   // トリック・カノン
+    // TRICK_CANNON: 2,   // トリック・カノン
     MOON_LIGHT: 2607,   // 月光
     MEGA_DESTROYER5: 235,   // メガデストロイヤー5人
     MEGA_DESTROYER6: 236,   // メガデストロイヤー5人
@@ -77,8 +82,6 @@ export const ABILITY_ID = {
     ADMIRAL_COMMON: 299, // 指揮行動
     DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530, // 自動追撃,
-    HEAVEN_AND_EARTH: 603, // 天長地久
-    FORTUNES_OF_WAR: 606, // 武運長久
     OVER_GEAR: 1405, // オーバーギア
     WAR_HONOR: 1503, // 戦勲.
 }
@@ -113,11 +116,17 @@ export const ELEMENT = {
     LIGHT: 4, // 光
     DARK: 5, // 闇
     VOID: 6, // 虚
+    NOT_NORMAL: 10, // 無以外
     NOT_FIRE: 11, // 火以外
     NOT_ICE: 12, // 氷以外
     NOT_THUNDER: 13, // 雷以外
     NOT_LIGHT: 14, // 光以外
     NOT_DARK: 15, // 闇以外
+    OTHER_FIRE: 21, // 火以外の属性
+    OTHER_ICE: 22, // 氷以外の属性
+    OTHER_THUNDER: 23, // 雷以外の属性
+    OTHER_LIGHT: 24, // 光以外の属性
+    OTHER_DARK: 25, // 闇以外の属性
 }
 
 /** バフ種別 */
@@ -285,6 +294,7 @@ export const ATTRIBUTE = {
     PURSUIT: 2, // 追撃
     COMMAND_ACTION: 3, // 指揮行動
     PURSUIT_ONLY: 5, // 追撃のみ発動可能
+    IMMERSION: 6, // 没入
     SP_HALF: 11, // SP消費半減
     SP_ZERO: 12, // SP消費0
     SP_MITIGATION_3: 13, // SP消費軽減3
@@ -333,9 +343,10 @@ export const CONDITIONS = {
     SELECT_31A: 37, // 31A選択
     SELECT_CHARA: 38, // 特定キャラを選択
     CAMP_DEPLOYMENT: 40, // 陣展開中
-    FIELD_NOT_FIRE: 41, // 火属性以外フィールド
-    NOT_DIVA_BLESS: 43, // 歌姫の加護以外
-    NOT_NEGATIVE: 44, // ネガティブ以外
+    // FIELD_NOT_FIRE: 41, // 火属性以外フィールド
+    NOT_HAS_BUFF: 42, // バフ発動中以外
+    NOT_DIVA_BLESS: 43, // 歌姫の加護以外 TODO
+    NOT_NEGATIVE: 44, // ネガティブ以外 TODO
     HAS_PASSIVE: 45, // パッシブ発動中
     MOTIVATION: 46, // やる気状態
     COST_SP_UNDER: 47, // 消費SP指定値以下
@@ -354,6 +365,7 @@ export const CONDITIONS = {
     IS_WEAK: 60, // 弱点を突いている
     DP_UNDER_50: 61, // DP50％以下
     LNFANTILIZED_OVER_LV: 62, // 幼児退行レベル以上
+    IMMERSION_STATE: 63, // 没入状態
 }
 
 /** 敵リスト*/
@@ -387,13 +399,13 @@ export const KIND = {
 }
 
 /** 汎用スキル */
-export const SKILL = {
-    NORMAL_ATTACK: 1, // 通常攻撃
-    NONE: 2, // 無し
-    PURSUIT: 3, // 追撃
-    COMMAND_ACTION: 4, // 指揮行動
-    AUTO_PURSUIT: 5, // 自動追撃
-}
+// export const SKILL = {
+//     NORMAL_ATTACK: 1, // 通常攻撃
+//     NONE: 2, // 無し
+//     PURSUIT: 3, // 追撃
+//     COMMAND_ACTION: 4, // 指揮行動
+//     AUTO_PURSUIT: 5, // 自動追撃
+// }
 
 // 単独発動バフ
 export const ALONE_ACTIVATION_BUFF_NO = [

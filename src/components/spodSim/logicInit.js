@@ -76,6 +76,7 @@ export const getInitBattleData = (selectStyleList, enemyInfo, saveStyle, detailS
             selectSkillId: 0,
             initSkillId: 0,
             noAction: false,
+            immersion: 0, // 没入
             limitSp: 20,
         };
         unit.placeNo = index;

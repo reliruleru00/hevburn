@@ -50,6 +50,7 @@ export const SKILL_ID = {
     DOMINATION_GRAVITY: 670, //	ドミネーション・グラビティ
     FAST_SHOT: 685, //	速攻◯
     CAFE_TIME: 767, // 熱々！飲茶タイム
+    FREDDAMENTE: 772, // フレッダメンテ
 }
 
 // export const ATTACK_ID = {
@@ -76,14 +77,16 @@ export const ABILITY_ID = {
     TRANSCEND_FIRE: 25, // 超越(火)
     TRANSCEND_ICE: 26, // 超越(氷)
     TRANSCEND_THUNDER: 27, // 超越(雷)
-    KISHIN: 28, // 鬼神
     TRANSCEND_LIGHT: 29, // 超越(光)
     TRANSCEND_DARK: 30, // 超越(闇)
+    KISHIN: 28, // 鬼神
     ADMIRAL_COMMON: 299, // 指揮行動
     DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530, // 自動追撃,
     OVER_GEAR: 1405, // オーバーギア
     WAR_HONOR: 1503, // 戦勲.
+    WINGS_TO_TIGER: 612, // 獅子に鰭
+    LEAP_FORWARD: 613, // 飛躍
 }
 
 export const COST_TYPE = {
@@ -346,6 +349,7 @@ export const CONDITIONS = {
     SELECT_CHARA: 38, // 特定キャラを選択
     CAMP_DEPLOYMENT: 40, // 陣展開中
     // FIELD_NOT_FIRE: 41, // 火属性以外フィールド
+    USE_SKILL: 41, // スキル使用
     NOT_HAS_BUFF: 42, // バフ発動中以外
     NOT_DIVA_BLESS: 43, // 歌姫の加護以外 TODO
     NOT_NEGATIVE: 44, // ネガティブ以外 TODO

@@ -2,7 +2,7 @@ import {
     ABILIRY_TIMING, KB_NEXT
 } from "./const";
 import {
-    CHARA_ID, SKILL_ID, ELEMENT, BUFF, EFFECT, RANGE, FIELD, CONDITIONS, ATTRIBUTE, KIND,
+    CHARA_ID, SKILL_ID, ABILITY_ID, ELEMENT, BUFF, EFFECT, RANGE, FIELD, CONDITIONS, ATTRIBUTE, KIND,
     ALONE_ACTIVATION_BUFF_NO, COST_TYPE, changeStyle
 } from "utils/const";
 import * as constants from "utils/const";
@@ -407,8 +407,10 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
     const charaName = getCharaData(unitData.style.styleInfo.chara_id).chara_short_name;
     turnData.setLog(`${charaName}の${skillInfo.skill_name}`);
 
+    const skillId = skillInfo.skill_id;
+
     // 効果取得
-    const effectList = getSkillEffectList(skillInfo.skill_id, turnData, unitData);
+    const effectList = getSkillEffectList(skillId, turnData, unitData);
 
     let isSkill = false;
     let attackInfo;
@@ -460,8 +462,11 @@ const skillActivation = (skillInfo, unitData, turnData, autoPursuitUnit, spCost)
         logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.SKILL_USE, unitData);
 
         if (attackInfo.attack_id !== 0) {
-            // アビリティ(アクティブスキル使用)
-            logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.ACTIVE_SKILL_USE, unitData);
+            // フレッダメンテ特殊処理
+            if (skillId !== SKILL_ID.FREDDAMENTE || turnData.camp === 2) {
+                // アビリティ(アクティブスキル使用)
+                logicAbility.abilityActionUnit(turnData, ABILIRY_TIMING.ACTIVE_SKILL_USE, unitData);
+            }
             isSkill = true;
         }
         if (skillInfo.skill_kind === KIND.EX_GENERATE || skillInfo.skill_kind === KIND.EX_EXCLUSIVE) {
@@ -585,16 +590,6 @@ const getUnitOverDrive = (turnData, unitData, skillInfo, attackInfo, overDriveRa
     } else if (attackInfo) {
         // 攻撃IDの変換(暫定)
         let attackId = attackInfo.attack_id
-        // switch (attackId) {
-        //     case ATTACK_ID.ELEGANT_AND_SOLEMN:
-        //         // 唯雅粛正
-        //         if (checkBuffExist(unitData.buffList, BUFF.CHARGE)) {
-        //             attackId = ATTACK_ID.ELEGANT_AND_SOLEMN_CHARGE;
-        //         }
-        //         break;
-        //     default:
-        //         break;
-        // }
         let enemyTarget = enemyCount;
         if (attackInfo.range_area === constants.RANGE.ENEMY_UNIT) {
             enemyTarget = 1;
@@ -677,6 +672,7 @@ export const getSpCost = (turnData, skillInfo, unit) => {
     if (!skillInfo) {
         return 0;
     }
+    // 通常攻撃、追撃、指揮行動、行動無し
     const NON_ACTION_ATTRIBUTE = [1, 2, 3, 99];
     if (NON_ACTION_ATTRIBUTE.includes(skillInfo.skill_attribute)) {
         return 0;
@@ -723,11 +719,11 @@ export const getSpCost = (turnData, skillInfo, unit) => {
     // オーバードライブ中
     if (turnData.overDriveMaxTurn > 0) {
         // 獅子に鰭
-        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.EVERY_TURN}`], 612)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.EVERY_TURN}`], ABILITY_ID.WINGS_TO_TIGER)) {
             spCostDown = 2;
         }
         // 飛躍
-        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.EVERY_TURN}`], 613)) {
+        if (checkAbilityExist(unit[`ability_${ABILIRY_TIMING.EVERY_TURN}`], ABILITY_ID.LEAP_FORWARD)) {
             spCostDown = 2;
         }
     }
@@ -829,6 +825,8 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
             return common.checkElement(turnData.field, conditionsId);
         case CONDITIONS.HAS_ABILITY: // アビリティ
             return checkAbilityExist(unitData[`ability_${ABILIRY_TIMING.OTHER}`], conditionsId);
+        case CONDITIONS.USE_SKILL: // スキル使用
+            return conditionsId === skillId;
         case CONDITIONS.HAS_BUFF: // バフ発動中
             return checkBuffExist(unitData.buffList, conditionsId);
         case CONDITIONS.NOT_HAS_BUFF: // バフ発動中以外
@@ -853,8 +851,6 @@ export const judgmentCondition = (info, turnData, unitData, skillId) => {
             return checkMember(turnData.unitList, "31E") >= 3;
         case CONDITIONS.SELECT_CHARA: // 特定キャラを選択
             return unitData.buffTargetCharaId === conditionsId;
-        // case CONDITIONS.FIELD_NOT_FIRE: // 火属性フィールド以外
-        //     return turnData.field !== FIELD.FIRE && turnData.field !== FIELD.NORMAL;
         case CONDITIONS.NOT_DIVA_BLESS: // 歌姫の加護以外
             return !checkBuffExist(unitData.buffList, BUFF.DIVA_BLESS);
         case CONDITIONS.NOT_NEGATIVE: // ネガティブ以外
@@ -1001,29 +997,6 @@ export const getTargetList = (turnData, rangeArea, targetElement, unitData) => {
             ) {
                 targetList.splice(i, 1);
             }
-            // switch (targetElement) {
-            //     case ELEMENT.FIRE: // 火属性
-            //     case ELEMENT.ICE: // 氷属性
-            //     case ELEMENT.THUNDER: // 雷属性
-            //     case ELEMENT.LIGHT: // 光属性
-            //     case ELEMENT.DARK: // 闇属性
-            //         if (unit.style.styleInfo.element !== targetElement && unit.style.styleInfo.element2 !== targetElement) {
-            //             targetList.splice(i, 1);
-            //         }
-            //         break;
-            //     case ELEMENT.NOT_FIRE: // 火以外
-            //     case ELEMENT.NOT_ICE: // 氷以外
-            //     case ELEMENT.NOT_THUNDER: // 雷以外
-            //     case ELEMENT.NOT_LIGHT: // 光以外
-            //     case ELEMENT.NOT_DARK: // 闇以外
-            //         let notElement = targetElement - 10;
-            //         if (unit.style.styleInfo.element === notElement || unit.style.styleInfo.element2 === notElement) {
-            //             targetList.splice(i, 1);
-            //         }
-            //         break;
-            //     default:
-            //         break;
-            // }
         }
     }
     return targetList;

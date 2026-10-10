@@ -65,12 +65,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
         }
     }
     actionList.forEach((ability, index) => {
-        // 前衛
-        if (ability.activation_place === 1 && unitData.placeNo >= 3) {
-            return;
-        }
-        // 後衛
-        if (ability.activation_place === 2 && unitData.placeNo < 3) {
+        if (!common.checkActivationPlace(ability.activation_place, unitData.placeNo)) {
             return;
         }
         // 初回のみ

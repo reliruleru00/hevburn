@@ -1342,14 +1342,18 @@ const unitTurnInit = (turnData, turnProgress, additionalTurn, unit) => {
         const name = common.getCharaData(unit.style.styleInfo.chara_id).chara_short_name;
         // バフによる効果
         unit.buffList.forEach((buff) => {
-            for (const buffEffect of common.getBuffEffect(buff.buff_no)) {
+            const buffEffectList = common.getBuffEffect(buff.buff_no)
+                .filter(buffEffect => common.checkActivationPlace(buffEffect.activation_place, unit.placeNo));
+            for (const buffEffect of buffEffectList) {
                 let effectFunc = null;
                 let effectText = null;
                 if (buffEffect.effect_type === EFFECT.HEALSP) {
-                    effectFunc = () => {
-                        unit.sp += buffEffect.effect_size;
+                    if (unit.sp + buffEffect.effect_size < unit.limitSp) {
+                        effectFunc = () => {
+                            unit.sp += buffEffect.effect_size;
+                        }
+                        effectText = `SP+${buffEffect.effect_size}`;
                     }
-                    effectText = `SP+${buffEffect.effect_size}`;
                 }
                 if (buffEffect.effect_type === EFFECT.COST_SP_UP) {
                     effectFunc = () => {

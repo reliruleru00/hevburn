@@ -208,6 +208,18 @@ export const checkElement = (element, targetElement) => {
     }
 };
 
+export const checkActivationPlace = (activationPlace, targetPlace) => {
+    // 前衛
+    if (activationPlace === 1 && targetPlace >= 3) {
+        return false;
+    }
+    // 後衛
+    if (activationPlace === 2 && targetPlace < 3) {
+        return false;
+    }
+    return true;
+}
+
 // 条件の名称を取得
 export const getConditionName = (targetElement, conditions, conditionsId) => {
     switch (targetElement) {

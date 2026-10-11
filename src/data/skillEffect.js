@@ -463,7 +463,7 @@ const skillEffect = [
     {"effect_id":503,"skill_id":575,"effect_type":8,"effect_no":0,"effect_turn":3,"element":0,"chara_id":106,"style_id":146,"buff_name":"かき鳴らせキラーチューン","min_power":150,"max_power":180,"param_limit":256,"max_lv":1,"range_area":6},
     {"effect_id":504,"skill_id":773,"effect_type":40,"effect_no":2,"element":0,"chara_id":33,"style_id":215,"buff_name":"泡沫アフェトゥオーソ","conditions":40,"conditions_id":0},
     {"effect_id":505,"skill_id":773,"effect_type":40,"effect_no":0,"element":0,"chara_id":33,"style_id":215,"buff_name":"泡沫アフェトゥオーソ","conditions":40,"conditions_id":2},
-    {"effect_id":508,"skill_id":781,"effect_type":28,"chara_id":50,"style_id":0,"buff_name":"虚心・百歩穿楊","range_area":7,"conditions":63,"conditions_id":0},
+    {"effect_id":508,"skill_id":781,"effect_type":29,"chara_id":50,"style_id":0,"buff_name":"虚心・百歩穿楊","range_area":7,"conditions":63,"conditions_id":0},
     {"effect_id":509,"skill_id":781,"effect_type":22,"effect_no":55,"effect_turn":2,"chara_id":50,"style_id":0,"buff_name":"虚心・百歩穿楊","range_area":1,"conditions":63,"conditions_id":10},
     {"effect_id":510,"skill_id":808,"effect_type":22,"effect_no":3,"effect_turn":2,"element":0,"chara_id":2,"style_id":0,"buff_name":"迷いの森","min_power":20,"max_power":30,"param_limit":126,"max_lv":1,"range_area":2},
     {"effect_id":511,"skill_id":808,"effect_type":22,"effect_no":4,"effect_turn":2,"element":2,"chara_id":2,"style_id":0,"buff_name":"迷いの森","min_power":30,"max_power":45,"param_limit":126,"max_lv":1,"range_area":2},

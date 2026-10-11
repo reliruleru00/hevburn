@@ -5,6 +5,7 @@ import {
 import * as constants from "utils/const";
 import * as common from "utils/common";
 import * as logic from "./logic";
+import * as logicBuff from "./logicBuff.js";
 import skillList from "data/skillList";
 import skillEffect from "data/skillEffect";
 
@@ -176,7 +177,7 @@ export function generateBuffAbilityPassiveLists(styleList, attackInfo, attackUpB
 
     // グループ化
     const buffGroup = filteredBuff.reduce((acc, buff) => {
-        const key = logic.getBuffKey(buff.effect_type, buff.effect_no);
+        const key = logicBuff.getBuffKey(buff.effect_type, buff.effect_no);
         if (!acc[key]) {
             acc[key] = [[], []];
         }
@@ -420,16 +421,16 @@ export function addBuffAbilityPassiveLists(styleList, targetStyleList, attackInf
 }
 
 export const isOverlap = (attackUpBuffs, defDownBuffs, criticalBuffs, key) => {
-    const match1 = attackUpBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
-    const match2 = defDownBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
-    const match3 = criticalBuffs.find(item => logic.getBuffKey(item.effect, item.kind) === key);
+    const match1 = attackUpBuffs.find(item => logicBuff.getBuffKey(item.effect, item.kind) === key);
+    const match2 = defDownBuffs.find(item => logicBuff.getBuffKey(item.effect, item.kind) === key);
+    const match3 = criticalBuffs.find(item => logicBuff.getBuffKey(item.effect, item.kind) === key);
     return match1?.overlap || match2?.overlap || match3?.overlap;
 }
 
 export const isExistBuff = (attackUpBuffs, defDownBuffs, criticalBuffs, key) => {
     return (
-        attackUpBuffs.some(item => logic.getBuffKey(item.effect, item.kind) === key) ||
-        defDownBuffs.some(item => logic.getBuffKey(item.effect, item.kind) === key) ||
-        criticalBuffs.some(item => logic.getBuffKey(item.effect, item.kind) === key)
+        attackUpBuffs.some(item => logicBuff.getBuffKey(item.effect, item.kind) === key) ||
+        defDownBuffs.some(item => logicBuff.getBuffKey(item.effect, item.kind) === key) ||
+        criticalBuffs.some(item => logicBuff.getBuffKey(item.effect, item.kind) === key)
     );
 };

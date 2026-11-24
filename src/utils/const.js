@@ -25,6 +25,7 @@ export const STYLE_ID = {
     KITCHEN_MARIA: 201,  // キッチンマリア
     KITCHEN_SHANHUA: 213,  // キッチン映夏
     KITCHEN_IRENE: 223,  // キッチンアイリーン
+    TEDUKA: 197,  // 手塚
     YUKATA_SHIKI: 215,  // 浴衣シッキー
     SWIM_MUA: 222,  // 水着六宇亜
     PAWAPURO: [183, 184, 5092],  // パワプロ月歌、いちご、緋雨

@@ -145,8 +145,8 @@ export const procEffectUnit = (turnData, effectInfo, useUnitData, overDriveRateU
                     targetUnitData.additionalTurn = true;
                 }, turnData, targetList)
                 turnData.additionalTurn = true;
-                effectDesc = `追加ターン`;
             }
+            effectDesc = `追加ターン`;
             break;
         case EFFECT.FIELD_DEPLOYMENT: // フィールド
             executeEffect = () => {

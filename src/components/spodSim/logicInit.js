@@ -25,6 +25,7 @@ export const getInitBattleData = (selectStyleList, enemyInfo, saveStyle, detailS
         stepOverDriveGauge: 0,
         maxOverDriveGauge: 300,
         overDriveGauge: 0,
+        initAddOverDriveGauge: 0,
         calcOverDriveGauge: 0,
         overDriveGaugeMultiplier: 100,
         enemyCount: 1,

@@ -3,6 +3,7 @@ import ReactModal from "react-modal";
 import { RANGE, CONDITIONS } from "utils/const";
 import { KB_NEXT, FIELD_LIST } from "./const";
 import { getEffectList, getSkillData, deepClone } from "utils/common";
+import * as logicOverDrive from "./logicOverDrive";
 import UnitComponent from "./UnitComponent";
 import ModalTargetSelection from "./ModalTargetSelection";
 import ModalEffectSelection from "./ModalEffectSelection";
@@ -28,6 +29,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         isNextInfluence.current = render;
         // OD再計算
         turn.calcOverDriveGauge = getOverDrive(turn);
+        turn.initAddOverDriveGauge = logicOverDrive.calcInitOverDriveGauge(userOperation);
         turn.userOperation = userOperation;
         if ([KB_NEXT.ACTION_OD_1, KB_NEXT.ACTION_OD_2, KB_NEXT.ACTION_OD_3].includes(userOperation.kbAction)) {
             if (turn.calcOverDriveGauge < 100) {
@@ -43,6 +45,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
             }
         }
         handlers.updateTurn(index, turn);
+        console.log(`ターン${turn.turnNumber}再描画`);
     }
 
     // 敵の数変更
@@ -69,7 +72,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
     }
 
     // スキル変更
-    const chengeSkill = (skillId, placeNo) => {
+    const changeSkill = (skillId, placeNo) => {
         let userOperation = { ...turn.userOperation };
         let selectSkill = userOperation.selectSkill[placeNo];
         selectSkill.skill_id = skillId;
@@ -235,6 +238,13 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
         reRender(userOperation, true);
     }
 
+    // 初期オーバードライブゲージ再計算
+    const calcInitAddOverDrive = (key, value) => {
+        const userOperation = { ...turn.userOperation };
+        userOperation[key] = value;
+        reRender(userOperation, true);
+    }
+
     // 次ターン
     function clickNextTurn(e) {
         let turnData = deepClone(turn);
@@ -289,7 +299,8 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
 
     const handleOverDrive = (checked) => {
         if (checked) {
-            if (Math.floor(turn.startOverDriveGauge / 100) >= 2) {
+            const overDrivrGauge = logicOverDrive.getInitOverDriveGauge(turn);
+            if (Math.floor(overDrivrGauge / 100) >= 2) {
                 openModal("overdrive");
             } else {
                 triggerOverDrive(checked, 1);
@@ -315,6 +326,14 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
 
     const turnClass = "turn_area" + (turn.additionalTurn ? " additional_turn" : turn.overDriveMaxTurn > 0 ? " overdrive_turn" : "");
     const activeTurnClass = isActiveTurn ? " active_turn" : "";
+
+    const initOverDrivrGauge = logicOverDrive.getInitOverDriveGauge(turn);
+
+    // 引数をまとめる
+    const args = {
+        chageStyle, changeSkill, chengeSelectUnit, clickBuffIcon, clickUnitConfig, calcInitAddOverDrive,
+        isActiveTurn, hideMode, isCapturing,
+    }
     return (
         <div className={turnClass + activeTurnClass} onClick={() => handlers.changeActiveTurn(turn)}>
             <div className="turn_header_area">
@@ -348,16 +367,12 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
             <div className="party_member">
                 <div className="flex front_area">
                     {[0, 1, 2].map(placeNo =>
-                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
-                            isActiveTurn={isActiveTurn}
-                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} clickUnitConfig={clickUnitConfig} />
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo} args={args} />
                     )}
                 </div>
                 <div className="flex back_area">
                     {[3, 4, 5].map(placeNo =>
-                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo}
-                            isActiveTurn={isActiveTurn}
-                            chageStyle={chageStyle} chengeSkill={chengeSkill} chengeSelectUnit={chengeSelectUnit} clickBuffIcon={clickBuffIcon} hideMode={hideMode} isCapturing={isCapturing} clickUnitConfig={clickUnitConfig} />
+                        <UnitComponent turn={turn} key={`unit${placeNo}`} placeNo={placeNo} selectedPlaceNo={turn.userOperation.selectedPlaceNo} args={args} />
                     )}
                     <div>
                         <select className="action_select" value={turn.userOperation.kbAction} onChange={(e) => chengeAction(e)}>
@@ -384,7 +399,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                             style={{
                                 justifyContent: "flex-end",
                             }}>
-                            {turn.startOverDriveGauge >= 100 && !turn.additionalTurn && (turn.overDriveNumber === 0 || turn.triggerOverDrive) ?
+                            {initOverDrivrGauge >= 100 && !turn.additionalTurn && (turn.overDriveNumber === 0 || turn.triggerOverDrive) ?
                                 <input type="checkbox" className="trigger_over_drive" checked={turn.triggerOverDrive} onChange={(e) => handleOverDrive(e.target.checked)} />
                                 : null}
                             {isLastTurn ?
@@ -415,7 +430,7 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
                                     <BuffDetailListComponent buffList={modalSetting.effect_type} />
                                     : modalSetting.modalType === "overdrive" ?
                                         <ModalTriggerOverDrive triggerOverDrive={triggerOverDrive} closeModal={closeModal}
-                                            overDriveLevel={Math.floor(turn.startOverDriveGauge / 100)} maxOverDriveGauge={turn.maxOverDriveGauge} />
+                                            overDriveLevel={Math.floor(initOverDrivrGauge / 100)} maxOverDriveGauge={turn.maxOverDriveGauge} />
                                         : modalSetting.modalType === "unitConfig" &&
                                         <ModalUnitConfing turn={turn} placeNo={modalSetting.modalIndex} closeModal={closeModal} updateUnitData={updateUnitData} />
                     }

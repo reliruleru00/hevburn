@@ -3,7 +3,7 @@ import { getOverDrive } from "./logic";
 import overdriveIcons from 'assets/overdrive';
 
 const OverDriveGauge = ({ turn }) => {
-    const overDriveGauge = turn.overDriveGauge;
+    const overDriveGauge = turn.overDriveGauge + turn.initAddOverDriveGauge;
     const calcOverDriveGauge = getOverDrive(turn);
     turn.calcOverDriveGauge = calcOverDriveGauge;
     let gauge = Math.floor(overDriveGauge / 100);

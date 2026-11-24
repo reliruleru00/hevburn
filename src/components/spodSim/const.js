@@ -24,7 +24,7 @@ export const ABILIRY_TIMING = {
 
 // 使用不可スタイル
 export const NOT_USE_STYLE = [
-    197, // 手塚
+//    197, // 手塚
 ];
 
 // 制限アビリティ

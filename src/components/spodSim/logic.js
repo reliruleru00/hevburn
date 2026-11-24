@@ -14,6 +14,7 @@ import skillAttack from "data/skillAttack";
 import skillList from "data/skillList";
 import * as logicBuff from "./logicBuff.js";
 import * as logicAbility from "./logicAbility.js";
+import * as logicOverDrive from "./logicOverDrive.js";
 
 // アビリティ存在チェック
 export function checkAbilityExist(abilityList, abilityId) {
@@ -76,14 +77,14 @@ export function checkEffectTypeExist(turnData, unitData, effectType) {
 
 // メンバー存在チェック
 export function checkMember(unitList, troops) {
-    let member_list = unitList.filter(function (unit_info) {
+    const memberlist = unitList.filter(function (unit_info) {
         if (unit_info.style) {
-            let chara_info = getCharaData(unit_info.style.styleInfo.chara_id);
-            return chara_info.troops === troops;
+            const charaInfo = getCharaData(unit_info.style.styleInfo.chara_id);
+            return charaInfo.troops === troops;
         }
         return false;
     });
-    return member_list.length;
+    return memberlist.length;
 }
 
 // 単独発動判定
@@ -316,6 +317,10 @@ export function startAction(turnData) {
 // 行動処理
 const actionProc = (turnData) => {
     turnData.setLog(`＝＝＝＝＝＝＝＝＝＝行動開始＝＝＝＝＝＝＝＝＝＝`);
+    // 初期ODゲージ確定して初期化
+    turnData.overDriveGauge = logicOverDrive.getInitOverDriveGauge(turnData);
+    turnData.initAddOverDriveGauge = 0;
+
     // 追加ターン判定含めた処理順
     const seq = sortActionSeq(turnData);
 
@@ -330,6 +335,9 @@ const actionProc = (turnData) => {
             }
         }, turnData.unitList);
     }
+
+    // 固有行動
+    styleUniqueAction(turnData);
 
     // 自動追撃を事前検知
     const autoPursuitUnit = getAutoPursuitUnit(turnData);
@@ -378,6 +386,24 @@ const actionProc = (turnData) => {
         }
     });
 
+}
+
+// 固有行動
+const styleUniqueAction = (turnData) => {
+    const unitTezuka = turnData.unitList.filter((obj) => obj.style?.styleInfo.style_id === constants.STYLE_ID.TEDUKA)[0];
+    // 鬼神の時
+    if (unitTezuka.kishinTurn) {
+        // バフ付与
+        const effectInfo = {
+            "buff_name": "鬼神化",
+            "effect_no": constants.BUFF.FUNNEL,
+            "effect_size": 25,
+            "effect_turn": 1,
+            "effect_count": 3,
+            "effect_type": 8
+        }
+        logicBuff.grantBuff(unitTezuka, effectInfo, unitTezuka);
+    }
 }
 
 // 自動追撃取得
@@ -772,6 +798,13 @@ function zeroSpSkill(turnData, skillInfo, unitData) {
     // SP消費0
     if (skillInfo.skill_attribute === ATTRIBUTE.SP_ZERO) {
         if (judgmentCondition(skillInfo, turnData, unitData, skillInfo.skill_id)) {
+            return true;
+        }
+    }
+    // 鬼神状態
+    if (unitData.kishinTurn > 0) {
+        // EXスキル以外
+        if (skillInfo.skill_kind !== KIND.EX_EXCLUSIVE && skillInfo.skill_kind !== KIND.EX_GENERATE) {
             return true;
         }
     }
@@ -1335,7 +1368,7 @@ export const startOverDrive = (turnData, overDriveLevel) => {
 export const removeOverDrive = (turnData) => {
     turnData.overDriveNumber = 0;
     turnData.overDriveMaxTurn = 0;
-    turnData.overDriveGauge = turnData.startOverDriveGauge;
+    turnData.overDriveGauge = logicOverDrive.getInitOverDriveGauge(turnData);
     turnData.calcOverDriveGauge = turnData.overDriveGauge;
 
     unitLoop(function (unit) {
@@ -1405,6 +1438,19 @@ const unitTurnInit = (turnData, turnProgress, additionalTurn, unit) => {
                 }
             };
         });
+    }
+    // 鬼神化解除
+    if (unit.kishinTurn > 0) {
+        unit.kishinTurn--;
+        if (unit.kishinTurn === 0) {
+            // 鬼神化が解除された場合の処理
+            const effectInfo = {
+                "buff_name": "鬼神化",
+                "effect_no": constants.BUFF.RECOIL,
+                "effect_turn": 1,
+            }
+            logicBuff.grantBuff(unit, effectInfo, unit);
+        }
     }
 }
 

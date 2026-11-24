@@ -2,8 +2,10 @@ import React from "react";
 import { getCharaData, getSkillData } from "utils/common";
 import { ABILITY_ID, SKILL_ID, BUFF, ROLE, ATTRIBUTE, COST_TYPE } from "utils/const";
 import { PHYSICAL_NAME, ELEMENT_NAME, ABILIRY_TIMING } from "./const";
+import * as constants from "utils/const";
 import BuffIconComponent from "./BuffIconComponent";
 import { getSkillIdToAttackInfo, getSpCost, checkAbilityExist } from "./logic";
+import * as logic from "./logic";
 import icons from 'assets/thumbnail';
 import crossIcon from 'assets/img/cross.png';
 import { changeStyle } from "utils/const";
@@ -41,7 +43,7 @@ const UnitSp = ({ unit }) => {
     )
 }
 
-const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId, triggerOverDrive, chengeSkill, isCapturing }) => {
+const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId, triggerOverDrive, changeSkill, isCapturing }) => {
     if (unit.blank) {
         return (
             <select className={"unit_skill invisible"} >
@@ -104,7 +106,7 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
     return (<select className={className}
         onMouseDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
-        onChange={(e) => chengeSkill(Number(e.target.value), placeNo)} value={unit.selectSkillId} >
+        onChange={(e) => changeSkill(Number(e.target.value), placeNo)} value={unit.selectSkillId} >
         {skillList.filter((obj) => obj.skill_id === unit.selectSkillId || !isCapturing).map(skill => {
             let text = skill.skill_name;
             let spCost = 0;
@@ -154,36 +156,6 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
                     }
                     break;
             }
-
-            // if (skill.skill_attribute === ATTRIBUTE.NORMAL_ATTACK) {
-            //     text += `(${PHYSICAL_NAME[physical]}・${ELEMENT_NAME[unit.normalAttackElement]})`;
-            // } else if (skill.skill_id === 0 || skill.skill_id === 2) {
-            // } else if (skill.skill_attribute === ATTRIBUTE.COMMAND_ACTION) {
-            // } else if (skill.skill_attribute === ATTRIBUTE.PURSUIT) {
-            //     text += `(${PHYSICAL_NAME[physical]})`;
-            // } else {
-            //     let attack = "";
-            //     const attackInfo = getSkillIdToAttackInfo(turn, skill.skill_id);
-            //     if (attackInfo) {
-            //         attack = `${PHYSICAL_NAME[physical]}・${ELEMENT_NAME[attackInfo.attack_element]}/`;
-            //     }
-            //     if (skill.cost_type === COST_TYPE.EP) {
-            //         text += `(${attack}EP${skill.use_cost})`;
-            //     } else if (skill.cost_type === COST_TYPE.CT) {
-            //         text += `(${attack}CT${skill.use_cost})`;
-            //     } else if (skill.cost_type === COST_TYPE.OVERDRIVE) {
-            //         text += `(${attack}OD${skill.use_cost}%)`;
-            //     } else if (skill.cost_type === COST_TYPE.TOKEN) {
-            //         let tokenCost = skill.use_cost;
-            //         if (skill.use_cost === 99) {
-            //             tokenCost = unit.token;
-            //         }
-            //         text += `(${attack}token${tokenCost})`;
-            //     } else {
-            //         spCost = getSpCost(turn, skill, unit);
-            //         text += `(${attack}${spCost})`;
-            //     }
-            // }
             return (<option value={skill.skill_id} key={`skill${skill.skill_id}${skill.attack_id}`}>{text}</option>)
         }
         )}
@@ -199,10 +171,13 @@ const UnitSkillSelect = React.memo(({ turn, field, unit, placeNo, selectSkillId,
         && prevProps.isCapturing === nextProps.isCapturing;
 });
 
-const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill, chengeSelectUnit,
-    hideMode, isActiveTurn, isCapturing, clickBuffIcon, clickUnitConfig }) => {
-    const filterUnit = turn.unitList.filter(unit => unit.placeNo === placeNo);
-    const unit = filterUnit[0];
+const UnitComponent = ({ turn, placeNo, selectedPlaceNo, args }) => {
+    const {
+        chageStyle, changeSkill, chengeSelectUnit, clickBuffIcon, clickUnitConfig, calcInitAddOverDrive,
+        isActiveTurn, hideMode, isCapturing
+    } = args;
+    const userOperation = turn.userOperation;
+    const unit = turn.unitList.filter(unit => unit.placeNo === placeNo)[0];
 
     let icon = icons[unit?.style?.styleInfo?.image_url] || crossIcon;
     let loopLimit = 3;
@@ -220,7 +195,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
     return (
         <div className="relative unit_select text-xs">
             <UnitSkillSelect turn={turn} field={turn.field}
-                unit={unit} placeNo={placeNo} chengeSkill={chengeSkill} selectSkillId={unit.selectSkillId} triggerOverDrive={turn.triggerOverDrive} isCapturing={isCapturing} />
+                unit={unit} placeNo={placeNo} changeSkill={changeSkill} selectSkillId={unit.selectSkillId} triggerOverDrive={turn.triggerOverDrive} isCapturing={isCapturing} />
             <div className={className} style={{ height: '48px' }} onClick={(e) => { chengeSelectUnit(e, placeNo) }}>
                 <div>
                     <img className="unit_style" src={icon} alt="" />
@@ -261,6 +236,42 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                             </span>
                         </div>
                     }
+                    {unit?.style?.styleInfo?.style_id === constants.STYLE_ID.TEDUKA && (() => {
+                        // 行動不能
+                        if (logic.checkBuffExist(unit.buffList, BUFF.RECOIL) ) {
+                            return null;
+                        }
+                        if (unit.kishinTurn > 0 && unit.kishinTurn < 3) {
+                            return (
+                                <div className="flex text-sm">
+                                    <span>
+                                        鬼神化 {unit.kishinTurn}ターン
+                                    </span>
+                                </div>
+                            );
+                        };
+                        const kishin = userOperation.triggerKishin;
+                        const changeKishin = (value) => {
+                            if (value) {
+                                // 鬼神発動
+                                unit.kishinTurn = 3;
+                            } else {
+                                unit.kishinTurn = null;
+                            }
+                            calcInitAddOverDrive("triggerKishin", value);
+                            changeSkill(unit.selectSkillId, unit.placeNo);
+                        }
+                        return (
+                            <div className="flex text-sm">
+                                <span>
+                                    <input id="kishin" type="checkbox" checked={kishin} onChange={() => changeKishin(!kishin)} />
+                                    <label className="checkbox01" htmlFor="kishin">
+                                        鬼神化
+                                    </label>
+                                </span>
+                            </div>
+                        );
+                    })()}
                     {/* <div>
                                 敵行動
                             </div>
@@ -280,7 +291,7 @@ const UnitComponent = ({ turn, placeNo, selectedPlaceNo, chageStyle, chengeSkill
                 </>
                 : null
             }
-        </div>
+        </div >
     )
 };
 

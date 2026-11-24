@@ -51,6 +51,7 @@ export const abilityActionUnit = (turnData, actionKbn, unitData, params) => {
             case "敵のバフ解除":
             case "ブレイク中":
             case "100%":
+            case "発動トリガー":
                 return false;
             default:
                 break;

@@ -329,6 +329,10 @@ const TurnData = React.memo(({ turn, index, isLastTurn, isActiveTurn, hideMode, 
 
     const initOverDrivrGauge = logicOverDrive.getInitOverDriveGauge(turn);
 
+    if (!isActiveTurn) {
+        turn.userOperation.selectedPlaceNo = -1;
+    }
+
     // 引数をまとめる
     const args = {
         chageStyle, changeSkill, chengeSelectUnit, clickBuffIcon, clickUnitConfig, calcInitAddOverDrive,

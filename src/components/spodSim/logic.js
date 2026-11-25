@@ -192,6 +192,9 @@ export const changeStyleInfo = (unit, styleId) => {
 
 // ユーザ操作をターンに反映
 const reflectUserOperation = (turnData, isLoadMode) => {
+    // 固有状態
+    const triggerKishin = turnData.userOperation.triggerKishin;
+
     // 配置変更
     turnData.unitList.forEach((unit) => {
         if (unit.blank) return;
@@ -216,6 +219,19 @@ const reflectUserOperation = (turnData, isLoadMode) => {
                 }
             }
             unit.placeNo = operationPlaceNo;
+        }
+        // 鬼神状態
+        if (styleId === constants.STYLE_ID.TEDUKA) {
+            if (triggerKishin) {
+                if (!unit.kishinTurn) {
+                    // 設定されてない場合の設定
+                    unit.kishinTurn = 3
+                } else if (unit.kishinTurn !== 3) {
+                    // 既に設定済みの上書き
+                    turnData.userOperation.triggerKishin = false;
+                }
+                turnData.initAddOverDriveGauge += 15;
+            }
         }
     })
     // オーバードライブ発動
@@ -392,7 +408,7 @@ const actionProc = (turnData) => {
 const styleUniqueAction = (turnData) => {
     const unitTezuka = turnData.unitList.filter((obj) => obj.style?.styleInfo.style_id === constants.STYLE_ID.TEDUKA)[0];
     // 鬼神の時
-    if (unitTezuka.kishinTurn) {
+    if (unitTezuka && unitTezuka.kishinTurn) {
         // バフ付与
         const effectInfo = {
             "buff_name": "鬼神化",

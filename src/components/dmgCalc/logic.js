@@ -495,6 +495,7 @@ export function getDamageResult(argument, selectSkillLv) {
     let buff = getSumBuffEffectSize(argument, handlers);
     let field = getSumEffectSize(argument, EFFECT.FIELD_DEPLOYMENT, EFFECT.FIELD_DEPLOYMENT) / 100;
     buff += field;
+    const hpSpecialEffect = getSumAbilityEffectSize(argument, handlers, EFFECT.HP_SPECIAL_EFFECT);
 
     let debuff = getSumDebuffEffectSize(argument, handlers);
     let debuffDp = getSumEffectSize(argument, EFFECT.GRANT_DEBUFF, EFFECT.DP_DEFFENCEDOWN) / 100;
@@ -513,8 +514,10 @@ export function getDamageResult(argument, selectSkillLv) {
     }
 
     // 表示用
+    const hpSpecial = (attackInfo.hp_damege + hpSpecialEffect) / 100;
+    const dpSpecial = attackInfo.dp_damege / 100;
     let funnel = 1 + funnelList.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 100;
-    let special = 1 + Number(state.dpRate[0] === 0 ? attackInfo.hp_damege / 100 : attackInfo.dp_damege / 100);
+    let special = 1 + Number(state.dpRate[0] === 0 ? hpSpecial : dpSpecial);
 
     // 個別設定
     let skillUniqueRate = 1;
@@ -543,18 +546,23 @@ export function getDamageResult(argument, selectSkillLv) {
     let criticalBuff = getCriticalBuff(argument, handlers);
 
     let fixed = token * physical / 100 * element / 100 * enemyDefenceRate * skillUniqueRate * overdrive;
+    const calcArgs = {
+        state, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting,
+        hpSpecial, dpSpecial
+    }
+
     const normalAvgResult =
-        calculateDamage(state, skillPower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, skillPower);
     const normalMinResult =
-        calculateDamage(state, skillPower * 0.9, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, skillPower * 0.9);
     const normalMaxResult =
-        calculateDamage(state, skillPower * 1.1, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, skillPower * 1.1);
     const criticalAvgResult =
-        calculateDamage(state, criticalPower, attackInfo, buff, debuff, debuffDp, fixed * criticalBuff, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, criticalPower);
     const criticalMinResult =
-        calculateDamage(state, criticalPower * 0.9, attackInfo, buff, debuff, debuffDp, fixed * criticalBuff, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, criticalPower * 0.9);
     const criticalMaxResult =
-        calculateDamage(state, criticalPower * 1.1, attackInfo, buff, debuff, debuffDp, fixed * criticalBuff, damageRateUp, funnelList, otherSetting);
+        calculateDamage(calcArgs, criticalPower * 1.1);
 
     if (state.dpRate[0] > 0) {
         debuff += debuffDp;
@@ -590,7 +598,10 @@ export function getDamageResult(argument, selectSkillLv) {
 }
 
 // ダメージの詳細計算
-function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting) {
+function calculateDamage(calcArgs, basePower) {
+    const { state, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting,
+        hpSpecial, dpSpecial
+     } = calcArgs;
     let enemyInfo = state.enemyInfo;
     let damageRate = state.damageRate;
     let maxDamageRate = state.maxDamageRate;
@@ -619,11 +630,11 @@ function calculateDamage(state, basePower, attackInfo, buff, debuff, debuffDp, f
         let addBuff = 0;
         let addDebuff = 0;
         if (restDp[0] <= 0 && dpPenetration) {
-            special = 1 + attackInfo.hp_damege / 100;
+            special = 1 + hpSpecial;
             addBuff = getEarringEffectSize(otherSetting, "attack", hitCount) / 100;
             addDebuff = 0;
         } else {
-            special = 1 + attackInfo.dp_damege / 100;
+            special = 1 + dpSpecial;
             addBuff = getEarringEffectSize(otherSetting, "break", hitCount) / 100;
             addDebuff = debuffDp;
         }
@@ -895,7 +906,7 @@ function getSumFunnelEffectList(argument, handlers) {
             break;
     }
 
-    // スキルデバフ合計
+    // スキルバフ合計
     const funnelKey = logicBuff.getBuffKey(EFFECT.GRANT_BUFF, BUFF.FUNNEL);
     const selectedKey = selectBuffKeyMap[funnelKey];
     if (selectedKey) {
@@ -913,6 +924,7 @@ function getSumFunnelEffectList(argument, handlers) {
                 let abilityId = Number(key[1]);
                 switch (abilityId) {
                     case ABILITY_ID.KISHIN:
+                    case ABILITY_ID.SHINI:
                         addAbilityFunnel(25, 3);
                         break;
                     default:

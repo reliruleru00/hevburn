@@ -81,6 +81,7 @@ export const ABILITY_ID = {
     TRANSCEND_LIGHT: 29, // 超越(光)
     TRANSCEND_DARK: 30, // 超越(闇)
     KISHIN: 28, // 鬼神
+    SHINI: 40, // 神威
     ADMIRAL_COMMON: 299, // 指揮行動
     DOUBLE_LIFT: 1516, // ダブルリフト
     AUTO_PURSUIT: 1530, // 自動追撃,
@@ -239,6 +240,7 @@ export const EFFECT = {
     CAMP_DEPLOYMENT: 40, // 陣展開
     RESISTDOWN: 41, // 耐性ダウン
     DP_DEFFENCEDOWN: 42, // DP防御力ダウン
+    HP_SPECIAL_EFFECT: 43, // HP特殊効果
     OVERDRIVE_RATE_UP: 46, // OD増加量アップ
     OVERDRIVE_COST_DOWN: 47, // OD消費量ダウン
     PHYSICAL_DOWN: 48, // 武器耐性ダウン

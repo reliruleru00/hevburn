@@ -223,14 +223,15 @@ const reflectUserOperation = (turnData, isLoadMode) => {
         // 鬼神状態
         if (styleId === constants.STYLE_ID.TEDUKA) {
             if (triggerKishin) {
+                turnData.initAddOverDriveGauge = 15;
                 if (!unit.kishinTurn) {
                     // 設定されてない場合の設定
                     unit.kishinTurn = 3
                 } else if (unit.kishinTurn !== 3) {
                     // 既に設定済みの上書き
                     turnData.userOperation.triggerKishin = false;
+                    turnData.initAddOverDriveGauge = 0;
                 }
-                turnData.initAddOverDriveGauge += 15;
             }
         }
     })

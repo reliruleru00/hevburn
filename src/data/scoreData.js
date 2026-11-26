@@ -87,6 +87,11 @@ const scoreAttackList = [
         "hp_rate": { 21: 14911126, 26: 26743695, 31: 44492547, 36: 71115827, 39: 98545872, 40: 105000000 },
     },
     {
+        "score_attack_no": 106, "enemy_count": 1, "max_damage_rate": 0.0180,
+        "dp_rate": { 21: 2397235, 26: 4753039, 31: 8530680, 36: 13577181, 39: 18776606, 40: 20000000 },
+        "hp_rate": { 21: 29051245, 26: 58522021, 31: 105884711, 36: 169295438, 39: 234627702, 40: 250000000 },
+    },
+    {
         "score_attack_no": 900, "enemy_count": 1, "level_bonus": 100_000, "max_limit_value": 2_000_000_000,
     },
     {
@@ -103,6 +108,9 @@ const scoreAttackList = [
     },
     {
         "score_attack_no": 905, "enemy_count": 1, "level_bonus": 130_000, "max_limit_value": 1_665_665_666,
+    },
+    {
+        "score_attack_no": 906, "enemy_count": 1, "level_bonus": 100_000, "max_limit_value": 2_306_306_306,
     },
 ];
 

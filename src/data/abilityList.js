@@ -186,7 +186,7 @@ const abilityList = [
     {"ability_id":602,"ability_name":"キレアジ","ability_explan":"消費SP8以下のスキルを使用したとき自身のスキル攻撃力+100%","ability_short_explan":"消費SP8以下のスキルを使用したとき 自身のスキル攻撃力+100%","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":603,"ability_name":"天長地久","ability_explan":"自身が展開する属性強化フィールドの効果+15%さらに有効期間がターン永続になる","ability_short_explan":"自身が展開する属性強化フィールドの効果+15%","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":604,"ability_name":"玄人","ability_explan":"自身のクリティカル率を常時+100%","ability_short_explan":"自身のクリティカル率を常時+100%","activation_place":1,"physical":0,"element":0,"target_element":0},
-    {"ability_id":605,"ability_name":"胸の高鳴り","ability_explan":"味方が消費SP15以上のスキルを使用したとき使用者のスキル攻撃力+100%","ability_short_explan":"消費SP15以上のスキルを使用したとき 使用者のスキル攻撃力+100%","activation_place":3,"physical":0,"element":0,"target_element":0},
+    {"ability_id":605,"ability_name":"胸の高鳴り","ability_explan":"味方全体のスキル攻撃力+100%","ability_short_explan":"味方全体のスキル攻撃力+100%","activation_place":3,"physical":0,"element":0,"target_element":0},
     {"ability_id":606,"ability_name":"武運長久","ability_explan":"行動開始時 自身の士気レベルが6以上のとき、自身が展開する属性強化フィールドの効果+15%さらに有効期間がターン永続になる","ability_short_explan":"行動開始時 自身の士気レベルが6以上のとき、自身が展開する属性強化フィールドの効果+15%","activation_place":0,"physical":0,"element":0,"target_element":0},
     {"ability_id":607,"ability_name":"無差別な殺人鬼","ability_explan":"自身が敵にダメージを与えたとき 元素属性に関係なく「Eシールド」のカウントを減らすことができる","ability_short_explan":"元素属性に関係なく「Eシールド」のカウントを減らす","activation_place":1,"physical":0,"element":0,"target_element":0},
     {"ability_id":608,"ability_name":"勇姿","ability_explan":"ターン開始時 チャージ状態の味方の消費SP-1","ability_short_explan":"ターン開始時 チャージ状態の味方の消費SP-1","activation_place":3,"physical":0,"element":0,"target_element":0},

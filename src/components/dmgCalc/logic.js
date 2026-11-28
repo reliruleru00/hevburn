@@ -72,7 +72,7 @@ function getChainEffectSize(otherSetting, type) {
 }
 
 // パワプロ存在チェック
-export const  checkPawapuroExist = (selectStyleList) => {
+export const checkPawapuroExist = (selectStyleList) => {
     return common.checkStyleExist(selectStyleList, STYLE_ID.PAWAPURO);
 }
 
@@ -557,6 +557,9 @@ export function getDamageResult(argument, selectSkillLv) {
         calculateDamage(calcArgs, skillPower * 0.9);
     const normalMaxResult =
         calculateDamage(calcArgs, skillPower * 1.1);
+
+    fixed *= criticalBuff;
+    calcArgs.fixed = fixed;
     const criticalAvgResult =
         calculateDamage(calcArgs, criticalPower);
     const criticalMinResult =
@@ -601,7 +604,7 @@ export function getDamageResult(argument, selectSkillLv) {
 function calculateDamage(calcArgs, basePower) {
     const { state, attackInfo, buff, debuff, debuffDp, fixed, damageRateUp, funnelList, otherSetting,
         hpSpecial, dpSpecial
-     } = calcArgs;
+    } = calcArgs;
     let enemyInfo = state.enemyInfo;
     let damageRate = state.damageRate;
     let maxDamageRate = state.maxDamageRate;

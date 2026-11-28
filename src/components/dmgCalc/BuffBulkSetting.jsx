@@ -35,7 +35,7 @@ const BuffBulkSetting = ({ buffGroup, setMultiBuff }) => {
             });
         });
         setSettingBuffList(newBuffMap);
-    }, []);
+    }, [filteredBuff, styleList.selectStyleList]);
 
     const handleChangeIndex = (key, index) => {
         setSettingBuffList(prev => ({

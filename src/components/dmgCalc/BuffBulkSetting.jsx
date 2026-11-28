@@ -86,7 +86,11 @@ const BuffBulkSetting = ({ buffGroup, setMultiBuff }) => {
                             let skillName = "";
                             let isSecond = true;
                             if (buff.kbn === 'ability') {
-                                skillName = getAbilityInfo(buff.skill_id).ability_name;
+                                // Passiveもここに入るため暫定対応
+                                skillName = buff.buff_name;
+                                if (!skillName) {
+                                    skillName = getAbilityInfo(buff.skill_id).ability_name;
+                                }
                                 isSecond = false;
                             } else {
                                 skillName = getSkillData(buff.skill_id).skill_name;
